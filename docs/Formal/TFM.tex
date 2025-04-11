@@ -1,0 +1,146 @@
+% -------------------------------
+% Plantilla del documento de proyecto en la Cátedra Ingeniería en Sistemas de Información. Versión 1.0 
+%
+% Sede Regional Brunca
+% 
+% Compilar con XeLaTeX 
+% -------------------------------
+\documentclass[12pt, a4paper, oneside]{book}
+
+% -------------------------------
+% Información y opciones del documento. Debe editarse.
+% -------------------------------
+
+% -------------------------------
+% Configuración del documento, paquetes, etc. 
+% -------------------------------
+\input{include/configuracion}
+\usetikzlibrary{positioning, arrows.meta, shadows, calc}
+
+% Documento
+\begin{document}
+
+% -------------------------------
+% Portada y título
+% -------------------------------
+% Fuente  de la portada
+% \setmainfont[Ligatures={NoRequired,NoCommon,NoContextual}]{Calibri}
+\input{elements/portada}
+
+% -------------------------------
+% Fuente del documento.
+% -------------------------------
+% La fuente recomendada es Calibri, pero no está instalada en overleaf:
+%\setmainfont[Ligatures={NoRequired,NoCommon,NoContextual}]{Calibri}
+
+% Para utilizarla aquí, son necesarios los archivos .ttf correspondientes:
+%\setmainfont[
+%			BoldFont=Calibrib.ttf,
+%			ItalicFont=Calibrii.ttf,
+%			BoldItalicFont=Calibriz.ttf
+%		]{Calibri.ttf}
+
+% Por defecto, utiliza una fuente instalada en overleaf. 
+% Éstas son algunas que van bien con la plantilla:
+%\setmainfont{Alegreya Sans} 
+%\setmainfont{Carlito}
+%\setmainfont{PT Sans}
+%\setmainfont{Source Sans Pro}
+
+% -------------------------------
+% Índices y tablas
+% -------------------------------
+\tableofcontents	% Índice
+\listoffigures		% Índice de figuras
+\listoftables		% Índice de tablas
+%\cleardoublepage
+%\newpage
+% -------------------------------
+% Documento
+% -------------------------------
+\mainmatter
+% Estilo de página
+\pagestyle{fancy}
+
+% Capitulos del documento
+\input{chapters/ch1}
+\input{chapters/ch2}
+\input{chapters/ch3}
+\input{chapters/ch4}
+\input{chapters/ch5}
+\input{chapters/ch6}
+\input{chapters/ch7}
+\input{chapters/ch8}
+\input{chapters/ch9}
+\input{chapters/ch10}
+\input{chapters/ch11}
+
+
+
+
+%\cleardoublepage
+\thispagestyle{empty}
+
+% -------------------------------
+% Bibliografía
+% -------------------------------
+
+\chapter{Bibliografía y Glosario de Términos}
+
+\section{Glosario de Términos y Abreviaturas}
+
+\subsection{Glosario de Términos}
+
+\begin{itemize}
+	\item \textbf{Nómina:} Conjunto de registros financieros que una empresa mantiene sobre los salarios de sus empleados, deducciones y pagos.
+	\item \textbf{Evento laboral:} Hecho que afecta el cálculo de salario, como vacaciones, incapacidades o permisos.
+	\item \textbf{Comprobante de pago:} Documento que detalla el salario neto, deducciones y horas trabajadas de un empleado.
+	\item \textbf{Gestión de usuarios:} Funcionalidad del sistema que permite crear, modificar o eliminar cuentas de usuario y roles asociados.
+	\item \textbf{TFM:} Trabajo Final de Graduación, realizado por los estudiantes como requisito de graduación.
+	\item \textbf{Bitácora del sistema:} Registro cronológico de las acciones realizadas dentro del sistema.
+	\item \textbf{Interfaz de usuario:} Conjunto de elementos visuales mediante los cuales el usuario interactúa con el sistema.
+	\item \textbf{Eventos alternos:} Variaciones posibles en el flujo principal de un caso de uso.
+	\item \textbf{Restricciones de diseño:} Limitaciones tecnológicas o normativas impuestas al desarrollo del sistema.
+	\item \textbf{Repositorio:} Plataforma de almacenamiento y gestión de versiones del código fuente del proyecto.
+	\item \textbf{Incremento:} Entregable funcional del sistema generado al final de un sprint.
+	\item \textbf{Sprint:} Iteración en Scrum durante la cual se desarrolla un conjunto de funcionalidades.
+	\item \textbf{Caso de uso:} Representación funcional de las interacciones entre los usuarios y el sistema.
+	\item \textbf{Entorno de desarrollo:} Conjunto de herramientas y configuraciones donde se programa y prueba el sistema.
+\end{itemize}
+
+\subsection{Abreviaturas}
+
+\begin{itemize}
+	\item \textbf{API:} Application Programming Interface
+	\item \textbf{ORM:} Object-Relational Mapping
+	\item \textbf{UI:} User Interface
+	\item \textbf{DB:} Database
+	\item \textbf{CU:} Caso de Uso
+	\item \textbf{PDF:} Portable Document Format
+	\item \textbf{SSR/SSG:} Server-Side Rendering / Static Site Generation
+	\item \textbf{SRS:} Software Requirements Specification (Especificación de Requerimientos de Software)
+	\item \textbf{CCSS:} Caja Costarricense de Seguro Social
+	\item \textbf{MTSS:} Ministerio de Trabajo y Seguridad Social
+	\item \textbf{RAM:} Random Access Memory
+	\item \textbf{VS Code:} Visual Studio Code
+	\item \textbf{CRUD:} Create, Read, Update, Delete
+	\item \textbf{VPG\_:} Prefijo usado en nombres de tablas de base de datos
+\end{itemize}
+
+\nocite{*}
+\bibliographystyle{apalike}
+\bibliography{bib/ref}
+\addcontentsline{toc}{chapter}{Referencias bibliográficas} % Añade a la tabla de contenidos
+
+% -------------------------------
+% Apéndices
+% -------------------------------
+\appendix
+\chapter{Anexos}
+\section{Anexo 1}
+\section{Anexo 2}
+\section{Anexo 3}
+\section{Anexo 4}
+\section{Anexo 5}
+
+\end{document}

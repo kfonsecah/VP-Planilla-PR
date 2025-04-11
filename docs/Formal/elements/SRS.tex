@@ -1,0 +1,980 @@
+\subsection{Introducción}
+Esta Especificación de Requerimientos de Software (SRS) describe los
+requerimientos funcionales y no funcionales del sistema web de gestión de nómina
+para la empresa Café y Vivero Verde Pradera. Está dirigida al equipo de desarrollo,
+usuarios finales, patrocinadores del proyecto y cualquier persona involucrada en la
+validación y verificación del sistema.
+
+\subsubsection{Proposito}
+El sistema gestionará de forma automatizada el cálculo de nómina, eventos laborales,
+reportes institucionales y seguridad de datos del personal. Será accesible mediante
+navegador web, con controles de acceso para usuarios autorizados. No incluirá
+funcionalidades de facturación, contabilidad general o inventario.
+
+\subsubsection{Alcance}
+
+El sistema gestionará de forma automatizada el cálculo de nómina,
+eventos laborales, reportes institucionales y seguridad de datos del
+personal. Será accesible mediante navegador web, con controles de acceso
+para usuarios autorizados. No incluirá funcionalidades de facturación,
+contabilidad general o inventario.
+
+\subsubsection{Definiciones, siglas y abreviaturas}
+
+\begin{itemize}
+	\item \textbf{SRS:} \textit{Software Requirements Specification}.
+	\item \textbf{CCSS:} \textit{Caja Costarricense del Seguro Social}.
+	\item \textbf{MTSS:} \textit{Ministerio de Trabajo y Seguridad Social}.
+	\item \textbf{Nómina:} Proceso de cálculo de salarios y deducciones laborales.
+	\item \textbf{Scrum:} Marco de trabajo ágil para gestión de proyectos.
+	\item \textbf{VPG\_:} Prefijo usado para nombrar tablas en la base de datos.
+\end{itemize}
+
+\subsubsection{Referencias}
+
+\begin{itemize}
+	\item \textbf{TFM del proyecto:} “Sistema de Gestión de Nóminas para Café y Vivero Verde Pradera”. Universidad Nacional, Sede Regional Brunca.
+
+	\item \textbf{Scrum Guide (2020):} Guía oficial de la metodología Scrum por Ken Schwaber y Jeff Sutherland.
+
+	\item \textbf{Normativa de la CCSS:} Requisitos para la generación y entrega de reportes laborales a la Caja Costarricense del Seguro Social.
+
+	\item \textbf{Ministerio de Trabajo y Seguridad Social de Costa Rica:} Lineamientos legales sobre remuneraciones, horarios laborales, licencias y documentación obligatoria relacionada con la gestión de personal.
+\end{itemize}
+
+
+\subsubsection{Visión general del documento}
+\begin{itemize}
+	\item \textbf{Sección 2:} Proporciona una descripción general del sistema, incluyendo su perspectiva, funciones principales, usuarios y restricciones de diseño.
+
+	\item \textbf{Sección 3:} Detalla los requerimientos específicos, incluyendo casos de uso del sistema y requerimientos suplementarios.
+
+	\item \textbf{Sección 4:} Describe los requerimientos de documentación que acompañarán al sistema.
+
+\end{itemize}
+
+\subsection{Descripcion General}
+
+Esta sección presenta una visión global del sistema de gestión de nóminas para
+Café y Vivero Verde Pradera. Aquí se describen los factores generales que influyen en
+el desarrollo del software, tales como el entorno operativo, los usuarios involucrados,
+las funciones principales y las restricciones de diseño. Aunque esta sección no entra en
+detalle sobre los requerimientos específicos, sienta las bases conceptuales y técnicas que
+guían el resto del documento.
+
+\subsubsection{Perspectiva del producto}
+
+El sistema de gestión de nóminas es una aplicación web que funcionará como un
+producto independiente, aunque podría integrarse a futuro con otros sistemas de gestión
+empresarial. Su diseño sigue el modelo de n capas , con acceso controlado mediante
+credenciales de usuario. El sistema será accesible mediante navegadores modernos desde
+cualquier ubicación con conexión a internet.
+
+\subsubsection{Interfaces de usuario}
+
+\begin{itemize}
+	\item Pantalla de inicio de sesión
+	\item Panel principal con resumen de información
+	\item Módulo de gestión de empleados
+	\item Módulo de cálculo y visualización de nómina
+	\item Módulo de eventos laborales (vacaciones, incapacidades, permisos)
+	\item Módulo de reportes (PDF/Excel)
+	\item Módulo de configuración del sistema
+	\item Mensajes de validación y error amigables
+\end{itemize}
+
+\subsubsection{Interfaces de Hardware}
+
+\begin{itemize}
+	\item El sistema requerirá interacción con impresoras para generar documentos
+	      físicos como comprobantes de pago, reportes y formularios.
+
+	\item Se requerirá la integración con un reloj marcador, que permitirá subir
+	      automáticamente los registros de entrada y salida del personal al sistema.
+	      Estos datos serán utilizados para el cálculo de la nómina, especialmente en
+	      el control de jornadas laborales, horas extra e inasistencias.
+
+	\item La integración podrá realizarse mediante archivos de exportación (CSV, Excel)
+	      generados por el reloj marcador, o mediante una conexión directa a través de API,
+	      dependiendo del modelo del dispositivo.
+
+\end{itemize}
+
+
+\subsubsection{Interfases con software}
+
+\begin{itemize}
+	\item \textbf{Navegadores compatibles:} Chrome, Firefox, Microsoft Edge.
+
+	\item \textbf{Base de datos:} Se utilizará una base de datos relacional, con preferencia por PostgreSQL o SQL Server, según disponibilidad y requisitos del entorno de producción.
+
+	\item \textbf{Frameworks y tecnologías principales:}
+	      \begin{itemize}
+		      \item \textbf{Frontend:} Next.js con TypeScript, para el desarrollo de una aplicación web moderna, escalable y optimizada.
+		      \item \textbf{Backend:} Node.js con Express.js, para construir una API REST robusta y eficiente que conecte con la base de datos y gestione la lógica de negocio.
+	      \end{itemize}
+
+	\item \textbf{Librerías complementarias:}
+	      \begin{itemize}
+		      \item Generación de reportes en PDF (por ejemplo, PDFKit o jsPDF).
+		      \item Prisma ORM para la gestión de base de datos.
+		      \item Librerías de validación, autenticación y control de acceso.
+	      \end{itemize}
+\end{itemize}
+
+
+\subsubsection{Interfases de comunicación}
+
+\begin{itemize}
+	\item HTTP/HTTPS como protocolo de comunicación principal.
+	\item APIs REST para el intercambio de datos entre frontend y backend.
+	\item Encriptación SSL/TLS para comunicaciones seguras.
+\end{itemize}
+
+\subsubsection{Restricciones de memoria}
+
+El sistema está diseñado para operar eficientemente en servidores con un mínimo de:
+
+\begin{itemize}
+	\item Memoria RAM: 4GB
+	\item Almacenamiento: 20GB
+\end{itemize}
+
+Los navegadores cliente deben tener al menos 1GB de RAM disponible.
+
+\subsubsection{Requerimientos de adecuación al entorno}
+
+\begin{itemize}
+	\item El sistema se adapta a diferentes dispositivos (responsive), permitiendo su uso en computadoras, laptops y tablets.
+	\item Idioma predeterminado: Español (Costa Rica)
+	\item El servidor deberá estar configurado con zona horaria GMT-6.
+\end{itemize}
+
+\subsubsection{Funciones del producto (Casos de uso de alto nivel)}
+
+\begin{itemize}
+	\item Autenticación de usuarios
+	\item Gestión de datos de empleados
+	\item Cálculo automático de nómina
+	\item Registro de eventos laborales (vacaciones, incapacidades, etc.)
+	\item Generación de reportes oficiales
+	\item Visualización de comprobantes de pago
+	\item Control de accesos y seguridad
+	\item Capacitación y ayuda al usuario
+\end{itemize}
+
+\subsubsection{Características de los usuarios}
+
+\begin{itemize}
+	\item \textbf{Administrador:} Usuario principal del sistema, con experiencia en gestión administrativa. Es responsable de registrar y mantener los datos del personal, eventos laborales, generar la nómina y emitir reportes oficiales. Tiene acceso total a todos los módulos del sistema.
+	\item \textbf{Empleados:} Tendrán acceso restringido y únicamente podrán consultar su información personal y comprobantes de pago. No interactúan con los procesos internos de cálculo ni administración de nómina.
+\end{itemize}
+
+\subsubsection{Restricciones de diseño}
+
+\begin{itemize}
+	\item \textbf{Lenguaje backend:} TypeScript utilizando Node.js y Express.js como framework principal para el desarrollo de la API.
+	\item \textbf{Lenguaje frontend:} Next.js con TypeScript, que ofrece funcionalidades modernas como renderizado híbrido (SSR/SSG) y excelente integración con React y Tailwind CSS para el diseño visual.
+	\item \textbf{Base de datos:} PostgreSQL como base preferente por su robustez y escalabilidad, aunque puede considerarse SQL Server según la infraestructura del cliente.
+	\item \textbf{ORM:} Prisma será utilizado como herramienta de mapeo objeto-relacional para facilitar la interacción entre la base de datos y el backend.
+	\item \textbf{Arquitectura:} Modelo cliente-servidor basado en APIs REST, con separación clara entre frontend (interfaz de usuario) y backend (lógica de negocio y persistencia).
+	\item \textbf{Control de versiones:} Git, utilizando GitHub como plataforma central para la gestión del código fuente, seguimiento de cambios y colaboración mediante Pull Requests.
+	\item \textbf{Estandarización en base de datos:} Se utilizará un esquema consistente de nomenclatura, donde las tablas comienzan con el prefijo VPG\_ seguido del nombre en mayúsculas, y las columnas en minúsculas con guion bajo.
+\end{itemize}
+
+\subsubsection{Restricción de diseño 1}
+
+\textbf{Uso obligatorio de Next.js con TypeScript como framework de desarrollo frontend.}
+El sistema debe ser desarrollado utilizando el framework Next.js con TypeScript como lenguaje principal, por su capacidad de renderizado híbrido, manejo eficiente del enrutamiento y escalabilidad. Esta decisión es clave para mantener un entorno moderno, seguro y compatible con estándares actuales de desarrollo web.
+
+\subsubsection{Restricción de diseño 2}
+
+\textbf{Backend implementado en Express.js con Node.js y TypeScript.}
+La lógica de negocio del sistema debe ser implementada mediante una API RESTful utilizando Express.js sobre Node.js, con escritura en TypeScript para mejorar la robustez del código. Esta tecnología ha sido elegida por su ligereza, flexibilidad, comunidad activa y compatibilidad con herramientas modernas de desarrollo.
+
+\subsubsection{Restricción de diseño 3}
+
+\textbf{Uso de PostgreSQL como base de datos principal.}
+La base de datos del sistema será implementada en PostgreSQL, salvo que se requiera específicamente el uso de SQL Server por condiciones de infraestructura del cliente. PostgreSQL fue seleccionado por su alto rendimiento, seguridad, soporte para transacciones ACID y amplia compatibilidad con herramientas ORM modernas.
+
+\subsubsection{Restricción de diseño 4}
+
+\textbf{ORM Prisma para gestión de la base de datos.}
+Se utilizará Prisma como herramienta de mapeo objeto-relacional (ORM) para interactuar con la base de datos. Prisma proporciona tipado fuerte, migraciones estructuradas y una experiencia de desarrollo alineada con TypeScript, lo que facilita la validación y mantenimiento del sistema.
+
+\subsubsection{Restricción de diseño 5}
+
+\textbf{Modelo de arquitectura cliente-servidor basado en APIs REST.}
+El sistema adoptará una arquitectura cliente-servidor, donde la interfaz de usuario (frontend) se comunica con el backend a través de una API REST. Esta separación garantiza una mejor escalabilidad, facilita el mantenimiento del código y permite una posible integración futura con otros sistemas.
+
+\subsubsection{Restricción de diseño 6}
+
+\textbf{Control de versiones obligatorio con Git y repositorio en GitHub.}
+Todo el código fuente del sistema será gestionado mediante Git, con uso obligatorio del repositorio GitHub. Se seguirán buenas prácticas como el uso de ramas (main, develop, feature/*), mensajes de commit con prefijos ([FEATURE], [FIXED], [BUG], etc.) y revisiones por medio de pull requests para evitar conflictos y mantener calidad de código.
+
+\subsubsection{Restricción de diseño 7}
+
+\textbf{Nomenclatura de base de datos estandarizada.}
+Las tablas en la base de datos deberán seguir el prefijo VPG\_ en mayúsculas, mientras que los campos se escribirán en minúsculas con guion bajo (snake\_case). Las claves foráneas seguirán el formato VPG\_TABLA1\_TABLA2\_FK. Esto garantiza consistencia, claridad y facilita la lectura del modelo de datos.
+
+\subsubsection{Supuestos y dependencias}
+
+\begin{itemize}
+	\item Se asume que los usuarios tienen conocimientos básicos en el uso de sistemas web.
+	\item Se espera que la empresa mantenga infraestructura básica (conectividad, energía eléctrica).
+	\item Cualquier cambio en la legislación laboral podría requerir ajustes al sistema.
+\end{itemize}
+
+
+\subsection{Requerimientos del Sistema}
+
+Esta sección detalla los requerimientos funcionales y no funcionales del sistema
+de gestión de nóminas para Café y Vivero Verde Pradera. Los requerimientos se han
+organizado utilizando el modelo de casos de uso para representar las funcionalidades
+principales, así como especificaciones suplementarias que cubren aspectos como rendimiento,
+seguridad, usabilidad y documentación.
+
+La información aquí contenida proporciona el nivel de detalle necesario para que el
+equipo de desarrollo diseñe e implemente el sistema, y para que los encargados de calidad
+validen su cumplimiento mediante pruebas.
+
+\subsubsection{Modelo de Caso de Uso de Negocio}
+
+El modelo de negocio se centra en optimizar la gestión de nóminas del personal de la empresa Café y Vivero Verde Pradera. A continuación, se enumeran los principales procesos:
+
+\begin{itemize}
+	\item Ingreso al sistema (autenticación)
+	\item Registro y administración de empleados
+	\item Registro de eventos laborales
+	\item Cálculo automático de salarios
+	\item Generación de reportes oficiales
+	\item Emisión de comprobantes de pago
+	\item Configuración de parámetros del Sistema
+\end{itemize}
+
+Estos procesos serán representados como Casos de Uso en el sistema de información.
+
+\subsubsection{Modelo de Caso de Uso de Sistema}
+
+\begin{table}[h]
+	\centering
+	\caption{Modelo de Casos de Uso del Sistema}
+	\begin{tabular}{|c|p{6cm}|p{5cm}|}
+		\hline
+		\textbf{Código} & \textbf{Nombre de Caso de uso}    & \textbf{Actor Principal} \\ \hline
+		CU01            & Iniciar Sesión                    & Usuario autorizado       \\ \hline
+		CU02            & Registrar empleado                & Administrador            \\ \hline
+		CU03            & Editar información de empleado    & Administrador            \\ \hline
+		CU04            & Registrar evento laboral          & Administrador            \\ \hline
+		CU05            & Calcular nómina                   & Administrador            \\ \hline
+		CU06            & Generar reporte para la CCSS      & Administrador            \\ \hline
+		CU07            & Consultar comprobante de pago     & Administrador            \\ \hline
+		CU08            & Configurar parámetros del sistema & Administrador            \\ \hline
+	\end{tabular}
+\end{table}
+
+\clearpage
+
+\subsubsection{Especificación de Caso de Uso: CU01 - Iniciar sesión}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU01 - Iniciar sesión}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU01 - Iniciar sesión \\ \hline
+		\textbf{Versión}                       & 1.0                   \\ \hline
+		\textbf{CU de Negocio}                 & Iniciar sesión        \\ \hline
+		\textbf{Fecha}                         & 10/04/2025            \\ \hline
+		\textbf{Código del Caso de Uso}        & CU01                  \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite a los usuarios autorizados acceder al sistema mediante autenticación.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe estar registrado previamente en el sistema.
+	\item El navegador debe tener conexión activa a internet.
+	\item El sistema debe estar disponible.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item El usuario accede al sistema con los permisos correspondientes.
+	\item Se registra la hora de acceso en el historial.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU02
+
+\clearpage
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                     & \textbf{Respuesta del sistema}                              \\ \hline
+		El usuario abre la página de inicio de sesión & El sistema muestra el formulario de autenticación           \\ \hline
+		El usuario ingresa sus credenciales           & El sistema valida las credenciales                          \\ \hline
+		El usuario hace clic en 'Iniciar sesión'      & El sistema concede acceso si las credenciales son correctas \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                     & \textbf{Respuesta del sistema}                                       \\ \hline
+		El usuario deja campos vacíos                 & El sistema muestra un mensaje de error indicando campos obligatorios \\ \hline
+		El usuario introduce credenciales incorrectas & El sistema muestra 'Credenciales inválidas'                          \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU01}
+	\begin{tabular}{|p{4cm}|p{6cm}|p{6cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}      & \textbf{Excepción}                        \\ \hline
+		E001                      & Servidor no responde & Mostrar mensaje: 'Servicio no disponible' \\ \hline
+		E002                      & Usuario bloqueado    & Mostrar advertencia y denegar acceso      \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Estado}
+En definición
+
+\subsubsection{Especificación de Caso de Uso: CU02 - Registrar empleado}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU02 - Registrar empleado}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU02 - Registrar empleado \\ \hline
+		\textbf{Versión}                       & 1.0                       \\ \hline
+		\textbf{CU de Negocio}                 & Registro de empleados     \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                \\ \hline
+		\textbf{Código del Caso de Uso}        & CU02                      \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador registrar nuevos empleados en el sistema, ingresando datos personales, laborales y de contacto. Esta información se usará en procesos de nómina, reportes y control administrativo.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión como administrador.
+	\item El sistema debe estar conectado a la base de datos.
+	\item El formulario de registro debe estar disponible.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item El nuevo empleado queda registrado correctamente en la base de datos.
+	\item La información se encuentra disponible para ser consultada y utilizada por otros módulos.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU03, CU05
+
+\clearpage
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                        & \textbf{Respuesta del sistema}                       \\ \hline
+		El administrador selecciona “Registrar empleado” & El sistema muestra el formulario de registro         \\ \hline
+		El administrador llena los campos requeridos     & El sistema valida los datos ingresados               \\ \hline
+		El administrador hace clic en “Guardar”          & El sistema almacena los datos y confirma el registro \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                               & \textbf{Respuesta del sistema}                                     \\ \hline
+		El administrador deja campos obligatorios sin completar & El sistema muestra mensaje de error y resalta los campos faltantes \\ \hline
+		El administrador ingresa una cédula ya registrada       & El sistema muestra advertencia: "Empleado ya registrado"           \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU02}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}                        & \textbf{Excepción}                                       \\ \hline
+		E001                      & Fallo de conexión con la base de datos & Mostrar mensaje: 'No se pudo guardar, intente más tarde' \\ \hline
+		E002                      & Formato incorrecto de algún dato       & Mostrar advertencia y evitar el guardado                 \\ \hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\subsubsection*{Estado}
+En definición
+
+\subsubsection{Especificación de Caso de Uso: CU03 - Editar información de empleado}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU03 - Editar información de empleado}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU03 - Editar información de empleado \\ \hline
+		\textbf{Versión}                       & 1.0                                   \\ \hline
+		\textbf{CU de Negocio}                 & Registro de empleados                 \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                            \\ \hline
+		\textbf{Código del Caso de Uso}        & CU03                                  \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador modificar los datos personales o laborales de un empleado previamente registrado. Las modificaciones se reflejan en los procesos de cálculo de nómina, reportes y control administrativo.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión como administrador.
+	\item Debe existir al menos un empleado registrado en el sistema.
+	\item El sistema debe estar conectado a la base de datos.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item Los datos del empleado quedan actualizados en el sistema.
+	\item Las nuevas configuraciones impactan en cálculos y reportes futuros.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU02, CU05
+
+\clearpage
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                       & \textbf{Respuesta del sistema}                            \\ \hline
+		El administrador selecciona un empleado         & El sistema carga la información actual del empleado       \\ \hline
+		El administrador modifica los campos deseados   & El sistema valida los datos modificados                   \\ \hline
+		El administrador hace clic en “Guardar cambios” & El sistema actualiza los datos y muestra mensaje de éxito \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                          & \textbf{Respuesta del sistema}                                  \\ \hline
+		El administrador intenta guardar sin hacer cambios & El sistema muestra mensaje: "No se detectaron cambios"          \\ \hline
+		El administrador deja campos obligatorios vacíos   & El sistema muestra advertencia y resalta los campos incompletos \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU03}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}                         & \textbf{Excepción}                                             \\ \hline
+		E001                      & Fallo en la conexión a la base de datos & Mostrar mensaje: 'Error al guardar cambios, intente más tarde' \\ \hline
+		E002                      & Formato inválido de datos               & Mostrar advertencia con campo específico                       \\ \hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\subsubsection*{Estado}
+En definición
+
+\subsubsection{Especificación de Caso de Uso: CU04 - Registrar evento laboral}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU04 - Registrar evento laboral}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU04 - Registrar evento laboral \\ \hline
+		\textbf{Versión}                       & 1.0                             \\ \hline
+		\textbf{CU de Negocio}                 & Registro de eventos laborales   \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                      \\ \hline
+		\textbf{Código del Caso de Uso}        & CU04                            \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador registrar eventos laborales tales como vacaciones, incapacidades, permisos o ausencias de los empleados. Estos eventos afectan directamente el cálculo de la nómina.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión como administrador.
+	\item Debe existir al menos un empleado registrado.
+	\item El formulario de eventos laborales debe estar disponible.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item El evento queda registrado y asociado al empleado correspondiente.
+	\item Los eventos se reflejan en el cálculo de la nómina.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU02, CU05
+
+\clearpage
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                          & \textbf{Respuesta del sistema}                                \\ \hline
+		El administrador selecciona un empleado            & El sistema carga el historial de eventos del empleado         \\ \hline
+		El administrador escoge el tipo de evento y fechas & El sistema habilita los campos correspondientes               \\ \hline
+		El administrador hace clic en “Registrar”          & El sistema guarda el evento y muestra mensaje de confirmación \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                                         & \textbf{Respuesta del sistema}                                                     \\ \hline
+		El administrador ingresa un rango de fechas inválido              & El sistema muestra advertencia: "Fecha de fin no puede ser menor que la de inicio" \\ \hline
+		El administrador registra un evento duplicado en el mismo periodo & El sistema muestra mensaje: "Ya existe un evento en este periodo"                  \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU04}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}                   & \textbf{Excepción}                                               \\ \hline
+		E001                      & Error al guardar en base de datos & Mostrar mensaje: 'No se pudo registrar el evento, intente luego' \\ \hline
+		E002                      & Formato incorrecto de fecha       & Mostrar advertencia: 'Formato de fecha inválido'                 \\ \hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\subsubsection*{Estado}
+En definición
+
+\subsection{Especificación de Caso de Uso: CU05 - Calcular Nómina}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU05 - Calcular nómina}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU05 - Calcular nómina \\ \hline
+		\textbf{Versión}                       & 1.0                    \\ \hline
+		\textbf{CU de Negocio}                 & Cálculo de Salarios    \\ \hline
+		\textbf{Fecha}                         & 08/04/2025             \\ \hline
+		\textbf{Código del Caso de Uso}        & CU05                   \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador calcular la nómina mensual de todos los empleados, tomando en cuenta los eventos laborales registrados, salario base, deducciones obligatorias y horas trabajadas.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión.
+	\item Deben existir empleados registrados en el sistema.
+	\item Los eventos laborales deben estar actualizados.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item La nómina mensual queda registrada.
+	\item Se generan comprobantes de pago individuales por empleado.
+	\item Se habilita la generación de reportes para instituciones oficiales.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU02, CU03, CU04
+
+\clearpage
+
+\subsubsection*{Flujo de Eventos}
+
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                            & \textbf{Respuesta del sistema}                              \\ \hline
+		El usuario selecciona el mes y año a calcular        & El sistema carga los datos de empleados y eventos laborales \\ \hline
+		El usuario confirma el cálculo                       & El sistema realiza el cálculo automático de salarios        \\ \hline
+		El sistema muestra un resumen con los montos totales & Se habilita la opción de guardar y emitir comprobantes      \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                                                   & \textbf{Respuesta del sistema}                                                                                                             \\ \hline
+		El usuario selecciona un mes sin registros de eventos laborales             & El sistema muestra un aviso: "No se encontraron eventos laborales para este periodo" y permite continuar el cálculo solo con salarios base \\ \hline
+		El usuario intenta calcular la nómina sin haber registrado nuevos empleados & El sistema muestra un mensaje de advertencia: "No hay empleados registrados para calcular nómina" y bloquea el proceso                     \\ \hline
+		El usuario modifica manualmente un evento laboral antes del cálculo         & El sistema actualiza automáticamente los datos antes de procesar la nómina                                                                 \\ \hline
+	\end{tabular}
+\end{table}
+
+\clearpage
+
+\subsubsection*{Excepciones}
+
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU05}
+	\begin{tabular}{|p{4cm}|p{6cm}|p{6cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}              & \textbf{Excepción}                     \\ \hline
+		E001                      & No hay empleados activos     & Mostrar mensaje de error               \\ \hline
+		E002                      & Datos incompletos en eventos & Mostrar advertencia y bloquear cálculo \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Estado}
+En definición
+
+\subsubsection{Especificación de Caso de Uso: CU06 - Generar reporte para la CCSS}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU06 - Generar reporte para la CCSS}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU06 - Generar reporte para la CCSS \\ \hline
+		\textbf{Versión}                       & 1.0                                 \\ \hline
+		\textbf{CU de Negocio}                 & Generación de reportes oficiales    \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                          \\ \hline
+		\textbf{Código del Caso de Uso}        & CU06                                \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador generar el reporte oficial de la nómina de un mes determinado, en el formato requerido por la Caja Costarricense del Seguro Social (CCSS). El reporte puede exportarse en PDF o Excel.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión como administrador.
+	\item Debe existir una nómina calculada para el mes seleccionado.
+	\item Los datos de empleados y deducciones deben estar actualizados.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item Se genera un archivo descargable con el reporte oficial.
+	\item El evento queda registrado en la bitácora del sistema.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU05, RS01
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                          & \textbf{Respuesta del sistema}                                 \\ \hline
+		El administrador selecciona “Generar reporte CCSS” & El sistema muestra el formulario de selección de mes y formato \\ \hline
+		El administrador selecciona el mes y formato       & El sistema valida que exista nómina registrada para ese mes    \\ \hline
+		El administrador hace clic en “Generar”            & El sistema genera el archivo y lo presenta para descarga       \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                               & \textbf{Respuesta del sistema}                                             \\ \hline
+		El administrador selecciona un mes sin nómina calculada & El sistema muestra advertencia: "No hay datos de nómina para este periodo" \\ \hline
+		El administrador selecciona un formato no soportado     & El sistema muestra error: "Formato de exportación no disponible"           \\ \hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU06}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}                    & \textbf{Excepción}                                                 \\ \hline
+		E001                      & Error al generar el archivo        & Mostrar mensaje: 'No se pudo generar el archivo, intente de nuevo' \\ \hline
+		E002                      & Plantilla de reporte no encontrada & Mostrar mensaje: 'Plantilla de reporte dañada o ausente'           \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Estado}
+En definición
+
+
+\subsubsection{Especificación de Caso de Uso: CU07 - Consultar comprobante de pago}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU07 - Consultar comprobante de pago}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU07 - Consultar comprobante de pago \\ \hline
+		\textbf{Versión}                       & 1.0                                  \\ \hline
+		\textbf{CU de Negocio}                 & Emisión de comprobantes de pago      \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                           \\ \hline
+		\textbf{Código del Caso de Uso}        & CU07                                 \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite tanto al administrador como al empleado (con acceso restringido) consultar los comprobantes de pago generados a partir de la nómina. El sistema permite visualizar e imprimir los comprobantes asociados a cada periodo.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión.
+	\item Debe existir al menos un comprobante de pago generado.
+	\item El sistema debe tener acceso a los archivos de comprobantes.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item El comprobante es visualizado correctamente por el usuario.
+	\item El usuario puede descargar el comprobante en formato PDF.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU05, CU06
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                   & \textbf{Respuesta del sistema}                               \\ \hline
+		El usuario accede al módulo “Comprobantes”  & El sistema muestra el listado de comprobantes disponibles    \\ \hline
+		El usuario selecciona un mes                & El sistema carga el comprobante de pago correspondiente      \\ \hline
+		El usuario hace clic en “Ver” o “Descargar” & El sistema presenta el comprobante en pantalla o lo descarga \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                                    & \textbf{Respuesta del sistema}                                     \\ \hline
+		El usuario selecciona un mes sin comprobante disponible      & El sistema muestra mensaje: "No hay comprobante para este periodo" \\ \hline
+		El usuario intenta abrir un comprobante con error de formato & El sistema muestra mensaje: "Error al cargar el comprobante"       \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU07}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}       & \textbf{Excepción}                                           \\ \hline
+		E001                      & Archivo no encontrado & Mostrar mensaje: 'Comprobante no disponible o fue eliminado' \\ \hline
+		E002                      & Comprobante inválido  & Mostrar advertencia: 'El archivo no se puede visualizar'     \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Estado}
+En definición
+
+\subsubsection{Especificación de Caso de Uso: CU08 - Configurar parámetros del sistema}
+
+\begin{table}[h]
+	\centering
+	\caption{Especificación de Caso de Uso CU08 - Configurar parámetros del sistema}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Especificación de Caso de Uso} & CU08 - Configurar parámetros del sistema \\ \hline
+		\textbf{Versión}                       & 1.0                                      \\ \hline
+		\textbf{CU de Negocio}                 & Configuración del sistema                \\ \hline
+		\textbf{Fecha}                         & 10/04/2025                               \\ \hline
+		\textbf{Código del Caso de Uso}        & CU08                                     \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Descripción}
+Este caso de uso permite al administrador modificar los parámetros globales del sistema, como tasas de deducción, salario mínimo, fechas de corte y opciones visuales. Estos parámetros afectan el comportamiento del sistema en diferentes módulos, incluyendo cálculo de nómina y reportes.
+
+\subsubsection*{Precondiciones}
+\begin{itemize}
+	\item El usuario debe haber iniciado sesión como administrador.
+	\item El sistema debe tener acceso a la base de datos de configuración.
+	\item El formulario de configuración debe estar activo.
+\end{itemize}
+
+\subsubsection*{Poscondiciones}
+\begin{itemize}
+	\item Los parámetros quedan actualizados y se aplican al funcionamiento general del sistema.
+	\item Las modificaciones se registran en la bitácora del sistema.
+\end{itemize}
+
+\subsubsection*{Referencias}
+CU01, CU05, CU06
+
+\subsubsection*{Flujo de Eventos}
+\begin{table}[h]
+	\centering
+	\caption{Flujo principal de eventos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                          & \textbf{Respuesta del sistema}                                 \\ \hline
+		El administrador accede al módulo de configuración & El sistema muestra los parámetros actuales del sistema         \\ \hline
+		El administrador modifica uno o varios valores     & El sistema valida los nuevos datos ingresados                  \\ \hline
+		El administrador hace clic en “Guardar”            & El sistema actualiza los parámetros y muestra mensaje de éxito \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Flujos alternos}
+\begin{table}[h]
+	\centering
+	\caption{Flujos alternos}
+	\begin{tabular}{|p{7cm}|p{7cm}|}
+		\hline
+		\textbf{Acción del actor}                          & \textbf{Respuesta del sistema}                                     \\ \hline
+		El administrador intenta guardar sin hacer cambios & El sistema muestra mensaje: "No se detectaron modificaciones"      \\ \hline
+		El administrador ingresa un valor fuera del rango  & El sistema muestra advertencia y bloquea el guardado del parámetro \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection*{Excepciones}
+\begin{table}[h]
+	\centering
+	\caption{Excepciones del caso de uso CU08}
+	\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+		\hline
+		\textbf{Código Excepción} & \textbf{Evento}                & \textbf{Excepción}                                          \\ \hline
+		E001                      & Error al guardar configuración & Mostrar mensaje: 'No se pudo guardar la configuración'      \\ \hline
+		E002                      & Campo obligatorio no definido  & Mostrar advertencia: 'Este campo no puede quedar en blanco' \\ \hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\subsubsection*{Estado}
+En definición
+
+
+\subsubsection{Requerimientos suplementarios}
+
+\begin{table}[h]
+	\centering
+	\caption{Requerimientos Suplementarios}
+	\begin{tabular}{|c|p{4cm}|p{8cm}|}
+		\hline
+		\textbf{Código} & \textbf{Requerimiento} & \textbf{Descripción}                                               \\ \hline
+		RS01            & Seguridad              & El sistema debe encriptar contraseñas y usar HTTPS                 \\ \hline
+		RS02            & Disponibilidad         & El sistema debe estar disponible al menos 95\% del tiempo          \\ \hline
+		RS03            & Usabilidad             & La interfaz debe ser intuitiva y accesible                         \\ \hline
+		RS04            & Rendimiento            & El cálculo de nómina no debe superar 5 segundos para 100 empleados \\ \hline
+		RS05            & Escalabilidad          & El sistema debe permitir agregar nuevos módulos                    \\ \hline
+		RS06            & Soporte                & El sistema debe de ofrecer documentación de ayuda integrada        \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsection{Requerimientos de documentación}
+
+Esta sección describe la documentación que acompañará al sistema de gestión de nóminas.
+Se detallan los manuales, guías de instalación y otros recursos necesarios para garantizar
+que los usuarios y administradores del sistema puedan utilizarlo, instalarlo y mantenerlo
+adecuadamente. Además, se especifica el formato, contenido y medios de distribución de
+dicha documentación.
+
+\subsubsection{Manual de Usuario}
+
+El sistema contará con un manual de usuario dirigido al personal administrativo y de recursos humanos de \textit{Café y Vivero Verde Pradera}. Este manual incluirá:
+
+\begin{itemize}
+	\item Introducción al sistema y sus módulos.
+	\item Guía paso a paso para cada funcionalidad (registro de empleados, cálculo de nómina, reportes, etc.).
+	\item Imágenes de la interfaz.
+	\item Glosario de términos y símbolos utilizados.
+	\item Resolución de problemas comunes.
+\end{itemize}
+
+El manual estará disponible en formato PDF y como parte de la sección de ayuda en línea. Será conciso, visual y redactado en español.
+
+\subsubsection{Ayuda en Línea}
+
+El sistema integrará un módulo de ayuda contextual. Esta ayuda se presentará como:
+
+\begin{itemize}
+	\item Íconos de ayuda ``?'' cerca de cada formulario o sección.
+	\item Ventanas emergentes con descripciones breves.
+	\item Acceso a una sección completa de preguntas frecuentes (FAQ).
+\end{itemize}
+
+Todo el contenido estará disponible sin conexión a internet y se mantendrá actualizado en cada versión del sistema.
+
+\subsubsection{Guías de Instalación, Configuración y Archivo \texttt{README}}
+
+Se incluirá un documento de instalación técnica para el equipo de desarrollo o soporte técnico de la empresa. Contendrá:
+
+\begin{itemize}
+	\item Requisitos del sistema.
+	\item Pasos de instalación del \textit{backend} y \textit{frontend}.
+	\item Configuración de la base de datos y variables de entorno.
+	\item Archivo \texttt{README.md} con:
+	      \begin{itemize}
+		      \item Novedades de cada versión.
+		      \item Cambios importantes en funcionalidades.
+		      \item Compatibilidad hacia versiones anteriores.
+	      \end{itemize}
+\end{itemize}
+
+\subsubsection{Etiquetado y Empaquetado}
+
+\begin{itemize}
+	\item El sistema incluirá elementos visuales consistentes con la identidad gráfica de la empresa, como logotipo y esquema de colores.
+	\item Toda la documentación llevará la marca del sistema y datos de contacto del desarrollador.
+	\item Los íconos del sistema seguirán un estilo limpio, con buena accesibilidad visual.
+	\item Se mostrará el aviso de derechos reservados en la pantalla de \textit{login}.
+\end{itemize}
+
+
+
+
+
+
+

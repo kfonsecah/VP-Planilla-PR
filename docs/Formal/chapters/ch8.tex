@@ -1,0 +1,75 @@
+\chapter{Estándares}
+
+En este apartado, describiremos los estándares seleccionados para cada una 
+de las áreas clave del desarrollo del software, asegurando la consistencia, 
+claridad y eficacia en la implementación y mantenimiento del proyecto.
+
+\section{\textbf{Estándares de Documentación}}
+
+Adoptaremos prácticas de documentación de código fuente, incluyendo comentarios detallados, 
+encabezados de archivos y documentación exhaustiva de la API, para facilitar el entendimiento 
+y la mantenibilidad del código. La documentación seguirá guías de estilo rigurosas que promueven
+la claridad y un formato coherente en todos los documentos técnicos y manuales de usuario, 
+asegurando que toda la información sea accesible y comprensible para todos los interesados.
+
+Los comentarios deben realizarse de la siguiente manera:
+\begin{itemize}
+    \item \textbf{Bloque de comentarios:} Para explicar la funcionalidad de los métodos.
+    \item \textbf{Línea de comentario:} Solo para la declaración de variables o en líneas de 
+    código donde sea necesaria una especificación.
+\end{itemize}
+
+\section{\textbf{Estándares de Programación}}
+
+Estableceremos convenciones de nombramiento para variables, clases y métodos en 
+inglés que reflejen claramente su función. Utilizaremos un formato de indentación que 
+facilite la lectura del código y mantendremos las líneas de código a una longitud razonable 
+para evitar la complejidad visual. Emplearemos Git como sistema de control de versiones, con un 
+esquema de nomenclatura de commits que incluye etiquetas como \texttt{[ADDED]}, \texttt{[BUG]}, 
+\texttt{[FIXED]}, \texttt{[UPDATED]}, y \texttt{[FEATURE]}, acompañados de comentarios precisos 
+que describan los cambios realizados. Además, incluiremos el uso de pull requests en GitHub para 
+evitar conflictos en el desarrollo del software. Se prohibirá el uso de push forzados y la 
+agregación de todos los archivos simultáneamente, a menos de que hayan sido modificados 
+por la misma razón. Implementaremos revisiones de código entre pares y utilizaremos 
+herramientas como VS Code Insiders con GitHub Copilot para realizar pruebas automáticas.
+
+La estructura del proyecto se organizará de la siguiente manera: 
+\begin{itemize}
+    \item \textbf{Design:} Donde se incluirá el diseño de cada una de las pantallas a usar.
+    \item \textbf{Docs:} Donde se almacenarán todos los documentos del sistema, como guías 
+    de usuario y documentos de investigación.
+    \item \textbf{Source:} Que contendrá el código fuente del sistema, distribuido en:
+    \begin{itemize}
+        \item \textbf{DB:} Que incluirá el diagrama de base de datos, el esquema de la 
+        base de datos y el SQL de la base de datos.
+        \item \textbf{API:} Donde se almacenará todo el código relacionado con la API.
+        \item \textbf{ENV:} Que contendrá las variables de entorno.
+        \item \textbf{Front-End:} Donde se incluirá todo lo relacionado con la parte frontal 
+        del sistema.
+        \item \textbf{Back-End:} Que contendrá todo lo relacionado con el backend del sistema.
+    \end{itemize}
+\end{itemize}
+
+\section{\textbf{Estándares de Bases de Datos}}
+
+Las definiciones de tablas y columnas seguirán un esquema de nomenclatura específico, 
+donde las tablas comenzarán con \texttt{VPG\_} seguido del nombre de la tabla en mayúsculas, 
+y las columnas se nombrarán en minúsculas siguiendo el formato \texttt{tablename\_atributo}. 
+Las relaciones se nombrarán siguiendo el formato \texttt{VPG\_TABLENAME1\_TABLENAME2\_FK}. 
+Adheriremos a las tres primeras reglas de normalización para garantizar una estructura de 
+base de datos eficiente y optimizada tanto para consultas como para la integridad de los datos.
+
+\section{\textbf{Estándares de Interfaz}}
+
+Las interfaces seguirán una guía de estilo que incluye el uso de colores no muy 
+llamativos basados en los colores de la empresa y la tipografía INTER para garantizar 
+una presentación visual coherente y profesional. La disposición de los elementos estará a 
+cargo del diseñador web, con un fuerte enfoque en la accesibilidad para cumplir con las 
+directrices de WCAG. Además, fomentaremos la reutilización de componentes para maximizar la 
+eficiencia del desarrollo. Las pruebas de interfaz se realizarán mediante evaluaciones 
+entre compañeros y con feedback directo de los usuarios finales de la empresa, asegurando 
+que las interfaces sean intuitivas y efectivas.
+
+Estos estándares son fundamentales para el desarrollo exitoso del software, proporcionando un 
+marco de trabajo claro y eficiente para todo el equipo del proyecto. Sin embargo, siempre habrá 
+un espacio para revisar y adaptar las políticas conforme el proyecto crezca y cambie.

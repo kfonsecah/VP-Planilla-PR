@@ -1,0 +1,89 @@
+\chapter{Metodología}
+
+Para el desarrollo del sistema de gestión de nóminas para Café y
+Vivero Verde Pradera, se empleará una combinación de metodologías ágiles,
+específicamente el Desarrollo Incremental y Scrum. Esta combinación está
+diseñada para adaptarse a la naturaleza dinámica del proyecto y facilitar
+la colaboración continua con los usuarios finales.
+
+\section{Fundamentación}
+
+El Desarrollo Incremental permite la construcción del sistema en
+múltiples ciclos o incrementos. Cada incremento agrega funcionalidad y
+es plenamente operativo, lo que posibilita la entrega de una versión mejorada
+del sistema con cada iteración. Esta metodología es particularmente efectiva
+para obtener retroalimentación temprana y continua de los usuarios, permitiendo
+ajustes que alinean el producto final con las necesidades específicas del cliente.
+
+Por otro lado, Scrum se empleará para gestionar y planificar el proceso de
+desarrollo. Scrum es un marco de trabajo que promueve la comunicación frecuente,
+el trabajo en equipo, y la flexibilidad para adaptarse a cambios. Las ceremonias
+de Scrum, como las reuniones diarias (Daily Scrum), las revisiones de sprint y
+las planificaciones (Sprint Planning), facilitarán la coordinación y el
+seguimiento constante del avance del proyecto.
+
+\newpage
+
+\section{Gráfico}
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[node distance=1cm and 3cm, auto]
+		% Configuración de estilo para los bloques
+		\tikzset{
+			block/.style={
+					rectangle, draw,
+					text width=5cm, align=center, minimum height=1cm,
+					font=\footnotesize
+				},
+			line/.style={
+					draw, -Latex, thick
+				},
+			feedback text/.style={
+					font=\scriptsize, % Ajusta aquí para un texto más pequeño
+					midway, above
+				}
+		}
+
+		% Definición de nodos por cada sprint con colores variados
+		\node[block, fill=blue!40] (s1) {Sprint 1: Setup del Proyecto};
+		\node[block, fill=red!40, right=of s1] (s2) {Sprint 2: Módulo de Login};
+		\node[block, fill=green!40, below=of s1] (s3) {Sprint 3: Módulo de Interfaz de Usuario};
+		\node[block, fill=orange!40, right=of s3] (s4) {Sprint 4: Admin. de Eventos Laborales};
+		\node[block, fill=purple!40, below=of s3] (s5) {Sprint 5: Cálculo de Nóminas};
+		\node[block, fill=yellow!40, right=of s5] (s6) {Sprint 6: Generación de Reportes};
+		\node[block, fill=cyan!40, below=of s5] (s7) {Sprint 7: Módulo de Seguridad};
+		\node[block, fill=pink!40, right=of s7] (s8) {Sprint 8: Pruebas y Entrega};
+
+		% Flechas y texto de revisión y feedback
+		\foreach \from/\to in {s1/s2, s3/s4, s5/s6, s7/s8} {
+				\draw[line] (\from) -- (\to) node[feedback text] {Revisión y Feedback};
+			}
+	\end{tikzpicture}
+	\caption{Mapa visual de los sprints definidos en el proyecto}
+	\label{fig:sprints-proyecto}
+\end{figure}
+
+
+\section{Aplicación en el Proyecto}
+
+
+En la aplicación práctica de estas metodologías en el proyecto:
+\begin{itemize}
+	\item \textbf{Planificación Scrum:} Se establecerán sprints de duración fija,
+	      ya sea mensual o quincenal, durante los cuales se definirán objetivos
+	      claros y alcanzables. Esto incluirá la definición de las funcionalidades
+	      a desarrollar, pruebas y revisiones con los usuarios finales.
+	\item \textbf{Desarrollo Incremental:} Cada sprint resultará en un
+	      incremento funcional del sistema, que será evaluado por los usuarios finales.
+	      La retroalimentación recogida será utilizada para mejorar o ajustar las
+	      funcionalidades en los siguientes incrementos.
+	\item \textbf{Cambios mínimos:} Se ajustará la duración de los sprints según
+	      la complejidad de las funcionalidades y la capacidad del equipo de desarrollo,
+	      buscando el equilibrio óptimo para una entrega eficiente y efectiva.
+\end{itemize}
+
+
+
+
+
+Con estas metodologías, el proyecto no solo apuntará a cumplir con los objetivos establecidos de manera eficaz, sino que también se adaptará a las necesidades cambiantes del entorno y los usuarios finales, asegurando la entrega de un sistema que verdaderamente responda a las expectativas y requerimientos de la empresa Café y Vivero Verde Pradera.

@@ -1,0 +1,293 @@
+\chapter{Analisis}
+
+\section{Analisis Preeliminar}
+El proceso de gestión de nómina en Café y Vivero Verde Pradera se realiza de
+forma manual, lo que ha generado errores frecuentes en los cálculos salariales, pérdida
+tiempo en tareas repetitivas y dificultades en la emisión de reportes oficiales. El
+sistema propuesto busca automatizar estas operaciones, mejorar la precisión del proceso,
+optimizar el tiempo y proteger los datos sensibles de los empleados. Además, facilitará
+la consulta remota de la información mediante una plataforma web segura y accesible.
+
+\section{Estudio de factibilidad}
+
+\subsection{Factibilidad Operativa}
+
+\begin{itemize}
+	\item \textbf{Conocimiento de los desarrolladores:} Los desarrolladores del sistema son estudiantes avanzados de Ingeniería en Sistemas, con experiencia en desarrollo web, bases de datos y metodologías ágiles, lo que garantiza una correcta implementación del proyecto.
+
+	\item \textbf{Habilidad de los usuarios:} El sistema está orientado al personal administrativo de la empresa, quienes ya realizan los procesos manuales y tienen el conocimiento necesario para adaptarse al uso de un sistema digital. Se planea además incluir una etapa de capacitación.
+
+	\item \textbf{Disponibilidad de horarios:} Tanto el equipo de desarrollo como el personal administrativo disponen de horarios establecidos para reuniones de revisión, pruebas e implementación.
+
+	\item \textbf{Mantenimiento del software:} El sistema será documentado técnicamente y se mantendrá en un repositorio GitHub, lo cual facilitará futuras mejoras, corrección de errores y mantenimiento general.
+\end{itemize}
+
+\textbf{Conclusión:} Existe una alta viabilidad operativa para implementar el sistema, debido a la disposición de los usuarios, la experiencia del equipo desarrollador y la estructura de apoyo brindada por la empresa.
+
+\subsection{Factibilidad Técnica}
+
+\begin{itemize}
+	\item \textbf{Especificación de Hardware y Software:} El sistema funcionará sobre servidores con al menos 4~GB de RAM y 20~GB de almacenamiento. Los usuarios accederán desde navegadores modernos como Chrome o Edge.
+
+	\item \textbf{Infraestructura de redes:} La empresa cuenta con conexión a internet estable, lo cual permite que el sistema funcione correctamente en modalidad web.
+
+	\item \textbf{Herramientas de desarrollo:} Se utilizarán herramientas como Visual Studio Code, GitHub, PostgreSQL, Next.js, Node.js, Prisma ORM, todas gratuitas y ampliamente documentadas.
+
+	\item \textbf{Plataformas de desarrollo:} El sistema será construido como una aplicación web, compatible con sistemas operativos modernos. El backend correrá en Node.js y el frontend en Next.js con TypeScript.
+\end{itemize}
+
+\textbf{Conclusión:} El proyecto es técnicamente viable gracias a la disponibilidad de herramientas, infraestructura básica y conocimientos del equipo para implementar la solución sin depender de tecnologías costosas o inaccesibles.
+
+\subsection{Factibilidad Económica}
+
+\begin{itemize}
+	\item \textbf{Costos de desarrollo:} Al ser un proyecto académico, no se incurrirá en costos por contratación de programadores o diseñadores.
+
+	\item \textbf{Costos de capital humano:} Los estudiantes desarrolladores participan como parte del trabajo final de graduación. No se requiere remuneración económica directa, lo cual reduce significativamente los costos.
+
+	\item \textbf{Cargos administrativos:} Los recursos administrativos necesarios para colaborar con el proyecto (reuniones, validaciones) serán asumidos por la empresa como parte de su operación normal.
+
+	\item \textbf{Costos totales del proyecto:} El proyecto no requiere inversión económica significativa, ya que se usará software libre y recursos existentes. Se considera un sistema de bajo costo y alto retorno.
+\end{itemize}
+
+\textbf{Conclusión:} El proyecto es completamente viable desde el punto de vista económico. Requiere una inversión mínima y promete beneficios importantes como la reducción de errores y ahorro de tiempo en el cálculo de nómina.
+
+\section{Ciclo de vida}
+
+Para el desarrollo del sistema de gestión de nóminas para Café y Vivero Verde Pradera se aplicará un enfoque ágil, utilizando la metodología \textbf{Scrum}, complementada con un modelo de \textbf{Desarrollo Incremental}. El proceso se organizará en ocho sprints consecutivos, cada uno con una duración estimada de dos semanas.
+
+Cada sprint incluye una etapa de revisión y retroalimentación (\textit{Feedback}), lo cual permitirá realizar mejoras iterativas y garantizar que las funcionalidades desarrolladas respondan a las necesidades reales del cliente.
+
+\subsection*{Resumen de los Sprints}
+
+\begin{itemize}
+	\item \textbf{Sprint 1: Setup del Proyecto} \\
+	      Inicialización del entorno de desarrollo, configuración del repositorio GitHub y definición de la estructura base del sistema.
+
+	\item \textbf{Sprint 2: Módulo de Login} \\
+	      Desarrollo del sistema de autenticación de usuarios y control de acceso.
+
+	\item \textbf{Sprint 3: Módulo de Interfaz de Usuario} \\
+	      Implementación del diseño general del frontend y componentes base de navegación.
+
+	\item \textbf{Sprint 4: Administración de Eventos Laborales} \\
+	      Funcionalidad para registrar y gestionar vacaciones, incapacidades y permisos.
+
+	\item \textbf{Sprint 5: Cálculo de Nóminas} \\
+	      Implementación del motor de cálculo automático de salarios y deducciones.
+
+	\item \textbf{Sprint 6: Generación de Reportes} \\
+	      Emisión de reportes institucionales y comprobantes de pago para los empleados.
+
+	\item \textbf{Sprint 7: Módulo de Seguridad} \\
+	      Validaciones adicionales, cifrado de contraseñas, roles y permisos de usuario.
+
+	\item \textbf{Sprint 8: Pruebas y Entrega} \\
+	      Pruebas funcionales, validación con usuarios, documentación final y entrega del sistema.
+\end{itemize}
+
+\newpage
+
+\section{Estructura de Desglose del Trabajo (EDT)}
+
+La Estructura de Desglose del Trabajo (EDT) permite organizar el proyecto en fases y
+tareas específicas de manera jerárquica. En este caso, se divide en cinco fases principales
+que agrupan las actividades necesarias para el desarrollo del sistema de gestión de nóminas.
+La siguiente figura representa gráficamente esta estructura, facilitando la planificación y el seguimiento del proyecto.
+
+
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[
+			scale=0.75, transform shape,
+			font=\small\sffamily,
+			box/.style={draw, rounded corners=3pt, text width=3.2cm, align=center, minimum height=1cm, drop shadow, fill=gray!20},
+			phase/.style={draw, rounded corners=3pt, text width=3.2cm, align=center, minimum height=1cm, fill=blue!20},
+			task/.style={draw, rounded corners=3pt, text width=3.2cm, align=center, minimum height=1cm, fill=orange!20},
+			node distance=1cm
+		]
+
+		% Fases principales (nivel 2)
+		\node[phase] (p1) at (0,0) {1. Dirección del Proyecto};
+		\node[phase] (p2) [right=of p1] {2. Recolección y Análisis};
+		\node[phase] (p3) [right=of p2] {3. Diseño del Sistema};
+		\node[phase] (p4) [right=of p3] {4. Construcción};
+		\node[phase] (p5) [right=of p4] {5. Pruebas e Implementación};
+
+		% Nodo raíz centrado respecto a p3
+		\node[box] (root) [above=2cm of p3] {Sistema de Gestión de Nóminas};
+
+		% Flechas del nodo raíz
+		\foreach \i in {1,...,5} {
+				\draw[->, thick] (root.south) -- (p\i.north);
+			}
+		% Tareas de p1
+		\node[task] (p1a) [below=of p1] {Planificación};
+		\node[task] (p1b) [below=of p1a] {Reuniones};
+		\node[task] (p1c) [below=of p1b] {Administración};
+		\draw[->] (p1.south) -- (p1a.north);
+		\draw[->] (p1a.south) -- (p1b.north);
+		\draw[->] (p1b.south) -- (p1c.north);
+
+		% Tareas de p2
+		\node[task] (p2a) [below=of p2] {Requerimientos del sistema};
+		\node[task] (p2b) [below=of p2a] {Estudio de factibilidad};
+		\node[task] (p2c) [below=of p2b] {Historias de usuario};
+		\draw[->] (p2.south) -- (p2a.north);
+		\draw[->] (p2a.south) -- (p2b.north);
+		\draw[->] (p2b.south) -- (p2c.north);
+
+		% Tareas de p3
+		\node[task] (p3a) [below=of p3] {Diseño de base de datos};
+		\node[task] (p3b) [below=of p3a] {Frontend y API};
+		\node[task] (p3c) [below=of p3b] {Prototipos de interfaz};
+		\draw[->] (p3.south) -- (p3a.north);
+		\draw[->] (p3a.south) -- (p3b.north);
+		\draw[->] (p3b.south) -- (p3c.north);
+
+		% Tareas de p4
+		\node[task] (p4a) [below=of p4] {Programación del sistema};
+		\node[task] (p4b) [below=of p4a] {Integración de módulos};
+		\node[task] (p4c) [below=of p4b] {Documentación técnica};
+		\draw[->] (p4.south) -- (p4a.north);
+		\draw[->] (p4a.south) -- (p4b.north);
+		\draw[->] (p4b.south) -- (p4c.north);
+
+		% Tareas de p5
+		\node[task] (p5a) [below=of p5] {Pruebas funcionales};
+		\node[task] (p5b) [below=of p5a] {Capacitación de usuarios};
+		\node[task] (p5c) [below=of p5b] {Documentación final};
+		\draw[->] (p5.south) -- (p5a.north);
+		\draw[->] (p5a.south) -- (p5b.north);
+		\draw[->] (p5b.south) -- (p5c.north);
+
+	\end{tikzpicture}
+	\caption{Estructura de Desglose del Trabajo del Proyecto (EDT)}
+\end{figure}
+
+\section{Historias de Usuario}
+
+Las historias de usuario permiten capturar de manera sencilla y centrada en el
+usuario las funcionalidades esperadas del sistema de gestión de nóminas para Café
+y Vivero Verde Pradera. Estas historias han sido redactadas desde la perspectiva de
+los distintos tipos de usuarios del sistema (administradores, colaboradores y gerentes),
+con el fin de comprender sus necesidades, priorizar el desarrollo de funcionalidades y
+planificar el trabajo en sprints.
+
+Cada historia incluye información clave como el usuario involucrado, la prioridad del
+requerimiento, el riesgo asociado, la iteración en que se desarrollará, la estimación
+de esfuerzo y una breve descripción del comportamiento esperado del sistema.
+Estas historias se utilizarán como base para guiar el diseño, implementación y
+pruebas de cada funcionalidad a lo largo del desarrollo del proyecto.
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-01}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-01                                                                                                                                                                                                                                                                                                       \\ \hline
+		\textbf{Nombre:}                          & Registro de usuarios                                                                                                                                                                                                                                                                                        \\ \hline
+		\textbf{Usuario:}                         & Administrador                                                                                                                                                                                                                                                                                               \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                                                                                                                                                                                       \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                                                                                                                                                                                        \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Medio                                                                                                                                                                                                                                                                                                       \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 2: Módulo de Login                                                                                                                                                                                                                                                                                   \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                                                                                                                                                                                           \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                                                                                                                                                                                          \\ \hline
+		\textbf{Descripción:}                     & En la administración del sistema se tendrá la opción de registrar usuarios. El administrador podrá ingresar a esta opción, llenar los datos requeridos como nombre, correo y rol, y luego guardar el nuevo usuario. El sistema mostrará una confirmación y almacenará el nuevo usuario en la base de datos. \\ \hline
+		\textbf{Observaciones:}                   & El correo debe validarse.                                                                                                                                                                                                                                                                                   \\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-02}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-02                                                                                                                                                                                                                                           \\ \hline
+		\textbf{Nombre:}                          & Asignar roles                                                                                                                                                                                                                                   \\ \hline
+		\textbf{Usuario:}                         & Administrador                                                                                                                                                                                                                                   \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                                                                                                                           \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                                                                                                                            \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Bajo                                                                                                                                                                                                                                            \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 3: Módulo de Interfaz de Usuario                                                                                                                                                                                                         \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                                                                                                                               \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                                                                                                                              \\ \hline
+		\textbf{Descripción:}                     & El administrador puede asignar un rol a cada usuario desde la administración del sistema. Para ello, selecciona un usuario y el sistema despliega los roles disponibles. Al seleccionar uno, el cambio se guarda y se muestra una confirmación. \\ \hline
+		\textbf{Observaciones:}                   & Debe validarse que el usuario tenga solo un rol activo.                                                                                                                                                                                         \\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-03}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-03                                                                                                                                                       \\ \hline
+		\textbf{Nombre:}                          & Visualizar historial de pagos                                                                                                                               \\ \hline
+		\textbf{Usuario:}                         & Colaborador                                                                                                                                                 \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                                       \\ \hline
+		\textbf{Prioridad en Negocio:}            & Media                                                                                                                                                       \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Bajo                                                                                                                                                        \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 5: Cálculo de Nóminas                                                                                                                                \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                                           \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                                          \\ \hline
+		\textbf{Descripción:}                     & El colaborador accede al historial desde su perfil. Puede ver los montos y fechas de los pagos realizados. El sistema permite ordenar y filtrar por fechas. \\ \hline
+		\textbf{Observaciones:}                   & Asegurar que los datos estén protegidos.                                                                                                                    \\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-04}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-04                                                                                                                                                                                   \\ \hline
+		\textbf{Nombre:}                          & Generar reporte de nómina                                                                                                                                                               \\ \hline
+		\textbf{Usuario:}                         & Gerente                                                                                                                                                                                 \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                                                                   \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                                                                    \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Alto                                                                                                                                                                                    \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 6: Generación de Reportes                                                                                                                                                        \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                                                                       \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                                                                      \\ \hline
+		\textbf{Descripción:}                     & El gerente puede generar un reporte mensual de nómina. Desde el módulo correspondiente, selecciona el mes y el sistema crea un PDF con los detalles de salarios, deducciones y totales. \\ \hline
+		\textbf{Observaciones:}                   & Validar acceso solo para gerentes.                                                                                                                                                      \\ \hline
+	\end{tabular}
+\end{table}
+
+\clearpage
+
+
+\section{Especificación de Requerimientos de Software (SRS)}
+\input{elements/SRS.tex}
+
+\section{Cronograma de Desarrollo y Pruebas}
+
+\begin{table}[h]
+	\centering
+	\caption{Cronograma de Desarrollo y Pruebas del Proyecto}
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{|p{4.2cm}|p{2.5cm}|p{2.5cm}|p{2.2cm}|p{3.5cm}|}
+		\hline
+		\textbf{Sprint / Actividad}             & \textbf{Fecha de Inicio} & \textbf{Fecha de Finalización} & \textbf{Duración} & \textbf{Periodo}                \\ \hline
+		Sprint 1: Setup del Proyecto            & 15 mayo 2025             & 31 mayo 2025                   & 2 semanas         & Mayo 2025 (segunda mitad)       \\ \hline
+		Sprint 2: Módulo de Login               & 1 junio 2025             & 15 junio 2025                  & 2 semanas         & Junio 2025 (primera mitad)      \\ \hline
+		Sprint 3: Módulo de Interfaz de Usuario & 16 junio 2025            & 15 julio 2025                  & 4 semanas         & Junio - Julio 2025              \\ \hline
+		Sprint 4: Admin. de Eventos Laborales   & 16 julio 2025            & 15 agosto 2025                 & 4 semanas         & Julio - Agosto 2025             \\ \hline
+		Sprint 5: Cálculo de Nóminas            & 16 agosto 2025           & 15 septiembre 2025             & 4 semanas         & Agosto - Septiembre 2025        \\ \hline
+		Sprint 6: Generación de Reportes        & 16 septiembre 2025       & 30 septiembre 2025             & 2 semanas         & Septiembre 2025 (segunda mitad) \\ \hline
+		Sprint 7: Módulo de Seguridad           & 1 octubre 2025           & 31 octubre 2025                & 4 semanas         & Octubre 2025                    \\ \hline
+		Sprint 8: Pruebas y Entrega             & 1 febrero 2026           & 30 junio 2026                  & 5 meses           & Febrero - Junio 2026            \\ \hline
+		\rowcolor{gray!10}
+		\textbf{Etapa de Pruebas Funcionales}   & 1 febrero 2026           & 30 abril 2026                  & 3 meses           & Febrero - Abril 2026            \\ \hline
+		\rowcolor{gray!10}
+		\textbf{Revisión y Documentación Final} & 1 mayo 2026              & 30 junio 2026                  & 2 meses           & Mayo - Junio 2026               \\ \hline
+	\end{tabular}
+\end{table}
+
+
+
