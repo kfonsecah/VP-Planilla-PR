@@ -166,8 +166,13 @@ Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 \subsubsection{Características de los usuarios}
 
 \begin{itemize}
-	\item \textbf{Administrador:} Usuario principal del sistema, con experiencia en gestión administrativa. Es responsable de registrar y mantener los datos del personal, eventos laborales, generar la nómina y emitir reportes oficiales. Tiene acceso total a todos los módulos del sistema.
-	\item \textbf{Empleados:} Tendrán acceso restringido y únicamente podrán consultar su información personal y comprobantes de pago. No interactúan con los procesos internos de cálculo ni administración de nómina.
+	\item \textbf{Administrador:} Usuario principal del sistema, con experiencia en gestión administrativa. Es responsable de registrar y mantener los datos del personal, roles, jornadas, eventos laborales, generar la nómina, administrar usuarios y emitir reportes oficiales. Tiene acceso total a todos los módulos del sistema, incluyendo la configuración de seguridad y la bitácora.
+
+	\item \textbf{Colaborador (Empleado):} Usuario con acceso restringido. Puede consultar su información personal, visualizar y descargar su historial de pagos, y recibir los comprobantes por correo. No tiene acceso a la administración de nómina, ni puede modificar sus datos directamente.
+
+	\item \textbf{Gerente:} Usuario con acceso a los reportes consolidados de nómina. Puede generar documentación institucional (para CCSS, MTSS, contabilidad), consultar datos agregados y validar información histórica. No tiene permisos para editar nómina ni datos del personal.
+
+	\item \textbf{Contabilidad (opcional):} Usuario con acceso exclusivo a los módulos de exportación de datos contables y reportes oficiales. Puede descargar formatos estandarizados y generar documentación legal.
 \end{itemize}
 
 \subsubsection{Restricciones de diseño}
@@ -240,16 +245,18 @@ validen su cumplimiento mediante pruebas.
 
 \subsubsection{Modelo de Caso de Uso de Negocio}
 
-El modelo de negocio se centra en optimizar la gestión de nóminas del personal de la empresa Café y Vivero Verde Pradera. A continuación, se enumeran los principales procesos:
+El modelo de negocio se centra en optimizar la gestión de nóminas del personal de la empresa Café y Vivero Verde Pradera. A continuación, se enumeran los principales procesos, definidos con base en las historias de usuario priorizadas:
 
 \begin{itemize}
-	\item Ingreso al sistema (autenticación)
+	\item Ingreso al sistema (autenticación de usuarios)
 	\item Registro y administración de empleados
-	\item Registro de eventos laborales
-	\item Cálculo automático de salarios
-	\item Generación de reportes oficiales
-	\item Emisión de comprobantes de pago
-	\item Configuración de parámetros del Sistema
+	\item Asignación y gestión de roles de usuario
+	\item Registro de jornada laboral (llegada y salida)
+	\item Registro y administración de eventos laborales (vacaciones, incapacidades, permisos)
+	\item Cálculo automático de salarios y deducciones
+	\item Generación de reportes oficiales (CCSS, MTSS, contabilidad)
+	\item Emisión de comprobantes de pago a colaboradores
+	\item Configuración de parámetros del sistema (pendiente de historia funcional)
 \end{itemize}
 
 Estos procesos serán representados como Casos de Uso en el sistema de información.

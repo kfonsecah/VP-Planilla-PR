@@ -1,30 +1,125 @@
-\chapter{Antecedentes}
+\chapter{Capítulo II: Metodología}
+\section{Metodología}
+Para el desarrollo del sistema de gestión de nóminas para Café y
+Vivero Verde Pradera, se empleará una combinación de metodologías ágiles,
+específicamente el Desarrollo Incremental y Scrum. Esta combinación está
+diseñada para adaptarse a la naturaleza dinámica del proyecto y facilitar
+la colaboración continua con los usuarios finales.
 
-Café y Vivero Verde Pradera es un restaurante ubicado en la pintoresca localidad de 
-San Isidro del General, en Pérez Zeledón, San José, Costa Rica. Este establecimiento 
-se ha ganado el corazón de tanto turistas como residentes locales gracias a su ambiente 
-único y oferta diversificada. Especializado en la venta de alimentos preparados, el restaurante 
-ofrece una variedad de delicias culinarias que los comensales pueden disfrutar dentro del acogedor 
-local o en su espaciosa terraza al aire libre, que ofrece vistas del exuberante vivero y la granja.
+\subsection{Fundamentación}
 
-El establecimiento no solo es reconocido por su excelente café, que es seleccionado y 
-preparado con los más altos estándares de calidad, sino también por su vivero adjunto. 
-Este vivero no es solo una atracción, sino una extensión de la experiencia del Café Verde Pradera, 
-donde los visitantes pueden pasear entre una variedad de plantas exóticas y árboles frutales, muchos 
-de los cuales están disponibles para la compra. Este espacio verde no solo embellece el ambiente, sino 
-que también educa a los visitantes sobre la flora local y sostenibilidad.
+El Desarrollo Incremental permite la construcción del sistema en
+múltiples ciclos o incrementos. Cada incremento agrega funcionalidad y
+es plenamente operativo, lo que posibilita la entrega de una versión mejorada
+del sistema con cada iteración. Esta metodología es particularmente efectiva
+para obtener retroalimentación temprana y continua de los usuarios, permitiendo
+ajustes que alinean el producto final con las necesidades específicas del cliente.
 
-Una de las atracciones más destacadas del lugar es su granja, que alberga una variedad de animales 
-amigables que los visitantes pueden interactuar y alimentar. La estrella de la granja es un magnífico 
-pavo real y su pareja, que durante su temporada de apareamiento despliega un espectáculo natural 
-fascinante y altamente fotogénico, atrayendo a numerosos visitantes interesados en la vida silvestre y 
-la fotografía natural.
+Por otro lado, Scrum se empleará para gestionar y planificar el proceso de
+desarrollo. Scrum es un marco de trabajo que promueve la comunicación frecuente,
+el trabajo en equipo, y la flexibilidad para adaptarse a cambios. Las ceremonias
+de Scrum, como las reuniones diarias (Daily Scrum), las revisiones de sprint y
+las planificaciones (Sprint Planning), facilitarán la coordinación y el
+seguimiento constante del avance del proyecto.
 
-Además, Café y Vivero Verde Pradera está equipado con un sistema de punto de venta moderno y eficiente, 
-que facilita la compra de alimentos y plantas, asegurando una experiencia de cliente fluida y 
-satisfactoria. El equipo de la empresa incluye computadoras, impresoras y un reloj marcador 
-para una gestión eficiente del tiempo del personal.
+\newpage
 
-Este restaurante y vivero es ideal para cualquier persona que busque disfrutar de una 
-comida deliciosa en un entorno sereno y natural, convirtiéndolo en el lugar perfecto para 
-escapadas familiares, reuniones sociales o simplemente un día tranquilo en contacto con la naturaleza.
+\subsection{Aplicación en el Proyecto}
+
+
+En la aplicación práctica de estas metodologías en el proyecto:
+\begin{itemize}
+	\item \textbf{Planificación Scrum:} Se establecerán sprints de duración fija,
+	      ya sea mensual o quincenal, durante los cuales se definirán objetivos
+	      claros y alcanzables. Esto incluirá la definición de las funcionalidades
+	      a desarrollar, pruebas y revisiones con los usuarios finales.
+	\item \textbf{Desarrollo Incremental:} Cada sprint resultará en un
+	      incremento funcional del sistema, que será evaluado por los usuarios finales.
+	      La retroalimentación recogida será utilizada para mejorar o ajustar las
+	      funcionalidades en los siguientes incrementos.
+	\item \textbf{Cambios mínimos:} Se ajustará la duración de los sprints según
+	      la complejidad de las funcionalidades y la capacidad del equipo de desarrollo,
+	      buscando el equilibrio óptimo para una entrega eficiente y efectiva.
+\end{itemize}
+
+
+
+
+
+Con estas metodologías, el proyecto no solo apuntará a cumplir con los objetivos establecidos de manera eficaz, sino que también se adaptará a las necesidades cambiantes del entorno y los usuarios finales, asegurando la entrega de un sistema que verdaderamente responda a las expectativas y requerimientos de la empresa Café y Vivero Verde Pradera.
+
+\subsection{Definición de estandares a utilizar}
+
+En este apartado, describiremos los estándares seleccionados para cada una 
+de las áreas clave del desarrollo del software, asegurando la consistencia, 
+claridad y eficacia en la implementación y mantenimiento del proyecto.
+
+\subsection{\textbf{Estándares de Documentación}}
+
+Adoptaremos prácticas de documentación de código fuente, incluyendo comentarios detallados, 
+encabezados de archivos y documentación exhaustiva de la API, para facilitar el entendimiento 
+y la mantenibilidad del código. La documentación seguirá guías de estilo rigurosas que promueven
+la claridad y un formato coherente en todos los documentos técnicos y manuales de usuario, 
+asegurando que toda la información sea accesible y comprensible para todos los interesados.
+
+Los comentarios deben realizarse de la siguiente manera:
+\begin{itemize}
+    \item \textbf{Bloque de comentarios:} Para explicar la funcionalidad de los métodos.
+    \item \textbf{Línea de comentario:} Solo para la declaración de variables o en líneas de 
+    código donde sea necesaria una especificación.
+\end{itemize}
+
+\subsection{\textbf{Estándares de Programación}}
+
+Estableceremos convenciones de nombramiento para variables, clases y métodos en 
+inglés que reflejen claramente su función. Utilizaremos un formato de indentación que 
+facilite la lectura del código y mantendremos las líneas de código a una longitud razonable 
+para evitar la complejidad visual. Emplearemos Git como sistema de control de versiones, con un 
+esquema de nomenclatura de commits que incluye etiquetas como \texttt{[ADDED]}, \texttt{[BUG]}, 
+\texttt{[FIXED]}, \texttt{[UPDATED]}, y \texttt{[FEATURE]}, acompañados de comentarios precisos 
+que describan los cambios realizados. Además, incluiremos el uso de pull requests en GitHub para 
+evitar conflictos en el desarrollo del software. Se prohibirá el uso de push forzados y la 
+agregación de todos los archivos simultáneamente, a menos de que hayan sido modificados 
+por la misma razón. Implementaremos revisiones de código entre pares y utilizaremos 
+herramientas como VS Code Insiders con GitHub Copilot para realizar pruebas automáticas.
+
+La estructura del proyecto se organizará de la siguiente manera: 
+\begin{itemize}
+    \item \textbf{Design:} Donde se incluirá el diseño de cada una de las pantallas a usar.
+    \item \textbf{Docs:} Donde se almacenarán todos los documentos del sistema, como guías 
+    de usuario y documentos de investigación.
+    \item \textbf{Source:} Que contendrá el código fuente del sistema, distribuido en:
+    \begin{itemize}
+        \item \textbf{DB:} Que incluirá el diagrama de base de datos, el esquema de la 
+        base de datos y el SQL de la base de datos.
+        \item \textbf{API:} Donde se almacenará todo el código relacionado con la API.
+        \item \textbf{ENV:} Que contendrá las variables de entorno.
+        \item \textbf{Front-End:} Donde se incluirá todo lo relacionado con la parte frontal 
+        del sistema.
+        \item \textbf{Back-End:} Que contendrá todo lo relacionado con el backend del sistema.
+    \end{itemize}
+\end{itemize}
+
+\subsection{\textbf{Estándares de Bases de Datos}}
+
+Las definiciones de tablas y columnas seguirán un esquema de nomenclatura específico, 
+donde las tablas comenzarán con \texttt{VPG\_} seguido del nombre de la tabla en mayúsculas, 
+y las columnas se nombrarán en minúsculas siguiendo el formato \texttt{tablename\_atributo}. 
+Las relaciones se nombrarán siguiendo el formato \texttt{VPG\_TABLENAME1\_TABLENAME2\_FK}. 
+Adheriremos a las tres primeras reglas de normalización para garantizar una estructura de 
+base de datos eficiente y optimizada tanto para consultas como para la integridad de los datos.
+
+\subsection{\textbf{Estándares de Interfaz}}
+
+Las interfaces seguirán una guía de estilo que incluye el uso de colores no muy 
+llamativos basados en los colores de la empresa y la tipografía INTER para garantizar 
+una presentación visual coherente y profesional. La disposición de los elementos estará a 
+cargo del diseñador web, con un fuerte enfoque en la accesibilidad para cumplir con las 
+directrices de WCAG. Además, fomentaremos la reutilización de componentes para maximizar la 
+eficiencia del desarrollo. Las pruebas de interfaz se realizarán mediante evaluaciones 
+entre compañeros y con feedback directo de los usuarios finales de la empresa, asegurando 
+que las interfaces sean intuitivas y efectivas.
+
+Estos estándares son fundamentales para el desarrollo exitoso del software, proporcionando un 
+marco de trabajo claro y eficiente para todo el equipo del proyecto. Sin embargo, siempre habrá 
+un espacio para revisar y adaptar las políticas conforme el proyecto crezca y cambie.
