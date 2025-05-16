@@ -2,12 +2,7 @@
   "latex-workshop.latex.recipes": [
     {
       "name": "XeLaTeX -> BibTeX -> XeLaTeX x2",
-      "tools": [
-        "xelatex",
-        "bibtex",
-        "xelatex",
-        "xelatex"
-      ]
+      "tools": ["xelatex", "bibtex", "xelatex", "xelatex"]
     }
   ],
   "latex-workshop.latex.tools": [
@@ -21,5 +16,6 @@
       "command": "bibtex",
       "args": ["%DOCFILE%"]
     }
-  ]
+  ],
+  "cSpell.enabled": false
 }

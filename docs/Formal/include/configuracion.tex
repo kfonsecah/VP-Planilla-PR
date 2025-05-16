@@ -54,11 +54,11 @@
 % -------------------------------
 % Márgenes de las páginas
 \usepackage[
-  inner	 =	3cm,   % Margen interior
-  outer	 =	2.5cm, % Margen exterior
-  top	 =	2.5cm, % Margen superior
-  bottom =	2.5cm, % Margen inferior
-  includeheadfoot, % Incluye cabecera y pie de página en los márgenes
+	inner	 =	3cm,   % Margen interior
+	outer	 =	2.5cm, % Margen exterior
+	top	 =	2.5cm, % Margen superior
+	bottom =	2.5cm, % Margen inferior
+	includeheadfoot, % Incluye cabecera y pie de página en los márgenes
 ]{geometry}
 % Muestra una regla para comprobar el formato de las páginas (descomentar)
 %\usepackage[type=upperleft,showframe,marklength=8mm]{fgruler} 
@@ -68,7 +68,7 @@
 % Renombra tablas y bibliografía
 % -------------------------------
 \addto\captionsspanish{
-	\renewcommand{\listtablename}{Índice de tablas} 
+	\renewcommand{\listtablename}{Índice de tablas}
 	\renewcommand{\tablename}{Tabla}
 	\renewcommand{\bibname}{Referencias bibliográficas}
 }
@@ -113,10 +113,10 @@
 \captionsetup{labelfont={tema, bf}}     % Estilo
 \captionsetup{font=normalsize}          % Tamaño
 \captionsetup{width=.9\linewidth}       % Anchura del título
- % Distancia de la figura al texto.
-\setlength{\intextsep}{1cm} 
-\setlength{\textfloatsep}{1cm}         
-       
+% Distancia de la figura al texto.
+\setlength{\intextsep}{1cm}
+\setlength{\textfloatsep}{1cm}
+
 
 % -------------------------------
 % Utilidades para tablas
@@ -142,68 +142,68 @@
 \usepackage{titlesec, titletoc}
 % Parte
 \titleformat{\part}[display]												   	   % Estilo
-	{\Huge \centering \color{tema}}                                                % Formato
-	{Parte \thepart }                                                              % Etiqueta
-	{0.75ex}                                                                       % Separación
-	{\bfseries\fontsize{25pt}{40pt}\selectfont}                                    % Entre etiqueta y título            
-	[\thispagestyle{empty}]                                                        % Después
+{\Huge \centering \color{tema}}                                                % Formato
+{Parte \thepart }                                                              % Etiqueta
+{0.75ex}                                                                       % Separación
+{\bfseries\fontsize{25pt}{40pt}\selectfont}                                    % Entre etiqueta y título            
+[\thispagestyle{empty}]                                                        % Después
 
 % Capítulo		
 \titleformat{\chapter}[block]            			 			                    % Estilo  	
-	{\vspace{0cm} \flushright \bfseries \LARGE \color{tema}}  	        			% Formato 
-	{\thechapter.}                  			  									% Etiqueta
-	{0.75ex}                                     									% Separación
-	{}                                           									% Entre etiqueta y título
-	[\vspace{0.1cm} \rule{0.5\textwidth}{1pt}\vspace*{1cm}\thispagestyle{plain}]    % Después      
-  
+{\vspace{0cm} \flushright \bfseries \LARGE \color{tema}}  	        			% Formato 
+{\thechapter.}                  			  									% Etiqueta
+{0.75ex}                                     									% Separación
+{}                                           									% Entre etiqueta y título
+[\vspace{0.1cm} \rule{0.5\textwidth}{1pt}\vspace*{1cm}\thispagestyle{plain}]    % Después      
+
 % Sección
 \titleformat{\section}
-	{\vspace{5pt}  \Large \color{tema}}
-	{\thesection .}
-	{0.75ex}
-	{}
+{\vspace{5pt}  \Large \color{tema}}
+{\thesection .}
+{0.75ex}
+{}
 
 % Subsección
 \titleformat{\subsection}
-	{\large \color{tema}}
-	{\thesubsection .}
-	{0.75ex}
-	{}
- 
+{\large \color{tema}}
+{\thesubsection .}
+{0.75ex}
+{}
+
 % Subsubsección
 \titleformat{\subsubsection}
-	{\bf\color{tema}}
-	{}
-	{0.75ex}
-	{}
-	 
+{\bf\color{tema}}
+{}
+{0.75ex}
+{}
+
 % Parte (TOC)
 \titlecontents{part}[2pc]
-  	{\vspace{20pt}\bfseries\filright\Large\color{tema}}
-  	{\contentslabel{1.5pc}}{\hspace*{-1.5pc}}
-  	{\vspace{5pt}}
-  	{}
-  
+{\vspace{20pt}\bfseries\filright\Large\color{tema}}
+{\contentslabel{1.5pc}}{\hspace*{-1.5pc}}
+{\vspace{5pt}}
+{}
+
 % Capítulo (TOC)
 \titlecontents{chapter}[2pc]
-  	{\vspace{10pt}\bfseries\large\filright}
-  	{\contentslabel{1.5pc}}{\hspace*{-1.5pc}}
-  	{\mdseries\titlerule*[0.5pc]{.}\bfseries\contentspage}
+{\vspace{10pt}\bfseries\large\filright}
+{\contentslabel{1.5pc}}{\hspace*{-1.5pc}}
+{\mdseries\titlerule*[0.5pc]{.}\bfseries\contentspage}
 
 % Sección (TOC)
 \titlecontents{section}[4pc]
-  	{\vspace{5pt}\filright}
-  	{\contentslabel{2pc}}{\hspace*{2pc}}
-  	{\titlerule*[0.5pc]{.}\contentspage}
-  	{\vspace{5pt}
+{\vspace{5pt}\filright}
+{\contentslabel{2pc}}{\hspace*{2pc}}
+{\titlerule*[0.5pc]{.}\contentspage}
+{\vspace{5pt}
 
-% Subsección (TOC)
-\titlecontents{subsection}[6pc]
-  	{\vspace{2.5pt}\filright\small\em}
-  	{\contentslabel{3pc}}{\hspace*{-3pc}}
-  	{\titlerule*[0.5pc]{.}\contentspage}} 
-  	
-  	
+	% Subsección (TOC)
+	\titlecontents{subsection}[6pc]
+	{\vspace{2.5pt}\filright\small\em}
+	{\contentslabel{3pc}}{\hspace*{-3pc}}
+	{\titlerule*[0.5pc]{.}\contentspage}}
+
+
 % -------------------------------
 % Cabeceras y pie de página
 % -------------------------------
@@ -212,29 +212,29 @@
 \pagestyle{fancy}
 \fancyhf{} % Limpiar todas las cabeceras y pies de página
 
-% Actualización de la configuración de los títulos de partes y capítulos
-\let\Oldpart\part
-\newcommand{\parttitle}{}
-\renewcommand{\part}[1]{\Oldpart{#1}\renewcommand{\parttitle}{#1}}
-\renewcommand{\chaptermark}[1]{\markboth{\thechapter. #1}{}}
+% Definir el nombre de la empresa
+\newcommand{\nombreempresa}{Café y Vivero Verde Pradera}
 
-% Configuración de cabeceras y pies de página
-\fancyhead[L]{\leftmark} % Título del capítulo a la izquierda
-\fancyhead[R]{\thepage}  % Número de página a la derecha
-\fancyfoot{}             % Sin contenido en el pie de página
+% Pie de página centrado con el nombre de la empresa
+\fancyfoot[C]{\nombreempresa}
+
+% Cabecera con el nombre del capítulo a la izquierda
+\fancyhead[L]{\leftmark}  % Título del capítulo
+\fancyhead[R]{\thepage}   % Número de página
 
 % Ajuste de las líneas de cabecera y pie de página
-\renewcommand{\headrulewidth}{0.5pt} % Línea bajo la cabecera
-\renewcommand{\footrulewidth}{0.5pt} % Línea sobre el pie de página (opcional)
+\renewcommand{\headrulewidth}{0.5pt}  % Línea en la cabecera
+\renewcommand{\footrulewidth}{0.5pt}  % Línea en el pie de página
 
 % Redefinición del estilo de página 'plain' para capítulos y partes
 \fancypagestyle{plain}{
-  \fancyhf{} % Limpiar cabeceras y pies de página
-  \fancyfoot[LE,RO]{\thepage} % Número de página a la izquierda en páginas pares, derecha en impares
-  \renewcommand{\headrulewidth}{0pt}  % Sin línea en la cabecera
-  \renewcommand{\footrulewidth}{0.5pt} % Línea en el pie de página
+	\fancyhf{}  % Limpiar cabeceras y pies de página
+	\fancyfoot[LE,RO]{\thepage} % Número de página a la izquierda en páginas pares, derecha en impares
+	\fancyfoot[C]{\nombreempresa}  % Nombre de la empresa en el pie de página
+	\renewcommand{\headrulewidth}{0pt}  % Sin línea en la cabecera
+	\renewcommand{\footrulewidth}{0.5pt}  % Línea en el pie de página
 }
- 
+
 % -------------------------------
 % Utilidades
 % -------------------------------
@@ -247,10 +247,10 @@
 \usepackage[textsize=tiny,spanish,shadow,textwidth=2cm]{todonotes}
 
 % Para generar textos "random"
-\usepackage{lipsum} 
+\usepackage{lipsum}
 
 
- 
+
 
 % -------------------------------
 % Algoritmos y código
@@ -263,9 +263,9 @@
 
 % Define un estilo para el encabezado de algoritmos y código.
 \DeclareCaptionFormat{algcode}{
-\rule{\dimexpr\textwidth\relax}{1pt}\vspace{0.2cm}
-#1#2#3
-\rule{\dimexpr\textwidth\relax}{1pt}
+	\rule{\dimexpr\textwidth\relax}{1pt}\vspace{0.2cm}
+	#1#2#3
+	\rule{\dimexpr\textwidth\relax}{1pt}
 }
 \captionsetup[algorithm]{format=algcode, width=\linewidth}
 \captionsetup[code]{format=algcode, width=\linewidth}

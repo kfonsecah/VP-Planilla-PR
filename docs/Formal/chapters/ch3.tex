@@ -1,6 +1,472 @@
+\chapter{\textbf{Capitulo III: Análisis}}
 
-\chapter{Capítulo III: Desarrollo}
+\section{Análisis Preliminar}
 
-El propósito de esta sección es definir la forma en que se desarrollará la programación. 
-Se puede realizar un resumen en prosa de como se hará la programación, donde se almacenarán los fuentes, que repositorio utilizarán, etc.
-Y agregar como anexo, los sprints.
+Para el cálculo de la nómina, actualmente se cuenta con un dispositivo lector de huella digital en el cual los colaboradores registran su ingreso y salida de su jornada laboral. Esta información es extraída manualmente por el personal administrativo y luego procesada en hojas de cálculo, lo cual representa una tarea operativa repetitiva, propensa a errores humanos y sin integración con otros procesos internos.
+
+Aunque existe un mecanismo básico de registro de jornada, la ausencia de un sistema que centralice y automatice el procesamiento de dicha información genera cuellos de botella en actividades como la emisión de reportes, la gestión de eventos laborales (vacaciones, incapacidades, permisos especiales), y la elaboración de comprobantes de pago.
+
+Este análisis evidencia la necesidad de optimizar el flujo de información ya disponible en el entorno organizacional, de modo que pueda ser aprovechada de forma estructurada y confiable mediante una solución tecnológica que integre las funcionalidades necesarias para mejorar la eficiencia y la trazabilidad del proceso.
+
+\subsection{Gestión de Riesgos}
+
+La gestión de riesgos es un proceso fundamental para identificar, evaluar y controlar los posibles eventos que pueden afectar el éxito del proyecto. A continuación, se presenta la identificación de riesgos, la matriz de probabilidad por impacto para priorizarlos, y el plan de tratamiento de riesgos propuesto para el desarrollo del sistema de gestión de nómina para Café y Vivero Verde Pradera.
+
+\subsubsection*{Identificación de Riesgos}
+
+Durante el análisis del proyecto se identificaron los siguientes riesgos relevantes que pueden afectar su desarrollo y operación:
+
+\begin{itemize}
+	\item \textbf{Fallos de integración tecnológica:} Problemas al conectar el reloj marcador con el sistema de nómina que pueden ocasionar errores en los datos de asistencia.
+	\item \textbf{Fallas en la conectividad:} Interrupciones en el servicio de internet que impidan el acceso remoto y afecten la continuidad del sistema.
+	\item \textbf{Errores de programación:} Bugs o fallos en el software que comprometan la funcionalidad de los módulos críticos.
+	\item \textbf{Incompatibilidad tecnológica:} Desajustes entre las versiones de hardware y software utilizados.
+	\item \textbf{Capacitación insuficiente:} Falta de entrenamiento adecuado para los usuarios finales que dificulte el uso correcto del sistema.
+	\item \textbf{Resistencia al cambio:} Oposición del personal a adoptar nuevas tecnologías y procesos digitales.
+	\item \textbf{Errores humanos:} Fallos en la entrada o manejo de datos por falta de experiencia o atención.
+	\item \textbf{Limitaciones presupuestarias:} Recursos económicos insuficientes para la adquisición de hardware, licencias o capacitación.
+	\item \textbf{Retrasos en pagos a proveedores:} Problemas en el flujo de caja que afecten la entrega de insumos y servicios.
+	\item \textbf{Incumplimiento normativo:} Falta de adecuación a las regulaciones legales vigentes.
+	\item \textbf{Riesgos en protección de datos:} Posibles vulneraciones a la privacidad y seguridad de la información sensible.
+	\item \textbf{Desastres naturales:} Eventos que puedan afectar la infraestructura tecnológica o los datos almacenados.
+\end{itemize}
+
+\subsubsection*{Matriz de Probabilidad por Impacto}
+
+Para priorizar los riesgos identificados, se evaluó la probabilidad de ocurrencia y el impacto que tendría cada uno en el proyecto, multiplicando ambos factores para obtener un nivel de riesgo cuantificado. La siguiente tabla presenta esta matriz:
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Riesgo}                & \textbf{Probabilidad} & \textbf{Impacto} & \textbf{Nivel de Riesgo} \\ \hline
+		Fallos de integración          & Media (3)             & Alto (5)         & 15                       \\ \hline
+		Fallas de conectividad         & Baja (2)              & Medio (4)        & 8                        \\ \hline
+		Errores de implementación      & Alta (4)              & Alto (5)         & 20                       \\ \hline
+		Compatibilidad tecnológica     & Media (3)             & Medio (3)        & 9                        \\ \hline
+		Capacitación inadecuada        & Media (3)             & Alto (5)         & 15                       \\ \hline
+		Resistencia al cambio          & Alta (4)              & Medio (3)        & 12                       \\ \hline
+		Errores humanos                & Alta (4)              & Medio (3)        & 12                       \\ \hline
+		Presupuesto insuficiente       & Media (3)             & Alto (5)         & 15                       \\ \hline
+		Retrasos en pago a proveedores & Baja (2)              & Medio (3)        & 6                        \\ \hline
+		Cumplimiento normativo         & Media (3)             & Alto (5)         & 15                       \\ \hline
+		Protección de datos            & Alta (4)              & Alto (5)         & 20                       \\ \hline
+		Desastres naturales            & Baja (1)              & Alto (5)         & 5                        \\ \hline
+	\end{tabular}
+	\caption{Matriz de probabilidad por impacto}
+	\label{tab:matriz_prob_impacto}
+\end{table}
+\newpage
+
+\subsubsection*{Plan de Tratamiento de Riesgos}
+
+Para cada riesgo, se diseñaron acciones para mitigar su probabilidad o impacto, asegurando que el proyecto pueda desarrollarse de forma controlada y segura. A continuación, se presenta el análisis detallado con las acciones propuestas:
+
+\begin{table}[h!]
+	\centering
+	\resizebox{\textwidth}{!}{ % Ajusta el tamaño al ancho del texto
+		\begin{tabular}{|c|l|l|p{3cm}|c|c|c|c|p{4cm}|l|c|}
+			\hline
+			\textbf{ID} & \textbf{Riesgo}                & \textbf{Categoría} & \textbf{Descripción}                                                                             & \textbf{Prob.} & \textbf{Impacto} & \textbf{Detec.} & \textbf{NPR} & \textbf{Plan de Tratamiento}                                         & \textbf{Responsable}      & \textbf{Estado} \\ \hline
+			1           & Fallos de integración          & Técnico            & Problemas para conectar el reloj marcador con el sistema causando errores en datos de asistencia & 3              & 5                & 3               & 45           & Realizar pruebas de integración tempranas y usar APIs estandarizadas & Equipo de desarrollo      & Pendiente       \\ \hline
+			2           & Fallas de conectividad         & Técnico            & Caídas en internet que impiden el acceso remoto al sistema                                       & 2              & 4                & 4               & 32           & Implementar conexiones redundantes y sistemas de respaldo            & Equipo de infraestructura & Pendiente       \\ \hline
+			3           & Errores de implementación      & Técnico            & Bugs o fallos en el software que afectan módulos críticos                                        & 4              & 5                & 2               & 40           & Pruebas continuas, revisión de código y control de calidad           & Equipo de desarrollo      & Pendiente       \\ \hline
+			4           & Compatibilidad tecnológica     & Técnico            & Incompatibilidad entre versiones de software o hardware                                          & 3              & 3                & 3               & 27           & Pruebas previas de compatibilidad y evaluación de versiones          & Equipo de desarrollo      & Pendiente       \\ \hline
+			5           & Capacitación inadecuada        & Operativo          & Falta de entrenamiento adecuado para usuarios finales                                            & 3              & 5                & 4               & 60           & Programar formación y materiales de apoyo                            & Recursos Humanos          & Pendiente       \\ \hline
+			6           & Resistencia al cambio          & Operativo          & Personal se resiste a adoptar el nuevo sistema                                                   & 4              & 3                & 4               & 48           & Involucrar a usuarios en el proceso y comunicación constante         & Gestión del proyecto      & Pendiente       \\ \hline
+			7           & Errores humanos                & Operativo          & Errores en la entrada o manejo de datos por falta de experiencia                                 & 4              & 3                & 3               & 36           & Automatizar procesos y diseñar interfaces intuitivas                 & Equipo de desarrollo      & Pendiente       \\ \hline
+			8           & Presupuesto insuficiente       & Financiero         & Limitaciones económicas que impiden compra de hardware o licencias                               & 3              & 5                & 4               & 60           & Planificar presupuesto con margen y negociar con proveedores         & Gestión financiera        & Pendiente       \\ \hline
+			9           & Retrasos en pago a proveedores & Financiero         & Problemas en flujo de caja que retrasan entregas                                                 & 2              & 3                & 4               & 24           & Mantener comunicación constante con proveedores                      & Gestión financiera        & Pendiente       \\ \hline
+			10          & Cumplimiento normativo         & Legal              & No cumplir leyes laborales o de protección de datos                                              & 3              & 5                & 3               & 45           & Revisar normativas y actualizar el sistema conforme a regulaciones   & Equipo legal/QA           & Pendiente       \\ \hline
+			11          & Protección de datos            & Legal              & Riesgo de fuga o acceso no autorizado a datos personales                                         & 4              & 5                & 2               & 40           & Implementar encriptación, autenticación fuerte y auditorías          & Equipo de seguridad       & Pendiente       \\ \hline
+			12          & Desastres naturales            & Ambiental          & Eventos naturales que afectan infraestructura y datos                                            & 1              & 5                & 5               & 25           & Plan de recuperación y backups en la nube                            & Equipo infraestructura    & Pendiente       \\ \hline
+		\end{tabular}
+	}
+	\caption{Matriz de gestión de riesgos del proyecto}
+	\label{tab:gestion_riesgos}
+\end{table}
+
+\newpage
+\subsection{Estudio de factibilidad}
+
+\subsubsection{Factibilidad Operativa}
+
+\begin{itemize}
+	\item \textbf{Conocimiento de los desarrolladores:} Los desarrolladores del sistema son estudiantes avanzados de Ingeniería en Sistemas, con experiencia en desarrollo web, bases de datos y metodologías ágiles, lo que garantiza una correcta implementación del proyecto.
+
+	\item \textbf{Habilidad de los usuarios:} El sistema está orientado al personal administrativo de la empresa, quienes ya realizan los procesos manuales y tienen el conocimiento necesario para adaptarse al uso de un sistema digital. Se planea además incluir una etapa de capacitación.
+
+	\item \textbf{Disponibilidad de horarios:} Tanto el equipo de desarrollo como el personal administrativo disponen de horarios establecidos para reuniones de revisión, pruebas e implementación.
+
+	\item \textbf{Mantenimiento del software:} El sistema será documentado técnicamente y se mantendrá en un repositorio GitHub, lo cual facilitará futuras mejoras, corrección de errores y mantenimiento general.
+\end{itemize}
+
+\textbf{Conclusión:} Existe una alta viabilidad operativa para implementar el sistema, debido a la disposición de los usuarios, la experiencia del equipo desarrollador y la estructura de apoyo brindada por la empresa.
+
+\subsubsection{Factibilidad Técnica}
+
+\begin{itemize}
+	\item \textbf{Especificación de Hardware y Software:} El sistema funcionará sobre servidores con al menos 4~GB de RAM y 20~GB de almacenamiento. Los usuarios accederán desde navegadores modernos como Chrome o Edge.
+
+	\item \textbf{Infraestructura de redes:} La empresa cuenta con conexión a internet estable, lo cual permite que el sistema funcione correctamente en modalidad web. Inicialmente, el sistema será hospedado en un servidor local dentro de las instalaciones de la empresa, aunque se deja abierta la posibilidad de migración futura a un servicio en la nube si las necesidades operativas así lo requieren.
+
+	\item \textbf{Herramientas de desarrollo:} Se utilizarán herramientas como Visual Studio Code, GitHub, PostgreSQL, Next.js, Node.js, Prisma ORM, todas gratuitas y ampliamente documentadas.
+
+	\item \textbf{Plataformas de desarrollo:} El sistema será construido como una aplicación web, compatible con sistemas operativos modernos. El backend correrá en Node.js y el frontend en Next.js con TypeScript.
+\end{itemize}
+
+\textbf{Conclusión:} El proyecto es técnicamente viable gracias a la disponibilidad de herramientas, infraestructura básica y conocimientos del equipo para implementar la solución sin depender de tecnologías costosas o inaccesibles.
+
+\subsubsection{Factibilidad Económica}
+
+\begin{itemize}
+	\item \textbf{Costos de desarrollo:} Al ser un proyecto académico, no se incurrirá en costos por contratación de programadores o diseñadores.
+
+	\item \textbf{Costos de capital humano:} Los estudiantes desarrolladores participan como parte del trabajo final de graduación. Aunque no reciben una remuneración económica directa, se estima que el desarrollo del sistema requiere aproximadamente 160 horas por estudiante. Considerando un valor referencial de ₡3.000 por hora (basado en el salario mínimo para técnicos universitarios en Costa Rica), el costo simbólico asciende a ₡480.000 por estudiante.
+
+	\item \textbf{Cargos administrativos:} Los recursos administrativos necesarios para colaborar con el proyecto (reuniones, validaciones) serán asumidos por la empresa como parte de su operación normal.
+
+	\item \textbf{Costos totales del proyecto:} El proyecto no requiere inversión económica significativa, ya que se usará software libre y recursos existentes. Se considera un sistema de bajo costo y alto retorno.
+\end{itemize}
+
+\textbf{Conclusión:} El proyecto es completamente viable desde el punto de vista económico. Requiere una inversión mínima y promete beneficios importantes como la reducción de errores y ahorro de tiempo en el cálculo de nómina.
+
+\subsection{Ciclo de vida}
+
+Para el desarrollo del sistema de gestión de nóminas para Café y Vivero Verde Pradera se aplicará un enfoque ágil, utilizando la metodología \textbf{Scrum}, complementada con un modelo de \textbf{Desarrollo Incremental}. El proceso se organizará en ocho sprints consecutivos, cada uno con una duración estimada de dos semanas.
+
+Cada sprint tiene como objetivo generar un incremento funcional del sistema, es decir, una parte del software que puede ser evaluada y validada internamente. Sin embargo, estas versiones no se instalarán en un entorno productivo al finalizar cada sprint. La instalación oficial del sistema completo se realizará al final del último sprint, tras pasar por una fase integral de pruebas y validaciones.
+
+Durante cada sprint se realizará una etapa de revisión y retroalimentación (\textit{Feedback}), que permitirá hacer ajustes continuos y asegurar que las funcionalidades desarrolladas cumplan con los requerimientos establecidos.
+
+
+\begin{itemize}
+	\item \textbf{Sprint 1: Setup del Proyecto} \\
+	      Inicialización del entorno de desarrollo, configuración del repositorio GitHub y definición de la estructura base del sistema.
+
+	\item \textbf{Sprint 2: Módulo de Login} \\
+	      Desarrollo del sistema de autenticación de usuarios y control de acceso.
+
+	\item \textbf{Sprint 3: Módulo de Interfaz de Usuario} \\
+	      Implementación del diseño general del frontend y componentes base de navegación.
+
+	\item \textbf{Sprint 4: Administración de Eventos Laborales} \\
+	      Funcionalidad para registrar y gestionar vacaciones, incapacidades y permisos.
+
+	\item \textbf{Sprint 5: Cálculo de Nóminas} \\
+	      Implementación del motor de cálculo automático de salarios y deducciones.
+
+	\item \textbf{Sprint 6: Generación de Reportes} \\
+	      Emisión de reportes institucionales y comprobantes de pago para los empleados.
+
+	\item \textbf{Sprint 7: Módulo de Seguridad} \\
+	      Validaciones adicionales, cifrado de contraseñas, roles y permisos de usuario.
+
+	\item \textbf{Sprint 8: Pruebas y Entrega} \\
+	      Pruebas funcionales, validación con usuarios, documentación final y entrega del sistema.
+\end{itemize}
+
+\newpage
+
+\subsection{Estructura de Desglose del Trabajo (EDT)}
+
+La Estructura de Desglose del Trabajo (EDT) permite organizar el proyecto en fases y
+tareas específicas de manera jerárquica. En este caso, se divide en cinco fases principales
+que agrupan las actividades necesarias para el desarrollo del sistema de gestión de nóminas.
+La siguiente figura representa gráficamente esta estructura, facilitando la planificación y el seguimiento del proyecto.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1.0\textwidth]{media/EDT_VP-PLANILLAS.png}
+	\caption{Estructura de Desglose del Trabajo del Proyecto (EDT) basada en sprints}
+	\label{fig:edt}
+\end{figure}
+
+
+\subsection*{Product Backlog}
+
+Antes de desarrollar las historias de usuario, se construyó un \textbf{Product Backlog} con las funcionalidades principales del sistema. Este backlog funciona como una lista priorizada de los entregables que serán desarrollados a lo largo de los sprints definidos. Cada ítem representa una funcionalidad o módulo del sistema, estimado en complejidad y valor para el usuario final.
+
+El backlog sirve como guía para la planificación iterativa del proyecto, y puede evolucionar conforme se obtenga retroalimentación durante las etapas de desarrollo.
+
+\begin{itemize}
+	\item Autenticación y control de acceso
+	\item Registro de jornada laboral desde lector de huella
+	\item Gestión de eventos laborales (vacaciones, incapacidades)
+	\item Cálculo automático de nómina
+	\item Generación de reportes institucionales
+	\item Emisión de comprobantes de pago
+	\item Módulo de administración de usuarios
+	\item Seguridad y roles
+	\item Capacitación y documentación
+\end{itemize}
+
+\subsection*{Historias de Usuario}
+
+Las historias de usuario permiten capturar de manera sencilla y centrada en el usuario las funcionalidades esperadas del sistema de gestión de nóminas para Café y Vivero Verde Pradera. Estas historias han sido redactadas desde la perspectiva de los distintos tipos de usuarios del sistema (administradores, colaboradores y gerentes), con el fin de comprender sus necesidades, priorizar el desarrollo de funcionalidades y planificar el trabajo en sprints.
+
+Cada historia incluye información clave como el usuario involucrado, la prioridad del requerimiento, el riesgo asociado, la iteración en que se desarrollará, la estimación de esfuerzo y una breve descripción del comportamiento esperado del sistema.
+
+Estas historias se utilizarán como base para guiar el diseño, implementación y pruebas de cada funcionalidad a lo largo del desarrollo del proyecto.
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-01}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-01                           \\ \hline
+		\textbf{Nombre:}                          & Gestión de usuarios del sistema \\ \hline
+		\textbf{Usuario:}                         & Administrador                   \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                           \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                            \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Medio                           \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 2: Módulo de Login       \\ \hline
+		\textbf{Puntos Estimados:}                & 5                               \\ \hline
+		\textbf{Puntos Reales:}                   & --                              \\ \hline
+		\textbf{Descripción:}                     &
+		El sistema permitirá al administrador realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre los usuarios registrados.
+		El administrador podrá:
+		\begin{itemize}
+			\item Crear nuevos usuarios ingresando nombre, correo y rol.
+			\item Consultar la lista de usuarios registrados.
+			\item Editar los datos de un usuario existente (excepto el ID).
+			\item Eliminar usuarios en caso de salida de personal.
+		\end{itemize}
+		Las acciones estarán disponibles únicamente para usuarios con rol de Administrador autenticado. Todas las operaciones deben registrar trazabilidad en la bitácora del sistema.
+		\\ \hline
+		\textbf{Observaciones:}                   &
+		El correo ingresado debe ser validado en formato y unicidad. No se podrá eliminar al usuario con sesión activa.
+		Solo se permite modificar el rol o correo si el usuario está inactivo.
+		El sistema debe confirmar cada operación antes de ejecutarla.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-02}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-02                                   \\ \hline
+		\textbf{Nombre:}                          & Gestión de roles de usuario             \\ \hline
+		\textbf{Usuario:}                         & Administrador                           \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                   \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                    \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Bajo                                    \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 3: Módulo de Interfaz de Usuario \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                       \\ \hline
+		\textbf{Puntos Reales:}                   & --                                      \\ \hline
+		\textbf{Descripción:}                     &
+		El sistema permitirá al administrador realizar operaciones CRUD sobre los roles asignados a los usuarios. Estas operaciones incluyen:
+		\begin{itemize}
+			\item \textbf{Crear:} Definir nuevos roles dentro del sistema si se requiere extender la funcionalidad futura.
+			\item \textbf{Leer:} Consultar el rol asignado a cada usuario.
+			\item \textbf{Actualizar:} Modificar el rol de un usuario existente.
+			\item \textbf{Eliminar:} Eliminar roles obsoletos, siempre que no estén asignados a usuarios activos.
+		\end{itemize}
+		El administrador podrá ingresar a la sección de gestión de roles, seleccionar un usuario, visualizar los roles disponibles y asignar o modificar el rol correspondiente. El sistema guardará los cambios y mostrará una confirmación.
+		\\ \hline
+		\textbf{Observaciones:}                   &
+		Cada usuario solo puede tener un rol activo a la vez.
+		No se permitirá eliminar un rol si está actualmente asignado a uno o más usuarios.
+		La acción de cambio de rol debe registrarse en la bitácora del sistema.
+		La asignación de roles debe estar protegida por validación de permisos del administrador.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-03}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-03                                          \\ \hline
+		\textbf{Nombre:}                          & Visualización y entrega del historial de pagos \\ \hline
+		\textbf{Usuario:}                         & Colaborador                                    \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                          \\ \hline
+		\textbf{Prioridad en Negocio:}            & Media                                          \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Bajo                                           \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 5: Cálculo de Nóminas                   \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                              \\ \hline
+		\textbf{Puntos Reales:}                   & --                                             \\ \hline
+		\textbf{Descripción:}                     &
+		El sistema permitirá a los colaboradores consultar su historial de pagos desde su perfil. Cada entrada mostrará la fecha del pago, el monto neto recibido, y un enlace para visualizar o descargar el comprobante oficial correspondiente.
+
+		Además, por cumplimiento legal, el sistema enviará automáticamente una copia del comprobante de pago al correo electrónico registrado de cada colaborador al momento de realizar el cálculo de nómina.
+
+		Las operaciones involucradas en este módulo consideran:
+		\begin{itemize}
+			\item \textbf{Crear:} El sistema generará un nuevo registro de pago cada vez que se procese una nómina.
+			\item \textbf{Leer:} Los colaboradores pueden consultar su historial filtrando por rango de fechas.
+			\item \textbf{Actualizar:} No aplica para el colaborador. Solo los administradores pueden rectificar datos desde el módulo de nómina.
+			\item \textbf{Eliminar:} Los registros no podrán ser eliminados por los usuarios. Solo se podrán ocultar si hay rectificación con auditoría.
+		\end{itemize}
+		\\ \hline
+		\textbf{Observaciones:}                   &
+		Se debe asegurar la confidencialidad de los datos financieros mediante autenticación de usuario y cifrado de información. El comprobante de pago deberá cumplir con los requisitos legales del Ministerio de Trabajo y será enviado automáticamente al correo del colaborador una vez generado.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-04}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-04                                      \\ \hline
+		\textbf{Nombre:}                          & Generación y gestión de reportes de nómina \\ \hline
+		\textbf{Usuario:}                         & Gerente                                    \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                      \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                       \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Alto                                       \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 6: Generación de Reportes           \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                          \\ \hline
+		\textbf{Puntos Reales:}                   & --                                         \\ \hline
+		\textbf{Descripción:}                     &
+		El sistema permitirá al gerente generar, visualizar y gestionar reportes de nómina. Desde el módulo correspondiente, el usuario podrá seleccionar el mes deseado y obtener un archivo PDF que incluya detalles de salarios brutos, deducciones, aportes patronales y salario neto total.
+
+		Las operaciones CRUD asociadas a esta historia son:
+		\begin{itemize}
+			\item \textbf{Crear:} Generación de un nuevo reporte mensual al cierre de la nómina.
+			\item \textbf{Leer:} Consultar reportes anteriores, filtrados por mes o año.
+			\item \textbf{Actualizar:} Regenerar un reporte si se realizaron ajustes a la nómina.
+			\item \textbf{Eliminar:} Borrar reportes bajo condiciones de auditoría (solo si no han sido firmados o validados).
+		\end{itemize}
+		Todos los reportes deberán conservar trazabilidad en la bitácora del sistema y permitir exportación a PDF.
+		\\ \hline
+		\textbf{Observaciones:}                   &
+		Esta funcionalidad estará restringida exclusivamente a usuarios con rol de Gerente. El sistema debe validar la autenticación y el rol activo antes de permitir acceso. Todos los archivos generados deberán protegerse mediante encriptación y almacenamiento seguro.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-05}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-05                                                                                                                                                                                                \\ \hline
+		\textbf{Nombre:}                          & Registro de llegada y salida de jornada laboral                                                                                                                                                      \\ \hline
+		\textbf{Usuario:}                         & Colaborador                                                                                                                                                                                          \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                                                                                \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                                                                                 \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Medio                                                                                                                                                                                                \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 4: Eventos Laborales                                                                                                                                                                          \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                                                                                    \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                                                                                   \\ \hline
+		\textbf{Descripción:}                     &
+		El colaborador registrará su ingreso y salida mediante un lector de huella o interfaz web. El sistema almacenará la hora exacta, la fecha y el ID del usuario, generando un historial de asistencia consultable por los administradores.
+
+		\textbf{CRUD:}
+		\begin{itemize}
+			\item \textbf{Crear:} Registro automático del ingreso y salida al marcar asistencia.
+			\item \textbf{Leer:} Consulta de historial por parte de administradores o el mismo colaborador.
+			\item \textbf{Actualizar:} Solo en casos excepcionales por parte de administradores (con justificación).
+			\item \textbf{Eliminar:} No permitido. Solo se puede anular con bitácora de rectificación.
+		\end{itemize}
+		\\ \hline
+		\textbf{Observaciones:}                   & Se debe garantizar que el colaborador no pueda marcar por otro. La validación se puede hacer mediante huella digital o credenciales únicas. Toda modificación requiere justificación administrativa.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-06}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-06                                                                                                                               \\ \hline
+		\textbf{Nombre:}                          & Generar documentación oficial para instituciones                                                                                    \\ \hline
+		\textbf{Usuario:}                         & Gerente / Contabilidad                                                                                                              \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                               \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Medio                                                                                                                               \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 6: Generación de Reportes                                                                                                    \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                   \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                  \\ \hline
+		\textbf{Descripción:}                     &
+		El sistema permitirá generar reportes mensuales en formatos requeridos por entidades como la CCSS, el Ministerio de Trabajo y el área de Contabilidad. Los datos incluirán horas trabajadas, deducciones, aportes patronales, y salarios netos.
+
+		\textbf{CRUD:}
+		\begin{itemize}
+			\item \textbf{Crear:} Generación automática de reportes por mes o quincena.
+			\item \textbf{Leer:} Consultar reportes anteriores.
+			\item \textbf{Actualizar:} Regenerar reportes si hay ajustes contables.
+			\item \textbf{Eliminar:} No permitido. Se puede anular con una versión rectificada.
+		\end{itemize}
+		\\ \hline
+		\textbf{Observaciones:}                   & Los reportes deberán tener firma digital o código de validación. El acceso debe estar restringido por rol y registrado en bitácora.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\caption{Historia de Usuario HU-07}
+	\begin{tabular}{|p{5cm}|p{9cm}|}
+		\hline
+		\textbf{Número:}                          & HU-07                                                                                                                                           \\ \hline
+		\textbf{Nombre:}                          & Registro y gestión de empleados                                                                                                                 \\ \hline
+		\textbf{Usuario:}                         & Administrador                                                                                                                                   \\ \hline
+		\textbf{Modificación de Historia Número:} & Nueva                                                                                                                                           \\ \hline
+		\textbf{Prioridad en Negocio:}            & Alta                                                                                                                                            \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Medio                                                                                                                                           \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 1: Setup del Proyecto                                                                                                                    \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                                                                                                                               \\ \hline
+		\textbf{Puntos Reales:}                   & --                                                                                                                                              \\ \hline
+		\textbf{Descripción:}                     &
+		El administrador podrá registrar, consultar, editar o desactivar a los colaboradores del sistema. Cada empleado tendrá asociado su nombre completo, número de cédula, correo, puesto y fecha de ingreso.
+
+		\textbf{CRUD:}
+		\begin{itemize}
+			\item \textbf{Crear:} Registro de un nuevo colaborador con sus datos básicos.
+			\item \textbf{Leer:} Consulta de empleados activos e inactivos.
+			\item \textbf{Actualizar:} Modificación de datos personales o laborales.
+			\item \textbf{Eliminar:} No aplica. Solo se desactiva al empleado manteniendo el historial.
+		\end{itemize}
+		\\ \hline
+		\textbf{Observaciones:}                   & El sistema debe validar que el correo y la cédula no se repitan. Solo administradores pueden gestionar empleados. Toda acción queda registrada.
+		\\ \hline
+	\end{tabular}
+\end{table}
+
+
+\clearpage
+
+
+\subsection*{Especificación de Requerimientos de Software (SRS)}
+\input{elements/SRS.tex}
+
+\subsection{Cronograma de Desarrollo y Pruebas}
+
+\begin{table}[h]
+	\centering
+	\caption{Cronograma de Desarrollo y Pruebas del Proyecto}
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{|p{4.2cm}|p{2.5cm}|p{2.5cm}|p{2.2cm}|p{3.5cm}|}
+		\hline
+		\textbf{Sprint / Actividad}             & \textbf{Fecha de Inicio} & \textbf{Fecha de Finalización} & \textbf{Duración} & \textbf{Periodo}                \\ \hline
+		Sprint 1: Setup del Proyecto            & 15 mayo 2025             & 31 mayo 2025                   & 2 semanas         & Mayo 2025 (segunda mitad)       \\ \hline
+		Sprint 2: Módulo de Login               & 1 junio 2025             & 15 junio 2025                  & 2 semanas         & Junio 2025 (primera mitad)      \\ \hline
+		Sprint 3: Módulo de Interfaz de Usuario & 16 junio 2025            & 15 julio 2025                  & 4 semanas         & Junio - Julio 2025              \\ \hline
+		Sprint 4: Admin. de Eventos Laborales   & 16 julio 2025            & 15 agosto 2025                 & 4 semanas         & Julio - Agosto 2025             \\ \hline
+		Sprint 5: Cálculo de Nóminas            & 16 agosto 2025           & 15 septiembre 2025             & 4 semanas         & Agosto - Septiembre 2025        \\ \hline
+		Sprint 6: Generación de Reportes        & 16 septiembre 2025       & 30 septiembre 2025             & 2 semanas         & Septiembre 2025 (segunda mitad) \\ \hline
+		Sprint 7: Módulo de Seguridad           & 1 octubre 2025           & 31 octubre 2025                & 4 semanas         & Octubre 2025                    \\ \hline
+		Sprint 8: Pruebas y Entrega             & 1 febrero 2026           & 30 junio 2026                  & 5 meses           & Febrero - Junio 2026            \\ \hline
+		\rowcolor{gray!10}
+		\textbf{Etapa de Pruebas Funcionales}   & 1 febrero 2026           & 30 abril 2026                  & 3 meses           & Febrero - Abril 2026            \\ \hline
+		\rowcolor{gray!10}
+		\textbf{Revisión y Documentación Final} & 1 mayo 2026              & 30 junio 2026                  & 2 meses           & Mayo - Junio 2026               \\ \hline
+	\end{tabular}
+\end{table}
+
+
+

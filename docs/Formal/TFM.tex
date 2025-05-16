@@ -6,6 +6,8 @@
 % Compilar con XeLaTeX 
 % -------------------------------
 \documentclass[12pt, a4paper, oneside]{book}
+\setcounter{tocdepth}{7}
+\setcounter{secnumdepth}{7}
 
 % -------------------------------
 % Información y opciones del documento. Debe editarse.
@@ -72,6 +74,12 @@
 \input{chapters/ch5}
 \input{chapters/ch6}
 
+\input{chapters/ch7}
+
+\input{chapters/ch8}
+
+\input{chapters/ch9}
+
 
 
 
@@ -82,11 +90,13 @@
 % Bibliografía
 % -------------------------------
 
-\chapter{Bibliografía y Glosario de Términos}
+\chapter{\textbf{Capitulo X: Bibliografía y Glosario de Términos}}
 
-\section{Glosario de Términos y Abreviaturas}
+\section{Bibliografía y glosario de Términos}
 
-\subsection{Glosario de Términos}
+\subsection{Glosario de Términos y Abreviaturas}
+
+\subsubsection{Glosario de Términos}
 
 \begin{itemize}
 	\item \textbf{Nómina:} Conjunto de registros financieros que una empresa mantiene sobre los salarios de sus empleados, deducciones y pagos.
@@ -105,7 +115,7 @@
 	\item \textbf{Entorno de desarrollo:} Conjunto de herramientas y configuraciones donde se programa y prueba el sistema.
 \end{itemize}
 
-\subsection{Abreviaturas}
+\subsubsection{Abreviaturas}
 
 \begin{itemize}
 	\item \textbf{API:} Application Programming Interface
@@ -124,30 +134,31 @@
 	\item \textbf{VPG\_:} Prefijo usado en nombres de tablas de base de datos
 \end{itemize}
 
+
+\subsection{Bibliografía}
 \nocite{*}
 \bibliographystyle{apalike}
 \bibliography{bib/ref}
-\addcontentsline{toc}{chapter}{Referencias bibliográficas} % Añade a la tabla de contenidos
-
 % -------------------------------
 % Apéndices
 % -------------------------------
-\appendix
-\chapter{Anexos}
-\section{Anexo 1}
+
+\chapter{\textbf{Capitulo XI: Anexos}}
+\section{Anexos}
+\section*{Anexo 1}
 Diagrama de Base de datos
-\section{Anexo 2}
+\section*{Anexo 2}
 Diagrama de clases
-\section{Anexo 3}
+\section*{Anexo 3}
 Casos de prueba
-\section{Anexo 4}
+\section*{Anexo 4}
 Fragmentos de codigo
-\section{Anexo 5}
+\section*{Anexo 5}
 Pantallas del sistema
-\section{Anexo 6}
+\section*{Anexo 6}
 A continuación se incluye la minuta oficial de la reunión con el patrocinador, según el formato establecido por la cátedra.
 \includepdf[pages=-]{media/minuta1.pdf}
-\section{Anexo 7}
+\section*{Anexo 7}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.20\textwidth]{media/Logo.png}

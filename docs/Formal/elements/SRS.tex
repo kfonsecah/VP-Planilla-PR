@@ -1,17 +1,17 @@
-\subsection{Introducción}
+\subsection*{Introducción}
 Esta Especificación de Requerimientos de Software (SRS) describe los
 requerimientos funcionales y no funcionales del sistema web de gestión de nómina
 para la empresa Café y Vivero Verde Pradera. Está dirigida al equipo de desarrollo,
 usuarios finales, patrocinadores del proyecto y cualquier persona involucrada en la
 validación y verificación del sistema.
 
-\subsubsection{Proposito}
+\subsubsection*{Propósito}
 El sistema gestionará de forma automatizada el cálculo de nómina, eventos laborales,
 reportes institucionales y seguridad de datos del personal. Será accesible mediante
 navegador web, con controles de acceso para usuarios autorizados. No incluirá
 funcionalidades de facturación, contabilidad general o inventario.
 
-\subsubsection{Alcance}
+\subsubsection*{Alcance}
 
 El sistema gestionará de forma automatizada el cálculo de nómina,
 eventos laborales, reportes institucionales y seguridad de datos del
@@ -19,7 +19,7 @@ personal. Será accesible mediante navegador web, con controles de acceso
 para usuarios autorizados. No incluirá funcionalidades de facturación,
 contabilidad general o inventario.
 
-\subsubsection{Definiciones, siglas y abreviaturas}
+\subsubsection*{Definiciones, siglas y abreviaturas}
 
 \begin{itemize}
 	\item \textbf{SRS:} \textit{Software Requirements Specification}.
@@ -30,7 +30,7 @@ contabilidad general o inventario.
 	\item \textbf{VPG\_:} Prefijo usado para nombrar tablas en la base de datos.
 \end{itemize}
 
-\subsubsection{Referencias}
+\subsubsection*{Referencias}
 
 \begin{itemize}
 	\item \textbf{TFM del proyecto:} “Sistema de Gestión de Nóminas para Café y Vivero Verde Pradera”. Universidad Nacional, Sede Regional Brunca.
@@ -43,7 +43,7 @@ contabilidad general o inventario.
 \end{itemize}
 
 
-\subsubsection{Visión general del documento}
+\subsubsection*{Visión general del documento}
 \begin{itemize}
 	\item \textbf{Sección 2:} Proporciona una descripción general del sistema, incluyendo su perspectiva, funciones principales, usuarios y restricciones de diseño.
 
@@ -53,7 +53,7 @@ contabilidad general o inventario.
 
 \end{itemize}
 
-\subsection{Descripcion General}
+\subsection*{Descripción General}
 
 Esta sección presenta una visión global del sistema de gestión de nóminas para
 Café y Vivero Verde Pradera. Aquí se describen los factores generales que influyen en
@@ -62,7 +62,7 @@ las funciones principales y las restricciones de diseño. Aunque esta sección n
 detalle sobre los requerimientos específicos, sienta las bases conceptuales y técnicas que
 guían el resto del documento.
 
-\subsubsection{Perspectiva del producto}
+\subsubsection*{Perspectiva del producto}
 
 El sistema de gestión de nóminas es una aplicación web que funcionará como un
 producto independiente, aunque podría integrarse a futuro con otros sistemas de gestión
@@ -70,7 +70,7 @@ empresarial. Su diseño sigue el modelo de n capas , con acceso controlado media
 credenciales de usuario. El sistema será accesible mediante navegadores modernos desde
 cualquier ubicación con conexión a internet.
 
-\subsubsection{Interfaces de usuario}
+\subsubsection*{Interfaces de usuario}
 
 \begin{itemize}
 	\item Pantalla de inicio de sesión
@@ -83,7 +83,7 @@ cualquier ubicación con conexión a internet.
 	\item Mensajes de validación y error amigables
 \end{itemize}
 
-\subsubsection{Interfaces de Hardware}
+\subsubsection*{Interfaces de Hardware}
 
 \begin{itemize}
 	\item El sistema requerirá interacción con impresoras para generar documentos
@@ -101,7 +101,7 @@ cualquier ubicación con conexión a internet.
 \end{itemize}
 
 
-\subsubsection{Interfases con software}
+\subsubsection*{Interfaces con software}
 
 \begin{itemize}
 	\item \textbf{Navegadores compatibles:} Chrome, Firefox, Microsoft Edge.
@@ -123,7 +123,7 @@ cualquier ubicación con conexión a internet.
 \end{itemize}
 
 
-\subsubsection{Interfases de comunicación}
+\subsubsection*{Interfaces de comunicación}
 
 \begin{itemize}
 	\item HTTP/HTTPS como protocolo de comunicación principal.
@@ -131,7 +131,7 @@ cualquier ubicación con conexión a internet.
 	\item Encriptación SSL/TLS para comunicaciones seguras.
 \end{itemize}
 
-\subsubsection{Restricciones de memoria}
+\subsubsection*{Restricciones de memoria}
 
 El sistema está diseñado para operar eficientemente en servidores con un mínimo de:
 
@@ -142,7 +142,7 @@ El sistema está diseñado para operar eficientemente en servidores con un míni
 
 Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 
-\subsubsection{Requerimientos de adecuación al entorno}
+\subsubsection*{Requerimientos de adecuación al entorno}
 
 \begin{itemize}
 	\item El sistema se adapta a diferentes dispositivos (responsive), permitiendo su uso en computadoras, laptops y tablets.
@@ -150,7 +150,7 @@ Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 	\item El servidor deberá estar configurado con zona horaria GMT-6.
 \end{itemize}
 
-\subsubsection{Funciones del producto (Casos de uso de alto nivel)}
+\subsubsection*{Funciones del producto (Casos de uso de alto nivel)}
 
 \begin{itemize}
 	\item Autenticación de usuarios
@@ -163,7 +163,7 @@ Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 	\item Capacitación y ayuda al usuario
 \end{itemize}
 
-\subsubsection{Características de los usuarios}
+\subsubsection*{Características de los usuarios}
 
 \begin{itemize}
 	\item \textbf{Administrador:} Usuario principal del sistema, con experiencia en gestión administrativa. Es responsable de registrar y mantener los datos del personal, roles, jornadas, eventos laborales, generar la nómina, administrar usuarios y emitir reportes oficiales. Tiene acceso total a todos los módulos del sistema, incluyendo la configuración de seguridad y la bitácora.
@@ -175,7 +175,7 @@ Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 	\item \textbf{Contabilidad (opcional):} Usuario con acceso exclusivo a los módulos de exportación de datos contables y reportes oficiales. Puede descargar formatos estandarizados y generar documentación legal.
 \end{itemize}
 
-\subsubsection{Restricciones de diseño}
+\subsubsection*{Restricciones de diseño}
 
 \begin{itemize}
 	\item \textbf{Lenguaje backend:} TypeScript utilizando Node.js y Express.js como framework principal para el desarrollo de la API.
@@ -187,42 +187,42 @@ Los navegadores cliente deben tener al menos 1GB de RAM disponible.
 	\item \textbf{Estandarización en base de datos:} Se utilizará un esquema consistente de nomenclatura, donde las tablas comienzan con el prefijo VPG\_ seguido del nombre en mayúsculas, y las columnas en minúsculas con guion bajo.
 \end{itemize}
 
-\subsubsection{Restricción de diseño 1}
+\subsubsection*{Restricción de diseño 1}
 
 \textbf{Uso obligatorio de Next.js con TypeScript como framework de desarrollo frontend.}
 El sistema debe ser desarrollado utilizando el framework Next.js con TypeScript como lenguaje principal, por su capacidad de renderizado híbrido, manejo eficiente del enrutamiento y escalabilidad. Esta decisión es clave para mantener un entorno moderno, seguro y compatible con estándares actuales de desarrollo web.
 
-\subsubsection{Restricción de diseño 2}
+\subsubsection*{Restricción de diseño 2}
 
 \textbf{Backend implementado en Express.js con Node.js y TypeScript.}
 La lógica de negocio del sistema debe ser implementada mediante una API RESTful utilizando Express.js sobre Node.js, con escritura en TypeScript para mejorar la robustez del código. Esta tecnología ha sido elegida por su ligereza, flexibilidad, comunidad activa y compatibilidad con herramientas modernas de desarrollo.
 
-\subsubsection{Restricción de diseño 3}
+\subsubsection*{Restricción de diseño 3}
 
 \textbf{Uso de PostgreSQL como base de datos principal.}
 La base de datos del sistema será implementada en PostgreSQL, salvo que se requiera específicamente el uso de SQL Server por condiciones de infraestructura del cliente. PostgreSQL fue seleccionado por su alto rendimiento, seguridad, soporte para transacciones ACID y amplia compatibilidad con herramientas ORM modernas.
 
-\subsubsection{Restricción de diseño 4}
+\subsubsection*{Restricción de diseño 4}
 
 \textbf{ORM Prisma para gestión de la base de datos.}
 Se utilizará Prisma como herramienta de mapeo objeto-relacional (ORM) para interactuar con la base de datos. Prisma proporciona tipado fuerte, migraciones estructuradas y una experiencia de desarrollo alineada con TypeScript, lo que facilita la validación y mantenimiento del sistema.
 
-\subsubsection{Restricción de diseño 5}
+\subsubsection*{Restricción de diseño 5}
 
 \textbf{Modelo de arquitectura cliente-servidor basado en APIs REST.}
 El sistema adoptará una arquitectura cliente-servidor, donde la interfaz de usuario (frontend) se comunica con el backend a través de una API REST. Esta separación garantiza una mejor escalabilidad, facilita el mantenimiento del código y permite una posible integración futura con otros sistemas.
 
-\subsubsection{Restricción de diseño 6}
+\subsubsection*{Restricción de diseño 6}
 
 \textbf{Control de versiones obligatorio con Git y repositorio en GitHub.}
 Todo el código fuente del sistema será gestionado mediante Git, con uso obligatorio del repositorio GitHub. Se seguirán buenas prácticas como el uso de ramas (main, develop, feature/*), mensajes de commit con prefijos ([FEATURE], [FIXED], [BUG], etc.) y revisiones por medio de pull requests para evitar conflictos y mantener calidad de código.
 
-\subsubsection{Restricción de diseño 7}
+\subsubsection*{Restricción de diseño 7}
 
 \textbf{Nomenclatura de base de datos estandarizada.}
 Las tablas en la base de datos deberán seguir el prefijo VPG\_ en mayúsculas, mientras que los campos se escribirán en minúsculas con guion bajo (snake\_case). Las claves foráneas seguirán el formato VPG\_TABLA1\_TABLA2\_FK. Esto garantiza consistencia, claridad y facilita la lectura del modelo de datos.
 
-\subsubsection{Supuestos y dependencias}
+\subsubsection*{Supuestos y dependencias}
 
 \begin{itemize}
 	\item Se asume que los usuarios tienen conocimientos básicos en el uso de sistemas web.
@@ -231,7 +231,7 @@ Las tablas en la base de datos deberán seguir el prefijo VPG\_ en mayúsculas, 
 \end{itemize}
 
 
-\subsection{Requerimientos del Sistema}
+\subsection*{Requerimientos del Sistema}
 
 Esta sección detalla los requerimientos funcionales y no funcionales del sistema
 de gestión de nóminas para Café y Vivero Verde Pradera. Los requerimientos se han
@@ -243,7 +243,7 @@ La información aquí contenida proporciona el nivel de detalle necesario para q
 equipo de desarrollo diseñe e implemente el sistema, y para que los encargados de calidad
 validen su cumplimiento mediante pruebas.
 
-\subsubsection{Modelo de Caso de Uso de Negocio}
+\subsubsection*{Modelo de Caso de Uso de Negocio}
 
 El modelo de negocio se centra en optimizar la gestión de nóminas del personal de la empresa Café y Vivero Verde Pradera. A continuación, se enumeran los principales procesos, definidos con base en las historias de usuario priorizadas:
 
@@ -261,7 +261,7 @@ El modelo de negocio se centra en optimizar la gestión de nóminas del personal
 
 Estos procesos serán representados como Casos de Uso en el sistema de información.
 
-\subsubsection{Modelo de Caso de Uso de Sistema}
+\subsubsection*{Modelo de Caso de Uso de Sistema}
 
 \begin{table}[h]
 	\centering
@@ -282,7 +282,7 @@ Estos procesos serán representados como Casos de Uso en el sistema de informaci
 
 \clearpage
 
-\subsubsection{Especificación de Caso de Uso: CU01 - Iniciar sesión}
+\subsubsection*{Especificación de Caso de Uso: CU01 - Iniciar sesión}
 
 \begin{table}[h]
 	\centering
@@ -358,7 +358,7 @@ CU02
 \subsubsection*{Estado}
 En definición
 
-\subsubsection{Especificación de Caso de Uso: CU02 - Registrar empleado}
+\subsubsection*{Especificación de Caso de Uso: CU02 - Registrar empleado}
 
 \begin{table}[h]
 	\centering
@@ -436,7 +436,7 @@ CU01, CU03, CU05
 \subsubsection*{Estado}
 En definición
 
-\subsubsection{Especificación de Caso de Uso: CU03 - Editar información de empleado}
+\subsubsection*{Especificación de Caso de Uso: CU03 - Editar información de empleado}
 
 \begin{table}[h]
 	\centering
@@ -514,7 +514,7 @@ CU01, CU02, CU05
 \subsubsection*{Estado}
 En definición
 
-\subsubsection{Especificación de Caso de Uso: CU04 - Registrar evento laboral}
+\subsubsection*{Especificación de Caso de Uso: CU04 - Registrar evento laboral}
 
 \begin{table}[h]
 	\centering
@@ -592,7 +592,7 @@ CU01, CU02, CU05
 \subsubsection*{Estado}
 En definición
 
-\subsection{Especificación de Caso de Uso: CU05 - Calcular Nómina}
+\subsection*{Especificación de Caso de Uso: CU05 - Calcular Nómina}
 
 \begin{table}[h]
 	\centering
@@ -675,7 +675,7 @@ CU02, CU03, CU04
 \subsubsection*{Estado}
 En definición
 
-\subsubsection{Especificación de Caso de Uso: CU06 - Generar reporte para la CCSS}
+\subsubsection*{Especificación de Caso de Uso: CU06 - Generar reporte para la CCSS}
 
 \begin{table}[h]
 	\centering
@@ -752,7 +752,7 @@ CU01, CU05, RS01
 En definición
 
 
-\subsubsection{Especificación de Caso de Uso: CU07 - Consultar comprobante de pago}
+\subsubsection*{Especificación de Caso de Uso: CU07 - Consultar comprobante de pago}
 
 \begin{table}[h]
 	\centering
@@ -826,7 +826,7 @@ CU01, CU05, CU06
 \subsubsection*{Estado}
 En definición
 
-\subsubsection{Especificación de Caso de Uso: CU08 - Configurar parámetros del sistema}
+\subsubsection*{Especificación de Caso de Uso: CU08 - Configurar parámetros del sistema}
 
 \begin{table}[h]
 	\centering
@@ -903,7 +903,7 @@ CU01, CU05, CU06
 En definición
 
 
-\subsubsection{Requerimientos suplementarios}
+\subsubsection*{Requerimientos suplementarios}
 
 \begin{table}[h]
 	\centering
@@ -920,7 +920,7 @@ En definición
 	\end{tabular}
 \end{table}
 
-\subsection{Requerimientos de documentación}
+\subsection*{Requerimientos de documentación}
 
 Esta sección describe la documentación que acompañará al sistema de gestión de nóminas.
 Se detallan los manuales, guías de instalación y otros recursos necesarios para garantizar
@@ -928,7 +928,7 @@ que los usuarios y administradores del sistema puedan utilizarlo, instalarlo y m
 adecuadamente. Además, se especifica el formato, contenido y medios de distribución de
 dicha documentación.
 
-\subsubsection{Manual de Usuario}
+\subsubsection*{Manual de Usuario}
 
 El sistema contará con un manual de usuario dirigido al personal administrativo y de recursos humanos de \textit{Café y Vivero Verde Pradera}. Este manual incluirá:
 
@@ -942,7 +942,7 @@ El sistema contará con un manual de usuario dirigido al personal administrativo
 
 El manual estará disponible en formato PDF y como parte de la sección de ayuda en línea. Será conciso, visual y redactado en español.
 
-\subsubsection{Ayuda en Línea}
+\subsubsection*{Ayuda en Línea}
 
 El sistema integrará un módulo de ayuda contextual. Esta ayuda se presentará como:
 
@@ -954,7 +954,7 @@ El sistema integrará un módulo de ayuda contextual. Esta ayuda se presentará 
 
 Todo el contenido estará disponible sin conexión a internet y se mantendrá actualizado en cada versión del sistema.
 
-\subsubsection{Guías de Instalación, Configuración y Archivo \texttt{README}}
+\subsubsection*{Guías de Instalación, Configuración y Archivo \texttt{README}}
 
 Se incluirá un documento de instalación técnica para el equipo de desarrollo o soporte técnico de la empresa. Contendrá:
 
@@ -970,7 +970,7 @@ Se incluirá un documento de instalación técnica para el equipo de desarrollo 
 	      \end{itemize}
 \end{itemize}
 
-\subsubsection{Etiquetado y Empaquetado}
+\subsubsection*{Etiquetado y Empaquetado}
 
 \begin{itemize}
 	\item El sistema incluirá elementos visuales consistentes con la identidad gráfica de la empresa, como logotipo y esquema de colores.
