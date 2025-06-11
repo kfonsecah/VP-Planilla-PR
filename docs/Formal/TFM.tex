@@ -20,6 +20,7 @@
 \usetikzlibrary{positioning, arrows.meta, shadows, calc}
 \usepackage{pdfpages}
 \usepackage{adjustbox} % Asegúrate de incluir esto en el preámbulo
+\usepackage{float}
 
 
 % Documento
@@ -158,8 +159,31 @@
 \newpage
 \section*{Anexo 3}
 \input{elements/dataDictionary}
+\newpage
 \section*{Anexo 4}
-Casos de prueba
+Pantallas del sistema
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.50\textwidth]{media/Login.png}
+	\caption{Pantalla de inicio de sesión Computadora}
+\end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.50\textwidth]{media/Layout.png}
+	\caption{Pantalla de diseño}
+\end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.50\textwidth]{media/Dashboard.png}
+	\caption{Pantalla del dashboard}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.50\textwidth]{media/Mobile Login.png}
+	\caption{Pantalla de inicio de sesion Móvil}
+\end{figure}
+\newpage
 \section*{Anexo 5}
 Fragmentos de codigo
 \section*{Anexo 6}
