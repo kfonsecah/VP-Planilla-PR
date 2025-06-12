@@ -8,18 +8,22 @@ import {
   EyeSlashIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/user";
 
 const LoginScreen = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-
+  const router = useRouter();
+  const {setUser} = useUser(); // Assuming you have a custom hook to manage user state
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Usuario:", username);
     console.log("Contraseña:", password);
-    // Here you would typically send the credentials to an authentication API
-    // and handle the response.
+    setUser(username); // Update user state
+    router.push("/pages/main");
   };
 
   return (
@@ -123,7 +127,7 @@ const LoginScreen = () => {
         </form>
       </div>
       {/* Right Panel: This panel now has the green background color and the patterned image */}
-      <div className="flex-1 bg-[#344838] relative overflow-hidden rounded-r-lg">
+      <div className="flex-1 bg-[#344838] relative overflow-hidden">
         {/* The user's provided background image for the right panel */}
         {/* We use mix-blend-multiply to tint the black and white image with the green background */}
         {/* Adjust opacity to control the visibility of the pattern */}
