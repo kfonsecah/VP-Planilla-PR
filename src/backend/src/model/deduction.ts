@@ -1,0 +1,22 @@
+export interface Deduction {
+  id: number;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixed_amount?: number;
+  version: number;
+}
+
+export interface CreateDeductionDto {
+  name: string;
+  description: string;
+  percentage?: number;
+  fixed_amount?: number;
+}
+
+export interface UpdateDeductionDto {
+  name?: string;
+  description?: string;
+  percentage?: number;
+  fixed_amount?: number;
+}
