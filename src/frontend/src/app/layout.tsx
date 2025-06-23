@@ -24,13 +24,12 @@ export default function RootLayout({
           <div className="h-screen bg-[#FBF8F0]"> {/* Still apply background to the whole screen */}
             {children}
           </div>
-        ) : (
-          // If it's not an auth page, render the full layout
+        ) : (          // If it's not an auth page, render the full layout
           <div className="flex h-screen bg-[#E7DCC1]">
             <Sidebar />
             <div className="flex flex-col flex-1">
               <Header />
-              <main className="flex-1 p-8">
+              <main className="flex-1 overflow-hidden">
                 {children}
               </main>
             </div>

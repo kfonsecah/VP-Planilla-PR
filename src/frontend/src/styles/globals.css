@@ -1,2 +1,35 @@
 @import "tailwindcss";
 
+/* Definición de fuentes personalizadas Verde Gestión */
+@font-face {
+  font-family: 'VerdeFont';
+  src: url('/fonts/VerdeFont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PraderaFont';
+  src: url('/fonts/PraderaFont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Variables CSS para usar en todo el proyecto */
+:root {
+  --font-titulo: 'VerdeFont', 'Inter', sans-serif;
+  --font-general: 'PraderaFont', 'Inter', sans-serif;
+}
+
+/* Aplicar PraderaFont como fuente por defecto */
+body {
+  font-family: var(--font-general);
+}
+
+/* Clase específica para el título Verde Gestión */
+.titulo-verde-gestion {
+  font-family: 'VerdeFont', 'Inter', sans-serif !important;
+}
+
