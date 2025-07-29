@@ -130,7 +130,7 @@ model vpg_employees {
   employee_status          String                     @db.Char(1)
   employee_version         Int                        @default(1)
   vpg_bonuses              vpg_bonuses[]
-  vpg_branch_employee      vpg_branch_employee[]      @ignore
+  vpg_branch_employee      vpg_branch_employee[]      
   vpg_clock_logs           vpg_clock_logs[]
   vpg_employee_deductions  vpg_employee_deductions[]
   vpg_employee_documents   vpg_employee_documents[]
