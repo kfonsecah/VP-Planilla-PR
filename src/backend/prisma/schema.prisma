@@ -8,264 +8,327 @@ datasource db {
 }
 
 model vpg_audit_logs {
-  id        Int       @id @default(autoincrement())
-  user_id   Int
-  action    String    @db.VarChar(100)
-  entity    String    @db.VarChar(100)
-  entity_id Int
-  timestamp DateTime  @db.Timestamp(6)
-  details   String?
-  vpg_users vpg_users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_audit_logs_users_14")
+  audit_logs_id        Int       @id @default(autoincrement())
+  audit_logs_user_id   Int
+  audit_logs_action    String    @db.VarChar(100)
+  audit_logs_entity    String    @db.VarChar(100)
+  audit_logs_entity_id Int
+  audit_logs_timestamp DateTime  @db.Timestamp(6)
+  audit_logs_details   String?
+  vpg_users            vpg_users @relation(fields: [audit_logs_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_audit_logs_users_21")
 
-  @@index([user_id], map: "idx_vpg_audit_logs_user_id")
+  @@index([audit_logs_user_id], map: "idx_vpg_audit_logs_user_id")
+  @@index([audit_logs_action], map: "idx_vpg_audit_logs_action")
+  @@index([audit_logs_entity], map: "idx_vpg_audit_logs_entity")
+  @@index([audit_logs_timestamp], map: "idx_vpg_audit_logs_timestamp")
 }
 
 model vpg_bonuses {
-  id            Int           @id @default(autoincrement())
-  employee_id   Int
-  description   String        @db.VarChar(255)
-  amount        Decimal       @db.Decimal(10, 2)
-  granted_at    DateTime      @db.Date
-  vpg_employees vpg_employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_bonuses_employees_15")
+  bonuses_id          Int           @id @default(autoincrement())
+  bonuses_employee_id Int
+  bonuses_payroll_id  Int
+  bonuses_year        Int
+  bonuses_month       Int
+  bonuses_description String        @db.VarChar(255)
+  bonuses_amount      Decimal       @db.Decimal(10, 2)
+  bonuses_granted_at  DateTime      @db.Date
+  bonuses_version     Int           @default(1)
+  vpg_employees       vpg_employees @relation(fields: [bonuses_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_bonuses_employees_13")
+  vpg_payrolls        vpg_payrolls  @relation(fields: [bonuses_payroll_id], references: [payrolls_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_bonuses_payrolls_14")
 
-  @@index([employee_id], map: "idx_vpg_bonuses_employee_id")
+  @@index([bonuses_employee_id], map: "idx_vpg_bonuses_employee_id")
+  @@index([bonuses_granted_at], map: "idx_vpg_bonuses_granted_at")
+  @@index([bonuses_payroll_id], map: "idx_vpg_bonuses_payroll_id")
+  @@index([bonuses_year, bonuses_month], map: "idx_vpg_bonuses_year_month")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vpg_branch_employee {
-  branch_id     Int
-  employee_id   Int
-  vpg_branches  vpg_branches  @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_branch_employee_branches_03")
-  vpg_employees vpg_employees @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_branch_employee_employees_04")
-
-  @@id([branch_id, employee_id])
-  @@index([branch_id], map: "idx_vpg_branch_employee_branch_id")
-  @@index([employee_id], map: "idx_vpg_branch_employee_employee_id")
+  employee_branch_branch_id   Int
+  employee_branch_employee_id Int
+  vpg_branches                vpg_branches?  @relation(fields: [employee_branch_branch_id], references: [branch_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_branch_employee_branches_03")
+  vpg_employees               vpg_employees? @relation(fields: [employee_branch_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_branch_employee_employees_04")
+  @@id([employee_branch_branch_id, employee_branch_employee_id])
+  @@index([employee_branch_branch_id], map: "idx_vpg_branch_employee_branch_id")
+  @@index([employee_branch_employee_id], map: "idx_vpg_branch_employee_employee_id")
 }
 
 model vpg_branches {
-  id                    Int                     @id @default(autoincrement())
+  branch_id             Int                     @id @default(autoincrement())
   branch_name           String                  @db.VarChar(50)
-  location              String                  @db.VarChar(100)
-  version               Int                     @default(1)
+  branch_location       String                  @db.VarChar(100)
+  branch_version        Int                     @default(1)
   vpg_branch_employee   vpg_branch_employee[]
   vpg_enterprise_branch vpg_enterprise_branch[]
 }
 
 model vpg_clock_logs {
-  id            Int           @id @default(autoincrement())
-  employee_id   Int
-  timestamp     DateTime      @db.Timestamp(6)
-  log_type      String        @db.VarChar(10)
-  remarks       String?
-  version       Int           @default(1)
-  vpg_employees vpg_employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_11")
+  clock_logs_id          Int           @id @default(autoincrement())
+  clock_logs_employee_id Int
+  clock_logs_timestamp   DateTime      @db.Timestamp(6)
+  clock_logs_log_type    String        @db.VarChar(10)
+  clock_logs_remarks     String?
+  clock_logs_version     Int           @default(1)
+  vpg_employees          vpg_employees @relation(fields: [clock_logs_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_16")
 
-  @@index([employee_id], map: "idx_vpg_clock_logs_employee_id")
+  @@index([clock_logs_employee_id], map: "idx_vpg_clock_logs_employee_id")
+  @@index([clock_logs_log_type], map: "idx_vpg_clock_logs_log_type")
+  @@index([clock_logs_timestamp], map: "idx_vpg_clock_logs_timestamp")
 }
 
 model vpg_deductions {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @db.VarChar(100)
-  description            String
-  percentage             Decimal?                 @db.Decimal(5, 2)
-  fixed_amount           Decimal?                 @db.Decimal(10, 2)
-  version                Int                      @default(1)
-  vpg_employee_deduction vpg_employee_deduction[]
-}
-
-model vpg_employee_deduction {
-  employee_id    Int
-  deduction_id   Int
-  vpg_deductions vpg_deductions @relation(fields: [deduction_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_deduction_deductions_10")
-  vpg_employees  vpg_employees  @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_deduction_employees_09")
-
-  @@id([employee_id, deduction_id])
-  @@index([deduction_id], map: "idx_vpg_employee_deduction_deduction_id")
-  @@index([employee_id], map: "idx_vpg_employee_deduction_employee_id")
+  deductions_id           Int                       @id @default(autoincrement())
+  deductions_name         String                    @db.VarChar(100)
+  deductions_description  String
+  deductions_percentage   Decimal?                  @db.Decimal(5, 2)
+  deductions_fixed_amount Decimal?                  @db.Decimal(10, 2)
+  deductions_version      Int                       @default(1)
+  vpg_employee_deductions vpg_employee_deductions[]
 }
 
 model vpg_employee_documents {
-  id            Int           @id @default(autoincrement())
-  employee_id   Int
-  file_path     String        @db.VarChar(255)
-  document_type String        @db.VarChar(50)
-  uploaded_at   DateTime      @db.Timestamp(6)
-  vpg_employees vpg_employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_employee_documents_employees_16")
+  employee_documents_id            Int           @id @default(autoincrement())
+  employee_documents_employee_id   Int
+  employee_documents_file_path     String        @db.VarChar(255)
+  employee_documents_document_type String        @db.VarChar(50)
+  employee_documents_uploaded_at   DateTime      @db.Timestamp(6)
+  vpg_employees                    vpg_employees @relation(fields: [employee_documents_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_documents_employees_06")
 
-  @@index([employee_id], map: "idx_vpg_employee_documents_employee_id")
+  @@index([employee_documents_employee_id], map: "idx_vpg_employee_documents_employee_id")
+  @@index([employee_documents_document_type], map: "idx_vpg_employee_documents_type")
 }
 
 model vpg_employee_labor_event {
-  id               Int              @id @default(autoincrement())
-  employee_id      Int
-  labor_event_id   Int
-  start_date       DateTime         @db.Date
-  end_date         DateTime?        @db.Date
-  status           String           @db.VarChar(20)
-  version          Int              @default(1)
-  vpg_employees    vpg_employees    @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_employee_labor_event_employees_17")
-  vpg_labor_events vpg_labor_events @relation(fields: [labor_event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_employee_labor_event_labor_events_18")
+  employee_labor_event_id             Int              @id @default(autoincrement())
+  employee_labor_event_employee_id    Int
+  employee_labor_event_labor_event_id Int
+  employee_labor_event_start_date     DateTime         @db.Date
+  employee_labor_event_end_date       DateTime?        @db.Date
+  employee_labor_event_status         String           @db.VarChar(20)
+  employee_labor_event_version        Int              @default(1)
+  vpg_employees                       vpg_employees    @relation(fields: [employee_labor_event_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_labor_event_employees_17")
+  vpg_labor_events                    vpg_labor_events @relation(fields: [employee_labor_event_labor_event_id], references: [labor_events_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_labor_event_labor_events_18")
 
-  @@index([employee_id], map: "idx_vpg_employee_labor_event_employee_id")
-  @@index([labor_event_id], map: "idx_vpg_employee_labor_event_labor_event_id")
+  @@index([employee_labor_event_employee_id], map: "idx_vpg_employee_labor_event_employee_id")
+  @@index([employee_labor_event_labor_event_id], map: "idx_vpg_employee_labor_event_labor_event_id")
+  @@index([employee_labor_event_start_date], map: "idx_vpg_employee_labor_event_start_date")
+  @@index([employee_labor_event_status], map: "idx_vpg_employee_labor_event_status")
 }
 
 model vpg_employees {
-  id                       Int                        @id @default(autoincrement())
-  first_name               String                     @db.VarChar(50)
-  last_name                String                     @db.VarChar(50)
-  middle_name              String                     @db.VarChar(50)
-  national_id              String                     @db.VarChar(30)
-  email                    String                     @db.VarChar(100)
-  position_id              Int
-  hire_date                DateTime                   @db.Date
-  status                   String                     @db.Char(1)
-  version                  Int                        @default(1)
+  employee_id              Int                        @id @default(autoincrement())
+  employee_first_name      String                     @db.VarChar(50)
+  employee_last_name       String                     @db.VarChar(50)
+  employee_middle_name     String                     @db.VarChar(50)
+  employee_national_id     String                     @db.VarChar(30)
+  employee_social_code     String                     @db.VarChar(100)
+  employee_email           String                     @db.VarChar(100)
+  employee_position_id     Int
+  employee_hire_date       DateTime                   @db.Date
+  employee_exit_date       DateTime?                  @db.Date
+  employee_fired           Boolean                    @default(false)
+  employee_status          String                     @db.Char(1)
+  employee_version         Int                        @default(1)
   vpg_bonuses              vpg_bonuses[]
-  vpg_branch_employee      vpg_branch_employee[]
+  vpg_branch_employee      vpg_branch_employee[]      @ignore
   vpg_clock_logs           vpg_clock_logs[]
-  vpg_employee_deduction   vpg_employee_deduction[]
+  vpg_employee_deductions  vpg_employee_deductions[]
   vpg_employee_documents   vpg_employee_documents[]
   vpg_employee_labor_event vpg_employee_labor_event[]
+  vpg_positions            vpg_positions              @relation(fields: [employee_position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employees_positions_05")
   vpg_payroll_employee     vpg_payroll_employee[]
-  vpg_positions            vpg_positions              @relation(fields: [position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employees_positions_05")
+  vpg_vacations            vpg_vacations[]
 
-  @@index([position_id], map: "idx_vpg_employees_position_id")
+  @@index([employee_position_id], map: "idx_vpg_employees_position_id")
+  @@index([employee_email], map: "idx_vpg_employees_email")
+  @@index([employee_national_id], map: "idx_vpg_employees_national_id")
+  @@index([employee_status], map: "idx_vpg_employees_status")
 }
 
 model vpg_enterprise {
-  id                    Int                     @id @default(autoincrement())
-  name                  String                  @db.VarChar(50)
-  image                 Bytes
-  creation_date         DateTime                @db.Date
-  version               Int                     @default(1)
-  vpg_enterprise_branch vpg_enterprise_branch[]
+  enterprise_id            Int                     @id @default(autoincrement())
+  enterprise_name          String                  @db.VarChar(50)
+  enterprise_image         Bytes
+  enterprise_creation_date DateTime                @db.Date
+  enterprise_version        Int                     @default(1)
+  vpg_enterprise_branch    vpg_enterprise_branch[]
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vpg_enterprise_branch {
-  enterprise_id  Int
-  branch_id      Int
-  vpg_branches   vpg_branches   @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_enterprise_branch_branches_02")
-  vpg_enterprise vpg_enterprise @relation(fields: [enterprise_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_enterprise_branch_enterprise_01")
-
-  @@id([enterprise_id, branch_id])
-  @@index([branch_id], map: "idx_vpg_enterprise_branch_branch_id")
-  @@index([enterprise_id], map: "idx_vpg_enterprise_branch_enterprise_id")
+  branch_enterprise_enterprise_id Int
+  branch_enterprise_branch_id     Int
+  vpg_branches                    vpg_branches?   @relation(fields: [branch_enterprise_branch_id], references: [branch_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_enterprise_branch_branches_02")
+  vpg_enterprise                  vpg_enterprise? @relation(fields: [branch_enterprise_enterprise_id], references: [enterprise_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_enterprise_branch_enterprise_01")
+  @@id([branch_enterprise_enterprise_id, branch_enterprise_branch_id])
+  @@index([branch_enterprise_branch_id], map: "idx_vpg_enterprise_branch_branch_id")
+  @@index([branch_enterprise_enterprise_id], map: "idx_vpg_enterprise_branch_enterprise_id")
 }
 
 model vpg_labor_events {
-  id                       Int                        @id @default(autoincrement())
-  name                     String                     @db.VarChar(100)
-  description              String
-  version                  Int                        @default(1)
+  labor_events_id          Int                        @id @default(autoincrement())
+  labor_events_name        String                     @db.VarChar(100)
+  labor_events_description String
+  labor_events_version     Int                        @default(1)
   vpg_employee_labor_event vpg_employee_labor_event[]
 }
 
 model vpg_mail_server_settings {
-  id           Int     @id @default(autoincrement())
-  host         String  @db.VarChar(100)
-  port         Int
-  username     String  @db.VarChar(100)
-  password     String  @db.VarChar(255)
-  from_address String  @db.VarChar(100)
-  use_ssl      Boolean
-  use_tls      Boolean
-  version      Int     @default(1)
+  mail_server_settings_id           Int     @id @default(autoincrement())
+  mail_server_settings_host         String  @db.VarChar(100)
+  mail_server_settings_port         Int
+  mail_server_settings_username     String  @db.VarChar(100)
+  mail_server_settings_password     String  @db.VarChar(255)
+  mail_server_settings_from_address String  @db.VarChar(100)
+  mail_server_settings_use_ssl      Boolean
+  mail_server_settings_use_tls      Boolean
+  mail_server_settings_version      Int     @default(1)
 }
 
 model vpg_payroll_employee {
-  payroll_id       Int           @default(autoincrement())
-  employee_id      Int
-  gross_salary     Decimal       @db.Decimal(10, 2)
-  total_deductions Decimal       @db.Decimal(10, 2)
-  net_salary       Decimal       @db.Decimal(10, 2)
-  version          Int           @default(1)
-  vpg_employees    vpg_employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_payroll_employee_employees_08")
-  vpg_payrolls     vpg_payrolls  @relation(fields: [payroll_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payroll_employee_payrolls_07")
+  payroll_employee_id               Int           @id @default(autoincrement())
+  payroll_employee_payroll_id       Int
+  payroll_employee_employee_id      Int
+  payroll_employee_gross_salary     Decimal       @db.Decimal(10, 2)
+  payroll_employee_total_deductions Decimal       @db.Decimal(10, 2)
+  payroll_employee_net_salary       Decimal       @db.Decimal(10, 2)
+  payroll_employee_version          Int           @default(1)
+  vpg_employees                     vpg_employees @relation(fields: [payroll_employee_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payroll_employee_employees_09")
+  vpg_payrolls                      vpg_payrolls  @relation(fields: [payroll_employee_payroll_id], references: [payrolls_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payroll_employee_payrolls_08")
 
-  @@id([payroll_id, employee_id])
-  @@index([employee_id], map: "idx_vpg_payroll_employee_employee_id")
-  @@index([payroll_id], map: "idx_vpg_payroll_employee_payroll_id")
+  @@index([payroll_employee_employee_id], map: "idx_vpg_payroll_employee_employee_id")
+  @@index([payroll_employee_payroll_id], map: "idx_vpg_payroll_employee_payroll_id")
+  @@index([payroll_employee_payroll_id, payroll_employee_employee_id], map: "idx_vpg_payroll_employee_composite")
 }
 
 model vpg_payroll_types {
-  id           Int            @id @default(autoincrement())
-  name         String         @db.VarChar(50)
-  description  String
-  version      Int            @default(1)
-  vpg_payrolls vpg_payrolls[]
+  payroll_types_id          Int            @id @default(autoincrement())
+  payroll_types_name        String         @db.VarChar(50)
+  payroll_types_description String
+  payroll_types_version     Int            @default(1)
+  vpg_payrolls              vpg_payrolls[]
 }
 
 model vpg_payrolls {
-  id                   Int                    @id @default(autoincrement())
-  payroll_type_id      Int
-  period_start         DateTime               @db.Date
-  period_end           DateTime               @db.Date
-  payment_date         DateTime               @db.Date
-  status               String                 @db.VarChar(20)
-  version              Int                    @default(1)
-  vpg_payroll_employee vpg_payroll_employee[]
-  vpg_payroll_types    vpg_payroll_types      @relation(fields: [payroll_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payrolls_payroll_types_06")
+  payrolls_id              Int                       @id @default(autoincrement())
+  payrolls_payroll_type_id Int
+  payrolls_period_start    DateTime                  @db.Date
+  payrolls_period_end      DateTime                  @db.Date
+  payrolls_payment_date    DateTime                  @db.Date
+  payrolls_status          String                    @db.VarChar(20)
+  payrolls_version         Int                       @default(1)
+  vpg_bonuses              vpg_bonuses[]
+  vpg_employee_deductions  vpg_employee_deductions[]
+  vpg_payroll_employee     vpg_payroll_employee[]
+  vpg_payroll_types        vpg_payroll_types         @relation(fields: [payrolls_payroll_type_id], references: [payroll_types_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payrolls_payroll_types_07")
 
-  @@index([payroll_type_id], map: "idx_vpg_payrolls_payroll_type_id")
+  @@index([payrolls_payroll_type_id], map: "idx_vpg_payrolls_payroll_type_id")
+  @@index([payrolls_period_end], map: "idx_vpg_payrolls_period_end")
+  @@index([payrolls_period_start], map: "idx_vpg_payrolls_period_start")
+  @@index([payrolls_status], map: "idx_vpg_payrolls_status")
 }
 
 model vpg_positions {
-  id            Int             @id @default(autoincrement())
-  name          String          @db.VarChar(50)
-  description   String
-  base_salary   Decimal         @db.Decimal(10, 2)
-  version       Int             @default(1)
-  vpg_employees vpg_employees[]
+  position_id          Int             @id @default(autoincrement())
+  position_name        String          @db.VarChar(50)
+  position_description String
+  position_base_salary Decimal         @db.Decimal(10, 2)
+  position_version     Int             @default(1)
+  vpg_employees        vpg_employees[]
 }
 
 model vpg_report_logs {
-  id                  Int                   @id @default(autoincrement())
-  report_type         String                @db.VarChar(50)
-  generated_by        Int
-  generated_at        DateTime              @db.Timestamp(6)
-  period_start        DateTime              @db.Date
-  period_end          DateTime              @db.Date
-  file_path           String                @db.VarChar(255)
-  status              String                @db.VarChar(20)
-  version             Int                   @default(1)
-  vpg_users           vpg_users             @relation(fields: [generated_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_report_logs_users_12")
-  vpg_report_versions vpg_report_versions[]
+  report_logs_id           Int                   @id @default(autoincrement())
+  report_logs_report_type  String                @db.VarChar(50)
+  report_logs_generated_by Int
+  report_logs_generated_at DateTime              @db.Timestamp(6)
+  report_logs_period_start DateTime              @db.Date
+  report_logs_period_end   DateTime              @db.Date
+  report_logs_file_path    String                @db.VarChar(255)
+  report_logs_status       String                @db.VarChar(20)
+  report_logs_version      Int                   @default(1)
+  vpg_users                vpg_users             @relation(fields: [report_logs_generated_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_report_logs_users_19")
+  vpg_report_versions      vpg_report_versions[]
 
-  @@index([generated_by], map: "idx_vpg_report_logs_generated_by")
+  @@index([report_logs_generated_by], map: "idx_vpg_report_logs_generated_by")
+  @@index([report_logs_generated_at], map: "idx_vpg_report_logs_generated_at")
+  @@index([report_logs_report_type], map: "idx_vpg_report_logs_report_type")
+  @@index([report_logs_status], map: "idx_vpg_report_logs_status")
 }
 
 model vpg_report_targets {
-  id            Int    @id @default(autoincrement())
-  institution   String @db.VarChar(100)
-  endpoint_url  String @db.VarChar(255)
-  auth_token    String @db.VarChar(255)
-  contact_email String @db.VarChar(100)
-  version       Int    @default(1)
+  report_targets_id            Int    @id @default(autoincrement())
+  report_targets_institution   String @db.VarChar(100)
+  report_targets_endpoint_url  String @db.VarChar(255)
+  report_targets_auth_token    String @db.VarChar(255)
+  report_targets_contact_email String @db.VarChar(100)
+  report_targets_version       Int    @default(1)
 }
 
 model vpg_report_versions {
-  id              Int             @id @default(autoincrement())
-  report_log_id   Int
-  created_at      DateTime        @db.Timestamp(6)
-  file_path       String          @db.VarChar(255)
-  remarks         String?
-  vpg_report_logs vpg_report_logs @relation(fields: [report_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_report_versions_report_logs_13")
+  report_versions_id            Int             @id @default(autoincrement())
+  report_versions_report_log_id Int
+  report_versions_created_at    DateTime        @db.Timestamp(6)
+  report_versions_file_path     String          @db.VarChar(255)
+  report_versions_remarks       String?
+  vpg_report_logs               vpg_report_logs @relation(fields: [report_versions_report_log_id], references: [report_logs_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_report_versions_report_logs_20")
 
-  @@index([report_log_id], map: "idx_vpg_report_versions_report_log_id")
+  @@index([report_versions_report_log_id], map: "idx_vpg_report_versions_report_log_id")
+  @@index([report_versions_created_at], map: "idx_vpg_report_versions_created_at")
 }
 
 model vpg_users {
-  id              Int               @id @default(autoincrement())
-  first_name      String            @db.VarChar(50)
-  last_name       String            @db.VarChar(50)
-  middle_name     String            @db.VarChar(50)
-  national_id     String            @db.VarChar(30)
-  email           String            @db.VarChar(100)
-  username        String            @db.VarChar(50)
-  password        String            @db.VarChar(255)
-  role            String            @db.VarChar(20)
-  version         Int               @default(1)
-  vpg_audit_logs  vpg_audit_logs[]
-  vpg_report_logs vpg_report_logs[]
+  user_id          Int               @id @default(autoincrement())
+  user_first_name  String            @db.VarChar(50)
+  user_last_name   String            @db.VarChar(50)
+  user_middle_name String            @db.VarChar(50)
+  user_national_id String            @db.VarChar(30)
+  user_email       String            @db.VarChar(100)
+  user_username    String            @db.VarChar(50)
+  user_password    String            @db.VarChar(255)
+  user_role        String            @db.VarChar(20)
+  user_version     Int               @default(1)
+  vpg_audit_logs   vpg_audit_logs[]
+  vpg_report_logs  vpg_report_logs[]
+
+  @@index([user_email], map: "idx_vpg_users_email")
+  @@index([user_national_id], map: "idx_vpg_users_national_id")
+  @@index([user_role], map: "idx_vpg_users_role")
+  @@index([user_username], map: "idx_vpg_users_username")
+}
+
+model vpg_employee_deductions {
+  employee_deductions_employee_id  Int
+  employee_deductions_deduction_id Int
+  employee_deductions_payroll_id   Int
+  employee_deductions_year         Int
+  employee_deductions_month        Int
+  employee_deductions_amount       Decimal        @db.Decimal(10, 2)
+  employee_deductions_version      Int            @default(1)
+  vpg_deductions                   vpg_deductions @relation(fields: [employee_deductions_deduction_id], references: [deductions_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_deductions_deductions_11")
+  vpg_employees                    vpg_employees  @relation(fields: [employee_deductions_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_deductions_employees_10")
+  vpg_payrolls                     vpg_payrolls   @relation(fields: [employee_deductions_payroll_id], references: [payrolls_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_employee_deductions_payrolls_12")
+
+  @@id([employee_deductions_employee_id, employee_deductions_deduction_id, employee_deductions_payroll_id])
+  @@index([employee_deductions_deduction_id], map: "idx_vpg_employee_deductions_deduction_id")
+  @@index([employee_deductions_employee_id], map: "idx_vpg_employee_deductions_employee_id")
+  @@index([employee_deductions_payroll_id], map: "idx_vpg_employee_deductions_payroll_id")
+  @@index([employee_deductions_year, employee_deductions_month], map: "idx_vpg_employee_deductions_year_month")
+}
+
+model vpg_vacations {
+  vacations_id          Int           @id @default(autoincrement())
+  vacations_employee_id Int
+  vacations_start_date  DateTime      @db.Date
+  vacations_end_date    DateTime      @db.Date
+  vacations_total_days  Int?          @default(dbgenerated("((vacations_end_date - vacations_start_date) + 1)"))
+  vacations_paid        Boolean?      @default(true)
+  vacations_status      String?       @default("Aprobado") @db.VarChar(20)
+  vacations_version     Int           @default(1)
+  vpg_employees         vpg_employees @relation(fields: [vacations_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_vacations_employees_15")
+
+  @@index([vacations_employee_id], map: "idx_vpg_vacations_employee_id")
+  @@index([vacations_end_date], map: "idx_vpg_vacations_end_date")
+  @@index([vacations_start_date], map: "idx_vpg_vacations_start_date")
+  @@index([vacations_status], map: "idx_vpg_vacations_status")
 }
