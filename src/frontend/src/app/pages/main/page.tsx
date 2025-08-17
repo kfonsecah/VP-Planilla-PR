@@ -258,9 +258,9 @@ const Home: React.FC = () => {
   };
   return (
     <div className="h-full bg-[#E7DCC1] overflow-auto">
-      <div className="flex flex-col gap-4 p-4 min-h-full font-sans">
+      <div className="flex flex-col min-h-full gap-4 p-4 font-sans">
         {/* Top Section: Events and Pending Tasks */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
           {/* Events of the Month */}
           <div className="lg:col-span-3 bg-[#F5F1E8] rounded-lg shadow-sm p-4 border border-[#E0D6B7]">
             <h3 className="text-sm font-semibold text-[#4A5D3A] mb-3 text-center uppercase tracking-wider">
@@ -324,10 +324,10 @@ const Home: React.FC = () => {
             <table className="w-full table-fixed min-w-[800px]">
               <thead>
                 <tr className="bg-[#F8F6F1] text-[#6B7556] text-xs font-medium border-b border-[#E5E1D8]">
-                  <th className="text-left py-2 px-3 w-1/4">Nombre</th>
-                  <th className="text-left py-2 px-3 w-1/4">Posición</th>
-                  <th className="text-left py-2 px-3 w-1/4">Salario</th>
-                  <th className="text-center py-2 px-3 w-1/4">Estado</th>
+                  <th className="w-1/4 px-3 py-2 text-left">Nombre</th>
+                  <th className="w-1/4 px-3 py-2 text-left">Posición</th>
+                  <th className="w-1/4 px-3 py-2 text-left">Salario</th>
+                  <th className="w-1/4 px-3 py-2 text-center">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -372,7 +372,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="bg-[#F5F1E8] rounded-lg shadow-sm p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border border-[#E0D6B7] group">
             <div className="w-10 h-10 bg-[#E7DCC1] rounded-lg flex items-center justify-center mb-2 group-hover:bg-[#D4C89A] transition-colors">
               <svg className="w-5 h-5 text-[#4A5D3A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,3 +423,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+
+

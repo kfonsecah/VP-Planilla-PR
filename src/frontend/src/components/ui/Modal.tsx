@@ -46,7 +46,10 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   const handleConfirm = () => {
-    onConfirm ? onConfirm() : onClose();
+    if (onConfirm) {
+      onConfirm();
+    }
+    onClose();
   };
 
   const handleCancel = () => {

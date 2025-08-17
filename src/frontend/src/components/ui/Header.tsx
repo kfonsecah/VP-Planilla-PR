@@ -3,20 +3,12 @@ import Image from "next/image";
 import { getCurrentSpanishFormattedDateString } from "@/utils/time";
 import { useWeather } from "@/utils/weather";
 import { useState, useEffect } from "react";
-
-interface AuthenticatedUser {
-  id: number;
-  username: string;
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-  role: string;
-}
+import { useUser } from "@/hooks/user";
 
 export default function Header() {
   const currentDate = getCurrentSpanishFormattedDateString();
   const { weather: currentWeather, isLoadingWeather } = useWeather();
-  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+  const { user: currentUser } = useUser();
   const [showNotifications, setShowNotifications] = useState(false);
 
   // Notificaciones de ejemplo
@@ -54,18 +46,6 @@ export default function Header() {
       unread: false
     }
   ];
-  useEffect(() => {
-    // Obtener usuario del localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        setCurrentUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     // Cerrar notificaciones al hacer click fuera
@@ -81,18 +61,21 @@ export default function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showNotifications]);
+
   // Función para obtener el nombre completo del usuario
   const getFullName = () => {
     if (!currentUser) return "Usuario";
 
-    const { first_name, middle_name, last_name } = currentUser;
+    const { first_name, last_name, middle_name  } = currentUser;
     
     // Construir nombre completo, manejando valores nulos o vacíos
     const nameParts = [
       first_name?.trim(),
-      middle_name?.trim(), 
-      last_name?.trim()
-    ].filter(Boolean); // Filtra valores falsy (null, undefined, "")    return nameParts.length > 0 ? nameParts.join(" ") : "Usuario";
+      last_name?.trim(),
+      middle_name?.trim() 
+    ].filter(Boolean); // Filtra valores falsy (null, undefined, "")
+    
+    return nameParts.length > 0 ? nameParts.join(" ") : "Usuario";
   };
 
   const toggleNotifications = () => {
@@ -111,7 +94,7 @@ export default function Header() {
             ? "Cargando clima..."
             : `Día de ${currentWeather?.description} en ${currentWeather?.city}`}
         </p>
-      </div>      <div className="flex items-center space-x-3 relative notification-container">        {/* Notification Bell Icon */}
+      </div>      <div className="relative flex items-center space-x-3 notification-container">        {/* Notification Bell Icon */}
         <div 
           className="relative w-8 h-8 rounded-full border border-[rgba(184,179,166,0.37)] flex items-center justify-center text-[#4A5D3A] cursor-pointer hover:bg-[#F0E6D2] transition-colors"
           onClick={toggleNotifications}
@@ -123,7 +106,7 @@ export default function Header() {
             height={28}
           />
           {unreadCount > 0 && (
-            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+            <div className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full -top-1 -right-1">
               {unreadCount}
             </div>
           )}
@@ -142,7 +125,7 @@ export default function Header() {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="overflow-y-auto max-h-96">
             {notifications.map((notification) => (
               <div
                 key={notification.id}

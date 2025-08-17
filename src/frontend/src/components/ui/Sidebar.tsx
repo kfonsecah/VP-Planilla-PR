@@ -9,13 +9,9 @@ export default function Sidebar() {
   const mainMenuItems = [
     { href: "/pages/main", icon: "/images/layout/dashboard.png", text: "Dashboard" },
     {
-      href: "/employee",
+      href: "/pages/employee/list",
       icon: "/images/layout/employees.png",
-      text: "Empleados",
-      subItems: [
-        { href: "/pages/employee/list", text: "Lista de Empleados" },
-        { href: "/pages/employee/add", text: "Agregar Empleado" },
-      ],
+      text: "Empleados"
     },
     { href: "pages/attendance", icon: "/images/layout/attendance.png", text: "Registro de asistencia" },
     { href: "pages/payroll", icon: "/images/layout/payroll.png", text: "Cálculo de planillas" },
@@ -40,7 +36,6 @@ export default function Sidebar() {
             href={item.href}
             icon={item.icon}
             text={item.text}
-            subItems={item.subItems}
           />
         ))}
       </nav>       <div className="p-3 mt-auto"> {/* Padding consistente */}
