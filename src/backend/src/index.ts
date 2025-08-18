@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/AuthRoute'
-
+import employeeRoutes from './routes/EmployeeRoute';
 dotenv.config();
 
 const app = express();
@@ -32,6 +32,7 @@ app.get('/health', (_req, res) => {
 
 // Ruta de auth básica sin importaciones externas
 app.use('/api', authRoutes);
+app.use('/api', employeeRoutes)
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🌐 Servidor escuchando en http://0.0.0.0:${PORT}`);
