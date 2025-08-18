@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './routes/AuthRoute'
 import employeeRoutes from './routes/EmployeeRoute';
 import laborEventsRoutes from './routes/LaborEventsRoute';
+import deductionsRoutes from './routes/DeductionsRoute';
 dotenv.config();
 
 const app = express();
@@ -35,6 +36,7 @@ app.get('/health', (_req, res) => {
 app.use('/api', authRoutes);
 app.use('/api', employeeRoutes);
 app.use('/api', laborEventsRoutes);
+app.use('/api', deductionsRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🌐 Servidor escuchando en http://0.0.0.0:${PORT}`);
