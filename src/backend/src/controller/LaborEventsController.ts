@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { LaborEventsService } from "../service/LaborEventsService";
+import { EmployeeLaborEvent } from "../model/employeeLaborEvent";
 
 export class LaborEventsController {
   /**
@@ -86,6 +87,51 @@ export class LaborEventsController {
     } catch (error) {
       console.error("Failed to delete labor event:", error);
       return res.status(500).json({ error: "Failed to delete labor event" });
+    }
+  }
+
+  /**
+   * Assign labor events to an employee
+   * POST /labor-events/assign
+   */
+  static async assignLaborEventsToEmployee(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const { employee_id, labor_event_id, start_date, end_date, status } =
+        req.body;
+
+      // Convert date strings to Date objects
+      const startDate = new Date(start_date);
+      const endDate = end_date ? new Date(end_date) : null;
+
+      if (isNaN(startDate.getTime()) || (end_date && isNaN(endDate!.getTime()))) {
+        res.status(400).json({ message: "Invalid date format. Please use ISO-8601 format." });
+        return;
+      }
+
+      const eventData: EmployeeLaborEvent = {
+        employee_id,
+        labor_event_id,
+        start_date: startDate,
+        end_date: endDate,
+        status,
+        // You might need to provide default/dummy values for these if they are required by the interface
+        id: 0, 
+        version: 0,
+      };
+
+      const result = await LaborEventsService.assignLaborEventsToEmployee(
+        eventData
+      );
+      res.status(201).json(result);
+    } catch (error: any) {
+      console.error("Failed to assign labor events to employee:", error);
+      res.status(500).json({
+        message: "Failed to assign labor events to employee",
+        error: error.message,
+      });
     }
   }
 }

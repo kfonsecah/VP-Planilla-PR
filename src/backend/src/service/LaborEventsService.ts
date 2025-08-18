@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { LaborEvent } from "../model/laborEvent";
+import { EmployeeLaborEvent } from "../model/employeeLaborEvent";
 
 const prisma = new PrismaClient();
 
@@ -108,5 +109,47 @@ export class LaborEventsService {
     }));
 
     return laborEvents;
+  }
+
+  /**
+   * Assign labor events to employees
+   * @param data - The employee labor event data
+   * @returns The updated employee with the assigned labor events
+   * @throws Error if the labor events could not be assigned
+   */
+
+  static async assignLaborEventsToEmployee(
+    data: EmployeeLaborEvent
+  ): Promise<EmployeeLaborEvent | null> {
+    const prismaEmployeeLaborEvent =
+      await prisma.vpg_employee_labor_event.create({
+        data: {
+          employee_labor_event_employee_id: data.employee_id,
+          employee_labor_event_labor_event_id: data.labor_event_id,
+          employee_labor_event_start_date: data.start_date,
+          employee_labor_event_end_date: data.end_date,
+          employee_labor_event_status: data.status,
+          employee_labor_event_version: 1,
+        },
+      });
+
+    if (!prismaEmployeeLaborEvent) {
+      throw new Error(
+        `Could not assign labor event to employee with ID ${data.employee_id}`
+      );
+    }
+
+    const employeeLaborEvent: EmployeeLaborEvent = {
+      id: prismaEmployeeLaborEvent.employee_labor_event_id,
+      employee_id: prismaEmployeeLaborEvent.employee_labor_event_employee_id,
+      labor_event_id:
+        prismaEmployeeLaborEvent.employee_labor_event_labor_event_id,
+      start_date: prismaEmployeeLaborEvent.employee_labor_event_start_date,
+      end_date: prismaEmployeeLaborEvent.employee_labor_event_end_date,
+      status: prismaEmployeeLaborEvent.employee_labor_event_status,
+      version: prismaEmployeeLaborEvent.employee_labor_event_version,
+    };
+
+    return employeeLaborEvent;
   }
 }
