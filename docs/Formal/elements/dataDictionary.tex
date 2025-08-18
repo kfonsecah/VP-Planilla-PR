@@ -76,9 +76,12 @@
 		last\_name     & varchar(50)           & NOT NULL               & Primer apellido del empleado                            \\
 		middle\_name   & varchar(50)           & NOT NULL               & Segundo nombre/apellido del empleado                    \\
 		national\_id   & varchar(30)           & NOT NULL               & Cédula de identidad                                     \\
+		social\_id     & varchar(100)          & NULL                   & Codigo de asegurado                                     \\
 		email          & varchar(100)          & NOT NULL               & Correo electrónico institucional                        \\
 		position\_id   & integer               & FK, NOT NULL           & Referencia al puesto                                    \\
 		hire\_date     & date                  & NOT NULL               & Fecha de contratación                                   \\
+		exit\_date     & date                  & NULL                   & Fecha de salida                                         \\
+		fired          & boolean               & NOT NULL               & Si ha sido despedido o no                               \\
 		status         & char(1)               & NOT NULL               & Estado laboral: A (Activo), I (Inactivo), T (Terminado) \\
 		version        & integer               & DEFAULT 1, NOT NULL    & Versión del registro                                    \\
 		\hline
@@ -166,32 +169,63 @@
 	\end{tabular}
 	\normalsize
 
-	\subsection{Tabla \texttt{vpg\_employee\_deduction}}
+	\subsection{Tabla \texttt{vpg\_vacations}}
 	\small
 	\begin{tabular}{|l|l|l|p{6cm}|}
 		\hline
-		\textbf{Campo} & \textbf{Tipo de Dato} & \textbf{Restricciones} & \textbf{Descripción}               \\
+		\textbf{Campo} & \textbf{Tipo de Dato} & \textbf{Restricciones} & \textbf{Descripción}                             \\
 		\hline
-		employee\_id   & integer               & FK, NOT NULL           & Referencia al empleado             \\
-		deduction\_id  & integer               & FK, NOT NULL           & Referencia a la deducción aplicada \\
+		id             & integer               & PK, NOT NULL           & Identificador único del registro de vacaciones   \\
+		employee\_id   & integer               & FK, NOT NULL           & Referencia al empleado que toma las vacaciones   \\
+		start\_date    & date                  & NOT NULL               & Fecha de inicio del período de vacaciones        \\
+		end\_date      & date                  & NOT NULL               & Fecha de finalización del período de vacaciones  \\
+		total\_days    & integer (generado)    & CALCULADO              & Total de días entre inicio y fin (incluye ambos) \\
+		paid           & boolean               & DEFAULT TRUE           & Indica si las vacaciones fueron pagadas          \\
+		status         & varchar(20)           & DEFAULT 'Aprobado'     & Estado de la solicitud (Pendiente, Aprobado...)  \\
+		version        & integer               & DEFAULT 1, NOT NULL    & Versión del registro                             \\
 		\hline
 	\end{tabular}
 	\normalsize
+
+
+
+	\subsection{Tabla \texttt{vpg\_employee\_deductions}}
+	\small
+	\begin{tabular}{|l|l|l|p{6cm}|}
+		\hline
+		\textbf{Campo} & \textbf{Tipo de Dato} & \textbf{Restricciones} & \textbf{Descripción}                                    \\
+		\hline
+		employee\_id   & integer               & PK, FK, NOT NULL       & Referencia al empleado al que se le aplica la deducción \\
+		deduction\_id  & integer               & PK, FK, NOT NULL       & Referencia a la deducción aplicada                      \\
+		payroll\_id    & integer               & PK, FK, NOT NULL       & Planilla donde se registró la deducción                 \\
+		year           & integer               & NOT NULL               & Año fiscal correspondiente a la deducción               \\
+		month          & integer               & NOT NULL               & Mes fiscal correspondiente a la deducción               \\
+		amount         & decimal(10,2)         & NOT NULL               & Monto aplicado al empleado por esta deducción           \\
+		version        & integer               & DEFAULT 1, NOT NULL    & Versión del registro                                    \\
+		\hline
+	\end{tabular}
+	\normalsize
+
 
 	\subsection{Tabla \texttt{vpg\_bonuses}}
 	\small
 	\begin{tabular}{|l|l|l|p{6cm}|}
 		\hline
-		\textbf{Campo} & \textbf{Tipo de Dato} & \textbf{Restricciones} & \textbf{Descripción}               \\
+		\textbf{Campo} & \textbf{Tipo de Dato} & \textbf{Restricciones} & \textbf{Descripción}                   \\
 		\hline
-		id             & integer               & PK, NOT NULL           & Identificador único del bono       \\
-		employee\_id   & integer               & FK, NOT NULL           & Referencia al empleado beneficiado \\
-		description    & varchar(255)          & NOT NULL               & Descripción o motivo del bono      \\
-		amount         & decimal(10,2)         & NOT NULL               & Monto del bono otorgado            \\
-		granted\_at    & date                  & NOT NULL               & Fecha en que se otorgó el bono     \\
+		id             & integer               & PK, NOT NULL           & Identificador único del bono           \\
+		employee\_id   & integer               & FK, NOT NULL           & Referencia al empleado beneficiado     \\
+		payroll\_id    & integer               & FK, NOT NULL           & Planilla en la que se registró el bono \\
+		year           & integer               & NOT NULL               & Año contable en que se otorgó el bono  \\
+		month          & integer               & NOT NULL               & Mes contable en que se otorgó el bono  \\
+		description    & varchar(255)          & NOT NULL               & Descripción o motivo del bono          \\
+		amount         & decimal(10,2)         & NOT NULL               & Monto del bono otorgado                \\
+		granted\_at    & date                  & NOT NULL               & Fecha en que se otorgó el bono         \\
+		version        & integer               & DEFAULT 1, NOT NULL    & Versión del registro                   \\
 		\hline
 	\end{tabular}
 	\normalsize
+
 \end{center}
 \section{Diccionario de Datos: Users and Access Control}
 \begin{center}

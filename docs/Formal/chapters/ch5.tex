@@ -1,10 +1,43 @@
-\chapter{\textbf{Capitulo V: Desarrollo}}
+\chapter{\textbf{Capítulo V: Desarrollo}}
 
 \section{Desarrollo}
 
-El propósito de esta sección es definir la forma en que se desarrollará la programación. 
-Se puede realizar un resumen en prosa de como se hará la programación, donde se almacenarán los fuentes, que repositorio utilizarán, etc.
-Y agregar como anexo, los sprints.
+El propósito de esta sección es definir la forma en que se desarrolló la programación del sistema. Para ello, se estructuró el trabajo utilizando la metodología ágil, distribuyendo las tareas en sprints que facilitaron el avance iterativo e incremental del proyecto. El código fuente se almacena de manera organizada en un repositorio de control de versiones privado, permitiendo el trabajo colaborativo entre los miembros del equipo y el seguimiento de cambios.
+
+Los sprints han sido documentados y gestionados en conjunto con reuniones de revisión, donde se evalúan los avances y se reajustan prioridades. Los archivos fuente del proyecto, incluyendo frontend, backend y scripts de base de datos, se encuentran resguardados en el repositorio oficial alojado en GitHub, el cual cuenta con ramas separadas para desarrollo y producción.
+
+Además, como parte de las funcionalidades proyectadas, se ha planteado la incorporación de un bot de Telegram que permitirá a los usuarios interactuar con el sistema de forma más accesible. Este bot funcionará como un canal complementario para consultar información, asignar tareas o recibir notificaciones importantes, mejorando así la experiencia del usuario.
+
+Por otro lado, se logró encontrar una solución técnica viable para el despliegue tanto de la base de datos como de la aplicación web en un servidor local ubicado en el centro de operaciones de Verde Pradera. Sin embargo, dicha implementación aún no se ha llevado a cabo, ya que está prevista para una fase posterior de pruebas e integración.
 
 \subsection{Tareas}
+
 \subsubsection{Tareas (Sprint)}
+
+A continuación, se detallan los sprints que se han completado y los que se encuentran en curso:
+
+\begin{itemize}
+	\item \textbf{Sprint 1 – Configuración Inicial del Proyecto:}
+	      En este sprint se realizó el set up completo del entorno de desarrollo, incluyendo la configuración de herramientas, dependencias, estructura de carpetas y conexión inicial con la base de datos.
+
+	\item \textbf{Sprint 2 – Implementación del Módulo de Inicio de Sesión (LogIn):}
+	      Se completó el desarrollo del módulo de autenticación de usuarios, integrando validaciones, gestión de sesiones, seguridad con contraseñas encriptadas, y generación de tokens. Este módulo se encuentra funcionando correctamente.
+
+	\item \textbf{Sprint 3 – Interfaces de Usuario (En curso):}
+	      Se ha iniciado la implementación de las interfaces de usuario, priorizando una experiencia intuitiva y coherente con el diseño establecido. Incluye formularios, paneles y vistas generales del sistema.
+
+\end{itemize}
+
+Asimismo, durante los sprints anteriores se realizaron ajustes en el modelo de base de datos, corrigiendo atributos y relaciones según observaciones planteadas por el profesor. Estas mejoras permiten una mayor integridad en los datos y un diseño más eficiente.
+
+\section{Gestión de Cambios}
+
+La gestión de cambios en el proyecto se estructura con base en el documento oficial de gestión de cambio establecido en fases previas. Este proceso tiene como objetivo garantizar que todas las modificaciones al sistema, ya sean técnicas, funcionales o de interfaz, sean evaluadas y autorizadas de manera controlada, asegurando así la estabilidad y coherencia del proyecto.
+
+Como parte de esta gestión, se ha contemplado la creación de un \textbf{Comité de Cambios}, el cual estará encargado de analizar, priorizar y aprobar las solicitudes de modificación al sistema. Dicho comité se encuentra actualmente \textbf{en proceso de definición}, tanto en su conformación como en sus responsabilidades formales.
+
+Además, se ha definido que cualquier solicitud de cambio deberá documentarse mediante una \textbf{plantilla oficial de gestión de cambios}, la cual está en etapa de diseño. Esta plantilla permitirá registrar datos clave como: el origen del cambio, descripción, justificación, impacto técnico y funcional, responsables, y decisión final del comité.
+
+Durante las sesiones de revisión con el equipo, el dueño del producto fue informado de que la implementación de cambios no es automática ni unilateral, sino que debe regirse por un proceso formal. El comité tendrá la responsabilidad de deliberar cada propuesta y aprobar únicamente aquellas que se consideren viables, justificadas y alineadas con los objetivos del sistema.
+
+Este enfoque permite mantener un control adecuado sobre la evolución del proyecto, evitar desviaciones innecesarias, y asegurar que los cambios contribuyan efectivamente a mejorar la calidad del producto final.

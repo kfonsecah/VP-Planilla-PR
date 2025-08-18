@@ -14,49 +14,97 @@ La gestión de riesgos es un proceso fundamental para identificar, evaluar y con
 
 \subsubsection*{Identificación de Riesgos}
 
-Durante el análisis del proyecto se identificaron los siguientes riesgos relevantes que pueden afectar su desarrollo y operación:
+Durante el análisis del proyecto se identificaron los siguientes riesgos relevantes que pueden afectar el proceso de desarrollo e implementación del sistema:
 
 \begin{itemize}
-	\item \textbf{Fallos de integración tecnológica:} Problemas al conectar el reloj marcador con el sistema de nómina que pueden ocasionar errores en los datos de asistencia.
-	\item \textbf{Fallas en la conectividad:} Interrupciones en el servicio de internet que impidan el acceso remoto y afecten la continuidad del sistema.
-	\item \textbf{Errores de programación:} Bugs o fallos en el software que comprometan la funcionalidad de los módulos críticos.
-	\item \textbf{Incompatibilidad tecnológica:} Desajustes entre las versiones de hardware y software utilizados.
-	\item \textbf{Capacitación insuficiente:} Falta de entrenamiento adecuado para los usuarios finales que dificulte el uso correcto del sistema.
-	\item \textbf{Resistencia al cambio:} Oposición del personal a adoptar nuevas tecnologías y procesos digitales.
-	\item \textbf{Errores humanos:} Fallos en la entrada o manejo de datos por falta de experiencia o atención.
-	\item \textbf{Limitaciones presupuestarias:} Recursos económicos insuficientes para la adquisición de hardware, licencias o capacitación.
-	\item \textbf{Retrasos en pagos a proveedores:} Problemas en el flujo de caja que afecten la entrega de insumos y servicios.
-	\item \textbf{Incumplimiento normativo:} Falta de adecuación a las regulaciones legales vigentes.
-	\item \textbf{Riesgos en protección de datos:} Posibles vulneraciones a la privacidad y seguridad de la información sensible.
-	\item \textbf{Desastres naturales:} Eventos que puedan afectar la infraestructura tecnológica o los datos almacenados.
+	\item \textbf{Retrasos en la planificación:} Posibles demoras en la entrega de hitos o tareas clave que afecten el cronograma general del proyecto.
+	\item \textbf{Falta de definición de requerimientos:} Cambios frecuentes o mal planteamiento de los requisitos funcionales y no funcionales, lo que puede generar reprocesos.
+	\item \textbf{Problemas de comunicación:} Falta de coordinación efectiva entre los miembros del equipo o con los responsables del cliente, generando malentendidos.
+	\item \textbf{Capacitación insuficiente del equipo:} Limitaciones técnicas o desconocimiento de herramientas clave por parte del equipo de desarrollo.
+	\item \textbf{Asignación inadecuada de recursos:} Distribución deficiente del tiempo, personal o herramientas, afectando la eficiencia del proyecto.
+	\item \textbf{Riesgos en la gestión del alcance:} Incorporación de funcionalidades no previstas (creep scope) que extienden los tiempos de desarrollo.
+	\item \textbf{Dependencias externas:} Atrasos por parte de proveedores o terceros, como entrega de hardware o acceso a sistemas externos (e.g., reloj marcador).
+	\item \textbf{Problemas en el control de versiones:} Conflictos o pérdida de integridad en el código debido a una gestión inadecuada del repositorio.
+	\item \textbf{Falta de pruebas tempranas:} Postergación de las pruebas que impida detectar errores a tiempo, aumentando el riesgo de fallos críticos.
+	\item \textbf{Limitaciones presupuestarias durante el desarrollo:} Falta de fondos para mantener el equipo, herramientas o servicios necesarios durante la ejecución del proyecto.
 \end{itemize}
 
 \subsubsection*{Matriz de Probabilidad por Impacto}
 
-Para priorizar los riesgos identificados, se evaluó la probabilidad de ocurrencia y el impacto que tendría cada uno en el proyecto, multiplicando ambos factores para obtener un nivel de riesgo cuantificado. La siguiente tabla presenta esta matriz:
+Para priorizar los riesgos identificados, se evaluó su nivel de riesgo multiplicando dos factores: la probabilidad de ocurrencia y el impacto en el proyecto. Se utilizó una escala del 1 al 5, donde:
+
+\begin{itemize}
+  \item \textbf{Probabilidad:}
+    \begin{itemize}
+      \item 1 = Muy baja (Improbable)
+      \item 2 = Baja
+      \item 3 = Media
+      \item 4 = Alta
+      \item 5 = Muy alta (Casi segura)
+    \end{itemize}
+  \item \textbf{Impacto:}
+    \begin{itemize}
+      \item 1 = Muy bajo (Impacto insignificante)
+      \item 2 = Bajo
+      \item 3 = Medio
+      \item 4 = Alto
+      \item 5 = Muy alto (Crítico)
+    \end{itemize}
+\end{itemize}
+
+La siguiente tabla presenta la matriz con los riesgos clasificados según esta escala:
 
 \begin{table}[h!]
 	\centering
-	\begin{tabular}{|l|c|c|c|}
+	\begin{tabular}{|p{6cm}|c|c|c|}
 		\hline
 		\textbf{Riesgo}                & \textbf{Probabilidad} & \textbf{Impacto} & \textbf{Nivel de Riesgo} \\ \hline
-		Fallos de integración          & Media (3)             & Alto (5)         & 15                       \\ \hline
-		Fallas de conectividad         & Baja (2)              & Medio (4)        & 8                        \\ \hline
-		Errores de implementación      & Alta (4)              & Alto (5)         & 20                       \\ \hline
-		Compatibilidad tecnológica     & Media (3)             & Medio (3)        & 9                        \\ \hline
-		Capacitación inadecuada        & Media (3)             & Alto (5)         & 15                       \\ \hline
-		Resistencia al cambio          & Alta (4)              & Medio (3)        & 12                       \\ \hline
-		Errores humanos                & Alta (4)              & Medio (3)        & 12                       \\ \hline
-		Presupuesto insuficiente       & Media (3)             & Alto (5)         & 15                       \\ \hline
-		Retrasos en pago a proveedores & Baja (2)              & Medio (3)        & 6                        \\ \hline
-		Cumplimiento normativo         & Media (3)             & Alto (5)         & 15                       \\ \hline
-		Protección de datos            & Alta (4)              & Alto (5)         & 20                       \\ \hline
-		Desastres naturales            & Baja (1)              & Alto (5)         & 5                        \\ \hline
+		Fallos de integración tecnológica          & 3 (Media)             & 5 (Muy alto)       & 15                       \\ \hline
+		Fallas de conectividad                     & 2 (Baja)              & 4 (Alto)           & 8                        \\ \hline
+		Errores de implementación                  & 4 (Alta)              & 5 (Muy alto)       & 20                       \\ \hline
+		Incompatibilidad tecnológica               & 3 (Media)             & 3 (Media)          & 9                        \\ \hline
+		Capacitación inadecuada                    & 3 (Media)             & 5 (Muy alto)       & 15                       \\ \hline
+		Resistencia al cambio                      & 4 (Alta)              & 3 (Media)          & 12                       \\ \hline
+		Errores humanos                            & 4 (Alta)              & 3 (Media)          & 12                       \\ \hline
+		Presupuesto insuficiente                   & 3 (Media)             & 5 (Muy alto)       & 15                       \\ \hline
+		Retrasos en pagos a proveedores            & 2 (Baja)              & 3 (Media)          & 6                        \\ \hline
+		Incumplimiento normativo                   & 3 (Media)             & 5 (Muy alto)       & 15                       \\ \hline
+		Riesgos en protección de datos             & 4 (Alta)              & 5 (Muy alto)       & 20                       \\ \hline
+		Desastres naturales                        & 1 (Muy baja)          & 5 (Muy alto)       & 5                        \\ \hline
 	\end{tabular}
 	\caption{Matriz de probabilidad por impacto}
 	\label{tab:matriz_prob_impacto}
 \end{table}
 \newpage
+
+\subsubsection*{Matriz de Clasificación del Nivel de Riesgo}
+
+Para facilitar la priorización de riesgos, se clasificó el NPR (Número de Prioridad de Riesgo) dentro de tres zonas:
+
+\begin{itemize}
+  \item \textbf{Zona Verde (Bajo riesgo):} NPR de 1 a 25. Requiere seguimiento, pero no acción inmediata.
+  \item \textbf{Zona Naranja (Riesgo moderado):} NPR de 26 a 45. Se recomienda establecer planes de mitigación.
+  \item \textbf{Zona Roja (Alto riesgo):} NPR mayor a 45. Requiere acción inmediata y constante monitoreo.
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}
+  \definecolor{lowrisk}{RGB}{144,238,144}      % Verde claro
+  \definecolor{moderaterisk}{RGB}{255,255,153} % Amarillo
+  \definecolor{highrisk}{RGB}{255,102,102}     % Rojo claro
+
+  \matrix[matrix of nodes,nodes={minimum height=1cm,minimum width=1.2cm,draw,anchor=center},row sep=-\pgflinewidth,column sep=-\pgflinewidth] {
+    \node[fill=lowrisk] {1}; & \node[fill=lowrisk] {2}; & \node[fill=lowrisk] {3}; & \node[fill=moderaterisk] {4}; & \node[fill=moderaterisk] {5}; \\
+    \node[fill=lowrisk] {2}; & \node[fill=lowrisk] {4}; & \node[fill=moderaterisk] {6}; & \node[fill=moderaterisk] {8}; & \node[fill=moderaterisk] {10}; \\
+    \node[fill=lowrisk] {3}; & \node[fill=moderaterisk] {6}; & \node[fill=moderaterisk] {9}; & \node[fill=moderaterisk] {12}; & \node[fill=highrisk] {15}; \\
+    \node[fill=moderaterisk] {4}; & \node[fill=moderaterisk] {8}; & \node[fill=moderaterisk] {12}; & \node[fill=highrisk] {16}; & \node[fill=highrisk] {20}; \\
+    \node[fill=moderaterisk] {5}; & \node[fill=moderaterisk] {10}; & \node[fill=highrisk] {15}; & \node[fill=highrisk] {20}; & \node[fill=highrisk] {25}; \\
+  };
+
+  \node[rotate=90] at (-3.5,2.5) {\textbf{Impacto}};
+  \node at (2.5,3.5) {\textbf{Probabilidad}};
+\end{tikzpicture}
+\end{center}
 
 \subsubsection*{Plan de Tratamiento de Riesgos}
 
@@ -65,21 +113,21 @@ Para cada riesgo, se diseñaron acciones para mitigar su probabilidad o impacto,
 \begin{table}[h!]
 	\centering
 	\resizebox{\textwidth}{!}{ % Ajusta el tamaño al ancho del texto
-		\begin{tabular}{|c|l|l|p{3cm}|c|c|c|c|p{4cm}|l|c|}
+		\begin{tabular}{|c|l|l|p{3cm}|c|c|c|c|p{4cm}|l|c|c|}
 			\hline
-			\textbf{ID} & \textbf{Riesgo}                & \textbf{Categoría} & \textbf{Descripción}                                                                             & \textbf{Prob.} & \textbf{Impacto} & \textbf{Detec.} & \textbf{NPR} & \textbf{Plan de Tratamiento}                                         & \textbf{Responsable}      & \textbf{Estado} \\ \hline
-			1           & Fallos de integración          & Técnico            & Problemas para conectar el reloj marcador con el sistema causando errores en datos de asistencia & 3              & 5                & 3               & 45           & Realizar pruebas de integración tempranas y usar APIs estandarizadas & Equipo de desarrollo      & Pendiente       \\ \hline
-			2           & Fallas de conectividad         & Técnico            & Caídas en internet que impiden el acceso remoto al sistema                                       & 2              & 4                & 4               & 32           & Implementar conexiones redundantes y sistemas de respaldo            & Equipo de infraestructura & Pendiente       \\ \hline
-			3           & Errores de implementación      & Técnico            & Bugs o fallos en el software que afectan módulos críticos                                        & 4              & 5                & 2               & 40           & Pruebas continuas, revisión de código y control de calidad           & Equipo de desarrollo      & Pendiente       \\ \hline
-			4           & Compatibilidad tecnológica     & Técnico            & Incompatibilidad entre versiones de software o hardware                                          & 3              & 3                & 3               & 27           & Pruebas previas de compatibilidad y evaluación de versiones          & Equipo de desarrollo      & Pendiente       \\ \hline
-			5           & Capacitación inadecuada        & Operativo          & Falta de entrenamiento adecuado para usuarios finales                                            & 3              & 5                & 4               & 60           & Programar formación y materiales de apoyo                            & Recursos Humanos          & Pendiente       \\ \hline
-			6           & Resistencia al cambio          & Operativo          & Personal se resiste a adoptar el nuevo sistema                                                   & 4              & 3                & 4               & 48           & Involucrar a usuarios en el proceso y comunicación constante         & Gestión del proyecto      & Pendiente       \\ \hline
-			7           & Errores humanos                & Operativo          & Errores en la entrada o manejo de datos por falta de experiencia                                 & 4              & 3                & 3               & 36           & Automatizar procesos y diseñar interfaces intuitivas                 & Equipo de desarrollo      & Pendiente       \\ \hline
-			8           & Presupuesto insuficiente       & Financiero         & Limitaciones económicas que impiden compra de hardware o licencias                               & 3              & 5                & 4               & 60           & Planificar presupuesto con margen y negociar con proveedores         & Gestión financiera        & Pendiente       \\ \hline
-			9           & Retrasos en pago a proveedores & Financiero         & Problemas en flujo de caja que retrasan entregas                                                 & 2              & 3                & 4               & 24           & Mantener comunicación constante con proveedores                      & Gestión financiera        & Pendiente       \\ \hline
-			10          & Cumplimiento normativo         & Legal              & No cumplir leyes laborales o de protección de datos                                              & 3              & 5                & 3               & 45           & Revisar normativas y actualizar el sistema conforme a regulaciones   & Equipo legal/QA           & Pendiente       \\ \hline
-			11          & Protección de datos            & Legal              & Riesgo de fuga o acceso no autorizado a datos personales                                         & 4              & 5                & 2               & 40           & Implementar encriptación, autenticación fuerte y auditorías          & Equipo de seguridad       & Pendiente       \\ \hline
-			12          & Desastres naturales            & Ambiental          & Eventos naturales que afectan infraestructura y datos                                            & 1              & 5                & 5               & 25           & Plan de recuperación y backups en la nube                            & Equipo infraestructura    & Pendiente       \\ \hline
+			\textbf{ID} & \textbf{Riesgo}                & \textbf{Categoría} & \textbf{Descripción}                                                                             & \textbf{Prob.} & \textbf{Impacto} & \textbf{Detec.} & \textbf{NPR} & \textbf{Plan de Tratamiento}                                         & \textbf{Responsable}      & \textbf{Estado} & \textbf{Zona} \\ \hline
+			1  & Fallos de integración tecnológica  & Técnico    & Problemas para conectar el reloj marcador con el sistema causando errores en datos de asistencia & 3 & 5 & 3 & 45 & Realizar pruebas de integración tempranas y usar APIs estandarizadas & Equipo de desarrollo      & Pendiente & Naranja \\ \hline
+			2  & Fallas de conectividad             & Técnico    & Caídas en internet que impiden el acceso remoto al sistema                                       & 2 & 4 & 4 & 32 & Implementar conexiones redundantes y sistemas de respaldo            & Equipo de infraestructura & Pendiente & Naranja \\ \hline
+			3  & Errores de implementación          & Técnico    & Bugs o fallos en el software que afectan módulos críticos                                        & 4 & 5 & 2 & 40 & Pruebas continuas, revisión de código y control de calidad           & Equipo de desarrollo      & Pendiente & Naranja \\ \hline
+			4  & Incompatibilidad tecnológica       & Técnico    & Incompatibilidad entre versiones de software o hardware                                          & 3 & 3 & 3 & 27 & Pruebas previas de compatibilidad y evaluación de versiones          & Equipo de desarrollo      & Pendiente & Naranja \\ \hline
+			5  & Capacitación inadecuada            & Operativo  & Falta de entrenamiento adecuado para usuarios finales                                            & 3 & 5 & 4 & 60 & Programar formación y materiales de apoyo                            & Recursos Humanos          & Pendiente & Roja    \\ \hline
+			6  & Resistencia al cambio              & Operativo  & Personal se resiste a adoptar el nuevo sistema                                                   & 4 & 3 & 4 & 48 & Involucrar a usuarios en el proceso y comunicación constante         & Gestión del proyecto      & Pendiente & Roja    \\ \hline
+			7  & Errores humanos                    & Operativo  & Errores en la entrada o manejo de datos por falta de experiencia                                 & 4 & 3 & 3 & 36 & Automatizar procesos y diseñar interfaces intuitivas                 & Equipo de desarrollo      & Pendiente & Naranja \\ \hline
+			8  & Presupuesto insuficiente           & Financiero & Limitaciones económicas que impiden compra de hardware o licencias                               & 3 & 5 & 4 & 60 & Planificar presupuesto con margen y negociar con proveedores         & Gestión financiera        & Pendiente & Roja    \\ \hline
+			9  & Retrasos en pago a proveedores     & Financiero & Problemas en flujo de caja que retrasan entregas                                                 & 2 & 3 & 4 & 24 & Mantener comunicación constante con proveedores                      & Gestión financiera        & Pendiente & Verde   \\ \hline
+			10 & Cumplimiento normativo             & Legal      & No cumplir leyes laborales o de protección de datos                                              & 3 & 5 & 3 & 45 & Revisar normativas y actualizar el sistema conforme a regulaciones   & Equipo legal/QA           & Pendiente & Naranja \\ \hline
+			11 & Protección de datos                & Legal      & Riesgo de fuga o acceso no autorizado a datos personales                                         & 4 & 5 & 2 & 40 & Implementar encriptación, autenticación fuerte y auditorías          & Equipo de seguridad       & Pendiente & Naranja \\ \hline
+			12 & Desastres naturales                & Ambiental  & Eventos naturales que afectan infraestructura y datos                                            & 1 & 5 & 5 & 25 & Plan de recuperación y backups en la nube                            & Equipo infraestructura    & Pendiente & Verde   \\ \hline
 		\end{tabular}
 	}
 	\caption{Matriz de gestión de riesgos del proyecto}
@@ -282,15 +330,15 @@ Estas historias se utilizarán como base para guiar el diseño, implementación 
 	\caption{Historia de Usuario HU-03}
 	\begin{tabular}{|p{5cm}|p{9cm}|}
 		\hline
-		\textbf{Número:}                          & HU-03                                          \\ \hline
-		\textbf{Nombre:}                          & Entrega automática de comprobantes de pago     \\ \hline
-		\textbf{Usuario:}                         & Colaborador                                    \\ \hline
-		\textbf{Modificación de Historia Número:} & Actualización - acceso por correo electrónico  \\ \hline
-		\textbf{Prioridad en Negocio:}            & Media                                          \\ \hline
-		\textbf{Riesgo en Desarrollo:}            & Bajo                                           \\ \hline
-		\textbf{Iteración Asignada:}              & Sprint 5: Cálculo de Nóminas                   \\ \hline
-		\textbf{Puntos Estimados:}                & 5                                              \\ \hline
-		\textbf{Puntos Reales:}                   & --                                             \\ \hline
+		\textbf{Número:}                          & HU-03                                         \\ \hline
+		\textbf{Nombre:}                          & Entrega automática de comprobantes de pago    \\ \hline
+		\textbf{Usuario:}                         & Colaborador                                   \\ \hline
+		\textbf{Modificación de Historia Número:} & Actualización - acceso por correo electrónico \\ \hline
+		\textbf{Prioridad en Negocio:}            & Media                                         \\ \hline
+		\textbf{Riesgo en Desarrollo:}            & Bajo                                          \\ \hline
+		\textbf{Iteración Asignada:}              & Sprint 5: Cálculo de Nóminas                  \\ \hline
+		\textbf{Puntos Estimados:}                & 5                                             \\ \hline
+		\textbf{Puntos Reales:}                   & --                                            \\ \hline
 		\textbf{Descripción:}                     &
 		El sistema enviará automáticamente al colaborador un comprobante de pago por correo electrónico cada vez que se procese una nómina. El comprobante incluirá el monto neto recibido, fecha del pago, deducciones y cualquier concepto adicional, como aguinaldo.
 
@@ -329,7 +377,7 @@ Estas historias se utilizarán como base para guiar el diseño, implementación 
 		\textbf{Puntos Estimados:}                & 5                                          \\ \hline
 		\textbf{Puntos Reales:}                   & --                                         \\ \hline
 		\textbf{Descripción:}                     &
-		El sistema permitirá al gerente generar, visualizar y gestionar reportes de nómina. Desde el módulo correspondiente, el usuario podrá seleccionar el mes deseado y obtener un archivo PDF que incluya detalles de salarios brutos, deducciones, aportes patronales y salario neto total. 
+		El sistema permitirá al gerente generar, visualizar y gestionar reportes de nómina. Desde el módulo correspondiente, el usuario podrá seleccionar el mes deseado y obtener un archivo PDF que incluya detalles de salarios brutos, deducciones, aportes patronales y salario neto total.
 
 		En el mes de diciembre, el reporte incluirá una línea separada con el cálculo del aguinaldo de cada empleado, conforme a la normativa laboral vigente.
 
@@ -455,21 +503,21 @@ Estas historias se utilizarán como base para guiar el diseño, implementación 
 	\renewcommand{\arraystretch}{1.2}
 	\begin{tabular}{|p{5.5cm}|p{3cm}|p{3cm}|p{3.5cm}|}
 		\hline
-		\textbf{Sprint / Actividad}             & \textbf{Fecha de Inicio} & \textbf{Fecha de Finalización} & \textbf{Semestre Académico}         \\ \hline
-		Sprint 1: Setup del Proyecto            & 15 mayo 2025             & 31 mayo 2025                   & I Semestre 2025                      \\ \hline
-		Sprint 2: Módulo de Login               & 1 junio 2025             & 15 junio 2025                  & I Semestre 2025                      \\ \hline
-		Sprint 3: Módulo de Interfaz de Usuario & 16 junio 2025            & 15 julio 2025                  & Intersemestral 2025                  \\ \hline
-		Sprint 4: Admin. de Eventos Laborales   & 16 julio 2025            & 15 agosto 2025                 & II Semestre 2025                     \\ \hline
-		Sprint 5: Cálculo de Nóminas            & 16 agosto 2025           & 15 septiembre 2025             & II Semestre 2025                     \\ \hline
-		Sprint 6: Generación de Reportes        & 16 septiembre 2025       & 30 septiembre 2025             & II Semestre 2025                     \\ \hline
-		Sprint 7: Módulo de Seguridad           & 1 octubre 2025           & 31 octubre 2025                & II Semestre 2025                     \\ \hline
+		\textbf{Sprint / Actividad}             & \textbf{Fecha de Inicio} & \textbf{Fecha de Finalización} & \textbf{Semestre Académico} \\ \hline
+		Sprint 1: Setup del Proyecto            & 15 mayo 2025             & 31 mayo 2025                   & I Semestre 2025             \\ \hline
+		Sprint 2: Módulo de Login               & 1 junio 2025             & 15 junio 2025                  & I Semestre 2025             \\ \hline
+		Sprint 3: Módulo de Interfaz de Usuario & 16 junio 2025            & 15 julio 2025                  & Intersemestral 2025         \\ \hline
+		Sprint 4: Admin. de Eventos Laborales   & 16 julio 2025            & 15 agosto 2025                 & II Semestre 2025            \\ \hline
+		Sprint 5: Cálculo de Nóminas            & 16 agosto 2025           & 15 septiembre 2025             & II Semestre 2025            \\ \hline
+		Sprint 6: Generación de Reportes        & 16 septiembre 2025       & 30 septiembre 2025             & II Semestre 2025            \\ \hline
+		Sprint 7: Módulo de Seguridad           & 1 octubre 2025           & 31 octubre 2025                & II Semestre 2025            \\ \hline
 		\rowcolor{gray!10}
-		\textbf{Pausa por vacaciones}           & 1 noviembre 2025         & 31 enero 2026                  & Vacaciones institucionales           \\ \hline
-		Sprint 8: Pruebas y Entrega             & 1 febrero 2026           & 30 junio 2026                  & I Semestre 2026                      \\ \hline
+		\textbf{Pausa por vacaciones}           & 1 noviembre 2025         & 31 enero 2026                  & Vacaciones institucionales  \\ \hline
+		Sprint 8: Pruebas y Entrega             & 1 febrero 2026           & 30 junio 2026                  & I Semestre 2026             \\ \hline
 		\rowcolor{gray!10}
-		\textbf{Etapa de Pruebas Funcionales}   & 1 febrero 2026           & 30 abril 2026                  & I Semestre 2026                      \\ \hline
+		\textbf{Etapa de Pruebas Funcionales}   & 1 febrero 2026           & 30 abril 2026                  & I Semestre 2026             \\ \hline
 		\rowcolor{gray!10}
-		\textbf{Revisión y Documentación Final} & 1 mayo 2026              & 30 junio 2026                  & I Semestre 2026                      \\ \hline
+		\textbf{Revisión y Documentación Final} & 1 mayo 2026              & 30 junio 2026                  & I Semestre 2026             \\ \hline
 	\end{tabular}
 	\caption{Cronograma de Desarrollo y Pruebas del Proyecto por Semestre Académico}
 \end{table}
