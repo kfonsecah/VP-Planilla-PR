@@ -321,7 +321,7 @@ model vpg_vacations {
   vacations_employee_id Int
   vacations_start_date  DateTime      @db.Date
   vacations_end_date    DateTime      @db.Date
-  vacations_total_days  Int?          @default(dbgenerated("((vacations_end_date - vacations_start_date) + 1)"))
+  vacations_total_days  Int?
   vacations_paid        Boolean?      @default(true)
   vacations_status      String?       @default("Aprobado") @db.VarChar(20)
   vacations_version     Int           @default(1)

@@ -1,0 +1,62 @@
+/* Estilos específicos para el calendario */
+.calendar-container .fc {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: inherit;
+}
+
+.calendar-container .fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-container .fc .fc-toolbar-title {
+  color: #3B4D36;
+  font-weight: 300;
+}
+
+.calendar-container .fc .fc-button-primary {
+  background-color: #A7AA94;
+  border-color: #A7AA94;
+  color: #3B4D36;
+}
+
+.calendar-container .fc .fc-button-primary:hover {
+  background-color: #6F7153;
+  border-color: #6F7153;
+  color: white;
+}
+
+.calendar-container .fc .fc-button-primary:not(:disabled).fc-button-active,
+.calendar-container .fc .fc-button-primary:not(:disabled):active {
+  background-color: #3B4D36;
+  border-color: #3B4D36;
+  color: white;
+}
+
+.calendar-container .fc .fc-day-today {
+  background-color: rgba(231, 220, 193, 0.3) !important;
+}
+
+.calendar-container .fc .fc-daygrid-day-number,
+.calendar-container .fc .fc-col-header-cell-cushion {
+  color: #3B4D36;
+}
+
+.calendar-container .fc-event {
+  cursor: pointer;
+}
+
+.calendar-container .fc .fc-timegrid-slot-label-cushion {
+  color: #3B4D36;
+}
+
+.calendar-container .fc th,
+.calendar-container .fc td {
+  border-color: #D2B48C;
+}
+
+.calendar-container .fc-view {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}

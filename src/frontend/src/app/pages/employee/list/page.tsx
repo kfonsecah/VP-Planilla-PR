@@ -5,6 +5,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import EmployeeStatsCards from '@/components/EmployeeStatsCards';
 import EmployeeTable from '@/components/EmployeeTable';
 import AddEmployeeModal from '@/components/AddEmployeeModal';
+import EmployeeTabs from '@/components/ui/EmployeeTabs';
 import useEmployeeList from '@/hooks/useEmployeeList';
 
 /**
@@ -27,6 +28,9 @@ const EmployeeListPage: React.FC = () => {
   return (
     <div className="min-h-screen p-6 bg-[#E7DCC1]">
       <div className="mx-auto max-w-7xl">
+        {/* Tabs de navegación */}
+        <EmployeeTabs />
+        
         {/* Encabezado con título y botón de agregar */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-light text-[#3B4D36]">
