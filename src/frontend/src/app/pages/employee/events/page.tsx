@@ -37,12 +37,9 @@ const LaborEventsPage: React.FC = () => {
         showSuccess('Éxito', 'Evento creado correctamente');
       }
       setShowEventModal(false);
-      
-      // Double refresh to ensure calendar updates - with slight delay
-      await refreshEvents();
-      setTimeout(async () => {
-        await refreshEvents();
-      }, 200);
+
+      // No explicit refresh here: the hook updates state (createEvent calls fetchEvents and
+      // updateEvent updates local state). Removing redundant double-refresh to avoid flicker.
     } catch (error) {
       showError('Error', 'No se pudo guardar el evento. Por favor intente nuevamente.');
     }
