@@ -120,7 +120,7 @@ const LaborEventsPage: React.FC = () => {
             </div>
 
             {/* Events Sidebar */}
-            <div className="w-80 bg-[#F5F1E8] rounded-lg shadow-sm border border-[#E0D6B7] flex flex-col h-full">
+            <div className="w-128 bg-[#F5F1E8] rounded-lg shadow-sm border border-[#E0D6B7] flex flex-col h-full">
               {/* Header del sidebar */}
               <div className="bg-[#D4B896] px-4 py-3 rounded-t-lg border-b border-[#D2B48C] flex-shrink-0">
                 <h3 className="text-sm font-semibold text-[#3B4D36] uppercase tracking-wider">
