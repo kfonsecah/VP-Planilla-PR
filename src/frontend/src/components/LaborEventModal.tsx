@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { LaborEventFormData, EmployeeLaborEvent } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 
@@ -10,21 +13,20 @@ interface Props {
   onSubmit: (data: LaborEventFormData) => Promise<void>;
   event?: EmployeeLaborEvent;
   employees: Employee[];
-  // New callback to notify parent about preview changes
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
-  // Optional initial dates when opening modal via calendar selection
   initialDates?: { start?: Date; end?: Date } | null;
 }
 
-// Local form state where dates are strings for datetime-local inputs
-type FormState = {
-  name: string;
-  description: string;
-  employee_id?: number | undefined;
-  start_date?: string | null; // format: 'YYYY-MM-DDTHH:mm'
-  end_date?: string | null;
-  status: 'active' | 'completed' | 'cancelled';
-};
+const laborEventSchema = z.object({
+  name: z.string().min(1, 'El nombre del evento es requerido'),
+  description: z.string().optional(),
+  employee_id: z.number().min(1, 'Debe seleccionar un empleado'),
+  start_date: z.string().min(1, 'La fecha de inicio es requerida'),
+  end_date: z.string().optional(),
+  status: z.enum(['active', 'completed', 'cancelled']),
+});
+
+type FormData = z.infer<typeof laborEventSchema>;
 
 const pad = (n: number) => n.toString().padStart(2, '0');
 const toLocalInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -38,73 +40,109 @@ const LaborEventModal: React.FC<Props> = ({
   onPreviewChange,
   initialDates
 }) => {
-  const [formData, setFormData] = useState<FormState>({
-    name: '',
-    description: '',
-    employee_id: undefined,
-    // use local formatted value for datetime-local
-    start_date: toLocalInput(new Date()),
-    end_date: undefined,
-    status: 'active'
+  const {
+    control,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting }
+  } = useForm<FormData>({
+    resolver: zodResolver(laborEventSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      employee_id: 0,
+      start_date: toLocalInput(new Date()),
+      end_date: '',
+      status: 'active'
+    }
   });
 
+  // Watch form values for preview
+  const watchedValues = watch();
+
   useEffect(() => {
-    // Initialize when modal opens or event/initialDates change
     if (!isOpen) return;
 
     if (event) {
-      console.log('Modal received event:', event); // DEBUG
-      console.log('Event labor_event_name:', (event as any).labor_event_name); // DEBUG
-      console.log('Event labor_event_description:', (event as any).labor_event_description); // DEBUG
-      
       const startIsoLocal = event.start_date ? toLocalInput(new Date(event.start_date)) : toLocalInput(new Date());
-      const endIsoLocal = event.end_date ? toLocalInput(new Date(event.end_date)) : undefined;
-      setFormData({
+      const endIsoLocal = event.end_date ? toLocalInput(new Date(event.end_date)) : '';
+      
+      reset({
         name: (event as any).labor_event_name || '',
         description: (event as any).labor_event_description || '',
-        employee_id: event.employee_id ?? undefined,
+        employee_id: event.employee_id || 0,
         start_date: startIsoLocal,
         end_date: endIsoLocal,
         status: event.status
       });
-      // NO crear preview cuando se está editando un evento existente
-      // El evento ya existe en el calendario
       return;
     }
 
-    // If initialDates provided (clicked on calendar), use them
     if (initialDates && initialDates.start) {
       const startLocal = toLocalInput(initialDates.start);
-      const endLocal = initialDates.end ? toLocalInput(initialDates.end) : undefined;
-      setFormData(prev => ({ ...prev, name: '', description: '', employee_id: undefined, start_date: startLocal, end_date: endLocal, status: 'active' }));
-      onPreviewChange?.({ labor_event_name: '', employee_id: undefined, start_date: startLocal, end_date: endLocal });
+      const endLocal = initialDates.end ? toLocalInput(initialDates.end) : '';
+      
+      reset({
+        name: '',
+        description: '',
+        employee_id: 0,
+        start_date: startLocal,
+        end_date: endLocal,
+        status: 'active'
+      });
+      
+      onPreviewChange?.({ 
+        labor_event_name: '', 
+        employee_id: undefined, 
+        start_date: startLocal, 
+        end_date: endLocal 
+      });
       return;
     }
 
-    // Default when opened via "Crear Evento" button -> today
     const defaultStart = toLocalInput(new Date());
-    setFormData(prev => ({ ...prev, name: '', description: '', employee_id: undefined, start_date: defaultStart, end_date: undefined, status: 'active' }));
-    onPreviewChange?.({ labor_event_name: '', employee_id: undefined, start_date: defaultStart, end_date: undefined });
-  }, [isOpen, event, initialDates]);
+    reset({
+      name: '',
+      description: '',
+      employee_id: 0,
+      start_date: defaultStart,
+      end_date: '',
+      status: 'active'
+    });
+    
+    onPreviewChange?.({ 
+      labor_event_name: '', 
+      employee_id: undefined, 
+      start_date: defaultStart, 
+      end_date: undefined 
+    });
+  }, [isOpen, event, initialDates]); // Removed reset and onPreviewChange
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Update preview when form values change (only when creating new event)
+  useEffect(() => {
+    if (!event && isOpen && onPreviewChange) {
+      onPreviewChange({
+        labor_event_name: watchedValues.name || '',
+        employee_id: watchedValues.employee_id || undefined,
+        start_date: watchedValues.start_date || undefined,
+        end_date: watchedValues.end_date || undefined,
+      });
+    }
+  }, [watchedValues.name, watchedValues.employee_id, watchedValues.start_date, watchedValues.end_date, event, isOpen]); // More specific dependencies
 
+  const onFormSubmit = async (data: FormData) => {
     const payload: LaborEventFormData = {
-      name: formData.name,
-      description: formData.description,
-      employee_id: formData.employee_id,
-      // convert to ISO UTC for server storage
-      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
-      end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
-      status: formData.status
+      name: data.name,
+      description: data.description,
+      employee_id: data.employee_id,
+      start_date: data.start_date ? new Date(data.start_date).toISOString() : null,
+      end_date: data.end_date ? new Date(data.end_date).toISOString() : null,
+      status: data.status
     };
 
-    console.log('Modal submitting payload:', payload); // DEBUG
-    console.log('Current formData.status:', formData.status); // DEBUG
-
     await onSubmit(payload);
-    // clear preview
     onPreviewChange?.(null);
     onClose();
   };
@@ -112,48 +150,47 @@ const LaborEventModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   return (
-    // Render inline panel instead of full-screen backdrop
     <div className="absolute top-6 right-6 z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
         <h2 className="text-xl font-semibold mb-4 text-[#3B4D36]">
           {event ? 'Editar Evento' : 'Nuevo Evento'}
         </h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#3B4D36]">
               Nombre del Evento
             </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => { 
-                setFormData(prev => ({ ...prev, name: e.target.value })); 
-                // Solo crear preview si NO estamos editando un evento existente
-                if (!event) {
-                  onPreviewChange?.({ labor_event_name: e.target.value, start_date: formData.start_date ?? undefined, end_date: formData.end_date ?? undefined, employee_id: formData.employee_id });
-                }
-              }}
-              className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
-              required
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                />
+              )}
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[#3B4D36]">
               Descripción
             </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => { 
-                setFormData(prev => ({ ...prev, description: e.target.value })); 
-                // Solo crear preview si NO estamos editando un evento existente
-                if (!event) {
-                  onPreviewChange?.({ labor_event_name: formData.name, start_date: formData.start_date ?? undefined, end_date: formData.end_date ?? undefined, employee_id: formData.employee_id });
-                }
-              }}
-              className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
-              rows={3}
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                  rows={3}
+                />
+              )}
             />
           </div>
 
@@ -161,27 +198,27 @@ const LaborEventModal: React.FC<Props> = ({
             <label className="block text-sm font-medium text-[#3B4D36]">
               Empleado
             </label>
-            <select
-              value={formData.employee_id ?? ''}
-              onChange={(e) => {
-                const val = e.target.value;
-                const numeric = val === '' ? undefined : Number(val);
-                setFormData(prev => ({ ...prev, employee_id: numeric }));
-                // Solo crear preview si NO estamos editando un evento existente
-                if (!event) {
-                  onPreviewChange?.({ labor_event_name: formData.name, start_date: formData.start_date ?? undefined, end_date: formData.end_date ?? undefined, employee_id: numeric });
-                }
-              }}
-              className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
-              required
-            >
-              <option value="">Seleccionar empleado</option>
-              {employees.map(employee => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="employee_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                >
+                  <option value={0}>Seleccionar empleado</option>
+                  {employees.map(employee => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+            {errors.employee_id && (
+              <p className="mt-1 text-sm text-red-600">{errors.employee_id.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -189,36 +226,36 @@ const LaborEventModal: React.FC<Props> = ({
               <label className="block text-sm font-medium text-[#3B4D36]">
                 Fecha Inicio
               </label>
-              <input
-                type="datetime-local"
-                value={formData.start_date ?? ''}
-                onChange={(e) => { 
-                  setFormData(prev => ({ ...prev, start_date: e.target.value })); 
-                  // Solo crear preview si NO estamos editando un evento existente
-                  if (!event) {
-                    onPreviewChange?.({ labor_event_name: formData.name, start_date: e.target.value, end_date: formData.end_date ?? undefined, employee_id: formData.employee_id });
-                  }
-                }}
-                className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
-                required
+              <Controller
+                name="start_date"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    type="datetime-local"
+                    className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                  />
+                )}
               />
+              {errors.start_date && (
+                <p className="mt-1 text-sm text-red-600">{errors.start_date.message}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-[#3B4D36]">
                 Fecha Fin
               </label>
-              <input
-                type="datetime-local"
-                value={formData.end_date ?? ''}
-                onChange={(e) => { 
-                  setFormData(prev => ({ ...prev, end_date: e.target.value })); 
-                  // Solo crear preview si NO estamos editando un evento existente
-                  if (!event) {
-                    onPreviewChange?.({ labor_event_name: formData.name, start_date: formData.start_date ?? undefined, end_date: e.target.value, employee_id: formData.employee_id });
-                  }
-                }}
-                className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+              <Controller
+                name="end_date"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    type="datetime-local"
+                    className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                  />
+                )}
               />
             </div>
           </div>
@@ -227,16 +264,20 @@ const LaborEventModal: React.FC<Props> = ({
             <label className="block text-sm font-medium text-[#3B4D36]">
               Estado
             </label>
-            <select
-              value={formData.status}
-              onChange={(e) => { setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'completed' | 'cancelled' })); }}
-              className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
-              required
-            >
-              <option value="active">Activo</option>
-              <option value="completed">Completado</option>
-              <option value="cancelled">Cancelado</option>
-            </select>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="mt-1 block w-full rounded-md border border-[#D2B48C] p-2"
+                >
+                  <option value="active">Activo</option>
+                  <option value="completed">Completado</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              )}
+            />
           </div>
 
           <div className="flex justify-end gap-2 mt-6">
@@ -244,14 +285,16 @@ const LaborEventModal: React.FC<Props> = ({
               type="button"
               onClick={() => { onPreviewChange?.(null); onClose(); }}
               className="px-4 py-2 text-[#3B4D36] border border-[#3B4D36] rounded-lg hover:bg-[#E7DCC1]"
+              disabled={isSubmitting}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[#3B4D36] text-white rounded-lg hover:bg-[#6F7153]"
+              className="px-4 py-2 bg-[#3B4D36] text-white rounded-lg hover:bg-[#6F7153] disabled:opacity-50"
+              disabled={isSubmitting}
             >
-              {event ? 'Guardar Cambios' : 'Crear Evento'}
+              {isSubmitting ? 'Guardando...' : (event ? 'Guardar Cambios' : 'Crear Evento')}
             </button>
           </div>
         </form>
