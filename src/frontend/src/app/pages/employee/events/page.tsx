@@ -57,6 +57,13 @@ const LaborEventsPage: React.FC = () => {
     setShowEventModal(true);
   };
 
+  // Visible calendar range to sync the sidebar
+  const [visibleRange, setVisibleRange] = useState<{ start: Date; end: Date } | null>(null);
+
+  const handleVisibleRangeChange = (start: Date, end: Date) => {
+    setVisibleRange({ start, end });
+  };
+
   const handleSubmit = async (data: LaborEventFormData) => {
     try {
       if (selectedEvent) {
@@ -107,6 +114,7 @@ const LaborEventsPage: React.FC = () => {
                 <LaborEventsCalendar
                   onEventClick={handleEventClick}
                   onDateSelect={handleDateSelect}
+                  onVisibleRangeChange={handleVisibleRangeChange}
                   events={events}
                   employees={employees}
                   isLoading={isLoading}
@@ -124,19 +132,32 @@ const LaborEventsPage: React.FC = () => {
               {/* Header del sidebar */}
               <div className="bg-[#D4B896] px-4 py-3 rounded-t-lg border-b border-[#D2B48C] flex-shrink-0">
                 <h3 className="text-sm font-semibold text-[#3B4D36] uppercase tracking-wider">
-                  EVENTOS - AGOSTO 2025
+                  {(() => {
+                    const refDate = visibleRange ? visibleRange.start : new Date();
+                    const monthNames = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+                    return `EVENTOS - ${monthNames[refDate.getMonth()]} ${refDate.getFullYear()}`;
+                  })()}
                 </h3>
               </div>
 
               {/* Lista de eventos */}
               <div className="flex-1 overflow-y-auto min-h-0">
-                {events.length === 0 ? (
+                {(!visibleRange || events.length === 0) ? (
                   <div className="p-4 text-center text-[#8B8B8B] text-sm">
                     No hay eventos este mes
                   </div>
                 ) : (
                   <div className="divide-y divide-[#E0D6B7]">
-                    {events.slice(0, 10).map((event) => {
+                    {/* Filter events that intersect the visible range */}
+                    {events.filter(ev => {
+                      try {
+                        const evStart = ev.start_date ? new Date(ev.start_date) : null;
+                        const evEnd = ev.end_date ? new Date(ev.end_date) : evStart;
+                        if (!evStart || !visibleRange) return false;
+                        // event intersects visible range
+                        return !(evEnd! < visibleRange.start || evStart > visibleRange.end);
+                      } catch (e) { return false; }
+                    }).slice(0, 10).map((event) => {
                       const employee = employees.find(e => String(e.id) === String(event.employee_id));
                       const eventName = (event as any).labor_event_name || `Evento #${event.labor_event_id}`;
                       const startDate = new Date(event.start_date);

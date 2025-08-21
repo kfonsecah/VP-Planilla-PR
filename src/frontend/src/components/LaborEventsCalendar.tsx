@@ -18,6 +18,7 @@ import {
 interface Props {
   onEventClick?: (event: EmployeeLaborEvent) => void;
   onDateSelect?: (start: Date, end: Date) => void;
+  onVisibleRangeChange?: (start: Date, end: Date) => void;
   events: EmployeeLaborEvent[];
   employees: Employee[];
   isLoading: boolean;
@@ -31,6 +32,7 @@ interface Props {
 const LaborEventsCalendar: React.FC<Props> = ({ 
   onEventClick, 
   onDateSelect, 
+  onVisibleRangeChange,
   events, 
   employees,
   isLoading, 
@@ -270,6 +272,23 @@ const LaborEventsCalendar: React.FC<Props> = ({
           eventClick={handleEventClick}
           select={handleDateSelect}
           selectable={true}
+          datesSet={(arg) => {
+            try {
+              // Use view.currentStart/currentEnd to get the logical visible range of the current view
+              const rawStart = arg.view && (arg.view as any).currentStart ? (arg.view as any).currentStart : arg.start;
+              const rawEnd = arg.view && (arg.view as any).currentEnd ? (arg.view as any).currentEnd : arg.end;
+
+              if (rawStart && rawEnd && onVisibleRangeChange) {
+                // Normalize to day boundaries to avoid off-by-one month issues
+                const start = new Date(rawStart);
+                start.setHours(0,0,0,0);
+                const end = new Date(rawEnd);
+                // FullCalendar's currentEnd is typically exclusive; subtract 1ms to make it inclusive
+                end.setMilliseconds(end.getMilliseconds() - 1);
+                onVisibleRangeChange(start, end);
+              }
+            } catch (e) {}
+          }}
           locale="es"
           height="100%"
           aspectRatio={1.5}
