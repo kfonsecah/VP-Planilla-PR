@@ -15,11 +15,11 @@ import java.util.List;
 public class QueryManager {
 
     protected HashMap<String, String> queries;
-    private dbConnector connector; // Assuming you have a dbConnector class
+    private dbConnector connector;
 
     public QueryManager() {
         this.queries = new HashMap<>();
-        this.connector = new dbConnector(); // Initialize your connector
+        this.connector = new dbConnector();
         loadQueries();
     }
 
@@ -44,7 +44,7 @@ public class QueryManager {
                 }
             }
         } catch (IOException | NullPointerException e) {
-            throw new RuntimeException("Could not load /queries.sql (is it in src/main/resources?)", e);
+            throw new RuntimeException("Could not load /queries.sql. Is it in src/main/resources?", e);
         }
     }
 
@@ -66,25 +66,22 @@ public class QueryManager {
         String sql = get(queryName);
         StringBuilder result = new StringBuilder();
 
-        try (Connection conn = connector.getConnection(); // Get the connection
+        try (Connection conn = connector.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // Assign parameters to the query
             for (int i = 0; i < params.length; i++) {
                 pstmt.setObject(i + 1, params[i]);
             }
 
             ResultSet rs = pstmt.executeQuery();
 
-            // Check if the ResultSet has at least one row
             if (!rs.isBeforeFirst() && rs.getRow() == 0) {
-                result.append("Results not found.");
+                result.append("No results found.");
             } else {
                 ResultSetMetaData rsmd = rs.getMetaData();
                 int columnCount = rsmd.getColumnCount();
                 List<String> rowResults = new ArrayList<>();
 
-                // Process row data
                 while (rs.next()) {
                     List<String> columnPairs = new ArrayList<>();
                     for (int i = 1; i <= columnCount; i++) {
@@ -105,5 +102,29 @@ public class QueryManager {
 
         System.out.println("Query result: " + result.toString());
         return result.toString();
+    }
+
+    /**
+     * Executes an update (INSERT, UPDATE, DELETE) query.
+     * @param queryName The name of the query to execute.
+     * @param params The parameters for the query.
+     * @return The number of rows affected.
+     */
+    public int executeUpdate(String queryName, Object... params) {
+        String sql = get(queryName);
+        try (Connection conn = connector.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+
+            return pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error executing update: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error executing update '" + queryName + "'", e);
+        }
     }
 }

@@ -10,7 +10,7 @@ public class clockLogsDB {
     private String clock_logs_remarks;
     private int clock_logs_version;
 
-    // Getters y Setters
+    // Getters and Setters
 
     public int getClock_logs_id() {
         return clock_logs_id;
