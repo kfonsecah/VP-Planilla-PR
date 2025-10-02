@@ -18,3 +18,4 @@
 *.vscode
 *.vscode/*
 *.json
+/docs/Formal/out/
