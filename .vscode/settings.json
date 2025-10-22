@@ -1,3 +1,36 @@
 {
-    "sqldeveloper.logging.enable": false
+  "sqldeveloper.logging.enable": false,
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "[ ]",
+    "[x]",
+    "DONE"
+  ],
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "rulerColour": "yellow"
+    },
+    "FIXME": {
+      "icon": "alert",
+      "foreground": "white",
+      "background": "red",
+      "rulerColour": "red"
+    },
+    "BUG": {
+      "icon": "bug",
+      "foreground": "black",
+      "background": "orange",
+      "rulerColour": "orange"
+    },
+    "DONE": {
+      "icon": "check",
+      "foreground": "white",
+      "background": "green",
+      "rulerColour": "green"
+    }
+  }
 }

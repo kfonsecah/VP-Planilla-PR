@@ -112,6 +112,33 @@ export class LaborEventsService {
   }
 
   /**
+   * Get all assigned labor events (employee assignments)
+   */
+  static async getAllEmployeeLaborEvents(): Promise<EmployeeLaborEvent[]> {
+    const prismaEvents = await prisma.vpg_employee_labor_event.findMany({
+      include: {
+        vpg_labor_events: true,
+      },
+    });
+
+    const employeeLaborEvents: EmployeeLaborEvent[] = prismaEvents.map((pe) => ({
+      id: pe.employee_labor_event_id,
+      employee_id: pe.employee_labor_event_employee_id,
+      labor_event_id: pe.employee_labor_event_labor_event_id,
+      start_date: pe.employee_labor_event_start_date,
+      end_date: pe.employee_labor_event_end_date,
+      status: pe.employee_labor_event_status,
+      version: pe.employee_labor_event_version,
+      // Agregar los datos del evento laboral desde la relación incluida
+      labor_event_name: pe.vpg_labor_events?.labor_events_name || null,
+      labor_event_description: pe.vpg_labor_events?.labor_events_description || null,
+    } as any));
+
+
+    return employeeLaborEvents;
+  }
+
+  /**
    * Assign labor events to employees
    * @param data - The employee labor event data
    * @returns The updated employee with the assigned labor events
@@ -151,5 +178,31 @@ export class LaborEventsService {
     };
 
     return employeeLaborEvent;
+  }
+
+  /**
+   * Delete an employee labor event assignment by id
+   */
+  static async deleteEmployeeLaborEvent(id: number): Promise<EmployeeLaborEvent | null> {
+    try {
+      const deleted = await prisma.vpg_employee_labor_event.delete({
+        where: { employee_labor_event_id: id },
+      });
+
+      const result: EmployeeLaborEvent = {
+        id: deleted.employee_labor_event_id,
+        employee_id: deleted.employee_labor_event_employee_id,
+        labor_event_id: deleted.employee_labor_event_labor_event_id,
+        start_date: deleted.employee_labor_event_start_date,
+        end_date: deleted.employee_labor_event_end_date,
+        status: deleted.employee_labor_event_status,
+        version: deleted.employee_labor_event_version,
+      };
+
+      return result;
+    } catch (error) {
+      // If not found Prisma will throw; return null to indicate not found
+      return null;
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { EmployeeFormData } from '@/types';
+import { EmployeeFormData } from '@/types'
+import { formatNationalId, formatSocialCode, formatPhone, normalizeDateInput } from '@/utils/formatters';
 
 /**
  * Hook para manejar la lógica del modal de agregar empleado
@@ -23,10 +24,25 @@ const useAddEmployeeModal = () => {
    * Maneja los cambios en los inputs del formulario
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target as HTMLInputElement;
+
+    let newValue = value;
+
+    // Autoformateo por campo
+    if (name === 'employee_national_id') {
+      newValue = formatNationalId(value);
+    } else if (name === 'employee_social_code') {
+      newValue = formatSocialCode(value);
+    } else if (name === 'employee_phone') {
+      newValue = formatPhone(value);
+    } else if (name === 'employee_hire_date') {
+      // Normalize many user inputs to YYYY-MM-DD
+      newValue = normalizeDateInput(value);
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: newValue
     }));
   };
 
@@ -56,8 +72,9 @@ const useAddEmployeeModal = () => {
     return (e: React.FormEvent) => {
       e.preventDefault();
       
-      // TODO: Agregar validaciones del formulario aquí
+      // Validaciones del formulario
       if (!validateForm()) {
+        // No mostrar mensajes intrusivos; simplemente impedir envío
         return;
       }
       
@@ -79,16 +96,30 @@ const useAddEmployeeModal = () => {
 
   /**
    * Valida los datos del formulario
-   * TODO: Implementar validaciones completas
    */
   const validateForm = (): boolean => {
     // Validaciones básicas
     if (!formData.employee_first_name.trim()) return false;
     if (!formData.employee_last_name.trim()) return false;
-    if (!formData.employee_national_id.trim()) return false;
     if (!formData.employee_email.trim()) return false;
     if (!formData.employee_position_id) return false;
-    
+
+    // Formato cédula: X-XXXX-XXXX (1-1234-1234)
+    const cedulaRegex = /^\d-\d{4}-\d{4}$/;
+    if (!cedulaRegex.test(formData.employee_national_id)) return false;
+
+    // Código CCSS: 12 dígitos
+    const socialRegex = /^\d{12}$/;
+    if (formData.employee_social_code && !socialRegex.test(formData.employee_social_code)) return false;
+
+    // Teléfono: 1234-1234
+    const phoneRegex = /^\d{4}-\d{4}$/;
+    if (formData.employee_phone && !phoneRegex.test(formData.employee_phone)) return false;
+
+    // Fecha: YYYY-MM-DD (permitir vacío)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (formData.employee_hire_date && !dateRegex.test(formData.employee_hire_date)) return false;
+
     return true;
   };
 

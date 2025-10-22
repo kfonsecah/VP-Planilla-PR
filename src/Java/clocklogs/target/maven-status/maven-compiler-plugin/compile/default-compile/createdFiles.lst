@@ -1,0 +1,10 @@
+com/verde/pradera/models/Serializer.class
+com/verde/pradera/utils/TestFileGenerator.class
+com/verde/pradera/controller/ClockLogProcessor.class
+com/verde/pradera/utils/dbConnector.class
+com/verde/pradera/Main.class
+com/verde/pradera/models/clockLogsFiles.class
+com/verde/pradera/models/clockLogsDB.class
+com/verde/pradera/utils/QueryManager.class
+com/verde/pradera/utils/fileReader.class
+com/verde/pradera/models/MarkType.class

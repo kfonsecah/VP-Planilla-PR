@@ -1,0 +1,113 @@
+/* Estilos específicos para el calendario */
+.calendar-container .fc {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: inherit;
+}
+
+.calendar-container .fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-container .fc .fc-toolbar-title {
+  color: #3B4D36;
+  font-weight: 300;
+}
+
+.calendar-container .fc .fc-button-primary {
+  background-color: #A7AA94;
+  border-color: #A7AA94;
+  color: #3B4D36;
+}
+
+.calendar-container .fc .fc-button-primary:hover {
+  background-color: #6F7153;
+  border-color: #6F7153;
+  color: white;
+}
+
+.calendar-container .fc .fc-button-primary:not(:disabled).fc-button-active,
+.calendar-container .fc .fc-button-primary:not(:disabled):active {
+  background-color: #3B4D36;
+  border-color: #3B4D36;
+  color: white;
+}
+
+.calendar-container .fc .fc-day-today {
+  background-color: rgba(231, 220, 193, 0.3) !important;
+}
+
+.calendar-container .fc .fc-daygrid-day-number,
+.calendar-container .fc .fc-col-header-cell-cushion {
+  color: #3B4D36;
+}
+
+.calendar-container .fc-event {
+  cursor: pointer;
+  /* Default pill appearance is preserved; specific status colors are applied via additional classes */
+  background-color: #A7AA94 !important;
+  border: 1px solid #6F7153 !important;
+  color: #3B4D36 !important;
+  border-radius: 12px !important;
+  padding: 4px 8px !important;
+  margin: 2px 1px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+.calendar-container .fc-event .fc-event-title {
+  color: #3B4D36 !important;
+  font-weight: 500 !important;
+}
+
+.calendar-container .fc-event:hover {
+  background-color: #6F7153 !important;
+  color: white !important;
+}
+
+.calendar-container .fc-event:hover .fc-event-title {
+  color: white !important;
+}
+
+.calendar-container .fc .fc-timegrid-slot-label-cushion {
+  color: #3B4D36;
+}
+
+.calendar-container .fc th,
+.calendar-container .fc td {
+  border-color: #D2B48C;
+}
+
+/* Status-specific colors: keep same pill shape/size and hover behavior */
+.calendar-container .fc-event.status-active {
+  background-color: #A7AA94 !important; /* keep original warm neutral for active */
+  border: 1px solid #6F7153 !important;
+  color: #3B4D36 !important;
+}
+
+.calendar-container .fc-event.status-completed {
+  background-color: #94aa9d !important; /* light green background */
+  border: 1px solid #4b5750 !important; /* green border */
+  color: #065F46 !important; /* darker green text */
+}
+
+.calendar-container .fc-event.status-inactive {
+  background-color: #c0c7c3 !important; /* very light gray */
+  border: 1px solid #818386 !important; /* muted gray border */
+  color: #6B7280 !important; /* muted text color */
+}
+
+/* Preview event uses an amber tone but keeps pill styling */
+.calendar-container .fc-event.status-preview {
+  background-color: #F59E0B !important;
+  border: 1px solid #D97706 !important;
+  color: #FFFFFF !important;
+}
+
+.calendar-container .fc-view {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}

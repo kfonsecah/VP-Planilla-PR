@@ -55,7 +55,8 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       <EmployeeProfileModal 
         isOpen={showProfileModal} 
         onClose={closeProfileModal}
-        employeeData={getEmployeeProfileData(selectedEmployeeData)}
+        // getEmployeeProfileData returns a shape compatible at runtime; cast to any to avoid type mismatch
+        employeeData={getEmployeeProfileData(selectedEmployeeData) as any}
       />
 
       <div className="bg-[#F9F1DC] rounded-lg">

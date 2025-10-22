@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLaborEvents } from '@/hooks/useLaborEvents';
+import useEmployeeList from '@/hooks/useEmployeeList';
+import { formatSalary, getStatusBadgeConfig } from '@/utils/employeeUtils';
 
 // --- Type Definitions ---
 interface Employee {
@@ -18,104 +21,7 @@ interface CalendarEvent {
 }
 
 // --- Dummy Data ---
-const employees: Employee[] = [
-  {
-    name: "María Solano Rojas",
-    position: "Encargada de caja",
-    salary: "€360,000",
-    status: "Al día",
-  },
-  {
-    name: "José Andrés Chavarría Soto",
-    position: "Cocinero principal",
-    salary: "€450,000",
-    status: "Asistencia incompleta",
-  },
-  {
-    name: "Gabriela Solano Méndez",
-    position: "Salonera",
-    salary: "€320,000",
-    status: "Vacaciones",
-  },
-  {
-    name: "Kevin Vargas Umaña",
-    position: "Barista",
-    salary: "€320,000",
-    status: "Al día",
-  },
-  {
-    name: "Sofía Valverde",
-    position: "Gerente",
-    salary: "€500,000",
-    status: "Al día",
-  },
-  {
-    name: "Diego González",
-    position: "Mesero",
-    salary: "€300,000",
-    status: "Al día",
-  },
-  {
-    name: "Laura Picado",
-    position: "Cajera",
-    salary: "€310,000",
-    status: "Asistencia incompleta",
-  },
-  {
-    name: "Pablo Arias",
-    position: "Chef de partida",
-    salary: "€400,000",
-    status: "Al día",
-  },
-  {
-    name: "Valeria Solís",
-    position: "Bartender",
-    salary: "€330,000",
-    status: "Vacaciones",
-  },
-  {
-    name: "Andrés Mora",
-    position: "Ayudante de cocina",
-    salary: "€280,000",
-    status: "Al día",
-  },
-  {
-    name: "Fernanda Ureña",
-    position: "Encargada de limpieza",
-    salary: "€270,000",
-    status: "Al día",
-  },
-  {
-    name: "Ricardo Quesada",
-    position: "Seguridad",
-    salary: "€350,000",
-    status: "Al día",
-  },
-  {
-    name: "Carolina Obando",
-    position: "Asistente administrativo",
-    salary: "€380,000",
-    status: "Al día",
-  },
-  {
-    name: "Daniel Jiménez",
-    position: "Repostero",
-    salary: "€370,000",
-    status: "Vacaciones",
-  },
-  {
-    name: "Silvia Calderón",
-    position: "Barista",
-    salary: "€320,000",
-    status: "Asistencia incompleta",
-  },
-  {
-    name: "Felipe Guzmán",
-    position: "Mesero",
-    salary: "€300,000",
-    status: "Al día",
-  },
-];
+
 
 const calendarEvents: CalendarEvent[] = [
   // Events from the screenshot. Note that the highlighted days are 13, 17, 19, 26.
@@ -157,7 +63,8 @@ const renderCalendarDays = (
   month: number,
   events: CalendarEvent[],
   onMouseEnter: (event: React.MouseEvent, eventData: CalendarEvent) => void,
-  onMouseLeave: () => void
+  onMouseLeave: () => void,
+  onClickDay?: (date: Date, dayEvents: CalendarEvent[]) => void
 ) => {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDayIndex = getFirstDayOfMonth(year, month); // Day of week (0=Sun, 6=Sat) for the 1st of the month
@@ -210,6 +117,14 @@ const renderCalendarDays = (
         className={dayClasses.trim()}
         onMouseEnter={event && isCurrentMonthDay ? (e) => onMouseEnter(e, event) : undefined}
         onMouseLeave={event && isCurrentMonthDay ? onMouseLeave : undefined}
+        onClick={isCurrentMonthDay ? () => {
+          // build date and pass all events for this day
+          if (typeof day === 'number') {
+            const dt = new Date(year, month, day);
+            const dayEvents = events.filter(ev => ev.date === day);
+            if (typeof (onClickDay as any) === 'function') (onClickDay as any)(dt, dayEvents as CalendarEvent[]);
+          }
+        } : undefined}
       >
         {day}
       </div>
@@ -220,14 +135,34 @@ const renderCalendarDays = (
 // --- React Components ---
 
 const Home: React.FC = () => {
-  // Initialize state with current date (June 2025 as per previous discussions/screenshot)
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // Set to 1st of the month
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string; visible: boolean }>({
-    x: 0,
-    y: 0,
-    content: '',
-    visible: false
+  // State + data hooks
+  const [currentDate, setCurrentDate] = useState(() => {
+    // default to first day of current month
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string; visible: boolean }>({ x: 0, y: 0, content: '', visible: false });
+
+  // Live data hooks
+  const { events, isLoading: eventsLoading, refreshEvents } = useLaborEvents();
+  const { employees, refreshEmployees } = useEmployeeList();
+
+  // Visible range (used to build monthly list)
+  const [visibleRangeStart, setVisibleRangeStart] = useState<Date | null>(null);
+  const [visibleRangeEnd, setVisibleRangeEnd] = useState<Date | null>(null);
+
+  // Modal for day that has multiple events
+  const [dayModal, setDayModal] = useState<{ date: Date; events: any[] } | null>(null);
+
+  // Polling to keep data synchronized (30s)
+  useEffect(() => {
+    const t = setInterval(() => {
+      refreshEvents().catch(() => {});
+      refreshEmployees && refreshEmployees().catch(() => {});
+    }, 30000);
+    return () => clearInterval(t);
+  }, [refreshEvents, refreshEmployees]);
 
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
@@ -256,6 +191,26 @@ const Home: React.FC = () => {
   const handleMouseLeave = () => {
     setTooltip(prev => ({ ...prev, visible: false }));
   };
+
+  // Update visible range when currentDate changes
+  useEffect(() => {
+    const start = new Date(currentYear, currentMonth, 1);
+    const end = new Date(currentYear, currentMonth, getDaysInMonth(currentYear, currentMonth));
+    end.setHours(23,59,59,999);
+    setVisibleRangeStart(start);
+    setVisibleRangeEnd(end);
+  }, [currentMonth, currentYear]);
+
+  const monthlyEvents = (visibleRangeStart && visibleRangeEnd && events)
+    ? (events || []).filter(ev => {
+      try {
+    const s = ev.start_date ? new Date(ev.start_date) : null;
+    const e = ev.end_date ? new Date(ev.end_date) : s;
+    if (!s || !e) return false;
+    return !(e.getTime() < visibleRangeStart.getTime() || s.getTime() > visibleRangeEnd.getTime());
+      } catch (err) { return false; }
+    }).sort((a:any,b:any) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+    : [];
   return (
     <div className="h-full bg-[#E7DCC1] overflow-auto">
       <div className="flex flex-col min-h-full gap-4 p-4 font-sans">
@@ -298,7 +253,30 @@ const Home: React.FC = () => {
                 <span>Sábado</span>
               </div>              {/* Calendar Days */}
               <div className="grid grid-cols-7 gap-px">
-                {renderCalendarDays(currentYear, currentMonth, calendarEvents, handleMouseEnter, handleMouseLeave)}
+                {renderCalendarDays(
+                  currentYear,
+                  currentMonth,
+                  // Build a lightweight CalendarEvent[] from real events in this month
+                  (events || []).filter(ev => {
+                    try {
+                      const s = ev.start_date ? new Date(ev.start_date) : null;
+                      if (!s) return false;
+                      return s.getMonth() === currentMonth && s.getFullYear() === currentYear;
+                    } catch (e) { return false; }
+                  }).map(ev => ({ date: new Date(ev.start_date).getDate(), type: 'highlighted' as any, title: ev.labor_event_name || 'Evento', description: ev.labor_event_description })),
+                  (e, evData) => handleMouseEnter(e, evData as CalendarEvent),
+                  handleMouseLeave,
+                  (dateClicked: Date, dayEvents: CalendarEvent[]) => {
+                    // Map lightweight CalendarEvent[] back to full event objects where possible
+                    const fullEvents = (events || []).filter(ev => {
+                      try {
+                        const s = ev.start_date ? new Date(ev.start_date) : null;
+                        return s && s.getDate() === dateClicked.getDate() && s.getMonth() === dateClicked.getMonth() && s.getFullYear() === dateClicked.getFullYear();
+                      } catch (e) { return false; }
+                    });
+                    setDayModal({ date: dateClicked, events: fullEvents });
+                  }
+                )}
               </div>
             </div>
           </div>
@@ -313,6 +291,8 @@ const Home: React.FC = () => {
             </div>
           </div>
         </div>
+
+        
 
         {/* Employee Information */}
         <div className="bg-[#F5F1E8] rounded-lg shadow-sm p-4 border border-[#E0D6B7]">
@@ -331,41 +311,21 @@ const Home: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {employees.slice(0, 4).map((employee, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-[#FDFCF9] transition-colors duration-150"
-                  >
-                    <td className="py-2 px-3 text-[#4A5D3A] text-xs border-b border-[#F0EDE5]">
-                      {employee.name}
-                    </td>
-                    <td className="py-2 px-3 text-[#6B7556] text-xs border-b border-[#F0EDE5]">
-                      {employee.position}
-                    </td>
-                    <td className="py-2 px-3 text-[#4A5D3A] text-xs border-b border-[#F0EDE5] font-medium">
-                      {employee.salary}
-                    </td>
-                    <td className="py-2 px-3 text-xs text-center border-b border-[#F0EDE5]">
-                      <span
-                        className={
-                          `inline-block px-2 py-0.5 rounded-full text-xs font-medium min-w-[80px] text-center
-                         ${employee.status === "Al día"
-                           ? "bg-[#D4EDDA] text-[#155724]"
-                           : ""}
-                         ${employee.status === "Asistencia incompleta"
-                           ? "bg-[#F8D7DA] text-[#721C24]"
-                           : ""}
-                         ${employee.status === "Vacaciones"
-                           ? "bg-[#FFF3CD] text-[#856404]"
-                           : ""}
-                        `
-                        }
-                      >
-                        {employee.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {employees.slice(0, 4).map((employee, index) => {
+                  const badge = getStatusBadgeConfig(String(employee.status ?? ''));
+                  // employee.salary in hook is numeric (getPositionSalary) — use formatSalary util
+                  const salaryDisplay = typeof employee.salary === 'number' ? formatSalary(employee.salary as number) : String(employee.salary ?? '');
+                  return (
+                    <tr key={index} className="hover:bg-[#FDFCF9] transition-colors duration-150">
+                      <td className="py-2 px-3 text-[#4A5D3A] text-xs border-b border-[#F0EDE5]">{employee.name}</td>
+                      <td className="py-2 px-3 text-[#6B7556] text-xs border-b border-[#F0EDE5]">{employee.position}</td>
+                      <td className="py-2 px-3 text-[#4A5D3A] text-xs border-b border-[#F0EDE5] font-medium">{salaryDisplay}</td>
+                      <td className="py-2 px-3 text-xs text-center border-b border-[#F0EDE5]">
+                        <span className={badge.className}>{badge.text}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -406,6 +366,35 @@ const Home: React.FC = () => {
       </div>
 
       {/* Tooltip */}
+      {/* Day Modal - shows events for a clicked date */}
+      {dayModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg w-[90%] max-w-2xl p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-sm font-semibold text-[#3B4D36]">Eventos para {dayModal.date.toLocaleDateString()}</h4>
+              <button onClick={() => setDayModal(null)} className="text-sm text-[#6B7556]">Cerrar</button>
+            </div>
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              {dayModal.events.length === 0 ? (
+                <div className="text-sm text-[#8B8B8B]">No hay eventos para este día.</div>
+              ) : dayModal.events.map((ev:any) => (
+                <div key={ev.id} className="border border-[#E5E1D8] rounded-md p-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm font-medium text-[#3B4D36]">{ev.labor_event_name || 'Evento'}</div>
+                      <div className="text-xs text-[#6B7556]">{employees.find((em:any)=>String(em.id)===String(ev.employee_id))?.name || 'Sin asignar'}</div>
+                    </div>
+                    <div className="text-xs text-[#8B8B8B]">{ev.status}</div>
+                  </div>
+                  {ev.labor_event_description && (
+                    <p className="text-xs text-[#6B7556] mt-2">{ev.labor_event_description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {tooltip.visible && (
         <div
           className="fixed z-50 bg-[#4A5D3A] text-white text-xs rounded-md px-3 py-2 shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-full"

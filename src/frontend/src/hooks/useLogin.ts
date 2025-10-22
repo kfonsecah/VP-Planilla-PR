@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/user";
 import { useModal } from "@/hooks/useModal";
+import { useAuth } from '@/hooks/useAuth';
 
 // Interfaces para tipado
 interface LoginCredentials {
@@ -21,9 +22,10 @@ interface AuthenticatedUser {
 }
 
 interface LoginResponse {
-  success: boolean;
+  success?: boolean;
   user?: AuthenticatedUser;
   token?: string;
+  refresh_token?: string;
   message?: string;
   type?: string;
 }
@@ -36,6 +38,7 @@ export const useLogin = (modalActions?: { showError: (title: string, message: st
 
   const router = useRouter();
   const { setUser } = useUser();
+  const { login } = useAuth();
   
   // Usar las funciones de modal pasadas como parámetro, o crear instancia local como fallback
   const fallbackModal = useModal();
@@ -53,38 +56,38 @@ export const useLogin = (modalActions?: { showError: (title: string, message: st
     return true;
   };
 
-  const handleApiError = (data: LoginResponse, response: Response): void => {
+  const handleApiError = (data: LoginResponse | null, response?: Response): void => {
     let errorTitle = "No pudimos conectarte";
     let errorMessage = "Verifica tus datos e intenta nuevamente.";
 
-    if (data.type === "user_not_found") {
+    if (data?.type === "user_not_found") {
       errorTitle = "Usuario no encontrado";
       errorMessage =
         "El usuario que ingresaste no existe en nuestro sistema. ¿Estás seguro de que escribiste bien tu nombre de usuario?";
-    } else if (data.type === "invalid_password") {
+    } else if (data?.type === "invalid_password") {
       errorTitle = "Contraseña incorrecta";
       errorMessage =
         "La contraseña que ingresaste no es correcta. Por favor verifica e intenta nuevamente.";
-    } else if (data.type === "invalid_credentials") {
+    } else if (data?.type === "invalid_credentials") {
       errorTitle = "Datos incorrectos";
       errorMessage =
         "El usuario o la contraseña que ingresaste no son correctos. Por favor revisa tus datos.";
-    } else if (data.type === "validation_error") {
+    } else if (data?.type === "validation_error") {
       errorTitle = "Datos incompletos";
       errorMessage =
         data.message ||
         "Por favor completa todos los campos requeridos.";
-    } else if (response.status === 401) {
+    } else if (response && response.status === 401) {
       errorTitle = "Acceso denegado";
       errorMessage =
         "Los datos que ingresaste no coinciden con nuestros registros. ¿Necesitas ayuda para recuperar tu acceso?";
-    } else if (response.status >= 500) {
+    } else if (response && response.status >= 500) {
       errorTitle = "Problema del servidor";
       errorMessage =
         "Tenemos un problema técnico en este momento. Por favor intenta nuevamente en unos minutos.";
     } else {
       errorMessage =
-        data.message ||
+        data?.message ||
         "Ha ocurrido un problema inesperado. Por favor intenta nuevamente.";
     }
 
@@ -107,24 +110,19 @@ export const useLogin = (modalActions?: { showError: (title: string, message: st
     }
   };
 
-  const handleSuccessfulLogin = (data: LoginResponse): void => {
-    if (data.user && data.token) {
+  const handleSuccessfulLogin = (userData: AuthenticatedUser): void => {
+    if (userData) {
       // Guardar datos en localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify(userData));
       
       // Actualizar estado global
-      setUser(data.user);
-
-      // Guardar referencia del usuario para usar en el timeout
-      const user = data.user;
+      setUser(userData);
 
       // Dar tiempo para que el estado se propague antes de mostrar el modal
       setTimeout(() => {
-        // Mostrar mensaje de éxito con callback de redirección
         showSuccess(
           "¡Bienvenido de vuelta!",
-          `Hola ${user.first_name}, nos alegra verte de nuevo.`,
+          `Hola ${userData.first_name}, nos alegra verte de nuevo.`,
           () => {
             router.push("/pages/main");
           }
@@ -134,33 +132,26 @@ export const useLogin = (modalActions?: { showError: (title: string, message: st
   };
 
   const performLogin = async (credentials: LoginCredentials): Promise<void> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) {
-      showError(
-        "Error de configuración",
-        "Hay un problema con la configuración del sistema. Por favor contacta al administrador."
-      );
-      return;
-    }
+    try {
+      await login(credentials.username, credentials.password);
 
-    const loginUrl = `${apiUrl}/login`;
+      // after login, current user is stored in localStorage by AuthProvider; read it
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      if (stored) {
+        try {
+          handleSuccessfulLogin(JSON.parse(stored));
+          return;
+        } catch (_e) {}
+      }
 
-    const response = await fetch(loginUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    const data: LoginResponse = await response.json();
-
-    console.log("Respuesta completa de la API:", data);
-
-    if (data.success && data.user && data.token) {
-      handleSuccessfulLogin(data);
-    } else {
-      handleApiError(data, response);
+      // fallback: show success without user
+      showSuccess('Inicio exitoso', 'Has iniciado sesión correctamente', () => router.push('/pages/main'));
+    } catch (error: any) {
+      if (error && error.message) {
+        showError('Error de autenticación', error.message);
+      } else {
+        handleNetworkError(error);
+      }
     }
   };
 

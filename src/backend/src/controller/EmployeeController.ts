@@ -3,10 +3,12 @@ import { EmployeeService } from "../service/EmployeeService";
 
 export class EmployeeController {
   /**
-   * Create a new employee
+   * Create a new employee in the system
    * POST /employee/create
+   * @param req - Express request object containing employee data
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with created employee data or error
    */
-
   static async createEmployee(req: Request, res: Response): Promise<Response> {
     const employeeData = req.body;
 
@@ -19,6 +21,13 @@ export class EmployeeController {
     }
   }
 
+  /**
+   * Get employee by ID
+   * GET /employee/:id
+   * @param req - Express request object containing employee ID in params
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with employee data or error
+   */
   static async getEmployeeById(req: Request, res: Response): Promise<Response> {
     const employeeId = req.params.id;
 
@@ -42,6 +51,13 @@ export class EmployeeController {
     }
   }
 
+  /**
+   * Update an existing employee
+   * PUT /employee/:id
+   * @param req - Express request object containing employee ID in params and update data in body
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with updated employee data or error
+   */
   static async updateEmployee(req: Request, res: Response): Promise<Response> {
     const employeeId = parseInt(req.params.id, 10);
     const employeeData = req.body;
@@ -61,6 +77,13 @@ export class EmployeeController {
     }
   }
 
+  /**
+   * Get all employees from the system
+   * GET /employee
+   * @param req - Express request object
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with array of employees or error
+   */
   static async getAllEmployees(req: Request, res: Response): Promise<Response> {
     try {
       const employees = await EmployeeService.getAllEmployees();

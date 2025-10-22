@@ -13,3 +13,9 @@
 /docs/Formal/TFM.pdf
 *.txt
 *.synctex(busy)
+*.DS_Store
+.DS_Store
+*.vscode
+*.vscode/*
+*.json
+/docs/Formal/out/

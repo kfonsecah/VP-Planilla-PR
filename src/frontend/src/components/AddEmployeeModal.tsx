@@ -1,288 +1,212 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { EmployeeFormData } from '@/types';
+import React, { useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { motion, AnimatePresence } from 'framer-motion';
+import { employeeSchema, EmployeeSchemaType } from '@/schemas/employee';
 import { POSITIONS } from '@/constants';
-import useAddEmployeeModal from '@/hooks/useAddEmployeeModal';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (employeeData: EmployeeFormData) => void;
+  onSubmit: (employeeData: EmployeeSchemaType) => Promise<void> | void;
 }
 
-/**
- * Modal para agregar un nuevo empleado
- * Incluye formulario completo con validación
- */
-const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSubmit 
-}) => {
-  const { 
-    formData, 
-    handleInputChange, 
-    handleSubmit, 
-    handleCancel 
-  } = useAddEmployeeModal();
+const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
-  // Convertir las posiciones a formato de opciones para el select
   const positionOptions = Object.entries(POSITIONS).map(([id, position]) => ({
     id,
     name: position.name,
     salary: position.salary
   }));
 
-  if (!isOpen) return null;
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<any>({
+    resolver: zodResolver(employeeSchema),
+    defaultValues: {
+      employee_first_name: '',
+      employee_middle_name: '',
+      employee_last_name: '',
+      employee_national_id: '',
+      employee_social_code: '',
+      employee_email: '',
+      employee_phone: '',
+      employee_position_id: '',
+      employee_hire_date: '',
+      employee_gender: '',
+      employee_schedule: '',
+    }
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (modalRef.current) {
+      const firstInput = modalRef.current.querySelector('input, select, textarea') as HTMLElement;
+      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+    }
+    reset();
+  }, [isOpen, reset]);
+
+  // Motion variants copied from LaborEventModal for parity
+  const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
+  const modalVariants = {
+    hidden: { scale: 0.9, opacity: 0, y: 30 },
+    visible: { scale: 1, opacity: 1, y: 0, transition: { type: 'spring' as const, damping: 20, stiffness: 250 } },
+    exit: { scale: 0.9, opacity: 0, y: 30, transition: { duration: 0.2 } }
+  };
+
+  const onFormSubmit = async (data: any) => {
+    const validated = data as EmployeeSchemaType;
+    await onSubmit(validated);
+    onClose();
+  };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
-      style={{ 
-        WebkitBackdropFilter: 'blur(4px)', 
-        backdropFilter: 'blur(4px)', 
-        background: 'rgba(0,0,0,0.4)' 
-      }}
-    >
-      <div className="bg-[#F9F1DC] rounded-lg shadow-2xl w-[600px] max-w-[95vw] max-h-[95vh] p-8 relative overflow-auto">
-        {/* Botón de cerrar */}
-        <button
-          className="absolute top-4 right-4 text-[#5D4E37] hover:text-[#3B4D36] text-2xl transition-colors"
-          onClick={handleCancel(onClose)}
-          aria-label="Cerrar modal"
-        >
-          ×
-        </button>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            className="fixed inset-0 bg-black/30 z-40"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
 
-        {/* Encabezado del modal */}
-        <h2 className="text-2xl font-bold text-[#3B4D36] mb-6">
-          Añadir empleado
-        </h2>
-
-        {/* Formulario */}
-        <form onSubmit={handleSubmit(onSubmit, onClose)} className="space-y-4">
-          {/* Nombres completos */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Primer nombre *
-              </label>
-              <input
-                type="text"
-                name="employee_first_name"
-                value={formData.employee_first_name}
-                onChange={handleInputChange}
-                placeholder="Juan"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Segundo nombre
-              </label>
-              <input
-                type="text"
-                name="employee_middle_name"
-                value={formData.employee_middle_name}
-                onChange={handleInputChange}
-                placeholder="Carlos"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Apellidos *
-              </label>
-              <input
-                type="text"
-                name="employee_last_name"
-                value={formData.employee_last_name}
-                onChange={handleInputChange}
-                placeholder="Rodríguez López"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Documentación */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Cédula de identidad *
-              </label>
-              <input
-                type="text"
-                name="employee_national_id"
-                value={formData.employee_national_id}
-                onChange={handleInputChange}
-                placeholder="1-2345-6789"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Código de la CCSS
-              </label>
-              <input
-                type="text"
-                name="employee_social_code"
-                value={formData.employee_social_code}
-                onChange={handleInputChange}
-                placeholder="123456789012"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-              />
-            </div>
-          </div>
-
-          {/* Contacto */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Correo electrónico *
-              </label>
-              <input
-                type="email"
-                name="employee_email"
-                value={formData.employee_email}
-                onChange={handleInputChange}
-                placeholder="juan.rodriguez@empresa.com"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-                Número telefónico
-              </label>
-              <input
-                type="tel"
-                name="employee_phone"
-                value={formData.employee_phone}
-                onChange={handleInputChange}
-                placeholder="8888-1234"
-                className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-              />
-            </div>
-          </div>
-
-          {/* Posición */}
-          <div>
-            <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-              Posición *
-            </label>
-            <select
-              name="employee_position_id"
-              value={formData.employee_position_id}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-              required
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              ref={modalRef}
+              className="pointer-events-auto w-full max-w-2xl"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
             >
-              <option value="">Seleccionar posición</option>
-              {positionOptions.map((position) => (
-                <option key={position.id} value={position.id}>
-                  {position.name} - ₡{position.salary.toLocaleString()}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div className="bg-[#F9F1DC] rounded-xl shadow-2xl border border-[#E0D6B7] overflow-hidden">
+                <div className="bg-[#6F7153] px-6 py-4 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-white">Añadir empleado</h2>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={onClose}
+                      className="text-white hover:text-gray-200 transition-colors p-1 hover:bg-white/10 rounded-full"
+                      aria-label="Cerrar modal"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
 
-          {/* Fecha de contratación */}
-          <div>
-            <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-              Fecha de contratación
-            </label>
-            <input
-              type="date"
-              name="employee_hire_date"
-              value={formData.employee_hire_date}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-            />
-          </div>
+                <div className="max-h-[70vh] overflow-y-auto p-6">
+                  <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Primer nombre *</label>
+                        <input {...register('employee_first_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                        {errors.employee_first_name && <p className="mt-1 text-sm text-red-600">{String(errors.employee_first_name?.message)}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Segundo nombre</label>
+                        <input {...register('employee_middle_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Apellidos *</label>
+                        <input {...register('employee_last_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                        {errors.employee_last_name && <p className="mt-1 text-sm text-red-600">{String(errors.employee_last_name?.message)}</p>}
+                      </div>
+                    </div>
 
-          {/* Género */}
-          <div>
-            <label className="block text-sm font-medium text-[#5D4E37] mb-2">
-              Género
-            </label>
-            <div className="flex gap-6">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="employee_gender"
-                  value="Masculino"
-                  checked={formData.employee_gender === 'Masculino'}
-                  onChange={handleInputChange}
-                  className="mr-2"
-                />
-                <span className="text-[#5D4E37]">Masculino</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="employee_gender"
-                  value="Femenino"
-                  checked={formData.employee_gender === 'Femenino'}
-                  onChange={handleInputChange}
-                  className="mr-2"
-                />
-                <span className="text-[#5D4E37]">Femenino</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="employee_gender"
-                  value="Otro"
-                  checked={formData.employee_gender === 'Otro'}
-                  onChange={handleInputChange}
-                  className="mr-2"
-                />
-                <span className="text-[#5D4E37]">Otro</span>
-              </label>
-            </div>
-          </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Cédula de identidad *</label>
+                        <input {...register('employee_national_id')} placeholder="1-2345-6789" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                        {errors.employee_national_id && <p className="mt-1 text-sm text-red-600">{String(errors.employee_national_id?.message)}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Código de la CCSS</label>
+                        <input {...register('employee_social_code')} placeholder="123456789012" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                      </div>
+                    </div>
 
-          {/* Horario */}
-          <div>
-            <label className="block text-sm font-medium text-[#5D4E37] mb-1">
-              Horario
-            </label>
-            <select
-              name="employee_schedule"
-              value={formData.employee_schedule}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
-            >
-              <option value="Horario Diurno">Horario Diurno</option>
-              <option value="Horario Nocturno">Horario Nocturno</option>
-              <option value="Horario Mixto">Horario Mixto</option>
-              <option value="Medio Tiempo">Medio Tiempo</option>
-            </select>
-          </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Correo electrónico *</label>
+                        <input {...register('employee_email')} type="email" placeholder="juan.rodriguez@empresa.com" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                        {errors.employee_email && <p className="mt-1 text-sm text-red-600">{String(errors.employee_email?.message)}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#5D4E37] mb-1">Número telefónico</label>
+                        <input {...register('employee_phone')} placeholder="8888-1234" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                      </div>
+                    </div>
 
-          {/* Botones de acción */}
-          <div className="flex gap-4 pt-6">
-            <button
-              type="button"
-              onClick={handleCancel(onClose)}
-              className="flex-1 px-4 py-2 text-[#5D4E37] bg-white border border-[#D2B48C] rounded-md hover:bg-[#F5F5F5] transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 text-white bg-[#6F7153] rounded-md hover:bg-[#5D4E37] transition-colors"
-            >
-              Guardar empleado
-            </button>
+                    <div>
+                      <label className="block text-sm font-medium text-[#5D4E37] mb-1">Posición *</label>
+                      <select {...register('employee_position_id')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]">
+                        <option value="">Seleccionar posición</option>
+                        {positionOptions.map((position) => (
+                          <option key={position.id} value={position.id}>
+                            {position.name} - ₡{position.salary.toLocaleString()}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.employee_position_id && <p className="mt-1 text-sm text-red-600">{String(errors.employee_position_id?.message)}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#5D4E37] mb-1">Fecha de contratación</label>
+                      <input {...register('employee_hire_date')} type="date" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#5D4E37] mb-2">Género</label>
+                      <div className="flex gap-6">
+                        <label className="flex items-center cursor-pointer">
+                          <input {...register('employee_gender')} type="radio" value="Masculino" className="mr-2" />
+                          <span className="text-[#5D4E37]">Masculino</span>
+                        </label>
+                        <label className="flex items-center cursor-pointer">
+                          <input {...register('employee_gender')} type="radio" value="Femenino" className="mr-2" />
+                          <span className="text-[#5D4E37]">Femenino</span>
+                        </label>
+                        <label className="flex items-center cursor-pointer">
+                          <input {...register('employee_gender')} type="radio" value="Otro" className="mr-2" />
+                          <span className="text-[#5D4E37]">Otro</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#5D4E37] mb-1">Horario</label>
+                      <select {...register('employee_schedule')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]">
+                        <option value="Horario Diurno">Horario Diurno</option>
+                        <option value="Horario Nocturno">Horario Nocturno</option>
+                        <option value="Horario Mixto">Horario Mixto</option>
+                        <option value="Medio Tiempo">Medio Tiempo</option>
+                      </select>
+                    </div>
+
+                    <div className="border-t border-[#E0D6B7] p-6 bg-[#F5F1E8] rounded-b-xl">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 px-4 py-3 text-[#3B4D36] border border-[#3B4D36] rounded-lg hover:bg-[#E7DCC1] transition-all duration-200 font-medium">Cancelar</button>
+                        <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-3 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-all duration-200 font-medium">
+                          {isSubmitting ? 'Guardando...' : 'Guardar empleado'}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </form>
-      </div>
-    </div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
