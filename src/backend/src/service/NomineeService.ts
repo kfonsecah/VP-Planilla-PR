@@ -363,7 +363,12 @@ export class NomineeService {
             id: Number(employee.id),
             employee_id: Number(employee.id),
             name: employee.name,
-            employee_name: employee.name
+            employee_name: employee.name,
+            identification: employee.national_id || employee.identification || '',
+            employee_identification: employee.national_id || employee.identification || '',
+            national_id: employee.national_id || employee.identification || '',
+            position: '',
+            position_name: ''
           });
         }
       }
@@ -427,7 +432,12 @@ export class NomineeService {
       id: Number(employee.id),
       employee_id: Number(employee.id),
       name: employee.name,
-      employee_name: employee.name
+      employee_name: employee.name,
+      identification: employee.national_id || employee.identification || '',
+      employee_identification: employee.national_id || employee.identification || '',
+      national_id: employee.national_id || employee.identification || '',
+      position: '',
+      position_name: ''
     };
 
     try {
@@ -437,6 +447,8 @@ export class NomineeService {
         if (position) {
           // Treat base_salary as hourly rate directly
           employeePayroll.baseHourlySalary = PayrollUtils.roundToMoney(position.base_salary);
+          employeePayroll.position = position.name;
+          employeePayroll.position_name = position.name;
         } else {
           employeePayroll.generalMessages.push(
             `Advertencia: No se encontró información del puesto (ID: ${employee.position_id}). Usando salario base de 0.`

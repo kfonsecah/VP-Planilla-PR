@@ -98,66 +98,74 @@ export default function PayrollTypesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E7DCC1]">
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-[#3B4D36]">Tipos de Planilla</h2>
-            <p className="text-sm text-[#6B5B3D] mt-1">
-              Gestiona los diferentes tipos de planilla del sistema
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => refetch()} 
-              className="flex items-center gap-2 px-4 py-2 bg-[#B8A989] text-[#3B4D36] rounded-lg hover:bg-[#A89979] transition-colors disabled:opacity-50"
-              disabled={isLoading}
-            >
-              <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Cargando...' : 'Recargar'}
-            </button>
-            <button 
-              onClick={openCreate} 
-              className="flex items-center gap-2 px-4 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
-            >
-              <PlusCircleIcon className="w-5 h-5" />
-              Nuevo Tipo
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
+      <div className="p-6 max-w-7xl mx-auto">
+        {/* Header con gradiente */}
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-8 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <DocumentTextIcon className="w-9 h-9 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-1">Tipos de Planilla</h1>
+                <p className="text-[#E7DCC1]">
+                  Gestiona los diferentes tipos de planilla del sistema
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => refetch()} 
+                disabled={isLoading}
+                className="flex items-center gap-2 px-5 py-3 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all backdrop-blur-sm disabled:opacity-50 border border-white/30"
+              >
+                <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                Recargar
+              </button>
+              <button 
+                onClick={openCreate} 
+                className="flex items-center gap-2 px-6 py-3 bg-white text-[#3B4D36] rounded-xl hover:bg-[#E7DCC1] transition-all font-semibold shadow-lg"
+              >
+                <PlusCircleIcon className="w-5 h-5" />
+                Nuevo Tipo
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            ⚠️ {error}
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-xl flex items-center gap-3">
+            <span className="text-2xl">⚠️</span>
+            <p className="font-medium">{error}</p>
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && (
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6F7153] mx-auto mb-4"></div>
-            <p className="text-[#5D4E37]">Cargando tipos de planilla...</p>
+          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] border-t-[#6F7153] mx-auto mb-4"></div>
+            <p className="text-lg text-[#5D4E37] font-medium">Cargando tipos de planilla...</p>
           </div>
         )}
 
         {/* Lista de tipos de planilla en tarjetas */}
         {!isLoading && data && data.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {data.map((payrollType) => (
               <div
                 key={payrollType.id}
-                className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-5 hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 duration-300"
               >
                 {/* Header de la tarjeta */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC] px-6 py-4 border-b border-[#E0D6B7]">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-12 h-12 bg-[#6F7153] rounded-lg">
+                    <div className="w-12 h-12 bg-[#6F7153] rounded-xl flex items-center justify-center shadow-md">
                       <DocumentTextIcon className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-[#3B4D36]">
+                      <h3 className="text-xl font-bold text-[#3B4D36]">
                         {payrollType.name}
                       </h3>
                       <p className="text-xs text-[#6B5B3D]">ID: {payrollType.id}</p>
@@ -165,36 +173,39 @@ export default function PayrollTypesPage() {
                   </div>
                 </div>
 
-                {/* Descripción */}
-                <div className="mb-4">
-                  <p className="text-sm text-[#5D4E37] line-clamp-3">
-                    {payrollType.description || 'Sin descripción'}
-                  </p>
-                </div>
-
-                {/* Fecha de creación */}
-                {payrollType.created_at && (
-                  <div className="flex items-center gap-2 text-xs text-[#6B5B3D] mb-4">
-                    <CalendarIcon className="w-4 h-4" />
-                    <span>Creado: {formatDate(payrollType.created_at)}</span>
+                {/* Contenido */}
+                <div className="p-6">
+                  {/* Descripción */}
+                  <div className="mb-4">
+                    <p className="text-sm text-[#5D4E37] leading-relaxed">
+                      {payrollType.description || 'Sin descripción'}
+                    </p>
                   </div>
-                )}
 
-                {/* Acciones */}
-                <div className="flex gap-2 pt-4 border-t border-[#E0D6B7]">
-                  <button
-                    onClick={() => openEdit(payrollType)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors text-sm"
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => openDelete(payrollType)}
-                    className="flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
+                  {/* Fecha de creación */}
+                  {payrollType.created_at && (
+                    <div className="flex items-center gap-2 text-xs text-[#6B5B3D] mb-4 bg-[#F9F1DC] rounded-lg px-3 py-2">
+                      <CalendarIcon className="w-4 h-4 text-[#6F7153]" />
+                      <span>Creado: {formatDate(payrollType.created_at)}</span>
+                    </div>
+                  )}
+
+                  {/* Acciones */}
+                  <div className="flex gap-2 pt-4 border-t border-[#E0D6B7]">
+                    <button
+                      onClick={() => openEdit(payrollType)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] hover:from-[#5C5E44] hover:to-[#2D3A28] text-white rounded-xl transition-all font-semibold shadow-md"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => openDelete(payrollType)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition-all font-medium shadow-sm"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -203,23 +214,23 @@ export default function PayrollTypesPage() {
 
         {/* Estado vacío */}
         {!isLoading && (!data || data.length === 0) && (
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-12 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-[#E7DCC1] rounded-full flex items-center justify-center">
-                <DocumentTextIcon className="w-8 h-8 text-[#6F7153]" />
+          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-16 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#D2B48C] rounded-2xl flex items-center justify-center shadow-lg">
+                <DocumentTextIcon className="w-12 h-12 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-[#3B4D36] mb-2">
+            <h3 className="text-2xl font-bold text-[#3B4D36] mb-3">
               No hay tipos de planilla registrados
             </h3>
-            <p className="text-sm text-[#6B5B3D] mb-6">
-              Crea tu primer tipo de planilla para comenzar
+            <p className="text-base text-[#6B5B3D] mb-8 max-w-md mx-auto">
+              Crea tu primer tipo de planilla para comenzar a gestionar los diferentes períodos de pago
             </p>
             <button
               onClick={openCreate}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] hover:from-[#5C5E44] hover:to-[#2D3A28] text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl"
             >
-              <PlusCircleIcon className="w-5 h-5" />
+              <PlusCircleIcon className="w-6 h-6" />
               Crear Primer Tipo
             </button>
           </div>
@@ -285,6 +296,8 @@ export default function PayrollTypesPage() {
         onCancel={() => setConfirmOpen(false)} 
         onConfirm={handleConfirmDelete} 
       />
+
+      <modal.ModalComponent />
     </div>
   );
 }
