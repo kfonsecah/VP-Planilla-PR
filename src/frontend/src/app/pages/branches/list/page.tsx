@@ -83,98 +83,114 @@ export default function BranchesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E7DCC1]">
+    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
       <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-[#3B4D36]">Gestión de Sucursales</h1>
-            <p className="text-sm text-[#6B5B3D] mt-1">
-              Administra las sucursales y ubicaciones de la empresa
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-[#B8A989] text-[#3B4D36] rounded-lg hover:bg-[#A89979] transition-colors disabled:opacity-50"
-            >
-              <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Cargando...' : 'Recargar'}
-            </button>
-            <button
-              onClick={openCreate}
-              className="flex items-center gap-2 px-4 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
-            >
-              <PlusCircleIcon className="w-5 h-5" />
-              Nueva Sucursal
-            </button>
+        {/* Header con gradiente */}
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
+                <BuildingOfficeIcon className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Gestión de Sucursales</h1>
+                <p className="text-white/80 mt-1">
+                  Administra las sucursales y ubicaciones de la empresa
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white rounded-xl hover:bg-white/20 transition-all disabled:opacity-50 border border-white/20"
+              >
+                <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                {isLoading ? 'Cargando...' : 'Recargar'}
+              </button>
+              <button
+                onClick={openCreate}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#3B4D36] rounded-xl hover:bg-white/90 transition-all font-medium shadow-lg"
+              >
+                <PlusCircleIcon className="w-5 h-5" />
+                Nueva Sucursal
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            ⚠️ {error}
+          <div className="mb-6 p-5 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">⚠️</div>
+              <div>
+                <p className="font-semibold">Error al cargar</p>
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && (
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6F7153] mx-auto mb-4"></div>
-            <p className="text-[#5D4E37]">Cargando sucursales...</p>
+          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] border-t-[#6F7153] mx-auto mb-4"></div>
+            <p className="text-[#5D4E37] font-medium">Cargando sucursales...</p>
           </div>
         )}
 
         {/* Branches Grid */}
         {!isLoading && branches && branches.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {branches.map((branch) => (
               <div
                 key={branch.id}
-                className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-5 hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-md border border-[#E0D6B7] p-6 hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-12 h-12 bg-[#6F7153] rounded-lg">
-                      <BuildingOfficeIcon className="w-7 h-7 text-white" />
+                    <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#6F7153] to-[#3B4D36] rounded-xl shadow-md">
+                      <BuildingOfficeIcon className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-[#3B4D36]">{branch.name}</h3>
-                      <p className="text-xs text-[#6B5B3D]">ID: {branch.id}</p>
+                      <h3 className="text-xl font-bold text-[#3B4D36]">{branch.name}</h3>
+                      <p className="text-xs text-[#6B5B3D] flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 bg-[#6F7153] rounded-full"></span>
+                        ID: {branch.id}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Location */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-sm text-[#5D4E37]">
-                    <MapPinIcon className="w-4 h-4 text-[#6F7153]" />
-                    <span>{branch.location}</span>
+                <div className="mb-5 bg-[#F9F1DC] rounded-xl p-4">
+                  <div className="flex items-start gap-2">
+                    <MapPinIcon className="w-5 h-5 text-[#6F7153] flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-[#3B4D36] font-medium">{branch.location}</span>
                   </div>
                 </div>
 
                 {/* Metadata */}
                 {branch.created_at && (
-                  <div className="mb-4 text-xs text-[#6B5B3D]">
-                    <p>Creada: {formatDate(branch.created_at)}</p>
+                  <div className="mb-5 text-xs text-[#6B5B3D] bg-[#F9F1DC] rounded-lg p-3">
+                    <p className="font-medium">Creada: {formatDate(branch.created_at)}</p>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2 pt-4 border-t border-[#E0D6B7]">
+                <div className="flex gap-3 pt-4 border-t-2 border-[#E0D6B7]">
                   <button
                     onClick={() => openEdit(branch)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors text-sm"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] text-white rounded-xl hover:shadow-lg transition-all text-sm font-medium"
                   >
                     <PencilIcon className="w-4 h-4" />
                     Editar
                   </button>
                   <button
                     onClick={() => openDelete(branch)}
-                    className="flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition-all text-sm font-medium border border-red-200"
                   >
                     <TrashIcon className="w-4 h-4" />
                   </button>
@@ -186,21 +202,21 @@ export default function BranchesPage() {
 
         {/* Empty state */}
         {!isLoading && (!branches || branches.length === 0) && (
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-12 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-[#E7DCC1] rounded-full flex items-center justify-center">
-                <BuildingOfficeIcon className="w-8 h-8 text-[#6F7153]" />
+          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-16 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#F9F1DC] rounded-full flex items-center justify-center shadow-inner">
+                <BuildingOfficeIcon className="w-12 h-12 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-[#3B4D36] mb-2">
+            <h3 className="text-2xl font-bold text-[#3B4D36] mb-3">
               No hay sucursales registradas
             </h3>
-            <p className="text-sm text-[#6B5B3D] mb-6">
-              Crea tu primera sucursal para comenzar
+            <p className="text-[#6B5B3D] mb-8 max-w-md mx-auto">
+              Crea tu primera sucursal para comenzar a organizar las ubicaciones de tu empresa
             </p>
             <button
               onClick={openCreate}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] text-white rounded-xl hover:shadow-xl transition-all font-medium"
             >
               <PlusCircleIcon className="w-5 h-5" />
               Crear Primera Sucursal

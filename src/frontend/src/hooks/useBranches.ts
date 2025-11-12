@@ -13,7 +13,7 @@ export const useBranches = () => {
   /**
    * Fetch all branches
    */
-  const fetchBranches = useCallback(async () => {
+  const fetchBranches = async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -23,11 +23,11 @@ export const useBranches = () => {
     } catch (err: any) {
       const errorMessage = err?.message || 'Error al cargar sucursales';
       setError(errorMessage);
-      throw err;
+      console.error('Error fetching branches:', err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
   /**
    * Create a new branch
@@ -91,12 +91,12 @@ export const useBranches = () => {
    */
   const refetch = useCallback(() => {
     return fetchBranches();
-  }, [fetchBranches]);
+  }, []);
 
   // Auto-fetch on mount
   useEffect(() => {
     fetchBranches();
-  }, [fetchBranches]);
+  }, []);
 
   return {
     data,

@@ -5,7 +5,7 @@ export interface Vacation {
   employee_id: number;
   start_date: string;
   end_date: string;
-  days: number;
+  total_days: number;
   paid: boolean;
   status?: string;
   created_at?: string;
