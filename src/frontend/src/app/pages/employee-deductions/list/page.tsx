@@ -178,9 +178,9 @@ export default function EmployeeDeductionsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {employeeDeductions.map((deduction: any) => (
+                {employeeDeductions.map((deduction: any, index: number) => (
                   <div
-                    key={deduction.deduction_id}
+                    key={`emp-${selectedEmployeeId}-ded-${deduction.deduction_id}-${index}`}
                     className="flex items-center justify-between p-4 bg-white rounded-lg border border-[#E0D6B7] hover:shadow-md transition-shadow"
                   >
                     <div className="flex-1">
