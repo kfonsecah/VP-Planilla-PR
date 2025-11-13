@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useModal } from '@/hooks/useModal';
 import { ClockLogsService, ClockLog } from '@/services/clockLogsService';
 import { getEmployees } from '@/services/employeeService';
+import * as XLSX from 'xlsx';
 import {
   ClockIcon,
   CalendarIcon,
@@ -12,25 +13,145 @@ import {
   ExclamationTriangleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 
+type NormalizedLogType = 'CHECK_IN' | 'LUNCH_OUT' | 'LUNCH_IN' | 'CHECK_OUT' | 'EXTRA';
+
+interface NormalizedClockLog extends ClockLog {
+  normalized_type: NormalizedLogType;
+}
+
+const LOG_SEQUENCE: NormalizedLogType[] = ['CHECK_IN', 'LUNCH_OUT', 'LUNCH_IN', 'CHECK_OUT'];
+
+const LOG_LABELS: Record<NormalizedLogType, string> = {
+  CHECK_IN: 'Entrada',
+  LUNCH_OUT: 'Salida almuerzo',
+  LUNCH_IN: 'Entrada almuerzo',
+  CHECK_OUT: 'Salida final',
+  EXTRA: 'Extra'
+};
+
+const normalizeLogType = (value?: string): NormalizedLogType | null => {
+  if (!value) return null;
+  const normalized = value.toLowerCase().trim();
+  if (['in', 'entrada', 'entry', 'start'].includes(normalized)) return 'CHECK_IN';
+  if (['out', 'salida', 'exit', 'end', 'salida final', 'fin turno'].includes(normalized)) return 'CHECK_OUT';
+  if (
+    [
+      'almuerzo out',
+      'almuerzo',
+      'almuerzo_salida',
+      'break_out',
+      'lunch_out',
+      'lunch start',
+      'break start',
+      'salida almuerzo'
+    ].includes(normalized)
+  )
+    return 'LUNCH_OUT';
+  if (
+    [
+      'almuerzo in',
+      'break_in',
+      'lunch_in',
+      'lunch end',
+      'break end',
+      'almuerzo_entrada',
+      'entrada almuerzo'
+    ].includes(normalized)
+  )
+    return 'LUNCH_IN';
+  return null;
+};
+
+const normalizeName = (value?: string) =>
+  (value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const excelDateToJsDate = (value: any): Date | null => {
+  if (value == null || value === '') return null;
+
+  if (value instanceof Date) {
+    return new Date(value.getTime());
+  }
+
+  if (typeof value === 'number') {
+    const parsed = XLSX.SSF.parse_date_code(value);
+    if (!parsed) return null;
+    return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, parsed.S);
+  }
+
+  const asString = String(value).trim();
+  if (!asString) return null;
+
+  const timestamp = Date.parse(asString);
+  if (!Number.isNaN(timestamp)) return new Date(timestamp);
+
+  return null;
+};
+
+const buildDateTimeFromParts = (dateValue: any, timeValue: any): Date | null => {
+  const datePart = excelDateToJsDate(dateValue);
+  if (!datePart) return null;
+  if (timeValue == null || timeValue === '') return datePart;
+
+  if (timeValue instanceof Date) {
+    datePart.setHours(timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
+    return datePart;
+  }
+
+  if (typeof timeValue === 'number') {
+    const parsed = XLSX.SSF.parse_date_code(timeValue);
+    if (!parsed) return datePart;
+    datePart.setHours(parsed.H, parsed.M, parsed.S || 0, 0);
+    return datePart;
+  }
+
+  const timeString = String(timeValue).trim();
+  if (!timeString) return datePart;
+  const [hours, minutes, seconds] = timeString.split(':').map((chunk) => parseInt(chunk, 10));
+  if (!Number.isNaN(hours)) {
+    datePart.setHours(hours, Number.isNaN(minutes) ? 0 : minutes, Number.isNaN(seconds) ? 0 : seconds, 0);
+    return datePart;
+  }
+
+  return datePart;
+};
+
+const parseDateInput = (value: string, endOfDay = false) => {
+  if (!value) return null;
+  const [year, month, day] = value.split('-').map((chunk) => parseInt(chunk, 10));
+  if (!year || !month || !day) return null;
+  if (endOfDay) return Date.UTC(year, month - 1, day, 23, 59, 59, 999);
+  return Date.UTC(year, month - 1, day, 0, 0, 0, 0);
+};
+
 interface Employee {
-  employee_id: number;
+  employee_id: number | string;
   employee_first_name: string;
   employee_middle_name: string;
   employee_last_name: string;
 }
 
 interface AttendanceData {
-  employee_id: number;
+  employee_id: number | string;
   employee_name: string;
   date: string;
-  logs: ClockLog[];
+  logs: NormalizedClockLog[];
   hours_worked: number;
   check_in: Date | null;
+  lunch_out: Date | null;
+  lunch_in: Date | null;
   check_out: Date | null;
+  break_hours: number;
   inconsistencies: string[];
+  source: 'excel' | 'api';
 }
 
 export default function AttendancePage() {
@@ -41,6 +162,14 @@ export default function AttendancePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [uploadedLogs, setUploadedLogs] = useState<ClockLog[]>([]);
+  const [uploadSummary, setUploadSummary] = useState<{
+    fileName: string;
+    totalRows: number;
+    validRows: number;
+    unmatchedEmployees: number;
+  } | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     loadEmployees();
@@ -55,71 +184,302 @@ export default function AttendancePage() {
     }
   };
 
-  const getEmployeeName = (employeeId: number): string => {
-    const emp = employees.find(e => e.employee_id === employeeId);
-    if (!emp) return `Empleado #${employeeId}`;
-    return `${emp.employee_first_name} ${emp.employee_middle_name} ${emp.employee_last_name}`;
+  const findEmployeeByName = (rawName?: string) => {
+    if (!rawName) return null;
+    const normalized = normalizeName(rawName);
+    if (!normalized) return null;
+    return (
+      employees.find((emp) => normalizeName(`${emp.employee_first_name} ${emp.employee_middle_name} ${emp.employee_last_name}`) === normalized) ||
+      employees.find((emp) => normalizeName(`${emp.employee_first_name} ${emp.employee_last_name}`) === normalized)
+    );
   };
 
-  const processAttendanceData = (logs: ClockLog[]): AttendanceData[] => {
-    // Agrupar por empleado y fecha
-    const grouped = logs.reduce((acc: any, log) => {
-      const employeeId = log.employee_id;
+  const parseExcelMarks = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    const firstSheetName = workbook.SheetNames[0];
+    if (!firstSheetName) throw new Error('El archivo no contiene hojas válidas');
+
+    const worksheet = workbook.Sheets[firstSheetName];
+
+    const normalizeRows = () => {
+      const directRows = XLSX.utils.sheet_to_json<any[]>(worksheet, { header: 1, defval: '', blankrows: false });
+      if (directRows.length > 0) return directRows;
+
+      const csvText = XLSX.utils.sheet_to_csv(worksheet);
+      if (!csvText.trim()) return [];
+
+      return csvText
+        .split(/\r?\n/)
+        .map((line) =>
+          line
+            .split(',')
+            .map((cell) => cell.replace(/^"|"$/g, '').trim())
+        )
+        .filter((row) => row.some((cell) => cell && cell.length > 0));
+    };
+
+    const rows = normalizeRows();
+    if (!rows.length) {
+      return { logs: [], stats: { totalRows: 0, validRows: 0, matchedRows: 0, unmatchedEmployees: 0 } };
+    }
+
+    const headerRowIndex = rows.findIndex(
+      (row) => Array.isArray(row) && row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
+    );
+
+    if (headerRowIndex === -1) {
+      throw new Error('No se encontraron encabezados en el archivo');
+    }
+
+    const rawHeaders = rows[headerRowIndex].map((cell) => String(cell || '').trim());
+    const normalizedHeaders = rawHeaders.map((header, idx) => {
+      if (!header) return `col_${idx}`;
+      return header.toLowerCase().replace(/\s+/g, '_');
+    });
+
+    const logs: ClockLog[] = [];
+    const unmatched = new Set<string>();
+    let matchedRows = 0;
+
+    const getValue = (row: any[], needles: string[]) => {
+      for (let colIdx = 0; colIdx < normalizedHeaders.length; colIdx += 1) {
+        const header = normalizedHeaders[colIdx];
+        for (const needle of needles) {
+          if (header.includes(needle)) return row[colIdx];
+        }
+      }
+      return undefined;
+    };
+
+    rows.slice(headerRowIndex + 1).forEach((row, index) => {
+      if (!Array.isArray(row)) return;
+
+      const nameValue = getValue(row, ['employee', 'empleado', 'colaborador', 'nombre', 'name']);
+      const idValue = getValue(row, ['employee_id', 'id', 'codigo', 'identificacion']);
+      const timestampValue = getValue(row, ['timestamp', 'marca', 'datetime', 'fecha_hora']);
+      const dateValue = getValue(row, ['date', 'fecha', 'dia', 'day']);
+      const timeValue = getValue(row, ['time', 'hora', 'hour']);
+      const remarksValue = getValue(row, ['remarks', 'observaciones', 'nota']);
+      const typeValue = getValue(row, ['type', 'tipo', 'log', 'estado', 'marcatipo', 'tipo_marca']);
+
+      let timestamp: Date | null = null;
+      if (timestampValue) {
+        timestamp = excelDateToJsDate(timestampValue);
+      } else if (dateValue) {
+        timestamp = buildDateTimeFromParts(dateValue, timeValue);
+      }
+
+      if (!timestamp || Number.isNaN(timestamp.getTime())) {
+        return;
+      }
+
+      let numericId: number | undefined;
+      if (idValue !== undefined && idValue !== '') {
+        const parsedId = Number(idValue);
+        if (!Number.isNaN(parsedId)) numericId = parsedId;
+      }
+
+      const rawName = typeof nameValue === 'string' ? nameValue.trim() : '';
+      let matchedEmployeeId = numericId;
+      let matchedEmployeeName = rawName;
+
+      if (!matchedEmployeeId && rawName) {
+        const match = findEmployeeByName(rawName);
+        if (match) {
+          matchedEmployeeId = match.employee_id;
+          matchedEmployeeName = `${match.employee_first_name} ${match.employee_middle_name} ${match.employee_last_name}`.replace(/\s+/g, ' ').trim();
+        }
+      }
+
+      if (!matchedEmployeeId) {
+        unmatched.add(rawName || `Fila ${headerRowIndex + index + 2}`);
+      } else {
+        matchedRows += 1;
+      }
+
+      logs.push({
+        id: logs.length + 1,
+        employee_id: matchedEmployeeId ?? null,
+        employee_name: matchedEmployeeName || rawName || `Empleado #${matchedEmployeeId}`,
+        timestamp: timestamp.toISOString(),
+        log_type: typeof typeValue === 'string' && typeValue ? typeValue.toUpperCase() : 'IMPORTED',
+        remarks: typeof remarksValue === 'string' ? remarksValue : undefined,
+        version: 1
+      });
+    });
+
+    const totalDataRows = rows.length - (headerRowIndex + 1);
+
+    return {
+      logs,
+      stats: {
+        totalRows: Math.max(totalDataRows, 0),
+        validRows: logs.length,
+        matchedRows,
+        unmatchedEmployees: unmatched.size
+      }
+    };
+  };
+
+  const formatEmployeeName = (emp: Pick<Employee, 'employee_first_name' | 'employee_middle_name' | 'employee_last_name'>) =>
+    `${emp.employee_first_name} ${emp.employee_middle_name} ${emp.employee_last_name}`.replace(/\s+/g, ' ').trim();
+
+  const findEmployeeById = (employeeId?: number | string | null): Employee | null => {
+    if (employeeId === null || employeeId === undefined) return null;
+    const employeeIdStr = String(employeeId);
+    return employees.find((e) => String(e.employee_id) === employeeIdStr) || null;
+  };
+
+  const resolveEmployeeForLog = (log: ClockLog) => {
+    const byId = findEmployeeById(log.employee_id);
+    if (byId) {
+      return {
+        id: byId.employee_id,
+        name: formatEmployeeName(byId)
+      };
+    }
+
+    if (log.employee_name) {
+      const byName = findEmployeeByName(log.employee_name);
+      if (byName) {
+        return {
+          id: byName.employee_id,
+          name: formatEmployeeName(byName)
+        };
+      }
+    }
+
+    const fallbackId = log.employee_id ?? normalizeName(log.employee_name || `desconocido_${log.id}`);
+    const fallbackName =
+      log.employee_name ||
+      (log.employee_id !== null && log.employee_id !== undefined ? `Empleado #${log.employee_id}` : 'Empleado sin identificar');
+
+    return {
+      id: fallbackId,
+      name: fallbackName
+    };
+  };
+
+  const processAttendanceData = (logs: ClockLog[], source: 'excel' | 'api'): AttendanceData[] => {
+    const grouped = logs.reduce((acc: Record<string, AttendanceData>, log) => {
+      const resolvedEmployee = resolveEmployeeForLog(log);
+      const employeeId = resolvedEmployee.id;
       const date = new Date(log.timestamp).toISOString().split('T')[0];
       const key = `${employeeId}_${date}`;
-      
+
       if (!acc[key]) {
         acc[key] = {
           employee_id: employeeId,
-          employee_name: getEmployeeName(employeeId),
-          date: date,
+          employee_name: resolvedEmployee.name,
+          date,
           logs: [],
           hours_worked: 0,
           check_in: null,
+          lunch_out: null,
+          lunch_in: null,
           check_out: null,
-          inconsistencies: []
+          break_hours: 0,
+          inconsistencies: [],
+          source
         };
       }
-      
-      acc[key].logs.push(log);
+
+      acc[key].logs.push(log as NormalizedClockLog);
       return acc;
     }, {});
 
-    // Calcular horas y detectar inconsistencias
-    Object.keys(grouped).forEach(key => {
-      const entry = grouped[key];
-      const sortedLogs = entry.logs.sort((a: ClockLog, b: ClockLog) => 
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    Object.values(grouped).forEach((entry) => {
+      const sortedLogs = [...entry.logs].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
 
-      // Encontrar primera entrada y última salida
-      const checkIn = sortedLogs.find((l: ClockLog) => l.log_type === 'IN');
-      const checkOut = [...sortedLogs].reverse().find((l: ClockLog) => l.log_type === 'OUT');
+      const normalizedLogs = sortedLogs.map((log, idx) => {
+        const normalized_type = normalizeLogType(log.log_type) ?? LOG_SEQUENCE[idx] ?? 'EXTRA';
+        return { ...log, normalized_type };
+      });
 
-      entry.check_in = checkIn ? new Date(checkIn.timestamp) : null;
-      entry.check_out = checkOut ? new Date(checkOut.timestamp) : null;
+      entry.logs = normalizedLogs;
 
-      // Calcular horas si ambas existen
+      const getLogDate = (type: NormalizedLogType) => {
+        const found = normalizedLogs.find((log) => log.normalized_type === type);
+        return found ? new Date(found.timestamp) : null;
+      };
+
+      const checkIn = getLogDate('CHECK_IN');
+      const lunchOut = getLogDate('LUNCH_OUT');
+      const lunchIn = getLogDate('LUNCH_IN');
+      const checkOut = getLogDate('CHECK_OUT');
+
+      entry.check_in = checkIn;
+      entry.lunch_out = lunchOut;
+      entry.lunch_in = lunchIn;
+      entry.check_out = checkOut;
+
+      let hoursWorked = 0;
+      let breakHours = 0;
+
       if (checkIn && checkOut) {
-        const diff = new Date(checkOut.timestamp).getTime() - new Date(checkIn.timestamp).getTime();
-        entry.hours_worked = diff / (1000 * 60 * 60); // Convertir a horas
+        hoursWorked = (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60);
       }
 
-      // Detectar inconsistencias
+      if (lunchOut && lunchIn) {
+        breakHours = Math.max(0, (lunchIn.getTime() - lunchOut.getTime()) / (1000 * 60 * 60));
+        hoursWorked -= breakHours;
+      } else if (lunchOut || lunchIn) {
+        entry.inconsistencies.push('⚠️ Marcas de almuerzo incompletas');
+      }
+
       if (!checkIn) entry.inconsistencies.push('❌ Falta marca de entrada');
       if (!checkOut) entry.inconsistencies.push('❌ Falta marca de salida');
-      if (sortedLogs.length % 2 !== 0) entry.inconsistencies.push('⚠️ Número impar de marcas');
-      
-      // Verificar marcas duplicadas consecutivas
-      for (let i = 1; i < sortedLogs.length; i++) {
-        if (sortedLogs[i].log_type === sortedLogs[i-1].log_type) {
-          entry.inconsistencies.push(`⚠️ Marcas ${sortedLogs[i].log_type} consecutivas`);
-          break;
-        }
+
+      const extraMarks = normalizedLogs.filter((log) => log.normalized_type === 'EXTRA');
+      if (extraMarks.length > 0) {
+        entry.inconsistencies.push(`⚠️ ${extraMarks.length} marca(s) adicional(es)`);
       }
+
+      if (hoursWorked < 0) {
+        entry.inconsistencies.push('⚠️ Horas calculadas negativas');
+        hoursWorked = 0;
+      }
+
+      entry.break_hours = Number(breakHours.toFixed(2));
+      entry.hours_worked = Number(hoursWorked.toFixed(2));
     });
 
     return Object.values(grouped);
+  };
+
+  const handleExcelUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+
+    try {
+      const result = await parseExcelMarks(file);
+      if (!result.logs.length) {
+        modal.showError('Archivo sin marcas', 'No se encontraron registros válidos en el archivo seleccionado');
+        setUploadedLogs([]);
+        setUploadSummary(null);
+        return;
+      }
+
+      setUploadedLogs(result.logs);
+      setUploadSummary({
+        fileName: file.name,
+        totalRows: result.stats.totalRows,
+        validRows: result.stats.validRows,
+        unmatchedEmployees: result.stats.unmatchedEmployees
+      });
+
+      modal.showSuccess('Archivo importado', `Se importaron ${result.stats.validRows} marcas desde ${file.name}`);
+    } catch (err: any) {
+      console.error('Excel import error', err);
+      modal.showError('Error al importar', err?.message || 'No se pudo procesar el archivo');
+    } finally {
+      setIsImporting(false);
+      event.target.value = '';
+    }
   };
 
   const handleFetch = async () => {
@@ -130,10 +490,40 @@ export default function AttendancePage() {
 
     setIsLoading(true);
     try {
-      const logs = await ClockLogsService.getClockLogs(startDate, endDate);
-      const processed = processAttendanceData(logs);
+      let logs: ClockLog[] = [];
+      let source: 'excel' | 'api' = 'api';
+
+      if (uploadedLogs.length > 0) {
+        const rangeStart = parseDateInput(startDate);
+        const rangeEnd = parseDateInput(endDate, true);
+        if (rangeStart === null || rangeEnd === null) {
+          modal.showError('Fechas inválidas', 'No se pudo interpretar el rango seleccionado');
+          return;
+        }
+
+        logs = uploadedLogs.filter((log) => {
+          const timestamp = new Date(log.timestamp).getTime();
+          return timestamp >= rangeStart && timestamp <= rangeEnd;
+        });
+        source = 'excel';
+      } else {
+        logs = await ClockLogsService.getClockLogs(startDate, endDate);
+      }
+
+      if (!logs.length) {
+        setData([]);
+        modal.showError('Sin marcas', 'No se encontraron registros en el rango seleccionado');
+        return;
+      }
+
+      const processed = processAttendanceData(logs, source);
       setData(processed);
-      modal.showSuccess('Registros cargados', `Se encontraron ${processed.length} registros de asistencia`);
+      modal.showSuccess(
+        'Registros cargados',
+        source === 'excel'
+          ? `Se encontraron ${processed.length} registros en el archivo importado`
+          : `Se encontraron ${processed.length} registros desde la API`
+      );
     } catch (err: any) {
       modal.showError('Error', err?.message || 'Error al obtener registros');
     } finally {
@@ -169,6 +559,7 @@ export default function AttendancePage() {
   };
 
   const formatHours = (hours: number) => {
+    if (!Number.isFinite(hours)) return '0:00hr';
     const h = Math.floor(hours);
     const m = Math.round((hours - h) * 60);
     return `${h}:${m.toString().padStart(2, '0')}hr`;
@@ -262,6 +653,31 @@ export default function AttendancePage() {
               </button>
             </div>
           </div>
+
+          <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <label className="relative inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-dashed border-[#B99B6B] text-[#3B4D36] font-semibold cursor-pointer hover:bg-[#FDF6E6] transition-colors">
+              <ArrowUpTrayIcon className="w-5 h-5 mr-2" />
+              {isImporting ? 'Procesando archivo...' : 'Importar marcas (.xlsx)'}
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleExcelUpload}
+                disabled={isImporting}
+              />
+            </label>
+            {uploadSummary && (
+              <div className="text-sm text-[#3B4D36] space-y-0.5">
+                <p>
+                  <span className="font-semibold">Archivo:</span> {uploadSummary.fileName}
+                </p>
+                <p className="text-xs text-[#6B5B3D]">
+                  Marcas válidas: {uploadSummary.validRows}/{uploadSummary.totalRows} · Empleados sin coincidencia:{' '}
+                  {uploadSummary.unmatchedEmployees}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tabla de asistencia */}
@@ -288,16 +704,19 @@ export default function AttendancePage() {
                       Empleado
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
-                      Horario
+                      Entrada
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
-                      Entrada Registrada
+                      Salida almuerzo
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
-                      Salida Registrada
+                      Entrada almuerzo
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
-                      Total
+                      Salida final
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                      Horas trabajadas
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
                       Balance
@@ -335,12 +754,19 @@ export default function AttendancePage() {
                               {entry.employee_name}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-center text-sm text-[#6B5B3D]">
-                            Mañana 8h
-                          </td>
                           <td className="px-6 py-4 text-center">
                             <span className="text-sm font-semibold text-[#3B4D36]">
                               {formatTime(entry.check_in)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className="text-sm font-semibold text-[#3B4D36]">
+                              {formatTime(entry.lunch_out)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className="text-sm font-semibold text-[#3B4D36]">
+                              {formatTime(entry.lunch_in)}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
@@ -371,7 +797,7 @@ export default function AttendancePage() {
                         {/* Fila expandida con detalles de marcas */}
                         {isExpanded && (
                           <tr className="bg-[#FEFBF5]">
-                            <td colSpan={7} className="px-6 py-6">
+                            <td colSpan={8} className="px-6 py-6">
                               <div className="pl-7">
                                 <h4 className="text-sm font-bold text-[#3B4D36] mb-4">
                                   Detalle de marcas del día
@@ -391,25 +817,26 @@ export default function AttendancePage() {
                                 )}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                  {entry.logs.map((log: ClockLog, logIdx: number) => (
+                                  {entry.logs.map((log: NormalizedClockLog, logIdx: number) => (
                                     <div
                                       key={log.id}
                                       className="bg-white border border-[#E0D6B7] rounded-xl p-4 hover:shadow-md transition-shadow"
                                     >
                                       <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-2">
-                                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                            log.log_type === 'IN' ? 'bg-green-100' : 'bg-red-100'
-                                          }`}>
-                                            <span className={`text-sm font-bold ${
-                                              log.log_type === 'IN' ? 'text-green-700' : 'text-red-700'
-                                            }`}>
-                                              {log.log_type}
-                                            </span>
+                                        <div>
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-10 h-10 rounded-lg bg-[#E7DCC1] flex items-center justify-center">
+                                              <span className="text-sm font-bold text-[#3B4D36]">{logIdx + 1}</span>
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-semibold text-[#3B4D36]">
+                                                {LOG_LABELS[log.normalized_type] || log.normalized_type}
+                                              </p>
+                                              {log.log_type && (
+                                                <p className="text-xs text-[#6B5B3D]">Tipo original: {log.log_type}</p>
+                                              )}
+                                            </div>
                                           </div>
-                                          <span className="text-xs text-[#6B5B3D] font-medium">
-                                            Marca #{logIdx + 1}
-                                          </span>
                                         </div>
                                       </div>
                                       <div className="space-y-2">

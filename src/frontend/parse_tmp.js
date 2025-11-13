@@ -1,0 +1,11 @@
+const XLSX=require('xlsx');
+const fs=require('fs');
+const path=require('path');
+const file=path.resolve(__dirname,'..','..','docs','samples','attendance-sample-v2.xlsx');
+const buffer=fs.readFileSync(file);
+const workbook=XLSX.read(buffer,{type:'buffer'});
+const worksheet=workbook.Sheets[workbook.SheetNames[0]];
+const rows=XLSX.utils.sheet_to_json(worksheet,{header:1,defval:'',blankrows:false});
+console.log('rows',rows.length);
+console.log(rows[0]);
+console.log(rows[1]);
