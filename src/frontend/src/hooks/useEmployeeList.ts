@@ -14,6 +14,61 @@ import {
   updateEmployee 
 } from '@/services/employeeService';
 
+const normalizePart = (value?: string) =>
+  typeof value === 'string' ? value.trim() : '';
+
+const removeEndingSegment = (base: string, segment?: string) => {
+  const cleanedSegment = normalizePart(segment);
+  if (!cleanedSegment) return base.trim();
+  const escaped = cleanedSegment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`\\s*${escaped}$`, 'i');
+  return base.replace(regex, '').trim();
+};
+
+const inferFirstName = (fullName?: string, middleName?: string, lastName?: string) => {
+  let workingName = normalizePart(fullName);
+  if (!workingName) return '';
+
+  workingName = removeEndingSegment(workingName, lastName);
+  workingName = removeEndingSegment(workingName, middleName);
+  return workingName.trim();
+};
+
+const buildEmployeeName = (raw: any): string => {
+  const normalize = (value?: string) =>
+    typeof value === 'string' ? value.trim() : '';
+
+  const firstName = normalize(raw.employee_first_name ?? raw.first_name);
+  const middleName = normalize(raw.employee_middle_name ?? raw.middle_name);
+  const lastName = normalize(raw.employee_last_name ?? raw.last_name);
+  const fallbackFullName = normalize(raw.name);
+
+  if (firstName) {
+    return [firstName, middleName, lastName].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  if (fallbackFullName) {
+    return fallbackFullName;
+  }
+
+  return [middleName, lastName].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+};
+
+const normalizeEmployeeForEdit = (raw: any) => {
+  const middleName = normalizePart(raw.employee_middle_name ?? raw.middle_name);
+  const lastName = normalizePart(raw.employee_last_name ?? raw.last_name);
+  const existingFirstName = normalizePart(raw.employee_first_name ?? raw.first_name);
+  const inferredFirstName =
+    existingFirstName || inferFirstName(raw.name, middleName, lastName);
+
+  return {
+    ...raw,
+    employee_first_name: inferredFirstName,
+    employee_middle_name: middleName,
+    employee_last_name: lastName
+  };
+};
+
 /**
  * Hook para manejar la lógica de la lista de empleados
  */
@@ -43,14 +98,31 @@ const useEmployeeList = () => {
           const rawStatus = String(e.status ?? e.employee_status ?? 'active');
           let normalizedStatus: string = EMPLOYEE_STATUS.ACTIVE;
           // Map common single-letter or legacy codes to normalized constants
-          if (rawStatus === 'A' || rawStatus.toLowerCase() === 'active' || rawStatus === 'Al día') normalizedStatus = EMPLOYEE_STATUS.ACTIVE;
-          else if (rawStatus === 'V' || rawStatus.toLowerCase() === 'vacation' || rawStatus === 'Vacaciones') normalizedStatus = EMPLOYEE_STATUS.VACATION;
-          else if (rawStatus === 'I' || rawStatus.toLowerCase() === 'incomplete' || rawStatus === 'Asistencia incompleta') normalizedStatus = EMPLOYEE_STATUS.INCOMPLETE_ASSISTANCE;
-          else if (rawStatus.toLowerCase().includes('incap')) normalizedStatus = EMPLOYEE_STATUS.INCAPACITY_MATERNITY;
+          if (
+            rawStatus === 'A' ||
+            rawStatus.toLowerCase() === 'active' ||
+            rawStatus === 'Al día'
+          ) {
+            normalizedStatus = EMPLOYEE_STATUS.ACTIVE;
+          } else if (
+            rawStatus === 'V' ||
+            rawStatus.toLowerCase() === 'vacation' ||
+            rawStatus === 'Vacaciones'
+          ) {
+            normalizedStatus = EMPLOYEE_STATUS.VACATION;
+          } else if (
+            rawStatus === 'I' ||
+            rawStatus.toLowerCase() === 'incomplete' ||
+            rawStatus === 'Asistencia incompleta'
+          ) {
+            normalizedStatus = EMPLOYEE_STATUS.INCOMPLETE_ASSISTANCE;
+          } else if (rawStatus.toLowerCase().includes('incap')) {
+            normalizedStatus = EMPLOYEE_STATUS.INCAPACITY_MATERNITY;
+          }
 
           return {
             id: String(e.employee_id ?? e.id),
-            name: [e.name, e.middle_name, e.last_name].filter(Boolean).join(' '),
+            name: buildEmployeeName(e),
             position: getPositionName(String(e.position_id ?? e.employee_position_id ?? '')),
             salary: getPositionSalary(String(e.position_id ?? e.employee_position_id ?? '')),
             status: normalizedStatus as any
@@ -101,7 +173,7 @@ const useEmployeeList = () => {
       
       try {
         const employeeData = await getEmployeeById(employeeId);
-        setEditingEmployeeData(employeeData);
+        setEditingEmployeeData(normalizeEmployeeForEdit(employeeData));
       } catch (error) {
         console.error('Error loading employee:', error);
         alert('No se pudo cargar el empleado. Intenta de nuevo.');
@@ -147,14 +219,32 @@ const useEmployeeList = () => {
       const mapped: Employee[] = (apiEmployees as any[]).map((e: any) => {
         const rawStatus = String(e.status ?? e.employee_status ?? 'active');
         let normalizedStatus: string = EMPLOYEE_STATUS.ACTIVE;
-        if (rawStatus === 'A' || rawStatus.toLowerCase() === 'active' || rawStatus === 'Al día') normalizedStatus = EMPLOYEE_STATUS.ACTIVE;
-        else if (rawStatus === 'V' || rawStatus.toLowerCase() === 'vacation' || rawStatus === 'Vacaciones') normalizedStatus = EMPLOYEE_STATUS.VACATION;
-        else if (rawStatus === 'I' || rawStatus.toLowerCase() === 'incomplete' || rawStatus === 'Asistencia incompleta') normalizedStatus = EMPLOYEE_STATUS.INCOMPLETE_ASSISTANCE;
-        else if (rawStatus.toLowerCase().includes('incap')) normalizedStatus = EMPLOYEE_STATUS.INCAPACITY_MATERNITY;
+
+        if (
+          rawStatus === 'A' ||
+          rawStatus.toLowerCase() === 'active' ||
+          rawStatus === 'Al día'
+        ) {
+          normalizedStatus = EMPLOYEE_STATUS.ACTIVE;
+        } else if (
+          rawStatus === 'V' ||
+          rawStatus.toLowerCase() === 'vacation' ||
+          rawStatus === 'Vacaciones'
+        ) {
+          normalizedStatus = EMPLOYEE_STATUS.VACATION;
+        } else if (
+          rawStatus === 'I' ||
+          rawStatus.toLowerCase() === 'incomplete' ||
+          rawStatus === 'Asistencia incompleta'
+        ) {
+          normalizedStatus = EMPLOYEE_STATUS.INCOMPLETE_ASSISTANCE;
+        } else if (rawStatus.toLowerCase().includes('incap')) {
+          normalizedStatus = EMPLOYEE_STATUS.INCAPACITY_MATERNITY;
+        }
 
         return {
           id: String(e.employee_id ?? e.id),
-          name: [e.name, e.middle_name, e.last_name].filter(Boolean).join(' '),
+          name: buildEmployeeName(e),
           position: getPositionName(String(e.position_id ?? e.employee_position_id ?? '')),
           salary: getPositionSalary(String(e.position_id ?? e.employee_position_id ?? '')),
           status: normalizedStatus as any
@@ -188,12 +278,42 @@ const useEmployeeList = () => {
       const created = await apiCreateEmployee(employeeData);
       const createdObj = created as any;
 
+      const rawStatus = String(createdObj.status ?? createdObj.employee_status ?? 'active');
+      let normalizedStatus: string = EMPLOYEE_STATUS.ACTIVE;
+
+      if (
+        rawStatus === 'A' ||
+        rawStatus.toLowerCase() === 'active' ||
+        rawStatus === 'Al día'
+      ) {
+        normalizedStatus = EMPLOYEE_STATUS.ACTIVE;
+      } else if (
+        rawStatus === 'V' ||
+        rawStatus.toLowerCase() === 'vacation' ||
+        rawStatus === 'Vacaciones'
+      ) {
+        normalizedStatus = EMPLOYEE_STATUS.VACATION;
+      } else if (
+        rawStatus === 'I' ||
+        rawStatus.toLowerCase() === 'incomplete' ||
+        rawStatus === 'Asistencia incompleta'
+      ) {
+        normalizedStatus = EMPLOYEE_STATUS.INCOMPLETE_ASSISTANCE;
+      } else if (rawStatus.toLowerCase().includes('incap')) {
+        normalizedStatus = EMPLOYEE_STATUS.INCAPACITY_MATERNITY;
+      }
+
       const newEmployee: Employee = {
         id: String(createdObj.employee_id ?? createdObj.id),
-        name: [createdObj.name, createdObj.middle_name, createdObj.last_name].filter(Boolean).join(' '),
+        name: buildEmployeeName({
+          employee_first_name: employeeData.employee_first_name,
+          employee_middle_name: employeeData.employee_middle_name,
+          employee_last_name: employeeData.employee_last_name,
+          name: createdObj.name
+        }),
         position: getPositionName(String(createdObj.position_id ?? createdObj.employee_position_id ?? '')),
         salary: getPositionSalary(String(createdObj.position_id ?? createdObj.employee_position_id ?? '')),
-        status: (createdObj.status ?? createdObj.employee_status ?? 'active') as any
+        status: normalizedStatus as any
       };
 
       const updatedEmployees = [...employees, newEmployee];

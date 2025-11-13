@@ -38,9 +38,9 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
   useEffect(() => {
     if (isOpen && employeeData) {
       reset({
-        employee_first_name: employeeData.name || '',
-        employee_middle_name: employeeData.middle_name || '',
-        employee_last_name: employeeData.last_name || '',
+        employee_first_name: employeeData.employee_first_name ?? employeeData.name ?? '',
+        employee_middle_name: employeeData.employee_middle_name ?? employeeData.middle_name ?? '',
+        employee_last_name: employeeData.employee_last_name ?? employeeData.last_name ?? '',
         employee_national_id: employeeData.national_id || '',
         employee_social_code: employeeData.social_code || '',
         employee_email: employeeData.email || '',
