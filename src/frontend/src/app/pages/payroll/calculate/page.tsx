@@ -28,7 +28,8 @@ export default function PayrollCalculatePage() {
     if (!selectedType) return;
 
     const typeName = selectedType.name.toLowerCase();
-    const today = currentStartDate ? new Date(parseDisplayDate(currentStartDate)) : new Date();
+    const parsedCurrent = currentStartDate ? displayDateToDate(currentStartDate) : null;
+    const today = parsedCurrent ?? new Date();
     
     if (typeName.includes('quincenal') || typeName.includes('quincena')) {
       // Quincenal: del 1 al 15 o del 16 al último día del mes
@@ -89,6 +90,23 @@ export default function PayrollCalculatePage() {
     return `${fullYear}-${month}-${day}`;
   };
 
+  // Convierte dd/mm/yy a objeto Date local evitando desfases por zona horaria
+  const displayDateToDate = (displayDate: string): Date | null => {
+    if (!displayDate || displayDate.length < 8) return null;
+    const [day, month, year] = displayDate.split('/');
+    const fullYear = year.length === 2 ? Number(`20${year}`) : Number(year);
+    const monthNumber = Number(month);
+    const dayNumber = Number(day);
+    if (
+      Number.isNaN(fullYear) ||
+      Number.isNaN(monthNumber) ||
+      Number.isNaN(dayNumber)
+    ) {
+      return null;
+    }
+    return new Date(fullYear, monthNumber - 1, dayNumber);
+  };
+
   // Función para convertir YYYY-MM-DD a dd/mm/yy
   const formatToDisplay = (isoDate: string): string => {
     if (!isoDate) return '';
@@ -126,10 +144,10 @@ export default function PayrollCalculatePage() {
       return;
     }
 
-    const start = new Date(parseDisplayDate(startDate));
-    const end = new Date(parseDisplayDate(endDate));
+    const start = displayDateToDate(startDate);
+    const end = displayDateToDate(endDate);
     
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    if (!start || !end) {
       setDateRangeWarning(null);
       return;
     }
@@ -173,10 +191,10 @@ export default function PayrollCalculatePage() {
     if (!selectedType) return null;
 
     const typeName = selectedType.name.toLowerCase();
-    const start = new Date(parseDisplayDate(startDate));
-    const end = new Date(parseDisplayDate(endDate));
+    const start = displayDateToDate(startDate);
+    const end = displayDateToDate(endDate);
     
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    if (!start || !end) {
       return 'Formato de fecha inválido. Use dd/mm/yy';
     }
     
