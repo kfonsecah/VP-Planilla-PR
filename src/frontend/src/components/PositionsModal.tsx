@@ -16,7 +16,25 @@ interface PositionsModalProps {
 
 const formatSalary = (value?: number | null) => {
   if (typeof value !== 'number') return '';
-  return `₡${value.toLocaleString()}`;
+  return `₡${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+/** Returns a display string with thousands commas, preserving a trailing dot while the user types */
+const formatSalaryInput = (raw: string): string => {
+  if (!raw) return '';
+  const endsWithDot = raw.endsWith('.');
+  const [intPart, decPart] = raw.split('.');
+  const intFormatted = Number(intPart || '0').toLocaleString('en-US');
+  if (endsWithDot) return `${intFormatted}.`;
+  if (decPart !== undefined) return `${intFormatted}.${decPart}`;
+  return intFormatted;
+};
+
+/** Strip everything except digits and one decimal point */
+const sanitizeSalaryInput = (input: string): string => {
+  const digits = input.replace(/[^\d.]/g, '');
+  const parts = digits.split('.');
+  return parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : digits;
 };
 
 const PositionsModal: React.FC<PositionsModalProps> = ({
@@ -55,11 +73,12 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
     setEditing(position);
     setName(position.name || '');
     setDescription(position.description || '');
+    // Store as plain numeric string (no commas) so sanitizeSalaryInput works correctly
     setBaseSalary(
       typeof position.base_salary === 'number'
-        ? String(position.base_salary)
+        ? position.base_salary.toFixed(2)
         : position.base_salary
-          ? String(position.base_salary)
+          ? String(Number(position.base_salary).toFixed(2))
           : ''
     );
     setFeedback(null);
@@ -211,7 +230,7 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Analista de Sistemas"
+                    placeholder="Ej: Cajero(a)"
                     className="w-full px-3 py-2.5 border border-[#D2B48C] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] focus:border-transparent bg-white text-[#3B4D36] text-sm placeholder-[#C5BFAA]"
                   />
                 </div>
@@ -220,11 +239,12 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
                   <label className="block text-xs font-semibold text-[#5D4E37] uppercase tracking-wider mb-1.5">
                     Descripción <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Ej: Desarrollo y mantenimiento de sistemas"
-                    className="w-full px-3 py-2.5 border border-[#D2B48C] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] focus:border-transparent bg-white text-[#3B4D36] text-sm placeholder-[#C5BFAA]"
+                    placeholder="Ej: Atención al cliente y caja"
+                    rows={3}
+                    className="w-full px-3 py-2.5 border border-[#D2B48C] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] focus:border-transparent bg-white text-[#3B4D36] text-sm placeholder-[#C5BFAA] resize-y min-h-[80px]"
                   />
                 </div>
 
@@ -233,17 +253,20 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
                     Salario Base <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-sm font-medium select-none">₡</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B7355] text-sm font-medium select-none pointer-events-none">₡</span>
                     <input
-                      value={baseSalary}
-                      onChange={(e) => setBaseSalary(e.target.value)}
-                      type="number"
-                      min="0"
-                      step="0.01"
+                      value={formatSalaryInput(baseSalary)}
+                      onChange={(e) => setBaseSalary(sanitizeSalaryInput(e.target.value))}
+                      inputMode="decimal"
                       placeholder="0.00"
                       className="w-full pl-7 pr-3 py-2.5 border border-[#D2B48C] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] focus:border-transparent bg-white text-[#3B4D36] text-sm placeholder-[#C5BFAA]"
                     />
                   </div>
+                  {baseSalary && Number(baseSalary) > 0 && (
+                    <p className="mt-1 text-xs text-[#8B7355] pl-1">
+                      {formatSalary(Number(baseSalary))}
+                    </p>
+                  )}
                 </div>
 
                 {/* Action buttons pinned to bottom */}
