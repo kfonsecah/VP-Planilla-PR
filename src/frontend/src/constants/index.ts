@@ -30,17 +30,6 @@ export const STATUS_BADGE_CONFIG = {
   }
 } as const;
 
-// Posiciones disponibles
-export const POSITIONS = {
-  '1': { name: 'Salonero', salary: 320000 },
-  '2': { name: 'Cocinero(a)', salary: 320000 },
-  '3': { name: 'Ayudante de cocina', salary: 320000 },
-  '4': { name: 'Barista', salary: 320000 },
-} as const;
-
-// Salario por defecto
-export const DEFAULT_SALARY = 320000;
-
 // Mensajes de la aplicación
 export const MESSAGES = {
   EMPLOYEE_ACTIONS: {

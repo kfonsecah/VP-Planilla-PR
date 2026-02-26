@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useEmployeeEdit } from '@/hooks/useEmployeeEdit';
 import { employeeSchema } from '@/schemas/employee';
-import { POSITIONS } from '@/constants';
+import { usePositions } from '@/hooks/usePositions';
 
 interface EditEmployeePageProps {
   params: Promise<{
@@ -24,13 +24,13 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
   const router = useRouter();
   const { id } = use(params);
   const { employee, isLoading, error, update } = useEmployeeEdit(id);
+  const { data: positions, isLoading: positionsLoading } = usePositions();
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
-
-  const positionOptions = Object.entries(POSITIONS).map(([posId, position]) => ({
-    id: posId,
-    name: position.name,
-    salary: position.salary
+  const positionOptions = (positions || []).map((position) => ({
+    id: String(position.id),
+    name: position.name || 'Sin nombre',
+    salary: typeof position.base_salary === 'number' ? position.base_salary : Number(position.base_salary) || 0
   }));
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch } = useForm<any>({
@@ -301,9 +301,10 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
                     </label>
                     <select
                       {...register('employee_position_id')}
+                      disabled={positionsLoading}
                       className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
                     >
-                      <option value="">Seleccionar posición</option>
+                      <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
                       {positionOptions.map((position) => (
                         <option key={position.id} value={position.id}>
                           {position.name} - ₡{position.salary.toLocaleString()}

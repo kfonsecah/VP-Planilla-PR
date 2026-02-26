@@ -3,7 +3,13 @@
  */
 
 import { Employee, EmployeeStats } from '@/types';
-import { EMPLOYEE_STATUS, POSITIONS, DEFAULT_SALARY, STATUS_BADGE_CONFIG } from '@/constants';
+import { EMPLOYEE_STATUS, STATUS_BADGE_CONFIG } from '@/constants';
+
+type PositionLike = {
+  id: number | string;
+  name?: string | null;
+  base_salary?: number | null;
+};
 
 /**
  * Formatea un salario para mostrarlo al usuario
@@ -27,15 +33,21 @@ export const calculateEmployeeStats = (employees: Employee[]): EmployeeStats => 
 /**
  * Obtiene el nombre de una posición por su ID
  */
-export const getPositionName = (positionId: string): string => {
-  return POSITIONS[positionId as keyof typeof POSITIONS]?.name || 'Posición no especificada';
+export const getPositionName = (positionId: string, positions?: PositionLike[] | null): string => {
+  if (!positions || !positionId) return 'Posición no especificada';
+  const match = positions.find((p) => String(p.id) === String(positionId));
+  return (match?.name || '').trim() || 'Posición no especificada';
 };
 
 /**
  * Obtiene el salario de una posición por su ID
  */
-export const getPositionSalary = (positionId: string): number => {
-  return POSITIONS[positionId as keyof typeof POSITIONS]?.salary || DEFAULT_SALARY;
+export const getPositionSalary = (positionId: string, positions?: PositionLike[] | null): number => {
+  if (!positions || !positionId) return 0;
+  const match = positions.find((p) => String(p.id) === String(positionId));
+  const rawSalary = match?.base_salary;
+  if (rawSalary === null || rawSalary === undefined) return 0;
+  return typeof rawSalary === 'number' ? rawSalary : Number(rawSalary) || 0;
 };
 
 /**

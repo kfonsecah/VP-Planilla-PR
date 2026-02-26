@@ -5,21 +5,28 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { employeeSchema, EmployeeSchemaType } from '@/schemas/employee';
-import { POSITIONS } from '@/constants';
+import { Position } from '@/services/positionsService';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (employeeData: EmployeeSchemaType) => Promise<void> | void;
+  positions?: Position[] | null;
+  positionsLoading?: boolean;
 }
 
-const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  positions,
+  positionsLoading = false
+}) => {
   const modalRef = useRef<HTMLDivElement | null>(null);
-
-  const positionOptions = Object.entries(POSITIONS).map(([id, position]) => ({
-    id,
-    name: position.name,
-    salary: position.salary
+  const positionOptions = (positions || []).map((position) => ({
+    id: String(position.id),
+    name: position.name || 'Sin nombre',
+    salary: typeof position.base_salary === 'number' ? position.base_salary : Number(position.base_salary) || 0
   }));
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<any>({
@@ -147,8 +154,12 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
 
                     <div>
                       <label className="block text-sm font-medium text-[#5D4E37] mb-1">Posición *</label>
-                      <select {...register('employee_position_id')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]">
-                        <option value="">Seleccionar posición</option>
+                      <select
+                        {...register('employee_position_id')}
+                        disabled={positionsLoading}
+                        className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
+                      >
+                        <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
                         {positionOptions.map((position) => (
                           <option key={position.id} value={position.id}>
                             {position.name} - ₡{position.salary.toLocaleString()}
