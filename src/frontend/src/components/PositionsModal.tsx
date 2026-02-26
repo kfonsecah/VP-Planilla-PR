@@ -14,9 +14,11 @@ interface PositionsModalProps {
   onRefresh?: () => void;
 }
 
-const formatSalary = (value?: number | null) => {
-  if (typeof value !== 'number') return '';
-  return `₡${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatSalary = (value?: number | string | null) => {
+  if (value === null || value === undefined || value === '') return '';
+  const num = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(num)) return '';
+  return `₡${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 /** Returns a display string with thousands commas, preserving a trailing dot while the user types */
