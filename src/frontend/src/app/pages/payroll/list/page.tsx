@@ -133,35 +133,35 @@ export default function PayrollListPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-5 max-w-7xl mx-auto">
         {/* Header con gradiente */}
-        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-8 mb-8">
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <DocumentTextIcon className="w-9 h-9 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <DocumentTextIcon className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-1">Historial de Planillas</h1>
-                <p className="text-[#E7DCC1]">
+                <h1 className="text-2xl font-bold text-white mb-0.5">Historial de Planillas</h1>
+                <p className="text-sm text-[#E7DCC1]">
                   Gestiona y consulta todas las planillas generadas
                 </p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <button
                 onClick={loadPayrolls}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-5 py-3 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all backdrop-blur-sm disabled:opacity-50 border border-white/30"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all backdrop-blur-sm disabled:opacity-50 border border-white/30 text-sm font-medium"
               >
-                <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 Recargar
               </button>
               <Link
                 href="/pages/payroll/calculate"
-                className="flex items-center gap-2 px-6 py-3 bg-white text-[#3B4D36] rounded-xl hover:bg-[#E7DCC1] transition-all font-semibold shadow-lg"
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#3B4D36] rounded-xl hover:bg-[#E7DCC1] transition-all font-semibold shadow-lg text-sm"
               >
-                <PlusCircleIcon className="w-5 h-5" />
+                <PlusCircleIcon className="w-4 h-4" />
                 Nueva Planilla
               </Link>
             </div>
@@ -189,40 +189,40 @@ export default function PayrollListPage() {
           <>
             {/* Estadísticas rápidas */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white rounded-xl shadow-md p-5 border border-[#E0D6B7]">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-[#E0D6B7]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <DocumentTextIcon className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-[#6B5B3D]">Total Planillas</p>
-                    <p className="text-2xl font-bold text-[#3B4D36]">{payrolls.length}</p>
+                    <p className="text-xs text-[#6B5B3D]">Total Planillas</p>
+                    <p className="text-xl font-bold text-[#3B4D36]">{payrolls.length}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-5 border border-[#E0D6B7]">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-[#E0D6B7]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-[#6B5B3D]">Pagadas</p>
-                    <p className="text-2xl font-bold text-[#3B4D36]">
+                    <p className="text-xs text-[#6B5B3D]">Pagadas</p>
+                    <p className="text-xl font-bold text-[#3B4D36]">
                       {payrolls.filter(p => p.status === 'PAGADO').length}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-5 border border-[#E0D6B7]">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-[#E0D6B7]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <ClockIcon className="w-6 h-6 text-yellow-600" />
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <ClockIcon className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-[#6B5B3D]">Pendientes</p>
-                    <p className="text-2xl font-bold text-[#3B4D36]">
+                    <p className="text-xs text-[#6B5B3D]">Pendientes</p>
+                    <p className="text-xl font-bold text-[#3B4D36]">
                       {payrolls.filter(p => p.status === 'PENDIENTE' || p.status === 'CALCULADO').length}
                     </p>
                   </div>
@@ -230,24 +230,24 @@ export default function PayrollListPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {payrolls.map((p) => (
                 <div
                   key={p.id}
                   className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 duration-300"
                 >
                   {/* Header de la tarjeta */}
-                  <div className="bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC] px-6 py-4 border-b border-[#E0D6B7]">
+                  <div className="bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC] px-5 py-3 border-b border-[#E0D6B7]">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-[#6F7153] rounded-xl flex items-center justify-center shadow-md">
-                          <DocumentTextIcon className="w-7 h-7 text-white" />
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 bg-[#6F7153] rounded-xl flex items-center justify-center shadow-md">
+                          <DocumentTextIcon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-[#3B4D36]">
+                          <h3 className="text-lg font-bold text-[#3B4D36]">
                             Planilla #{p.id}
                           </h3>
-                          <p className="text-sm text-[#6B5B3D]">
+                          <p className="text-xs text-[#6B5B3D]">
                             {getPayrollTypeName(p.payroll_type)}
                           </p>
                         </div>
@@ -257,32 +257,32 @@ export default function PayrollListPage() {
                   </div>
 
                   {/* Contenido de la tarjeta */}
-                  <div className="p-6 space-y-4">
+                  <div className="p-4 space-y-3">
                     {/* Periodo */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-[#E7DCC1] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <CalendarIcon className="w-5 h-5 text-[#6F7153]" />
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 bg-[#E7DCC1] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <CalendarIcon className="w-4 h-4 text-[#6F7153]" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide mb-1">
+                        <p className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide mb-0.5">
                           Periodo
                         </p>
-                        <p className="text-base font-bold text-[#3B4D36]">
+                        <p className="text-sm font-bold text-[#3B4D36]">
                           {formatDate(p.period_start)} — {formatDate(p.period_end)}
                         </p>
                       </div>
                     </div>
 
                     {/* Fecha de pago */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-[#E7DCC1] rounded-lg flex items-center justify-center flex-shrink-0">
-                        <CurrencyDollarIcon className="w-5 h-5 text-[#6F7153]" />
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 bg-[#E7DCC1] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <CurrencyDollarIcon className="w-4 h-4 text-[#6F7153]" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide mb-1">
+                        <p className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide mb-0.5">
                           Fecha de Pago
                         </p>
-                        <p className="text-base font-bold text-[#3B4D36]">
+                        <p className="text-sm font-bold text-[#3B4D36]">
                           {formatDate(p.payment_date)}
                         </p>
                       </div>
@@ -291,17 +291,17 @@ export default function PayrollListPage() {
                     {/* Botón de acción */}
                     <Link
                       href={`/pages/payroll/${p.id}`}
-                      className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] hover:from-[#5C5E44] hover:to-[#2D3A28] text-white rounded-xl transition-all font-semibold shadow-md hover:shadow-lg mt-2"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-[#6F7153] to-[#3B4D36] hover:from-[#5C5E44] hover:to-[#2D3A28] text-white rounded-xl transition-all font-semibold shadow-md hover:shadow-lg mt-1 text-sm"
                     >
-                      <EyeIcon className="w-5 h-5" />
-                      Ver Detalle Completo
+                      <EyeIcon className="w-4 h-4" />
+                      Ver Detalle
                     </Link>
 
                     {/* Botón marcar como pagada */}
                     <button
                       onClick={(e) => markAsPaid(p.id, e)}
                       disabled={updatingId === p.id || p.status === 'PAGADO'}
-                      className={`flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl transition-all font-semibold shadow-md disabled:cursor-not-allowed ${
+                      className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl transition-all font-semibold shadow-md disabled:cursor-not-allowed text-sm ${
                         p.status === 'PAGADO'
                           ? 'bg-gray-400 text-white'
                           : 'bg-emerald-600 hover:bg-emerald-700 hover:shadow-lg text-white disabled:opacity-50'
@@ -309,12 +309,12 @@ export default function PayrollListPage() {
                     >
                       {updatingId === p.id ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           <span>Actualizando...</span>
                         </>
                       ) : (
                         <>
-                          <CheckCircleIcon className="w-5 h-5" />
+                          <CheckCircleIcon className="w-4 h-4" />
                           <span>{p.status === 'PAGADO' ? 'Ya Pagada' : 'Marcar como Pagada'}</span>
                         </>
                       )}
