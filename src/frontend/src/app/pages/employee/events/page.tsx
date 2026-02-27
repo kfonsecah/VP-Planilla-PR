@@ -81,35 +81,42 @@ const LaborEventsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-full bg-[#E7DCC1] overflow-y-auto">
-      <div className="p-6 max-w-full">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-[#3B4D36]">Eventos Laborales</h1>
+    <div className="min-h-screen bg-[#E7DCC1]">
+      <div className="px-8 py-6 max-w-screen-2xl mx-auto">
+        {/* Page header aligned with employee list */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-5">
+          <div>
+            <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-widest mb-1">
+              Recursos Humanos
+            </p>
+            <h1 className="text-3xl font-bold text-[#3B4D36] leading-none">Eventos Laborales</h1>
+          </div>
           <button
             onClick={() => {
               setSelectedEvent(undefined);
               setModalInitialDates(null);
               setShowEventModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6F7153] text-white text-sm font-semibold rounded-lg hover:bg-[#5D614A] transition-colors shadow-sm"
           >
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon className="w-4 h-4" />
             Crear Evento
           </button>
         </div>
 
-        {/* Employee Tabs - positioned same as in employee list */}
+        <div className="border-b border-[#C8BA9A] mb-5" />
+
+        {/* Employee Tabs */}
         <EmployeeTabs />
-        
-        <div className="space-y-6 mt-6">
+
+        <div className="mt-6">
           {/* Stats Cards using reusable component */}
           <StatsCards stats={eventsStatsData} />
 
           {/* Calendar and Events List */}
-          <div className="flex flex-col xl:flex-row gap-6 pb-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2.2fr_1fr] pb-8">
             {/* Main Calendar Container */}
-            <div className="flex-1 bg-[#F5F1E8] rounded-lg shadow-sm border border-[#E0D6B7] min-h-[600px]">
+            <section className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] min-h-[600px]">
               <div className="p-6 h-full">
                 <LaborEventsCalendar
                   onEventClick={handleEventClick}
@@ -125,17 +132,17 @@ const LaborEventsPage: React.FC = () => {
                   onPreviewChange={setPreviewEvent}
                 />
               </div>
-            </div>
+            </section>
 
             {/* Events Sidebar */}
-            <div className="xl:w-96 w-full bg-[#F5F1E8] rounded-lg shadow-sm border border-[#E0D6B7] flex flex-col max-h-[600px]">
+            <aside className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] flex flex-col min-h-[600px]">
               {/* Header del sidebar */}
-              <div className="bg-[#D4B896] px-4 py-3 rounded-t-lg border-b border-[#D2B48C] flex-shrink-0">
-                <h3 className="text-sm font-semibold text-[#3B4D36] uppercase tracking-wider">
+              <div className="bg-[#D4B896] px-5 py-4 rounded-t-2xl border-b border-[#D2B48C] flex-shrink-0">
+                <h3 className="text-xs font-semibold text-[#3B4D36] uppercase tracking-[0.25em]">
                   {(() => {
                     const refDate = visibleRange ? visibleRange.start : new Date();
                     const monthNames = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-                    return `EVENTOS - ${monthNames[refDate.getMonth()]} ${refDate.getFullYear()}`;
+                    return `Eventos · ${monthNames[refDate.getMonth()]} ${refDate.getFullYear()}`;
                   })()}
                 </h3>
               </div>
@@ -143,7 +150,7 @@ const LaborEventsPage: React.FC = () => {
               {/* Lista de eventos */}
               <div className="flex-1 overflow-y-auto min-h-0">
                 {(!visibleRange || events.length === 0) ? (
-                  <div className="p-4 text-center text-[#8B8B8B] text-sm">
+                  <div className="p-5 text-center text-[#8B8B8B] text-sm">
                     No hay eventos este mes
                   </div>
                 ) : (
@@ -228,7 +235,7 @@ const LaborEventsPage: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </div>
