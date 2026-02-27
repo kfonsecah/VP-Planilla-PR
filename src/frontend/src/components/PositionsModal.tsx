@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Position } from '@/services/positionsService';
 
 interface PositionsModalProps {
@@ -320,21 +321,22 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Nombre</th>
                       <th className="px-4 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Descripción</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Salario base</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Salario base <span className="text-[10px] font-normal text-[#8B7355] normal-case">x Hora</span></th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Hora Extra <span className="text-[10px] font-normal text-[#8B7355] normal-case">(x1.5)</span></th>
                       <th className="px-4 py-3 text-right text-xs font-bold text-[#5D4E37] uppercase tracking-wider">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E8DEC4]">
                     {isLoading && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-10 text-center text-[#8B7355] text-sm">
+                        <td colSpan={5} className="px-4 py-10 text-center text-[#8B7355] text-sm">
                           Cargando posiciones...
                         </td>
                       </tr>
                     )}
                     {!isLoading && sortedPositions.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-10 text-center">
+                        <td colSpan={5} className="px-4 py-10 text-center">
                           <div className="flex flex-col items-center gap-2 text-[#8B7355]">
                             <svg className="w-10 h-10 text-[#D2B48C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -357,21 +359,26 @@ const PositionsModal: React.FC<PositionsModalProps> = ({
                         <td className="px-4 py-3 text-[#3B4D36] font-semibold text-sm">{position.name}</td>
                         <td className="px-4 py-3 text-[#6B5B3D] text-xs max-w-[180px] truncate">{position.description}</td>
                         <td className="px-4 py-3 text-[#3B4D36] font-medium text-sm">{formatSalary(position.base_salary ?? null)}</td>
+                        <td className="px-4 py-3 text-[#3B4D36] font-medium text-sm">
+                          {formatSalary(position.base_salary ? position.base_salary * 1.5 : null)}
+                        </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
                               onClick={() => startEdit(position)}
-                              className="px-3 py-1 text-xs bg-[#D5CDB3] text-[#3B4D36] rounded-md hover:bg-[#C5BFAA] font-medium transition-colors"
+                              className="p-1.5 bg-[#D5CDB3] text-[#3B4D36] rounded-md hover:bg-[#C5BFAA] transition-colors"
+                              title="Editar"
                             >
-                              Editar
+                              <PencilIcon className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
                               onClick={() => setPendingDelete(position)}
-                              className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 font-medium transition-colors"
+                              className="p-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                              title="Eliminar"
                             >
-                              Eliminar
+                              <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
                         </td>

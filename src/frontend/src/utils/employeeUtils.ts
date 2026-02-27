@@ -13,6 +13,7 @@ type PositionLike = {
 
 /**
  * Formatea un salario para mostrarlo al usuario
+ * El salario se muestra como precio por hora
  */
 export const formatSalary = (salary: number): string => {
   return `₡${salary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

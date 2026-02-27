@@ -105,7 +105,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   Posición
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Salario
+                  Salario <span className="text-[10px] font-normal text-[#8B7355] normal-case">x Hora</span>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
+                  Hora Extra <span className="text-[10px] font-normal text-[#8B7355] normal-case">(x1.5)</span>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
                   Estado
@@ -135,6 +138,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   </td>
                   <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? 'text-red-300' : 'text-[#3B4D36]'}`}>
                     {formatSalary(employee.salary)}
+                  </td>
+                  <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? 'text-red-300' : 'text-[#3B4D36]'}`}>
+                    {formatSalary(employee.salary * 1.5)}
                   </td>
                   <td className="px-6 py-3.5">
                     <span className={getStatusBadge(employee.status).className}>

@@ -162,7 +162,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                         <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
                         {positionOptions.map((position) => (
                           <option key={position.id} value={position.id}>
-                            {position.name} - ₡{position.salary.toLocaleString()}
+                            {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
                           </option>
                         ))}
                       </select>
