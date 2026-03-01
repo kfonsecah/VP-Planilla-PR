@@ -2,6 +2,12 @@
  * Payroll calculation utility functions
  * Contains pure helper functions for payroll processing
  */
+import { DayWork } from '../types/payroll.types';
+
+// ── Costa Rica labor law constants ────────────────────────────────────────────
+const REGULAR_HOURS_PER_DAY  = 8;
+const OVERTIME_MULTIPLIER    = 1.5;
+const WORKING_DAYS_PER_WEEK  = 6; // Monday – Saturday
 
 /**
  * Calculate working hours between two timestamps
@@ -110,10 +116,26 @@ export function validateClockLogPairs(logs: any[]): {
   let isValid = true;
   
   for (let i = 0; i < sortedLogs.length; i += 2) {
-    const inLog = sortedLogs[i];
+    const inLog  = sortedLogs[i];
     const outLog = sortedLogs[i + 1];
-    
-    const inTime = new Date(inLog.timestamp);
+
+    // Validate log_type sequence: first of each pair must be IN, second must be OUT
+    const inType  = (inLog.log_type  || '').toUpperCase();
+    const outType = (outLog.log_type || '').toUpperCase();
+
+    if (inType !== 'IN') {
+      messages.push(`Se esperaba marcaje de entrada (IN) pero se encontró "${inLog.log_type}" en posición ${i + 1}`);
+      isValid = false;
+      continue;
+    }
+
+    if (outType !== 'OUT') {
+      messages.push(`Se esperaba marcaje de salida (OUT) pero se encontró "${outLog.log_type}" en posición ${i + 2}`);
+      isValid = false;
+      continue;
+    }
+
+    const inTime  = new Date(inLog.timestamp);
     const outTime = new Date(outLog.timestamp);
     
     if (outTime <= inTime) {
@@ -218,4 +240,122 @@ export function validatePayrollPeriod(startDate: Date, endDate: Date): {
     isValid: messages.length === 0,
     messages
   };
+}
+
+// ── Hour split helpers ────────────────────────────────────────────────────────
+
+/**
+ * Sum of regular hours per day (capped at 8h/day).
+ */
+export function calculateRegularHours(days: DayWork[]): number {
+  return roundToMoney(
+    days.reduce((sum, day) => sum + Math.min(day.hoursWorked, REGULAR_HOURS_PER_DAY), 0)
+  );
+}
+
+/**
+ * Sum of overtime hours per day (hours beyond 8h/day).
+ */
+export function calculateOvertimeHours(days: DayWork[]): number {
+  return roundToMoney(
+    days.reduce((sum, day) => sum + Math.max(0, day.hoursWorked - REGULAR_HOURS_PER_DAY), 0)
+  );
+}
+
+// ── Weekly rest (descanso semanal) ────────────────────────────────────────────
+
+/**
+ * Count weekly rest days owed (discrete, Mon–Sat only).
+ * Kept for reference. Prefer calculateWeeklyRestHours for pay calculations.
+ */
+export function getWeeklyRestDays(days: DayWork[]): number {
+  const workingDays = days.filter(
+    d => !d.isVacation && d.hoursWorked > 0 && new Date(d.date).getDay() !== 0
+  ).length;
+  return Math.floor(workingDays / WORKING_DAYS_PER_WEEK);
+}
+
+/**
+ * Count all Sundays within the period.
+ */
+export function getSundaysInPeriod(startDate: Date, endDate: Date): Date[] {
+  const sundays: Date[] = [];
+  const current = new Date(startDate);
+  while (current <= endDate) {
+    if (current.getDay() === 0) sundays.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return sundays;
+}
+
+/**
+ * Count Mon–Sat working days in the full period (used as the denominator
+ * for the proportional weekly-rest formula).
+ */
+function countWorkingDaysInPeriod(startDate: Date, endDate: Date): number {
+  let count = 0;
+  const current = new Date(startDate);
+  while (current <= endDate) {
+    if (current.getDay() !== 0) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+}
+
+/**
+ * Proportional weekly rest hours earned.
+ * Formula: regularHours × (sundaysInPeriod / workingDaysInPeriod)
+ * Matches CR payroll practice: employees earn rest pay proportional
+ * to the fraction of the period they worked.
+ * Example — Nov 1-15 (13 working days, 2 Sundays): 96h × 2/13 = 14.77h
+ */
+export function calculateWeeklyRestHours(
+  regularHours: number,
+  startDate: Date,
+  endDate: Date
+): number {
+  const numSundays     = getSundaysInPeriod(startDate, endDate).length;
+  const numWorkingDays = countWorkingDaysInPeriod(startDate, endDate);
+  if (numWorkingDays === 0) return 0;
+  return roundToMoney(regularHours * numSundays / numWorkingDays);
+}
+
+// ── Salary component helpers ──────────────────────────────────────────────────
+
+/**
+ * Overtime pay amount: overtime hours × base rate × 1.5.
+ */
+export function calculateOvertimePay(days: DayWork[], hourlyRate: number): number {
+  return roundToMoney(calculateOvertimeHours(days) * hourlyRate * OVERTIME_MULTIPLIER);
+}
+
+/**
+ * Weekly rest pay: proportional rest hours × hourly rate.
+ * Needs period dates to compute the Sunday-to-working-day ratio.
+ */
+export function calculateWeeklyRestPay(
+  days: DayWork[],
+  hourlyRate: number,
+  startDate: Date,
+  endDate: Date
+): number {
+  const regularHours = calculateRegularHours(days);
+  const restHours    = calculateWeeklyRestHours(regularHours, startDate, endDate);
+  return roundToMoney(restHours * hourlyRate);
+}
+
+/**
+ * Full gross salary: regular pay + overtime pay + weekly rest pay + bonuses.
+ */
+export function calculateGrossSalary(
+  days: DayWork[],
+  hourlyRate: number,
+  bonuses: number,
+  startDate: Date,
+  endDate: Date
+): number {
+  const regular    = roundToMoney(calculateRegularHours(days) * hourlyRate);
+  const overtime   = calculateOvertimePay(days, hourlyRate);
+  const weeklyRest = calculateWeeklyRestPay(days, hourlyRate, startDate, endDate);
+  return roundToMoney(regular + overtime + weeklyRest + bonuses);
 }

@@ -10,85 +10,28 @@ import { BonusesService } from "./BonusesService";
 import { VacationService } from "./VacationService";
 import { LaborEventsService } from "./LaborEventsService";
 import * as PayrollUtils from "../utils/payrollUtils";
+import {
+  PayrollPeriod,
+  DayWork,
+  DeductionBreakdown,
+  Inconsistency,
+  EmployeePayroll,
+  PayrollSummary,
+  PayrollCalculationResult,
+} from "../types/payroll.types";
+
+// Re-export types so existing consumers importing from NomineeService continue to work
+export type {
+  PayrollPeriod,
+  DayWork,
+  DeductionBreakdown,
+  Inconsistency,
+  EmployeePayroll,
+  PayrollSummary,
+  PayrollCalculationResult,
+};
 
 const prisma = new PrismaClient();
-
-/**
- * Interface for payroll calculation period
- */
-export interface PayrollPeriod {
-  startDate: string;
-  endDate: string;
-}
-
-/**
- * Interface for daily work information
- */
-export interface DayWork {
-  date: string;
-  hoursWorked: number;
-  isVacation: boolean;
-  messages: string[];
-}
-
-/**
- * Interface for deduction breakdown
- */
-export interface DeductionBreakdown {
-  code: string;
-  type: 'fixed' | 'percent';
-  amount: number;
-  message: string;
-}
-
-/**
- * Interface for employee inconsistencies
- */
-export interface Inconsistency {
-  date: string;
-  message: string;
-}
-
-/**
- * Interface for employee payroll data
- */
-export interface EmployeePayroll {
-  employeeId: string;
-  employeeName: string;
-  positionId: string;
-  baseHourlySalary: number;
-  days: DayWork[];
-  grossSalary: number;
-  totalDeductions: number;
-  netSalary: number;
-  bonuses: number;
-  deductionsBreakdown: DeductionBreakdown[];
-  inconsistencies: Inconsistency[];
-  generalMessages: string[];
-  // Frontend compatibility aliases (optional)
-  id?: number;
-  employee_id?: number;
-  name?: string;
-  employee_name?: string;
-}
-
-/**
- * Interface for payroll summary
- */
-export interface PayrollSummary {
-  employeesProcessed: number;
-  employeesWithInconsistencies: number;
-  messages: string[];
-}
-
-/**
- * Interface for complete payroll calculation result
- */
-export interface PayrollCalculationResult {
-  period: PayrollPeriod;
-  employees: EmployeePayroll[];
-  summary: PayrollSummary;
-}
 
 export class NomineeService {
   /**
@@ -233,6 +176,14 @@ export class NomineeService {
   ): Promise<number> {
     let savedCount = 0;
 
+    // Resolve period dates from the payroll record so we can fill year/month in deductions
+    const payrollRecord = await prisma.vpg_payrolls.findUnique({
+      where: { payrolls_id: payrollId }
+    });
+    const periodStart = payrollRecord?.payrolls_period_start ?? new Date();
+    const deductionYear  = periodStart.getFullYear();
+    const deductionMonth = periodStart.getMonth() + 1;
+
     for (const employee of employees) {
       try {
         // Check if record already exists for this payroll and employee
@@ -270,6 +221,33 @@ export class NomineeService {
             }
           });
           console.log(`Created payroll employee record for employee ${employee.employeeId}`);
+        }
+
+        // Persist individual deduction amounts to vpg_employee_deductions
+        for (const ded of employee.deductionsBreakdown) {
+          if (!ded.deduction_id || ded.amount <= 0) continue;
+          await prisma.vpg_employee_deductions.upsert({
+            where: {
+              employee_deductions_employee_id_employee_deductions_deduction_id_employee_deductions_payroll_id: {
+                employee_deductions_employee_id: Number(employee.employeeId),
+                employee_deductions_deduction_id: ded.deduction_id,
+                employee_deductions_payroll_id: payrollId
+              }
+            },
+            create: {
+              employee_deductions_employee_id: Number(employee.employeeId),
+              employee_deductions_deduction_id: ded.deduction_id,
+              employee_deductions_payroll_id: payrollId,
+              employee_deductions_year: deductionYear,
+              employee_deductions_month: deductionMonth,
+              employee_deductions_amount: ded.amount,
+              employee_deductions_version: 1
+            },
+            update: {
+              employee_deductions_amount: ded.amount,
+              employee_deductions_version: { increment: 1 }
+            }
+          });
         }
         
         savedCount++;
@@ -359,14 +337,17 @@ export class NomineeService {
             deductionsBreakdown: [],
             inconsistencies: [],
             generalMessages: [`Error al procesar datos del empleado: ${error instanceof Error ? error.message : 'Error desconocido'}`],
-            // Aliases used by existing frontend tables
+            // Hour breakdown defaults
+            regularHours: 0,
+            overtimeHours: 0,
+            weeklyRestHours: 0,
+            weeklyRestPay: 0,
+            // Frontend compatibility aliases
             id: Number(employee.id),
             employee_id: Number(employee.id),
             name: employee.name,
             employee_name: employee.name,
-            identification: employee.national_id || employee.identification || '',
-            employee_identification: employee.national_id || employee.identification || '',
-            national_id: employee.national_id || employee.identification || '',
+            national_id: employee.national_id || '',
             position: '',
             position_name: ''
           });
@@ -421,6 +402,11 @@ export class NomineeService {
       positionId: employee.position_id?.toString() || '0',
       baseHourlySalary: 0,
       days: [],
+      // Hour breakdown (populated after processDailyWork)
+      regularHours: 0,
+      overtimeHours: 0,
+      weeklyRestHours: 0,
+      weeklyRestPay: 0,
       grossSalary: 0,
       totalDeductions: 0,
       netSalary: 0,
@@ -428,7 +414,7 @@ export class NomineeService {
       deductionsBreakdown: [],
       inconsistencies: [],
       generalMessages: [],
-      // Aliases used by existing frontend tables
+      // Frontend compatibility aliases
       id: Number(employee.id),
       employee_id: Number(employee.id),
       name: employee.name,
@@ -482,10 +468,24 @@ export class NomineeService {
         )
       );
 
+      // Get active labor events (suspension, disability, etc.) overlapping the period
+      const employeeLaborEvents = await prisma.vpg_employee_labor_event.findMany({
+        where: {
+          employee_labor_event_employee_id: employee.id,
+          employee_labor_event_start_date: { lte: endDate },
+          OR: [
+            { employee_labor_event_end_date: null },
+            { employee_labor_event_end_date: { gte: startDate } }
+          ]
+        },
+        include: { vpg_labor_events: true }
+      });
+
       // Process daily work
       const dailyWork = this.processDailyWork(
         employeeClockLogs,
         employeeVacations,
+        employeeLaborEvents,
         startDate,
         endDate,
         employee.name
@@ -494,15 +494,31 @@ export class NomineeService {
       employeePayroll.days = dailyWork.days;
       employeePayroll.inconsistencies = dailyWork.inconsistencies;
 
-      // Calculate total hours worked
-      const totalHoursWorked = dailyWork.days.reduce((sum, day) => sum + day.hoursWorked, 0);
-      
+      // Split hours into regular vs overtime (per-day basis)
+      employeePayroll.regularHours    = PayrollUtils.calculateRegularHours(dailyWork.days);
+      employeePayroll.overtimeHours   = PayrollUtils.calculateOvertimeHours(dailyWork.days);
+      employeePayroll.weeklyRestHours = PayrollUtils.calculateWeeklyRestHours(
+        employeePayroll.regularHours,
+        startDate,
+        endDate
+      );
+      employeePayroll.weeklyRestPay   = PayrollUtils.calculateWeeklyRestPay(
+        dailyWork.days,
+        employeePayroll.baseHourlySalary,
+        startDate,
+        endDate
+      );
+
       // Get bonuses for the period
       employeePayroll.bonuses = await this.calculateBonuses(employee.id, startDate, endDate);
-      
-      // Calculate gross salary
-      employeePayroll.grossSalary = PayrollUtils.roundToMoney(
-        totalHoursWorked * employeePayroll.baseHourlySalary + employeePayroll.bonuses
+
+      // Gross salary = regular pay + overtime pay (×1.5) + weekly rest pay + bonuses
+      employeePayroll.grossSalary = PayrollUtils.calculateGrossSalary(
+        dailyWork.days,
+        employeePayroll.baseHourlySalary,
+        employeePayroll.bonuses,
+        startDate,
+        endDate
       );
       
       // Calculate deductions
@@ -549,6 +565,7 @@ export class NomineeService {
   private processDailyWork(
     clockLogs: any[],
     vacations: any[],
+    laborEvents: any[],
     startDate: Date,
     endDate: Date,
     employeeName: string
@@ -575,6 +592,15 @@ export class NomineeService {
         return currentDate >= vacStart && currentDate <= vacEnd;
       });
 
+      // Check if the day is covered by a labor event (suspension, disability, etc.)
+      const laborEventForDay = laborEvents.find(ev => {
+        const evStart = new Date(ev.employee_labor_event_start_date);
+        const evEnd = ev.employee_labor_event_end_date
+          ? new Date(ev.employee_labor_event_end_date)
+          : endDate;
+        return currentDate >= evStart && currentDate <= evEnd;
+      });
+
       if (isVacationDay) {
         dayWork.isVacation = true;
         dayWork.hoursWorked = 8.0; // Standard vacation day hours
@@ -590,6 +616,13 @@ export class NomineeService {
             `Advertencia para ${employeeName} el ${dateStr}: día de vacaciones con marcajes detectados. Se prioriza vacaciones (8h).`
           );
         }
+      } else if (laborEventForDay) {
+        // Labor event active — no clock-in expected, hours are 0
+        dayWork.hoursWorked = 0;
+        const eventName = laborEventForDay.vpg_labor_events?.labor_events_name || laborEventForDay.employee_labor_event_status || 'Evento';
+        dayWork.messages.push(
+          `${eventName} registrado para ${employeeName} el ${dateStr}: sin marcaje requerido.`
+        );
       } else {
         // Process clock logs for the day
         const dayClockLogs = clockLogs.filter(log => {
@@ -675,9 +708,18 @@ export class NomineeService {
     endDate: Date
   ): Promise<number> {
     try {
-      // This would need to be implemented based on your bonus structure
-      // For now, returning 0 as bonuses service doesn't have a method to get by employee and period
-      return 0;
+      const bonuses = await prisma.vpg_bonuses.findMany({
+        where: {
+          bonuses_employee_id: employeeId,
+          bonuses_granted_at: {
+            gte: startDate,
+            lte: endDate
+          }
+        }
+      });
+      return PayrollUtils.roundToMoney(
+        bonuses.reduce((sum, b) => sum + Number(b.bonuses_amount), 0)
+      );
     } catch (error) {
       console.error(`Error calculating bonuses for employee ${employeeId}:`, error);
       return 0;
@@ -740,6 +782,7 @@ export class NomineeService {
 
           const codeBase = (name || `DED_${empDeduction.deduction_id}`);
           breakdown.push({
+            deduction_id: empDeduction.deduction_id,
             code: codeBase.replace(/\s+/g, '_').toUpperCase(),
             type,
             amount,

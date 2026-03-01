@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprobante de Pago - Verde Gestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --verde-oscuro:  #3a4d2c;
+      --verde-medio:   #5a7040;
+      --verde-claro:   #8fa870;
+      --crema-oscuro:  #d9ceaf;
+      --crema-medio:   #ede6cc;
+      --crema-claro:   #faf6eb;
+      --texto:         #2a2a22;
+      --texto-suave:   #6b6a5a;
+      --rojo:          #b33a2e;
+      --verde-num:     #2a5c1e;
+      --blanco:        #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @page { size: A4 landscape; margin: 10mm; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #ddd8c4;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+
+    /* ── RECIBO WRAPPER ──────────────────────────── */
+    .recibo {
+      width: 1050px;
+      background: var(--blanco);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      border: 1px solid var(--crema-oscuro);
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .header {
+      background: var(--verde-oscuro);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 24px;
+      padding: 20px 30px;
+    }
+
+    .logo-circle {
+      width: 56px; height: 56px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-circle img { width: 38px; height: 38px; object-fit: contain; }
+    .logo-circle svg { fill: white; width: 28px; height: 28px; }
+
+    .header-empresa h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--blanco);
+      letter-spacing: 0.3px;
+    }
+    .header-empresa p {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+
+    .header-titulo {
+      text-align: right;
+    }
+    .header-titulo h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--blanco);
+      letter-spacing: 0.5px;
+    }
+    .header-titulo .num-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.85);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 5px;
+      letter-spacing: 0.5px;
+    }
+    .header-titulo .periodo {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 4px;
+    }
+
+    /* ── BANDA VERDE CLARO (período) ─────────────── */
+    .banda-periodo {
+      background: var(--verde-medio);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0;
+    }
+
+    .banda-item {
+      padding: 10px 22px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      text-align: center;
+    }
+    .banda-item:last-child { border-right: none; }
+
+    .banda-item .b-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.65);
+    }
+    .banda-item .b-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blanco);
+      margin-top: 2px;
+    }
+
+    /* ── CUERPO PRINCIPAL ────────────────────────── */
+    .cuerpo {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 420px;
+    }
+
+    /* ── COLUMNA IZQUIERDA (empleado) ────────────── */
+    .col-empleado {
+      background: var(--crema-claro);
+      border-right: 1px solid var(--crema-oscuro);
+      padding: 22px 22px 20px;
+    }
+
+    .sec-title {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--verde-medio);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+
+    .dato { margin-bottom: 11px; }
+    .dato .d-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .dato .d-val {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--texto);
+    }
+
+    .empleado-nombre {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px !important;
+      color: var(--verde-oscuro) !important;
+      margin-bottom: 14px !important;
+      line-height: 1.2;
+    }
+
+    .chip {
+      display: inline-block;
+      background: var(--verde-oscuro);
+      color: white;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-top: 2px;
+    }
+
+    /* info pago */
+    .info-pago {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--crema-oscuro);
+    }
+
+    /* ── COLUMNA DERECHA (conceptos) ─────────────── */
+    .col-conceptos {
+      display: grid;
+      grid-template-rows: 1fr 1fr auto;
+      background: var(--blanco);
+    }
+
+    .bloque {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--crema-medio);
+    }
+    .bloque:last-child { border-bottom: none; }
+
+    .bloque-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .bloque-header .bh-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .bh-dot.verde { background: var(--verde-medio); }
+    .bh-dot.rojo  { background: var(--rojo); }
+
+    .bloque-header .bh-titulo {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--texto-suave);
+    }
+    .bloque-header .bh-total {
+      margin-left: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .bh-total.positivo { color: var(--verde-num); }
+    .bh-total.negativo { color: var(--rojo); }
+
+    /* tabla conceptos */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0ece0;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fdfaf2; }
+
+    td {
+      padding: 6px 8px;
+      color: var(--texto);
+      vertical-align: middle;
+    }
+
+    td.concepto { font-weight: 500; }
+    td.detalle  { color: var(--texto-suave); font-size: 11px; }
+    td.monto {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    td.monto.pos { color: var(--verde-num); }
+    td.monto.neg { color: var(--rojo); }
+
+    /* ── BLOQUE NETO ─────────────────────────────── */
+    .bloque-neto {
+      background: var(--verde-oscuro);
+      padding: 16px 24px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto;
+      align-items: center;
+      gap: 0;
+    }
+
+    .neto-sub {
+      text-align: center;
+    }
+    .neto-sub .ns-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 3px;
+    }
+    .neto-sub .ns-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .neto-sub .ns-val.pos { color: #8fd47a; }
+    .neto-sub .ns-val.neg { color: #f08a80; }
+
+    .neto-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      margin: 0 18px;
+    }
+
+    .neto-principal {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .neto-principal .np-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 2px;
+    }
+    .neto-principal .np-monto {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      color: var(--blanco);
+      letter-spacing: -0.5px;
+    }
+
+    /* ── FOOTER ─────────────────────────────────── */
+    .footer {
+      background: var(--crema-medio);
+      border-top: 2px solid var(--verde-oscuro);
+      padding: 16px 30px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .firmas {
+      display: flex;
+      gap: 50px;
+    }
+
+    .firma {
+      text-align: center;
+    }
+    .firma-line {
+      width: 140px;
+      height: 1px;
+      background: var(--verde-oscuro);
+      margin: 0 auto 6px;
+    }
+    .firma p {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--verde-oscuro);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .firma small {
+      font-size: 10px;
+      color: var(--texto-suave);
+    }
+
+    .footer-centro {
+      text-align: center;
+    }
+    .footer-centro p {
+      font-size: 11px;
+      color: var(--texto-suave);
+      line-height: 1.6;
+    }
+    .footer-centro strong { color: var(--verde-oscuro); }
+
+    .footer-notas {
+      background: #fff9e6;
+      border-left: 3px solid #c8a227;
+      border-radius: 3px;
+      padding: 10px 14px;
+    }
+    .footer-notas p {
+      font-size: 10px;
+      color: #7a6020;
+      line-height: 1.6;
+    }
+    .footer-notas strong {
+      display: block;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: #a07a10;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .recibo { box-shadow: none; border-radius: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="recibo">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-circle">
+      <!-- Reemplaza con <img src="/images/Logo.png"> si tienes el logo -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      </svg>
+    </div>
+    <div class="header-empresa">
+      <h1>VERDE PRADERA</h1>
+      <p>Patrono: VP BAKERY SRL &nbsp;·&nbsp; Cédula: 3-102-923372 &nbsp;·&nbsp; Tel: 27710078</p>
+    </div>
+    <div class="header-titulo">
+      <h2>Comprobante de Pago</h2>
+      <div class="num-badge" data-var="numeroComprobante">Nº 2026-001-0123</div>
+      <p class="periodo" data-var="periodoTexto">Periodo: Febrero 2026</p>
+    </div>
+  </div>
+
+  <!-- BANDA PERÍODO -->
+  <div class="banda-periodo">
+    <div class="banda-item">
+      <div class="b-label">Fecha Inicio</div>
+      <div class="b-val" data-var="fechaInicio">01/02/2026</div>
+    </div>
+    <div class="banda-item">
+      <div class="b-label">Fecha Fin</div>
+      <div class="b-val" data-var="fechaFin">15/02/2026</div>
+    </div>
+    <div class="banda-item">
+      <div class="b-label">Fecha de Pago</div>
+      <div class="b-val" data-var="fechaPago">20/02/2026</div>
+    </div>
+    <div class="banda-item">
+      <div class="b-label">Periodo</div>
+      <div class="b-val" data-var="periodo">01 al 15 · Feb 2026</div>
+    </div>
+  </div>
+
+  <!-- CUERPO -->
+  <div class="cuerpo">
+
+    <!-- COLUMNA EMPLEADO -->
+    <div class="col-empleado">
+      <div class="sec-title">Datos del Empleado</div>
+
+      <div class="dato">
+        <div class="d-val empleado-nombre" data-var="empleadoNombre">María Fernanda Solís Mora</div>
+      </div>
+
+      <div class="dato">
+        <div class="d-label">Cédula</div>
+        <div class="d-val" data-var="empleadoCedula">1-1115-0740</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Puesto</div>
+        <div class="d-val" data-var="empleadoPuesto">ENCARGADA DE AREA</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Período de Pago</div>
+        <div class="d-val" data-var="periodoPago">01 al 15 de Febrero 2026</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Hora laboradas Diurna</div>
+        <div class="d-val" data-var="horasDiurnas">104</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Precio hora Diurna</div>
+        <div class="d-val" data-var="precioHoraDiurna">₡1,808.00</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Horas extra laboradas diurna</div>
+        <div class="d-val" data-var="horasExtraDiurnas">40</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Precio hora extra diurna</div>
+        <div class="d-val" data-var="precioHoraExtra">₡2,712.00</div>
+      </div>
+      <div class="dato">
+        <div class="d-label">Salario total</div>
+        <div class="d-val" data-var="salarioTotal">₡188,032.00</div>
+      </div>
+
+      <div class="info-pago">
+        <div class="sec-title">Información de Pago</div>
+        <div class="dato">
+          <div class="d-label">Fecha de Pago</div>
+          <div class="d-val" data-var="fechaPago">20/02/2026</div>
+        </div>
+        <div class="dato">
+          <div class="d-label">Emisión</div>
+          <div class="d-val" style="font-size:11px;" data-var="fechaEmision">27/02/2026 10:30 AM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA CONCEPTOS -->
+    <div class="col-conceptos">
+
+      <!-- INGRESOS -->
+      <div class="bloque">
+        <div class="bloque-header">
+          <div class="bh-dot verde"></div>
+          <span class="bh-titulo">Mas</span>
+          <span class="bh-total positivo" data-var="totalIngresos">₡137,408.00</span>
+        </div>
+        <table>
+          <tbody id="tbody-ingresos">
+            <!-- data-var="ingresos" → array {concepto, detalle, monto} -->
+            <tr>
+              <td class="concepto">Hora extra diurna</td>
+              <td class="detalle">40 horas × ₡2,712.00</td>
+              <td class="monto pos">₡108,480.00</td>
+            </tr>
+            <tr>
+              <td class="concepto">Descanso semanal</td>
+              <td class="detalle">Proporcional periodo</td>
+              <td class="monto pos">₡28,928.00</td>
+            </tr>
+            <tr>
+              <td class="concepto">Feriados</td>
+              <td class="detalle">-</td>
+              <td class="monto pos">-</td>
+            </tr>
+            <tr>
+              <td class="concepto">Vacaciones</td>
+              <td class="detalle">-</td>
+              <td class="monto pos">-</td>
+            </tr>
+            <tr>
+              <td class="concepto">Aguinaldo</td>
+              <td class="detalle">-</td>
+              <td class="monto pos">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DEDUCCIONES -->
+      <div class="bloque">
+        <div class="bloque-header">
+          <div class="bh-dot rojo"></div>
+          <span class="bh-titulo">Menos</span>
+          <span class="bh-total negativo" data-var="totalDeducciones">-₡34,171.20</span>
+        </div>
+        <table>
+          <tbody id="tbody-deducciones">
+            <!-- data-var="deducciones" → array {concepto, detalle, monto} -->
+            <tr>
+              <td class="concepto">CCSS 10.67%</td>
+              <td class="detalle">₡325,440.00</td>
+              <td class="monto neg">-₡34,171.20</td>
+            </tr>
+            <tr>
+              <td class="concepto">Adelantos</td>
+              <td class="detalle">-</td>
+              <td class="monto neg">-</td>
+            </tr>
+            <tr>
+              <td class="concepto">Rebajos</td>
+              <td class="detalle">-</td>
+              <td class="monto neg">-</td>
+            </tr>
+            <tr>
+              <td class="concepto">Otros</td>
+              <td class="detalle">-</td>
+              <td class="monto neg">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NETO A PAGAR -->
+      <div class="bloque-neto">
+        <div class="neto-sub">
+          <div class="ns-label">Total Salario Bruto</div>
+          <div class="ns-val pos" data-var="totalIngresosNeto">₡325,440.00</div>
+        </div>
+        <div class="neto-divider"></div>
+        <div class="neto-sub">
+          <div class="ns-label">Deducciones</div>
+          <div class="ns-val neg" data-var="totalDeduccionesNeto">-₡34,171.20</div>
+        </div>
+        <div class="neto-divider"></div>
+        <div class="neto-principal">
+          <div class="np-label">Salario Neto</div>
+          <div class="np-monto" data-var="netoAPagar">₡291,268.80</div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /cuerpo -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="firmas">
+      <div class="firma">
+        <div class="firma-line"></div>
+        <p>Firma Responsable Empresa</p>
+        <small>VP BAKERY SRL</small>
+      </div>
+      <div class="firma">
+        <div class="firma-line"></div>
+        <p>Recibido por Trabajador</p>
+        <small>María Fernanda Solís Mora</small>
+      </div>
+    </div>
+
+    <div class="footer-centro">
+      <p><strong>VERDE PRADERA</strong></p>
+      <p>VP BAKERY SRL &nbsp;·&nbsp; Tel: 27710078</p>
+      <p style="font-size:9.5px;margin-top:6px;color:#a0a08a;">
+        Generado automáticamente · Válido sin firma autógrafa
+      </p>
+    </div>
+
+    <div class="footer-notas">
+      <strong>⚠ Notas Importantes</strong>
+      <p>
+        Conserve este documento para efectos tributarios.<br>
+        Las deducciones aplican según el Código de Trabajo de Costa Rica.<br>
+        Consultas: Departamento de Recursos Humanos.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
