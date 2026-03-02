@@ -6,6 +6,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useDeductions } from '@/hooks/useDeductions';
 import { Deduction } from '@/services/deductionsService';
 import { useModal } from '@/hooks/useModal';
+import { UseFormReturn } from 'react-hook-form';
 import {
   CurrencyDollarIcon,
   PlusCircleIcon,
@@ -28,7 +29,7 @@ export default function DeductionsPage() {
   const openEdit = (d: Deduction) => { setEditing(d); setFormOpen(true); };
   const openDelete = (d: Deduction) => { setToDelete(d); setConfirmOpen(true); };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Partial<Deduction>) => {
     try {
       if (editing) {
         await update(editing.id, values);
@@ -39,8 +40,8 @@ export default function DeductionsPage() {
       }
       refetch();
       setFormOpen(false);
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al guardar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al guardar');
     }
   };
 
@@ -50,8 +51,8 @@ export default function DeductionsPage() {
       await remove(toDelete.id);
       modal.showSuccess('Eliminado', 'Deducción eliminada correctamente');
       refetch();
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al eliminar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);
@@ -220,7 +221,7 @@ export default function DeductionsPage() {
         initialValues={editing || undefined}
         onSubmit={handleSubmit}
       >
-        {(methods: any) => (
+        {(methods: UseFormReturn<Partial<Deduction>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1 text-[#3B4D36]">

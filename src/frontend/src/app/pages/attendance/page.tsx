@@ -282,11 +282,11 @@ export default function AttendancePage() {
     }
   };
 
-  const findEmployeeByName = (rawName?: string): Record<string, any> | null => {
+  const findEmployeeByName = (rawName?: string): Record<string, unknown> | null => {
     if (!rawName) return null;
     const normalized = normalizeName(rawName);
     if (!normalized) return null;
-    const list = employees as unknown as Array<Record<string, any>>;
+    const list = employees as unknown as Array<Record<string, unknown>>;
     return (
       // Exact full-name match (e.g. "Test B Dos" → "test b dos")
       list.find((emp) => normalizeName(String(emp.name || '')) === normalized) ||
@@ -511,7 +511,7 @@ export default function AttendancePage() {
     return employees.find((e) => String(e.employee_id) === employeeIdStr) || null;
   };
 
-  const resolveEmployeeForLog = (log: ClockLog) => {
+  const resolveEmployeeForLog = (log: ClockLog): { id: string | number; name: string } => {
     const byId = findEmployeeById(log.employee_id);
     if (byId) {
       return {
@@ -524,13 +524,13 @@ export default function AttendancePage() {
       const byName = findEmployeeByName(log.employee_name);
       if (byName) {
         return {
-          id: byName.id ?? byName.employee_id,
+          id: (byName.id ?? byName.employee_id) as string | number,
           name: String(byName.name || log.employee_name || '')
         };
       }
     }
 
-    const fallbackId = log.employee_id ?? normalizeName(log.employee_name || `desconocido_${log.id}`);
+    const fallbackId: string | number = log.employee_id ?? normalizeName(log.employee_name || `desconocido_${log.id}`);
     const fallbackName =
       log.employee_name ||
       (log.employee_id !== null && log.employee_id !== undefined ? `Empleado #${log.employee_id}` : 'Empleado sin identificar');
@@ -666,9 +666,10 @@ export default function AttendancePage() {
         const saveResult = await ClockLogsService.bulkSave(result.logs);
         console.log('✅ Marcas guardadas en BD:', saveResult.created);
         modal.showSuccess('Archivo importado', `Se importaron ${result.stats.validRows} marcas desde ${file.name}. ${saveResult.created} guardadas en base de datos.`);
-      } catch (saveErr: any) {
+      } catch (saveErr: unknown) {
         console.error('⚠️ Marcas cargadas en vista pero no guardadas en BD:', saveErr);
-        modal.showSuccess('Archivo importado (solo vista)', `Se cargaron ${result.stats.validRows} marcas para visualización, pero no se pudieron guardar en BD: ${saveErr?.message || 'error desconocido'}`);
+        const saveErrMsg = saveErr instanceof Error ? saveErr.message : 'error desconocido';
+        modal.showSuccess('Archivo importado (solo vista)', `Se cargaron ${result.stats.validRows} marcas para visualización, pero no se pudieron guardar en BD: ${saveErrMsg}`);
       }
     } catch (err: unknown) {
       console.error('❌ ERROR EN IMPORTACIÓN:', err);

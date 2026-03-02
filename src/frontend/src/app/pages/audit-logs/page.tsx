@@ -27,7 +27,7 @@ export default function AuditLogsPage() {
     fetchAuditLogs(filters);
   }, [fetchAuditLogs, filters]);
 
-  const handleFilterChange = (key: keyof AuditLogFilters, value: any) => {
+  const handleFilterChange = (key: keyof AuditLogFilters, value: AuditLogFilters[keyof AuditLogFilters]) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,

@@ -5,6 +5,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { EmployeeLaborEvent } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';
@@ -25,7 +27,7 @@ interface Props {
   refreshEvents: () => Promise<void>;
   deleteAssignment: (id: number) => Promise<void>;
   preview?: Partial<EmployeeLaborEvent> | null;
-  updateEvent?: (id: number, data: Partial<any>) => Promise<any>;
+  updateEvent?: (id: number, data: Partial<EmployeeLaborEvent>) => Promise<EmployeeLaborEvent>;
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
 }
 
@@ -38,9 +40,8 @@ const LaborEventsCalendar: React.FC<Props> = ({
   isLoading, 
   refreshEvents, 
   deleteAssignment, 
-  preview, 
+  preview,
   updateEvent,
-  onPreviewChange 
 }) => {
   const { showError } = useModal();
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
@@ -67,19 +68,19 @@ const LaborEventsCalendar: React.FC<Props> = ({
       const parsed = new Date(dateStr);
       if (isNaN(parsed.getTime())) return undefined;
       return parsed;
-    } catch (e) {
+    } catch {
       return undefined;
     }
   }
 
   // Convert events to FullCalendar format
-  const calendarEvents = events.map(event => {
+  const calendarEvents: EventInput[] = events.map(event => {
     const emp = employees.find(e => String(e.id) === String(event.employee_id));
     const employeeName = emp ? emp.name : 'Empleado';
-    const titleName = (event as any).labor_event_name || `Evento #${event.labor_event_id}`;
+    const titleName = event.labor_event_name || `Evento #${event.labor_event_id}`;
 
-    const startDate = parseBackendDateToLocal(event.start_date as any);
-    let endDate = parseBackendDateToLocal(event.end_date as any);
+    const startDate = parseBackendDateToLocal(event.start_date instanceof Date ? event.start_date.toISOString() : event.start_date);
+    let endDate = parseBackendDateToLocal(event.end_date instanceof Date ? event.end_date.toISOString() : (event.end_date ?? undefined));
 
     const isAllDay = typeof event.start_date === 'string' && /T00:00:00(?:\.000)?Z$/.test(String(event.start_date));
     if (isAllDay) {
@@ -116,9 +117,9 @@ const LaborEventsCalendar: React.FC<Props> = ({
   if (preview) {
     const emp = employees.find(e => String(e.id) === String(preview.employee_id));
     const empName = emp ? emp.name : 'Empleado';
-    const title = (preview as any).labor_event_name || 'Evento (previsualización)';
+    const title = preview.labor_event_name || 'Evento (previsualización)';
     const start = preview.start_date ? (preview.start_date instanceof Date ? preview.start_date : parseBackendDateToLocal(String(preview.start_date))) : undefined;
-    let end = preview.end_date ? (preview.end_date instanceof Date ? preview.end_date : parseBackendDateToLocal(String(preview.end_date))) : undefined;
+    const end = preview.end_date ? (preview.end_date instanceof Date ? preview.end_date : parseBackendDateToLocal(String(preview.end_date))) : undefined;
 
     if (start) {
       // cast to any so we can include backgroundColor/borderColor for preview without TS errors
@@ -132,12 +133,12 @@ const LaborEventsCalendar: React.FC<Props> = ({
         borderColor: '#D97706',
         textColor: '#FFFFFF',
         classNames: ['status-preview'],
-        extendedProps: { ...(preview as any), __isPreview: true }
-      } as any));
+        extendedProps: { ...preview, __isPreview: true }
+      } as EventInput));
     }
   }
 
-  const openMenuForEvent = (ev: any, clientX: number, clientY: number) => {
+  const openMenuForEvent = (ev: { id: string | number }, clientX: number, clientY: number) => {
     const eventObj = events.find(e => String(e.id) === String(ev.id));
     setSelectedEvent(eventObj || null);
     setAnchor({ x: clientX, y: clientY });
@@ -156,12 +157,12 @@ const LaborEventsCalendar: React.FC<Props> = ({
       await deleteAssignment(selectedEvent.id);
       await refreshEvents();
       closeMenu();
-    } catch (err) {
+    } catch {
       showError('Error', 'No se pudo eliminar la asignación');
     }
   };
 
-  const handleEventClick = (info: any) => {
+  const handleEventClick = (info: EventClickArg) => {
     const jsEvent = info.jsEvent;
     if (jsEvent) {
       jsEvent.preventDefault();
@@ -191,17 +192,17 @@ const LaborEventsCalendar: React.FC<Props> = ({
     return () => document.removeEventListener('click', handler);
   }, [anchor]);
 
-  const handleDateSelect = (selectInfo: any) => {
+  const handleDateSelect = (selectInfo: DateSelectArg) => {
     if (onDateSelect) {
       onDateSelect(selectInfo.start, selectInfo.end);
     }
   };
 
-  const handleEventResize = async (resizeInfo: any) => {
+  const handleEventResize = async (resizeInfo: EventResizeDoneArg) => {
     const eventId = Number(resizeInfo.event.id);
-    const payload = {
-      start_date: resizeInfo.event.start ? resizeInfo.event.start.toISOString() : null,
-      end_date: resizeInfo.event.end ? resizeInfo.event.end.toISOString() : null,
+    const payload: Partial<EmployeeLaborEvent> = {
+      start_date: resizeInfo.event.start ? resizeInfo.event.start.toISOString() : undefined,
+      end_date: resizeInfo.event.end ? resizeInfo.event.end.toISOString() : undefined,
     };
 
     try {
@@ -209,17 +210,17 @@ const LaborEventsCalendar: React.FC<Props> = ({
         await updateEvent(eventId, payload);
         await refreshEvents();
       }
-    } catch (err) {
-      try { resizeInfo.revert(); } catch(e){}
+    } catch {
+      try { resizeInfo.revert(); } catch {}
       showError('Error', 'No se pudo actualizar la duración del evento');
     }
   };
 
-  const handleEventDrop = async (dropInfo: any) => {
+  const handleEventDrop = async (dropInfo: EventDropArg) => {
     const eventId = Number(dropInfo.event.id);
-    const payload = {
-      start_date: dropInfo.event.start ? dropInfo.event.start.toISOString() : null,
-      end_date: dropInfo.event.end ? dropInfo.event.end.toISOString() : null,
+    const payload: Partial<EmployeeLaborEvent> = {
+      start_date: dropInfo.event.start ? dropInfo.event.start.toISOString() : undefined,
+      end_date: dropInfo.event.end ? dropInfo.event.end.toISOString() : undefined,
     };
 
     try {
@@ -227,8 +228,8 @@ const LaborEventsCalendar: React.FC<Props> = ({
         await updateEvent(eventId, payload);
         await refreshEvents();
       }
-    } catch (err) {
-      try { dropInfo.revert(); } catch(e){}
+    } catch {
+      try { dropInfo.revert(); } catch {}
       showError('Error', 'No se pudo mover el evento');
     }
   };
@@ -263,11 +264,10 @@ const LaborEventsCalendar: React.FC<Props> = ({
                 e.preventDefault();
                 e.stopPropagation();
                 try {
-                  const evObj = info.event.toPlainObject();
-                  openMenuForEvent(evObj, e.clientX || 0, e.clientY || 0);
-                } catch (ex) {}
+                  openMenuForEvent({ id: info.event.id }, e.clientX || 0, e.clientY || 0);
+                } catch {}
               });
-            } catch (e) {}
+            } catch {}
           }}
           eventClick={handleEventClick}
           select={handleDateSelect}
@@ -275,8 +275,9 @@ const LaborEventsCalendar: React.FC<Props> = ({
           datesSet={(arg) => {
             try {
               // Use view.currentStart/currentEnd to get the logical visible range of the current view
-              const rawStart = arg.view && (arg.view as any).currentStart ? (arg.view as any).currentStart : arg.start;
-              const rawEnd = arg.view && (arg.view as any).currentEnd ? (arg.view as any).currentEnd : arg.end;
+              const view = arg.view as typeof arg.view & { currentStart?: Date; currentEnd?: Date };
+              const rawStart = view?.currentStart ?? arg.start;
+              const rawEnd = view?.currentEnd ?? arg.end;
 
               if (rawStart && rawEnd && onVisibleRangeChange) {
                 // Normalize to day boundaries to avoid off-by-one month issues
@@ -287,7 +288,7 @@ const LaborEventsCalendar: React.FC<Props> = ({
                 end.setMilliseconds(end.getMilliseconds() - 1);
                 onVisibleRangeChange(start, end);
               }
-            } catch (e) {}
+            } catch {}
           }}
           locale="es"
           height="100%"

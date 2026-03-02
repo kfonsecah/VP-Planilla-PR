@@ -7,10 +7,10 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useBonuses } from '@/hooks/useBonuses';
 import { Bonus } from '@/services/bonusesService';
 import { useModal } from '@/hooks/useModal';
-import { useForm, Controller } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
 export default function BonusesPage() {
-  const { data, isLoading, error, refetch, create, update, remove } = useBonuses();
+  const { data, refetch, create, update, remove } = useBonuses();
   const modal = useModal();
 
   const [formOpen, setFormOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function BonusesPage() {
     setConfirmOpen(true);
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Partial<Bonus>) => {
     try {
       if (editing) {
         await update(editing.id, values);
@@ -43,8 +43,8 @@ export default function BonusesPage() {
         modal.showSuccess('Creado', 'Bonificación creada correctamente');
       }
       refetch();
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al guardar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al guardar');
     }
   };
 
@@ -54,8 +54,8 @@ export default function BonusesPage() {
       await remove(toDelete.id);
       modal.showSuccess('Eliminado', 'Bonificación eliminada correctamente');
       refetch();
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al eliminar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);
@@ -84,7 +84,7 @@ export default function BonusesPage() {
       <Table columns={columns} data={data || []} onEdit={openEdit} onDelete={openDelete} />
 
       <FormModal open={formOpen} onClose={() => setFormOpen(false)} title={editing ? 'Editar Bonificación' : 'Nueva Bonificación'} initialValues={editing || undefined} onSubmit={handleSubmit}>
-        {(methods: any) => (
+        {(methods: UseFormReturn<Partial<Bonus>>) => (
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Empleado (ID)</label>

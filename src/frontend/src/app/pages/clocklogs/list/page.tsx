@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useModal } from '@/hooks/useModal';
-import { ClockLogsService, AttendanceSummary } from '@/services/clockLogsService';
+import { ClockLogsService, AttendanceSummary, ClockLog } from '@/services/clockLogsService';
 import {
   ClockIcon,
   CalendarIcon,
@@ -22,7 +22,7 @@ export default function AttendancePage() {
   const [data, setData] = useState<AttendanceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [editingLog, setEditingLog] = useState<any>(null);
+  const [editingLog, setEditingLog] = useState<ClockLog | null>(null);
 
   const handleFetch = async () => {
     if (!startDate || !endDate) {
@@ -35,8 +35,8 @@ export default function AttendancePage() {
       const res = await ClockLogsService.getAttendanceSummary(startDate, endDate);
       setData(res);
       modal.showSuccess('Registros cargados', `Se encontraron ${res.length} registros de asistencia`);
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al obtener registros');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al obtener registros');
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +52,7 @@ export default function AttendancePage() {
     setExpandedRows(newExpanded);
   };
 
-  const handleEditLog = (log: any) => {
+  const handleEditLog = (log: ClockLog) => {
     setEditingLog({
       ...log,
       timestamp: new Date(log.timestamp).toISOString().slice(0, 16)
@@ -71,8 +71,8 @@ export default function AttendancePage() {
       modal.showSuccess('Actualizado', 'Marca actualizada correctamente');
       setEditingLog(null);
       await handleFetch(); // Reload data
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al actualizar marca');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al actualizar marca');
     }
   };
 
@@ -316,7 +316,7 @@ export default function AttendancePage() {
                                 )}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                  {entry.logs.map((log: any, logIdx: number) => (
+                                  {entry.logs.map((log: ClockLog, logIdx: number) => (
                                     <div
                                       key={log.id}
                                       className="bg-white border border-[#E0D6B7] rounded-xl p-4 hover:shadow-md transition-shadow"

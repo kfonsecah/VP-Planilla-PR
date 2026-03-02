@@ -5,7 +5,8 @@ import { useBranches } from '@/hooks/useBranches';
 import { useModal } from '@/hooks/useModal';
 import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import { Branch } from '@/types/branch';
+import { Branch, BranchFormData } from '@/types/branch';
+import { UseFormReturn } from 'react-hook-form';
 import {
   BuildingOfficeIcon,
   PlusCircleIcon,
@@ -43,19 +44,19 @@ export default function BranchesPage() {
     setConfirmOpen(true);
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Partial<Branch>) => {
     try {
       if (editing) {
         await update(editing.id, values);
         modal.showSuccess('Actualizado', 'Sucursal actualizada correctamente');
       } else {
-        await create(values);
+        await create(values as BranchFormData);
         modal.showSuccess('Creada', 'Sucursal creada correctamente');
       }
       refetch();
       setFormOpen(false);
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al guardar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al guardar');
     }
   };
 
@@ -65,8 +66,8 @@ export default function BranchesPage() {
       await remove(toDelete.id);
       modal.showSuccess('Eliminada', 'Sucursal eliminada correctamente');
       refetch();
-    } catch (err: any) {
-      modal.showError('Error', err?.message || 'Error al eliminar');
+    } catch (err: unknown) {
+      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);
@@ -233,7 +234,7 @@ export default function BranchesPage() {
         initialValues={editing || undefined}
         onSubmit={handleSubmit}
       >
-        {(methods: any) => (
+        {(methods: UseFormReturn<Partial<Branch>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
