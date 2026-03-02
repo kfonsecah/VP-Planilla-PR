@@ -776,7 +776,7 @@ export default function AttendancePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="px-8 py-6 max-w-screen-2xl mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-8 mb-8">
           <div className="flex items-center justify-between">

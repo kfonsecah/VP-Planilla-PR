@@ -2,12 +2,12 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import {
   XMarkIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 
 export type ModalType = "success" | "error" | "warning" | "info";
@@ -61,38 +61,24 @@ const Modal: React.FC<ModalProps> = ({
     switch (type) {
       case "success":
         return {
-          icon: <CheckCircleIcon className="w-12 h-12 text-green-600" />,
-          borderColor: "border-green-400",
-          buttonColor: "bg-[#3B4D36] hover:bg-green-800",
-          titleColor: "text-[#3B4D36]",
-          iconBg: "bg-green-50",
+          icon: <CheckCircleIcon className="w-12 h-12 text-[#6F7153]" />,
+          iconBg: "bg-[#E7DCC1]",
         };
       case "error":
         return {
-          icon: <ExclamationTriangleIcon className="w-12 h-12 text-red-600" />,
-          borderColor: "border-red-400",
-          buttonColor: "bg-[#3B4D36] hover:bg-green-800",
-          titleColor: "text-[#3B4D36]",
-          iconBg: "bg-red-50",
+          icon: <XCircleIcon className="w-12 h-12 text-red-600" />,
+          iconBg: "bg-red-100",
         };
       case "warning":
         return {
-          icon: (
-            <ExclamationTriangleIcon className="w-12 h-12 text-yellow-600" />
-          ),
-          borderColor: "border-yellow-400",
-          buttonColor: "bg-[#3B4D36] hover:bg-green-800",
-          titleColor: "text-[#3B4D36]",
-          iconBg: "bg-yellow-50",
+          icon: <ExclamationTriangleIcon className="w-12 h-12 text-red-600" />,
+          iconBg: "bg-red-100",
         };
       case "info":
       default:
         return {
           icon: <InformationCircleIcon className="w-12 h-12 text-blue-600" />,
-          borderColor: "border-blue-400",
-          buttonColor: "bg-[#3B4D36] hover:bg-green-800",
-          titleColor: "text-[#3B4D36]",
-          iconBg: "bg-blue-50",
+          iconBg: "bg-blue-100",
         };
     }
   };
@@ -104,77 +90,57 @@ const Modal: React.FC<ModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
-      {/* Backdrop transparente con blur */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+      {/* Backdrop con color del sistema y blur */}
+      <div className="absolute inset-0 bg-[#3B4D36]/20 backdrop-blur-sm" />
 
-      {/* Modal Container con fondo verde e imagen - Ahora más rectangular */}
-      <div className="relative rounded-lg shadow-2xl max-w-lg w-full overflow-hidden">
-        {/* Fondo verde con imagen */}
-        <div className="absolute bg-[#344838] inset-0">
-          <Image
-            src="/images/LogInBackground.png"
-            alt="Decorative Background Pattern"
-            fill
-            style={{ objectFit: "cover" }}
-            className="mix-blend-multiply opacity-50"
-          />
+      {/* Modal Container */}
+      <div className="relative bg-[#F5F1E8] rounded-2xl border-2 border-[#D2B48C] shadow-2xl max-w-lg w-full p-8">
+        {/* Header con botón de cerrar */}
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={onClose}
+            className="text-[#6B5B3D] hover:text-[#3B4D36] transition-colors"
+            aria-label="Cerrar"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
         </div>
 
-        {/* Contenedor beige que se sobrepone */}
-        <div
-          className={`relative z-10 m-6 bg-[#FCF1D5] rounded-lg border-2 ${config.borderColor} p-8`}
-        >
-          {/* Header */}
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex-1">
-              {/* Icono centrado */}
-              <div className="flex justify-center mb-4">
-                <div className={`p-3 rounded-full ${config.iconBg}`}>
-                  {config.icon}
-                </div>
-              </div>
+        {/* Icono centrado */}
+        <div className="flex justify-center mb-6">
+          <div className={`p-4 rounded-full ${config.iconBg}`}>
+            {config.icon}
+          </div>
+        </div>
 
-              {/* Título centrado */}
-              <h2
-                className={`text-2xl font-semibold ${config.titleColor} text-center mb-2`}
-              >
-                {title}
-              </h2>
-            </div>
+        {/* Título centrado */}
+        <h2 className="text-2xl font-semibold text-[#3B4D36] text-center mb-4">
+          {title}
+        </h2>
 
-            {/* Botón de cerrar */}
+        {/* Message */}
+        <div className="mb-8">
+          <p className="text-lg text-[#5D4E37] leading-relaxed text-center">
+            {message}
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-center gap-3">
+          {showCancel && (
             <button
-              onClick={onClose}
-              className="text-gray-600 hover:text-gray-800 transition-colors ml-4"
+              onClick={handleCancel}
+              className="px-8 py-3 bg-[#E7DCC1] hover:bg-[#D4BC96] text-[#3B4D36] rounded-lg transition-colors duration-200 font-medium border border-[#D2B48C]"
             >
-              <XMarkIcon className="w-6 h-6" />
+              {cancelText}
             </button>
-          </div>
-
-          {/* Message */}
-          <div className="mb-8">
-            <p className="text-lg text-[#3B4D36] leading-relaxed text-center">
-              {message}
-            </p>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-center space-x-3">
-            {showCancel && (
-              <button
-                onClick={handleCancel}
-                className="px-8 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200 font-medium border border-gray-300"
-              >
-                {cancelText}
-              </button>
-            )}
-            <button
-              onClick={handleConfirm}
-              className={`px-8 py-3 text-[#D4BD80] rounded-md transition-colors duration-200 font-medium ${config.buttonColor}`}
-            >
-              {confirmText}
-            </button>
-          </div>
+          )}
+          <button
+            onClick={handleConfirm}
+            className="px-8 py-3 bg-[#6F7153] hover:bg-[#5D614A] text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
     </div>

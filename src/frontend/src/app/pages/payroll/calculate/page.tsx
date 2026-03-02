@@ -260,22 +260,27 @@ export default function PayrollCalculatePage() {
 
   return (
     <div className="min-h-screen bg-[#E7DCC1]">
-      <div className="p-6">
+      <div className="px-8 py-6 max-w-screen-2xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-semibold text-[#3B4D36]">Cálculo de Planilla</h1>
-            <p className="text-sm text-[#6B5B3D] mt-1">
+            <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-widest mb-1">
+              Gestión de Planillas
+            </p>
+            <h1 className="text-3xl font-bold text-[#3B4D36] leading-none">Cálculo de Planilla</h1>
+            <p className="text-sm text-[#6B5B3D] mt-2">
               Selecciona el periodo para calcular la planilla y genera el resultado
             </p>
           </div>
         </div>
 
+        <div className="border-b border-[#C8BA9A] mb-6" />
+
         {/* Formulario de cálculo */}
-        <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
+        <div className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-6 mb-6">
+          <div className="flex items-center gap-2 mb-6">
             <CalculatorIcon className="w-5 h-5 text-[#6F7153]" />
-            <h2 className="text-lg font-medium text-[#3B4D36]">Periodo de Cálculo</h2>
+            <h2 className="text-lg font-semibold text-[#3B4D36]">Periodo de Cálculo</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -335,7 +340,7 @@ export default function PayrollCalculatePage() {
               <button 
                 onClick={handleCalculate} 
                 disabled={isLoading || !payrollTypeId || !startDate || !endDate}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6F7153] text-white text-sm font-semibold rounded-lg hover:bg-[#5D614A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 <CalculatorIcon className="w-5 h-5" />
                 {isLoading ? 'Calculando...' : 'Calcular'}
@@ -347,7 +352,7 @@ export default function PayrollCalculatePage() {
                   setStartDate(''); 
                   setEndDate(''); 
                 }} 
-                className="px-4 py-2 bg-[#B8A989] text-[#3B4D36] rounded-lg hover:bg-[#A89979] transition-colors"
+                className="px-3 py-2.5 bg-[#D2B48C] text-[#3B4D36] rounded-lg hover:bg-[#C5A87A] transition-colors shadow-sm"
                 title="Limpiar formulario"
               >
                 <ArrowPathIcon className="w-5 h-5" />
@@ -357,9 +362,9 @@ export default function PayrollCalculatePage() {
 
           {/* Información del tipo de planilla seleccionado */}
           {payrollTypeId && payrollTypes && (
-            <div className="mt-4 p-3 bg-[#E7DCC1] rounded-lg border border-[#D2B48C]">
-              <p className="text-xs text-[#5D4E37]">
-                📋 <strong>Tipo seleccionado:</strong>{' '}
+            <div className="mt-5 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">📋 Tipo seleccionado:</span>{' '}
                 {payrollTypes.find(pt => pt.id === payrollTypeId)?.description}
               </p>
             </div>
@@ -367,17 +372,17 @@ export default function PayrollCalculatePage() {
 
           {/* Advertencia sobre el rango de fechas */}
           {dateRangeWarning && (
-            <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-300">
-              <p className="text-xs text-yellow-800">
-                {dateRangeWarning}
+            <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+              <p className="text-sm text-yellow-800 font-medium">
+                ⚠️ {dateRangeWarning}
               </p>
             </div>
           )}
 
           {/* Información adicional */}
-          <div className="mt-4 p-3 bg-[#E7DCC1] rounded-lg border border-[#D2B48C]">
-            <p className="text-xs text-[#5D4E37]">
-              💡 <strong>Nota:</strong> El cálculo incluirá todos los empleados activos en el periodo seleccionado,
+          <div className="mt-5 p-4 bg-[#F9F3E3] rounded-lg border border-[#E7DCC1]">
+            <p className="text-sm text-[#5D4E37] leading-relaxed">
+              <span className="font-semibold">💡 Nota:</span> El cálculo incluirá todos los empleados activos en el periodo seleccionado,
               considerando salarios, bonificaciones, deducciones y horas trabajadas.
               {!payrollTypeId && ' Selecciona primero un tipo de planilla para ajustar automáticamente las fechas.'}
             </p>
@@ -386,8 +391,8 @@ export default function PayrollCalculatePage() {
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            ⚠️ {error}
+          <div className="mb-6 p-4 bg-red-50 border border-red-300 text-red-800 rounded-lg shadow-sm">
+            <p className="text-sm font-medium">⚠️ {error}</p>
           </div>
         )}
 

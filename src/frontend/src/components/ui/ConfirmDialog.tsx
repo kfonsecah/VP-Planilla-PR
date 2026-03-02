@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -14,13 +15,31 @@ export default function ConfirmDialog({ open, title, description, onCancel, onCo
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="w-full max-w-md bg-white rounded shadow-lg p-6">
-        <h3 className="text-lg font-medium mb-2">{title || 'Confirmar acción'}</h3>
-        <p className="text-sm text-gray-600 mb-4">{description || '¿Estás seguro de que deseas continuar?'}</p>
-        <div className="flex justify-end">
-          <button onClick={onCancel} className="mr-3 px-4 py-2 bg-gray-200 rounded">Cancelar</button>
-          <button onClick={onConfirm} className="px-4 py-2 bg-red-600 text-white rounded">Confirmar</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3B4D36]/20 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[#F5F1E8] rounded-2xl shadow-xl border-2 border-[#D2B48C] p-6">
+        {/* Icono de advertencia */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <ExclamationTriangleIcon className="w-7 h-7 text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-[#3B4D36]">{title || 'Confirmar acción'}</h3>
+        </div>
+        
+        <p className="text-sm text-[#5D4E37] mb-6 leading-relaxed">{description || '¿Estás seguro de que deseas continuar?'}</p>
+        
+        <div className="flex gap-3">
+          <button 
+            onClick={onCancel} 
+            className="flex-1 px-4 py-2.5 bg-[#E7DCC1] hover:bg-[#D2B48C] text-[#3B4D36] rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Cancelar
+          </button>
+          <button 
+            onClick={onConfirm} 
+            className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Confirmar
+          </button>
         </div>
       </div>
     </div>

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
   EllipsisVerticalIcon,
   EyeIcon,
   PencilIcon,
-  NoSymbolIcon
+  NoSymbolIcon,
+  ChevronUpIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { Employee } from '@/types';
 import { formatSalary } from '@/utils/employeeUtils';
@@ -20,6 +22,9 @@ interface EmployeeTableProps {
   showFiredEmployees: boolean;
   onToggleFiredEmployees: (show: boolean) => void;
 }
+
+type SortColumn = 'name' | 'position' | 'salary' | 'extraHours' | 'status';
+type SortDirection = 'asc' | 'desc';
 
 /**
  * Componente de tabla de empleados con funcionalidades de búsqueda y acciones
@@ -44,6 +49,84 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     closeProfileModal,
     getEmployeeProfileData
   } = useEmployeeTable();
+
+  const [sortColumn, setSortColumn] = useState<SortColumn>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  /**
+   * Maneja el click en el encabezado de una columna para ordenar
+   */
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      // Si ya estamos ordenando por esta columna, invertir la dirección
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Si es una nueva columna, ordenar ascendente por defecto
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  /**
+   * Ordenar empleados según la columna y dirección seleccionadas
+   */
+  const sortedEmployees = useMemo(() => {
+    const sorted = [...employees].sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
+
+      switch (sortColumn) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'position':
+          aValue = a.position.toLowerCase();
+          bValue = b.position.toLowerCase();
+          break;
+        case 'salary':
+          aValue = a.salary;
+          bValue = b.salary;
+          break;
+        case 'extraHours':
+          aValue = a.salary * 1.5;
+          bValue = b.salary * 1.5;
+          break;
+        case 'status':
+          aValue = a.status.toLowerCase();
+          bValue = b.status.toLowerCase();
+          break;
+        default:
+          aValue = '';
+          bValue = '';
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [employees, sortColumn, sortDirection]);
+
+  /**
+   * Renderiza el icono de ordenamiento para una columna
+   */
+  const renderSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) {
+      return null;
+    }
+    return sortDirection === 'asc' ? (
+      <ChevronUpIcon className="inline-block w-4 h-4 ml-1" />
+    ) : (
+      <ChevronDownIcon className="inline-block w-4 h-4 ml-1" />
+    );
+  };
+
 
   /**
    * Maneja las acciones sobre empleados específicos
@@ -121,20 +204,35 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           <table className="w-full">
             <thead className="sticky top-0 bg-[#E7DCC1] z-10">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Nombre
+                <th 
+                  onClick={() => handleSort('name')}
+                  className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider cursor-pointer hover:bg-[#DDD4B8] transition-colors select-none"
+                >
+                  Nombre{renderSortIcon('name')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Posición
+                <th 
+                  onClick={() => handleSort('position')}
+                  className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider cursor-pointer hover:bg-[#DDD4B8] transition-colors select-none"
+                >
+                  Posición{renderSortIcon('position')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Salario <span className="text-[10px] font-normal text-[#8B7355] normal-case">x Hora</span>
+                <th 
+                  onClick={() => handleSort('salary')}
+                  className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider cursor-pointer hover:bg-[#DDD4B8] transition-colors select-none"
+                >
+                  Salario <span className="text-[10px] font-normal text-[#8B7355] normal-case">x Hora</span>{renderSortIcon('salary')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Hora Extra <span className="text-[10px] font-normal text-[#8B7355] normal-case">(x1.5)</span>
+                <th 
+                  onClick={() => handleSort('extraHours')}
+                  className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider cursor-pointer hover:bg-[#DDD4B8] transition-colors select-none"
+                >
+                  Hora Extra <span className="text-[10px] font-normal text-[#8B7355] normal-case">(x1.5)</span>{renderSortIcon('extraHours')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
-                  Estado
+                <th 
+                  onClick={() => handleSort('status')}
+                  className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider cursor-pointer hover:bg-[#DDD4B8] transition-colors select-none"
+                >
+                  Estado{renderSortIcon('status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-bold text-[#5D4E37] uppercase tracking-wider">
                   Acciones
@@ -142,7 +240,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E8DEC4]">
-              {employees.map((employee) => {
+              {sortedEmployees.map((employee) => {
                 const isFired = employee.fired === true || employee.status === 'fired';
                 return (
                 <tr
