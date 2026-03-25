@@ -41,7 +41,10 @@ Plans:
   3. Login solo acepta credenciales en `req.body`
   4. `PayrollService.updatePayroll` usa `throw new Error(...)` — no `throw undefined`
   5. 5 archivos temporales eliminados del repositorio
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Add AuthMiddleware.verifyToken to all 13 unprotected route files
+- [ ] 02-02-PLAN.md — JWT startup assertion, login query-param fix, PayrollService throw fix, temp file cleanup
 
 ### Phase 3: Validación de Inputs y CORS
 **Goal**: Ningún `req.body` llega a Prisma sin validación Zod. CORS restringido a orígenes configurados en `.env`
@@ -116,7 +119,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Singleton Prisma | 3/3 | Complete   | 2026-03-25 |
-| 2. Seguridad de Autenticación | 0/TBD | Not started | - |
+| 2. Seguridad de Autenticación | 0/2 | Planned | - |
 | 3. Validación de Inputs y CORS | 0/TBD | Not started | - |
 | 4. Performance del Cálculo de Planilla | 0/TBD | Not started | - |
 | 5. Funcionalidad de Negocio Faltante | 0/TBD | Not started | - |
