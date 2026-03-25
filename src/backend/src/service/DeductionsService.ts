@@ -1,8 +1,6 @@
 // DONE: Code documentation
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { Deduction } from "../model/deduction";
-
-const prisma = new PrismaClient();
 
 export class DeductionsService {
   /**

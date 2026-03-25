@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { ClockLogs } from "../model/clockLog";
-
-const prisma = new PrismaClient();
 
 /**
  * Request parameters for filtering clock logs by date range
