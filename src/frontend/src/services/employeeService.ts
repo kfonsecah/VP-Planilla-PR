@@ -65,51 +65,57 @@ export interface EmployeeUpdateData {
 }
 
 export const updateEmployee = async (id: string | number, employeeData: Partial<EmployeeFormData> & { status?: string }): Promise<Employee> => {
-  // Backend schema expects employee_ prefix
+  // Backend schema expects employee_ prefix, and only sends fields with actual values
   const payload: Record<string, unknown> = {};
 
-  if (employeeData.employee_first_name !== undefined) {
+  if (employeeData.employee_first_name) {
     payload.employee_first_name = employeeData.employee_first_name;
   }
   
-  if (employeeData.employee_last_name !== undefined) {
+  if (employeeData.employee_last_name) {
     payload.employee_last_name = employeeData.employee_last_name;
   }
   
   if (employeeData.employee_middle_name !== undefined) {
-    payload.employee_middle_name = employeeData.employee_middle_name;
+    payload.employee_middle_name = employeeData.employee_middle_name || '';
   }
   
-  if (employeeData.employee_national_id !== undefined) {
+  if (employeeData.employee_national_id) {
     const normalizedNationalId = (employeeData.employee_national_id || '').replace(/\D/g, '');
-    payload.employee_national_id = normalizedNationalId || null;
+    payload.employee_national_id = normalizedNationalId;
   }
   
-  if (employeeData.employee_social_code !== undefined) {
+  if (employeeData.employee_social_code) {
     const normalizedSocialCode = (employeeData.employee_social_code || '').replace(/\D/g, '');
-    payload.employee_social_code = normalizedSocialCode || null;
+    payload.employee_social_code = normalizedSocialCode;
   }
   
-  if (employeeData.employee_email !== undefined) {
+  if (employeeData.employee_email) {
     payload.employee_email = employeeData.employee_email;
   }
   
-  if (employeeData.employee_hire_date !== undefined) {
+  if (employeeData.employee_hire_date) {
     const hireDate = new Date(employeeData.employee_hire_date);
-    payload.employee_hire_date = hireDate.toISOString();
+    if (!isNaN(hireDate.getTime())) {
+      payload.employee_hire_date = hireDate.toISOString();
+    }
   }
   
-  if (employeeData.employee_position_id !== undefined) {
+  if (employeeData.employee_position_id) {
     const positionId = parseInt(employeeData.employee_position_id, 10);
-    payload.employee_position_id = !Number.isNaN(positionId) ? positionId : null;
+    if (!Number.isNaN(positionId)) {
+      payload.employee_position_id = positionId;
+    }
   }
 
-  if (employeeData.employee_required_hours_biweekly !== undefined) {
+  if (employeeData.employee_required_hours_biweekly) {
     const requiredHours = parseFloat(employeeData.employee_required_hours_biweekly);
-    payload.employee_required_hours_biweekly = requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null;
+    if (!Number.isNaN(requiredHours)) {
+      payload.employee_required_hours_biweekly = requiredHours;
+    }
   }
   
-  if (employeeData.status !== undefined) {
+  if (employeeData.status) {
     payload.employee_status = employeeData.status;
   }
 
