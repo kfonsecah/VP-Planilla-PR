@@ -72,14 +72,14 @@ const renderCalendarDays = (
 
     let highlightBgClass = "";
     if (event) {
-      highlightBgClass = event.date === 19 ? "bg-[#F6EFD6]" : "bg-[#ECE7DC]";
+      highlightBgClass = event.date === 19 ? "bg-[#F6EFD6] dark:bg-[#3d3d3d]" : "bg-[#ECE7DC] dark:bg-[#333333]";
     }
 
     const dayClasses = `
       text-sm font-semibold rounded-xl h-11 flex items-center justify-center border border-transparent
       ${highlightBgClass}
-      ${isCurrentMonthDay ? "text-[#3B4D36] bg-white" : "text-[#B8B3A6] bg-transparent"}
-      hover:border-[#C8BA9A] transition-colors cursor-pointer
+      ${isCurrentMonthDay ? "text-[#3B4D36] dark:text-[#E5E5E5] bg-white dark:bg-[#333333]" : "text-[#B8B3A6] dark:text-[#737373] bg-transparent"}
+      hover:border-[#C8BA9A] dark:hover:border-[#4a4a4a] transition-colors cursor-pointer
     `;
 
     return (
@@ -281,32 +281,32 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#E7DCC1]">
+    <div className="min-h-screen bg-[#E7DCC1] dark:bg-[#121212]">
       <div className="px-8 py-6 max-w-screen-2xl mx-auto">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
           <div>
-            <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-widest mb-1">Panel General</p>
-            <h1 className="text-3xl font-bold text-[#3B4D36] leading-none">Dashboard</h1>
+            <p className="text-xs font-semibold text-[#8B7355] dark:text-[#A3A3A3] uppercase tracking-widest mb-1">Panel General</p>
+            <h1 className="text-3xl font-bold text-[#3B4D36] dark:text-[#E5E5E5] leading-none">Dashboard</h1>
           </div>
-          <div className="flex flex-col md:items-end text-sm text-[#6B7556]">
-            <span className="uppercase tracking-[0.2em] text-xs text-[#A18B69]">Hoy</span>
-            <span className="font-medium text-[#3B4D36]">{formattedToday}</span>
+          <div className="flex flex-col md:items-end text-sm text-[#6B7556] dark:text-[#A3A3A3]">
+            <span className="uppercase tracking-[0.2em] text-xs text-[#A18B69] dark:text-[#737373]">Hoy</span>
+            <span className="font-medium text-[#3B4D36] dark:text-[#E5E5E5]">{formattedToday}</span>
           </div>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
-          <section className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7]">
-            <div className="flex flex-col gap-2 px-6 pt-6 pb-4 md:flex-row md:items-center md:justify-between border-b border-[#E5E1D8]">
+          <section className="bg-[#F5F1E8] dark:bg-[#2d2d2d] rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-[#404040]">
+            <div className="flex flex-col gap-2 px-6 pt-6 pb-4 md:flex-row md:items-center md:justify-between border-b border-[#E5E1D8] dark:border-[#404040]">
               <div>
-                <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-[0.3em]">Eventos del mes</p>
-                <h2 className="text-2xl font-semibold text-[#3B4D36]">
+                <p className="text-xs font-semibold text-[#8B7355] dark:text-[#A3A3A3] uppercase tracking-[0.3em]">Eventos del mes</p>
+                <h2 className="text-2xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">
                   {monthNames[currentMonth]} {currentYear}
                 </h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="w-9 h-9 rounded-full border border-[#C8BA9A] text-[#3B4D36] hover:bg-[#E7DCC1] transition-colors"
+                  className="w-9 h-9 rounded-full border border-[#C8BA9A] dark:border-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5] hover:bg-[#E7DCC1] dark:hover:bg-[#3d3d3d] transition-colors"
                   onClick={goToPrevMonth}
                   aria-label="Mes anterior"
                 >
@@ -314,7 +314,7 @@ const Home: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  className="w-9 h-9 rounded-full border border-[#C8BA9A] text-[#3B4D36] hover:bg-[#E7DCC1] transition-colors"
+                  className="w-9 h-9 rounded-full border border-[#C8BA9A] dark:border-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5] hover:bg-[#E7DCC1] dark:hover:bg-[#3d3d3d] transition-colors"
                   onClick={goToNextMonth}
                   aria-label="Mes siguiente"
                 >
@@ -323,7 +323,7 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div className="px-6 py-4">
-              <div className="grid grid-cols-7 text-center text-[#6B7556] font-semibold text-xs mb-3 uppercase tracking-wide">
+              <div className="grid grid-cols-7 text-center text-[#6B7556] dark:text-[#A3A3A3] font-semibold text-xs mb-3 uppercase tracking-wide">
                 <span>Dom</span>
                 <span>Lun</span>
                 <span>Mar</span>
@@ -358,36 +358,36 @@ const Home: React.FC = () => {
                 )}
               </div>
               <div className="mt-6 grid grid-cols-3 gap-4 text-center">
-                <div className="rounded-xl border border-[#E0D6B7] bg-white py-3">
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69]">Activos</p>
-                  <p className="text-2xl font-semibold text-[#3B4D36]">{activeEventsCount}</p>
+                <div className="rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333] py-3">
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69] dark:text-[#A3A3A3]">Activos</p>
+                  <p className="text-2xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{activeEventsCount}</p>
                 </div>
-                <div className="rounded-xl border border-[#E0D6B7] bg-white py-3">
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69]">Programados</p>
-                  <p className="text-2xl font-semibold text-[#3B4D36]">{monthlyEvents.length}</p>
+                <div className="rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333] py-3">
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69] dark:text-[#A3A3A3]">Programados</p>
+                  <p className="text-2xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{monthlyEvents.length}</p>
                 </div>
-                <div className="rounded-xl border border-[#E0D6B7] bg-white py-3">
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69]">Alertas</p>
-                  <p className="text-2xl font-semibold text-[#3B4D36]">{attentionEmployees.length}</p>
+                <div className="rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333] py-3">
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69] dark:text-[#A3A3A3]">Alertas</p>
+                  <p className="text-2xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{attentionEmployees.length}</p>
                 </div>
               </div>
             </div>
           </section>
 
           <aside className="flex flex-col gap-6">
-            <div className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-5">
+            <div className="bg-[#F5F1E8] dark:bg-[#2d2d2d] rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-[#404040] p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-[0.3em]">Eventos destacados</p>
-                  <h3 className="text-lg font-semibold text-[#3B4D36]">Este mes</h3>
+                  <p className="text-xs font-semibold text-[#8B7355] dark:text-[#A3A3A3] uppercase tracking-[0.3em]">Eventos destacados</p>
+                  <h3 className="text-lg font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">Este mes</h3>
                 </div>
-                <span className="text-xs text-[#6B7556]">{monthlyEvents.length} eventos</span>
+                <span className="text-xs text-[#6B7556] dark:text-[#A3A3A3]">{monthlyEvents.length} eventos</span>
               </div>
               <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
                 {eventsLoading ? (
-                  <div className="text-center text-sm text-[#6B7556] py-6">Cargando eventos...</div>
+                  <div className="text-center text-sm text-[#6B7556] dark:text-[#A3A3A3] py-6">Cargando eventos...</div>
                 ) : monthlyEvents.length === 0 ? (
-                  <div className="text-center text-sm text-[#8B8B8B] py-6">
+                  <div className="text-center text-sm text-[#8B8B8B] dark:text-[#737373] py-6">
                     No hay eventos registrados en este rango.
                   </div>
                 ) : (
@@ -399,29 +399,29 @@ const Home: React.FC = () => {
                       <button
                         key={event.id}
                         onClick={() => setDayModal({ date: start ?? new Date(), events: [event] })}
-                        className="w-full text-left rounded-xl border border-[#E0D6B7] bg-white px-4 py-3 hover:border-[#C7BB96] transition-colors"
+                        className="w-full text-left rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333] px-4 py-3 hover:border-[#C7BB96] dark:hover:border-[#4a4a4a] transition-colors"
                       >
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-[#3B4D36] truncate">
+                          <p className="text-sm font-semibold text-[#3B4D36] dark:text-[#E5E5E5] truncate">
                             {event.labor_event_name || `Evento #${event.id}`}
                           </p>
                           <span
                             className={`text-xs px-2 py-0.5 rounded-full ${
                               event.status === "active"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
                                 : event.status === "completed"
-                                ? "bg-blue-100 text-blue-700"
+                                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
                                 : event.status === "cancelled"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-gray-100 text-gray-700"
+                                ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                             }`}
                           >
                             {event.status || "Pendiente"}
                           </span>
                         </div>
-                        <p className="text-xs text-[#6B7556] mt-1 truncate">{employee?.name ?? "Sin asignar"}</p>
+                        <p className="text-xs text-[#6B7556] dark:text-[#A3A3A3] mt-1 truncate">{employee?.name ?? "Sin asignar"}</p>
                         {start && (
-                          <p className="text-xs text-[#8B8B8B] mt-1">
+                          <p className="text-xs text-[#8B8B8B] dark:text-[#737373] mt-1">
                             {start.toLocaleDateString("es-CR", { day: "2-digit", month: "short" })}
                             {end && end.getTime() !== start.getTime()
                               ? ` · Termina ${end.toLocaleDateString("es-CR", { day: "2-digit", month: "short" })}`
@@ -435,27 +435,27 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-5">
+            <div className="bg-[#F5F1E8] dark:bg-[#2d2d2d] rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-[#404040] p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-[0.3em]">Centro de tareas</p>
-                  <h3 className="text-lg font-semibold text-[#3B4D36]">Atiende pendientes</h3>
+                  <p className="text-xs font-semibold text-[#8B7355] dark:text-[#A3A3A3] uppercase tracking-[0.3em]">Centro de tareas</p>
+                  <h3 className="text-lg font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">Atiende pendientes</h3>
                 </div>
               </div>
               <div className="space-y-4">
                 {actionItems.map((item) => (
-                  <div key={item.title} className="rounded-xl border border-[#E0D6B7] bg-white p-4">
+                  <div key={item.title} className="rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333] p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-[#3B4D36]">{item.title}</p>
-                        <p className="text-xs text-[#6B7556]">{item.description}</p>
+                        <p className="text-sm font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{item.title}</p>
+                        <p className="text-xs text-[#6B7556] dark:text-[#A3A3A3]">{item.description}</p>
                       </div>
-                      <span className="text-2xl font-semibold text-[#3B4D36]">{item.value}</span>
+                      <span className="text-2xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{item.value}</span>
                     </div>
                     <button
                       type="button"
                       onClick={item.onClick}
-                      className="mt-3 text-xs font-semibold text-[#6F7153] hover:text-[#3B4D36] transition-colors"
+                      className="mt-3 text-xs font-semibold text-[#6F7153] dark:text-[#A3A3A3] hover:text-[#3B4D36] dark:hover:text-[#E5E5E5] transition-colors"
                     >
                       {item.actionLabel} →
                     </button>
@@ -466,20 +466,20 @@ const Home: React.FC = () => {
           </aside>
         </div>
 
-        <section className="mt-6 bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-6">
+        <section className="mt-6 bg-[#F5F1E8] dark:bg-[#2d2d2d] rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-[#404040] p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
             <div>
-              <p className="text-xs font-semibold text-[#8B7355] uppercase tracking-[0.3em]">Información de empleados</p>
-              <h3 className="text-xl font-semibold text-[#3B4D36]">
+              <p className="text-xs font-semibold text-[#8B7355] dark:text-[#A3A3A3] uppercase tracking-[0.3em]">Información de empleados</p>
+              <h3 className="text-xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">
                 {employeeList.length} colaboradores activos
               </h3>
             </div>
-            <span className="text-xs text-[#6B7556]">Vista rápida de los últimos movimientos</span>
+            <span className="text-xs text-[#6B7556] dark:text-[#A3A3A3]">Vista rápida de los últimos movimientos</span>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-[#E0D6B7] bg-white">
+          <div className="overflow-x-auto rounded-xl border border-[#E0D6B7] dark:border-[#404040] bg-white dark:bg-[#333333]">
             <table className="w-full text-sm min-w-[640px]">
               <thead>
-                <tr className="bg-[#F8F6F1] text-[#6B7556] text-xs uppercase tracking-wider">
+                <tr className="bg-[#F8F6F1] dark:bg-[#252525] text-[#6B7556] dark:text-[#A3A3A3] text-xs uppercase tracking-wider">
                   <th className="py-3 px-4 text-left">Nombre</th>
                   <th className="py-3 px-4 text-left">Posición</th>
                   <th className="py-3 px-4 text-left">Salario</th>
@@ -492,10 +492,10 @@ const Home: React.FC = () => {
                   const salaryDisplay =
                     typeof employee.salary === "number" ? formatSalary(employee.salary as number) : String(employee.salary ?? "");
                   return (
-                    <tr key={employee.id} className="border-t border-[#F0EDE5] hover:bg-[#FDFCF9] transition-colors">
-                      <td className="px-4 py-3 text-[#3B4D36] font-medium">{employee.name}</td>
-                      <td className="px-4 py-3 text-[#6B7556]">{employee.position || "Sin asignar"}</td>
-                      <td className="px-4 py-3 text-[#3B4D36] font-semibold">{salaryDisplay}</td>
+                    <tr key={employee.id} className="border-t border-[#F0EDE5] dark:border-[#404040] hover:bg-[#FDFCF9] dark:hover:bg-[#3d3d3d] transition-colors">
+                      <td className="px-4 py-3 text-[#3B4D36] dark:text-[#E5E5E5] font-medium">{employee.name}</td>
+                      <td className="px-4 py-3 text-[#6B7556] dark:text-[#A3A3A3]">{employee.position || "Sin asignar"}</td>
+                      <td className="px-4 py-3 text-[#3B4D36] dark:text-[#E5E5E5] font-semibold">{salaryDisplay}</td>
                       <td className="px-4 py-3 text-center">
                         <span className={badge.className}>{badge.text}</span>
                       </td>
@@ -513,53 +513,53 @@ const Home: React.FC = () => {
               key={action.label}
               type="button"
               onClick={action.action}
-              className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-5 text-left hover:-translate-y-0.5 hover:shadow-md transition-all"
+              className="bg-[#F5F1E8] dark:bg-[#2d2d2d] rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-[#404040] p-5 text-left hover:-translate-y-0.5 hover:shadow-md transition-all"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#E7DCC1] flex items-center justify-center mb-3 text-[#4A5D3A]">
+              <div className="w-12 h-12 rounded-2xl bg-[#E7DCC1] dark:bg-[#3d3d3d] flex items-center justify-center mb-3 text-[#4A5D3A] dark:text-[#E5E5E5]">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {action.icon}
                 </svg>
               </div>
-              <p className="text-base font-semibold text-[#3B4D36]">{action.label}</p>
-              <p className="text-sm text-[#6B7556]">{action.description}</p>
+              <p className="text-base font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{action.label}</p>
+              <p className="text-sm text-[#6B7556] dark:text-[#A3A3A3]">{action.description}</p>
             </button>
           ))}
         </div>
       </div>
 
       {dayModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 px-4">
+          <div className="bg-white dark:bg-[#2d2d2d] rounded-2xl w-full max-w-2xl p-6 shadow-2xl">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69]">Eventos</p>
-                <h4 className="text-xl font-semibold text-[#3B4D36]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#A18B69] dark:text-[#A3A3A3]">Eventos</p>
+                <h4 className="text-xl font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">
                   {dayModal.date.toLocaleDateString("es-CR", { day: "2-digit", month: "long", year: "numeric" })}
                 </h4>
               </div>
-              <button onClick={() => setDayModal(null)} className="text-sm text-[#6B7556] hover:text-[#3B4D36]">
+              <button onClick={() => setDayModal(null)} className="text-sm text-[#6B7556] dark:text-[#A3A3A3] hover:text-[#3B4D36] dark:hover:text-[#E5E5E5]">
                 Cerrar
               </button>
             </div>
             <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
               {dayModal.events.length === 0 ? (
-                <div className="text-sm text-[#8B8B8B]">No hay eventos para este día.</div>
+                <div className="text-sm text-[#8B8B8B] dark:text-[#737373]">No hay eventos para este día.</div>
               ) : (
                 dayModal.events.map((ev: EmployeeLaborEvent) => (
-                  <div key={ev.id} className="border border-[#E5E1D8] rounded-xl p-4">
+                  <div key={ev.id} className="border border-[#E5E1D8] dark:border-[#404040] rounded-xl p-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-base font-semibold text-[#3B4D36]">{ev.labor_event_name || "Evento"}</div>
-                        <div className="text-xs text-[#6B7556]">
+                        <div className="text-base font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">{ev.labor_event_name || "Evento"}</div>
+                        <div className="text-xs text-[#6B7556] dark:text-[#A3A3A3]">
                           {employeeList.find((em: Employee) => String(em.id) === String(ev.employee_id))?.name || "Sin asignar"}
                         </div>
                       </div>
-                      <div className="text-xs px-2 py-0.5 rounded-full bg-[#F8F6F1] text-[#6B7556] uppercase tracking-wide">
+                      <div className="text-xs px-2 py-0.5 rounded-full bg-[#F8F6F1] dark:bg-[#333333] text-[#6B7556] dark:text-[#A3A3A3] uppercase tracking-wide">
                         {ev.status}
                       </div>
                     </div>
                     {ev.labor_event_description && (
-                      <p className="text-sm text-[#6B7556] mt-3">{ev.labor_event_description}</p>
+                      <p className="text-sm text-[#6B7556] dark:text-[#A3A3A3] mt-3">{ev.labor_event_description}</p>
                     )}
                   </div>
                 ))
@@ -571,14 +571,14 @@ const Home: React.FC = () => {
 
       {tooltip.visible && (
         <div
-          className="fixed z-50 bg-[#4A5D3A] text-white text-xs rounded-md px-3 py-2 shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-full"
+          className="fixed z-50 bg-[#4A5D3A] dark:bg-[#2d2d2d] text-white dark:text-[#E5E5E5] text-xs rounded-md px-3 py-2 shadow-lg pointer-events-none transform -translate-x-1/2 -translate-y-full"
           style={{
             left: tooltip.x,
             top: tooltip.y
           }}
         >
           {tooltip.content}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#4A5D3A]"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#4A5D3A] dark:border-t-[#2d2d2d]"></div>
         </div>
       )}
     </div>
