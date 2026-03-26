@@ -10,8 +10,8 @@ export class AuthController {
   static async login(req: Request, res: Response): Promise<Response> {
     try {
       const credentials: LoginCredentials = {
-        username: req.body.username || req.query.username as string,
-        password: req.body.password || req.query.password as string
+        username: req.body.username,
+        password: req.body.password
       };
 
       console.log('Login attempt received:', {

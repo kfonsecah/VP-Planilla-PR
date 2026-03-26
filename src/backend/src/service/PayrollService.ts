@@ -1,6 +1,5 @@
 import { prisma } from '../lib/prisma';
 import { Payroll } from "../model/payroll";
-import { error } from "console";
 
 export class PayrollService {
   /**
@@ -129,7 +128,7 @@ export class PayrollService {
         payrolls_version: (data.version ?? 0) + 1,
       },
     });
-    if (!updatedPayroll) throw error("Payroll not found");
+    if (!updatedPayroll) throw new Error('Payroll not found');
     
     return {
       id: updatedPayroll.payrolls_id,
