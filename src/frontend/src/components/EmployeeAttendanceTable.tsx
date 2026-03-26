@@ -119,45 +119,45 @@ const EmployeeAttendanceTable: React.FC<EmployeeAttendanceTableProps> = ({
         <div className="flex items-center gap-2">
           <button 
             onClick={goToPreviousMonth}
-            className="px-2 py-2 bg-[#D5CDB3] rounded text-base hover:bg-[#B5AF9A]"
+            className="px-2 py-2 bg-[#D5CDB3] dark:bg-[#3d3d3d] rounded text-base hover:bg-[#B5AF9A] dark:hover:bg-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5]"
           >
             ←
           </button>
-          <button className="px-4 py-2 bg-[#D5CDB3] rounded text-base">
+          <button className="px-4 py-2 bg-[#D5CDB3] dark:bg-[#3d3d3d] rounded text-base text-[#3B4D36] dark:text-[#E5E5E5]">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </button>
           <button 
             onClick={goToNextMonth}
-            className="px-2 py-2 bg-[#D5CDB3] rounded text-base hover:bg-[#B5AF9A]"
+            className="px-2 py-2 bg-[#D5CDB3] dark:bg-[#3d3d3d] rounded text-base hover:bg-[#B5AF9A] dark:hover:bg-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5]"
           >
             →
           </button>
         </div>
         <button 
           onClick={goToToday}
-          className="px-4 py-2 bg-[#D5CDB3] rounded text-base hover:bg-[#B5AF9A]"
+          className="px-4 py-2 bg-[#D5CDB3] dark:bg-[#3d3d3d] rounded text-base hover:bg-[#B5AF9A] dark:hover:bg-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5]"
         >
           Hoy
         </button>
       </div>
       <div className="flex items-center justify-between mb-4">
-        <div className="text-[#5D4E37] text-lg">
+        <div className="text-[#5D4E37] dark:text-[#A3A3A3] text-lg">
           {dateRange.start} - {dateRange.end}
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 bg-[#B5AF9A] rounded text-[#3B4D36]">
+          <button className="px-4 py-2 bg-[#B5AF9A] dark:bg-[#4a4a4a] rounded text-[#3B4D36] dark:text-[#E5E5E5]">
             Acciones
           </button>
-          <button className="px-4 py-2 bg-[#B5AF9A] rounded text-[#3B4D36]">
+          <button className="px-4 py-2 bg-[#B5AF9A] dark:bg-[#4a4a4a] rounded text-[#3B4D36] dark:text-[#E5E5E5]">
             Declarar Ausencia
           </button>
         </div>
       </div>
-      <div className="overflow-hidden rounded-lg border border-[#D2B48C] h-[750px]">
+      <div className="overflow-hidden rounded-lg border border-[#D2B48C] dark:border-[#404040] h-[750px]">
         <div className="h-full overflow-y-auto">
           <table className="w-full text-xl">
             <thead className="sticky top-0">
-              <tr className="bg-[#F9F1DC]">
+              <tr className="bg-[#F9F1DC] dark:bg-[#252525] text-[#3B4D36] dark:text-[#E5E5E5]">
                 <th className="px-8 py-6 text-left"></th>
                 <th className="px-8 py-6 text-left">Fecha</th>
                 <th className="px-8 py-6 text-left"></th>
@@ -168,34 +168,34 @@ const EmployeeAttendanceTable: React.FC<EmployeeAttendanceTableProps> = ({
                 <th className="px-8 py-6 text-left">Balance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D2B48C]">
+            <tbody className="divide-y divide-[#D2B48C] dark:divide-[#404040] bg-white dark:bg-[#2d2d2d]">
             {displayRecords.map((record, index) => (
               <tr
                 key={index}
                 className={`${
-                  record.isWeekend ? "bg-[#929292]/52" : ""
+                  record.isWeekend ? "bg-[#929292]/52 dark:bg-gray-800/50" : "dark:bg-[#2d2d2d]"
                 } ${
-                  record.isToday ? "bg-yellow-100 border-l-4 border-l-yellow-500" : ""
-                }`}
+                  record.isToday ? "bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-l-yellow-500 dark:border-l-yellow-400" : ""
+                } hover:bg-[#F8F4E6] dark:hover:bg-[#333333] transition-colors`}
               >
-                <td className="px-8 py-5">
-                  <input type="checkbox" className="w-5 h-5 text-[#B5AF9A] border-[#D2B48C] rounded focus:ring-[#B5AF9A]" />
+                <td className="px-8 py-5 text-[#5D4E37] dark:text-[#A3A3A3]">
+                  <input type="checkbox" className="w-5 h-5 text-[#B5AF9A] dark:text-[#A3A3A3] border-[#D2B48C] dark:border-[#404040] rounded focus:ring-[#B5AF9A] dark:focus:ring-[#A3A3A3]" />
                 </td>
-                <td className="px-8 py-5">{record.date}</td>
-                <td className="px-8 py-5">
-                  <span className="text-[#B5AF9A] text-lg">▶</span>
+                <td className="px-8 py-5 text-[#3B4D36] dark:text-[#E5E5E5]">{record.date}</td>
+                <td className="px-8 py-5 text-[#B5AF9A] dark:text-[#737373]">
+                  ▶
                 </td>
-                <td className="px-8 py-5">{record.schedule}</td>
-                <td className="px-8 py-5">{record.entryTime}</td>
-                <td className="px-8 py-5">{record.exitTime}</td>
-                <td className="px-8 py-5">{record.total}</td>
+                <td className="px-8 py-5 text-[#3B4D36] dark:text-[#E5E5E5]">{record.schedule}</td>
+                <td className="px-8 py-5 text-[#3B4D36] dark:text-[#E5E5E5]">{record.entryTime}</td>
+                <td className="px-8 py-5 text-[#3B4D36] dark:text-[#E5E5E5]">{record.exitTime}</td>
+                <td className="px-8 py-5 text-[#3B4D36] dark:text-[#E5E5E5]">{record.total}</td>
                 <td
                   className={`px-8 py-5 ${
                     record.balance.startsWith("+")
-                      ? "text-green-600"
+                      ? "text-green-600 dark:text-green-400"
                       : record.balance.startsWith("-")
-                      ? "text-red-600"
-                      : "text-gray-600"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-gray-600 dark:text-gray-400"
                   }`}
                 >
                   {record.balance}

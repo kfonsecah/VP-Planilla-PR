@@ -63,15 +63,12 @@ const LaborEventModal: React.FC<Props> = ({
     }
   });
 
-  // Watch form values for preview
   const watchedValues = watch();
 
-  // Handle drag start
   const handleDragStart = (event: React.PointerEvent<HTMLDivElement>) => {
     dragControls.start(event.nativeEvent);
   };
 
-  // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
 
@@ -85,7 +82,6 @@ const LaborEventModal: React.FC<Props> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Focus management
   useEffect(() => {
     if (isOpen && modalRef.current) {
       const firstInput = modalRef.current.querySelector('input, select, textarea') as HTMLElement;
@@ -153,7 +149,6 @@ const LaborEventModal: React.FC<Props> = ({
     });
   }, [isOpen, event, initialDates, reset, onPreviewChange]);
 
-  // Update preview when form values change (only when creating new event)
   useEffect(() => {
     if (!event && isOpen && onPreviewChange) {
       onPreviewChange({
@@ -176,7 +171,6 @@ const LaborEventModal: React.FC<Props> = ({
         status: data.status
       };
 
-      // If editing an existing event, include the event ID and labor_event_id
       if (event) {
         Object.assign(payload, { id: event.id, labor_event_id: event.labor_event_id });
       }
@@ -186,7 +180,6 @@ const LaborEventModal: React.FC<Props> = ({
       onClose();
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Don't close the modal if there's an error, let the parent handle it
     }
   };
 
@@ -195,7 +188,6 @@ const LaborEventModal: React.FC<Props> = ({
     onClose();
   };
 
-  // Animation variants
   const backdropVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 }
@@ -246,9 +238,8 @@ const LaborEventModal: React.FC<Props> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop without blur to keep background visible */}
           <motion.div 
-            className="fixed inset-0 bg-black/30 z-40"
+            className="fixed inset-0 bg-black/30 dark:bg-black/50 z-40"
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
@@ -257,7 +248,6 @@ const LaborEventModal: React.FC<Props> = ({
             onClick={handleClose}
           />
           
-          {/* Draggable Modal Container */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               ref={modalRef}
@@ -283,12 +273,11 @@ const LaborEventModal: React.FC<Props> = ({
               } as React.CSSProperties}
             >
                 <motion.div 
-                  className="bg-white rounded-xl shadow-2xl border border-[#E0D6B7] overflow-hidden"
+                  className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-[#E0D6B7] dark:border-gray-700 overflow-hidden"
                   variants={compactVariants}
                   animate={isCompact ? "compact" : "expanded"}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Drag Handle Header */}
                   <div
                     className="bg-[#6F7153] px-6 py-4 flex items-center justify-between cursor-move select-none"
                     role="banner"
@@ -301,7 +290,6 @@ const LaborEventModal: React.FC<Props> = ({
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Drag indicator */}
                       <div className="flex flex-col gap-1">
                         <div className="w-4 h-0.5 bg-white/60 rounded"></div>
                         <div className="w-4 h-0.5 bg-white/60 rounded"></div>
@@ -313,7 +301,6 @@ const LaborEventModal: React.FC<Props> = ({
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      {/* Compact/Expand Toggle */}
                       <button
                         onClick={() => setIsCompact(!isCompact)}
                         className="text-white hover:text-gray-200 transition-colors p-1 hover:bg-white/10 rounded-full"
@@ -329,7 +316,6 @@ const LaborEventModal: React.FC<Props> = ({
                         </svg>
                       </button>
                       
-                      {/* Close Button */}
                       <button
                         onClick={handleClose}
                         className="text-white hover:text-gray-200 transition-colors p-1 hover:bg-white/10 rounded-full"
@@ -343,7 +329,6 @@ const LaborEventModal: React.FC<Props> = ({
                     </div>
                   </div>
 
-                  {/* Form Content - Hidden when compact */}
                   {!isCompact && (
                     <motion.div 
                       className="max-h-[70vh] overflow-y-auto p-6"
@@ -353,7 +338,7 @@ const LaborEventModal: React.FC<Props> = ({
                     >
                       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                          <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                             Nombre del Evento
                           </label>
                           <Controller
@@ -363,21 +348,21 @@ const LaborEventModal: React.FC<Props> = ({
                               <input
                                 {...field}
                                 type="text"
-                                className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all"
+                                className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                                 placeholder="Ingrese el nombre del evento"
                                 aria-describedby={errors.name ? "name-error" : undefined}
                               />
                             )}
                           />
                           {errors.name && (
-                            <p id="name-error" className="mt-1 text-sm text-red-600 animate-pulse" role="alert">
+                            <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400 animate-pulse" role="alert">
                               {errors.name.message}
                             </p>
                           )}
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                          <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                             Descripción
                           </label>
                           <Controller
@@ -386,7 +371,7 @@ const LaborEventModal: React.FC<Props> = ({
                             render={({ field }) => (
                               <textarea
                                 {...field}
-                                className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all resize-none"
+                                className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all resize-none bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                                 rows={3}
                                 placeholder="Descripción opcional del evento"
                               />
@@ -395,7 +380,7 @@ const LaborEventModal: React.FC<Props> = ({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                          <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                             Empleado
                           </label>
                           <Controller
@@ -405,7 +390,7 @@ const LaborEventModal: React.FC<Props> = ({
                               <select
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all"
+                                className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                                 aria-describedby={errors.employee_id ? "employee-error" : undefined}
                               >
                                 <option value={0}>Seleccionar empleado</option>
@@ -418,7 +403,7 @@ const LaborEventModal: React.FC<Props> = ({
                             )}
                           />
                           {errors.employee_id && (
-                            <p id="employee-error" className="mt-1 text-sm text-red-600 animate-pulse" role="alert">
+                            <p id="employee-error" className="mt-1 text-sm text-red-600 dark:text-red-400 animate-pulse" role="alert">
                               {errors.employee_id.message}
                             </p>
                           )}
@@ -426,7 +411,7 @@ const LaborEventModal: React.FC<Props> = ({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                            <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                               Fecha Inicio
                             </label>
                             <Controller
@@ -436,20 +421,20 @@ const LaborEventModal: React.FC<Props> = ({
                                 <input
                                   {...field}
                                   type="datetime-local"
-                                  className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all"
+                                  className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                                   aria-describedby={errors.start_date ? "start-date-error" : undefined}
                                 />
                               )}
                             />
                             {errors.start_date && (
-                              <p id="start-date-error" className="mt-1 text-sm text-red-600 animate-pulse" role="alert">
+                              <p id="start-date-error" className="mt-1 text-sm text-red-600 dark:text-red-400 animate-pulse" role="alert">
                                 {errors.start_date.message}
                               </p>
                             )}
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                            <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                               Fecha Fin
                             </label>
                             <Controller
@@ -459,7 +444,7 @@ const LaborEventModal: React.FC<Props> = ({
                                 <input
                                   {...field}
                                   type="datetime-local"
-                                  className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all"
+                                  className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                                 />
                               )}
                             />
@@ -467,7 +452,7 @@ const LaborEventModal: React.FC<Props> = ({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#3B4D36] mb-2">
+                          <label className="block text-sm font-medium text-[#3B4D36] dark:text-white mb-2">
                             Estado
                           </label>
                           <Controller
@@ -476,7 +461,7 @@ const LaborEventModal: React.FC<Props> = ({
                             render={({ field }) => (
                               <select
                                 {...field}
-                                className="w-full rounded-lg border border-[#D2B48C] p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all"
+                                className="w-full rounded-lg border border-[#D2B48C] dark:border-gray-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                               >
                                 <option value="active">Activo</option>
                                 <option value="completed">Completado</option>
@@ -489,10 +474,9 @@ const LaborEventModal: React.FC<Props> = ({
                     </motion.div>
                   )}
 
-                  {/* Footer with buttons - Hidden when compact */}
                   {!isCompact && (
                     <motion.div 
-                      className="border-t border-[#E0D6B7] p-6 bg-[#F5F1E8] rounded-b-xl"
+                      className="border-t border-[#E0D6B7] dark:border-gray-700 p-6 bg-[#F5F1E8] dark:bg-[#2a2a2a] rounded-b-xl"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
@@ -501,7 +485,7 @@ const LaborEventModal: React.FC<Props> = ({
                         <button
                           type="button"
                           onClick={handleClose}
-                          className="flex-1 px-4 py-3 text-[#3B4D36] border border-[#3B4D36] rounded-lg hover:bg-[#E7DCC1] transition-all duration-200 font-medium"
+                          className="flex-1 px-4 py-3 text-[#3B4D36] dark:text-white border border-[#3B4D36] dark:border-gray-600 rounded-lg hover:bg-[#E7DCC1] dark:hover:bg-gray-700 transition-all duration-200 font-medium"
                           disabled={isSubmitting}
                         >
                           Cancelar

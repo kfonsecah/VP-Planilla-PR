@@ -72,12 +72,12 @@ export default function BonusesPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen bg-[#E7DCC1] dark:bg-[#121212]">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Bonificaciones</h2>
+        <h2 className="text-2xl font-semibold text-[#3B4D36] dark:text-white">Bonificaciones</h2>
         <div>
-          <button onClick={() => refetch()} className="mr-2 px-4 py-2 bg-gray-200 rounded">Recargar</button>
-          <button onClick={openCreate} className="px-4 py-2 bg-green-600 text-white rounded">Nueva bonificación</button>
+          <button onClick={() => refetch()} className="mr-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Recargar</button>
+          <button onClick={openCreate} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">Nueva bonificación</button>
         </div>
       </div>
 
@@ -87,33 +87,33 @@ export default function BonusesPage() {
         {(methods: UseFormReturn<Partial<Bonus>>) => (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Empleado (ID)</label>
-              <input {...methods.register('employee_id', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Empleado (ID)</label>
+              <input {...methods.register('employee_id', { valueAsNumber: true })} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Payroll ID</label>
-              <input {...methods.register('payroll_id', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Payroll ID</label>
+              <input {...methods.register('payroll_id', { valueAsNumber: true })} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Año</label>
-              <input {...methods.register('year', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Año</label>
+              <input {...methods.register('year', { valueAsNumber: true })} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Mes</label>
-              <input {...methods.register('month', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Mes</label>
+              <input {...methods.register('month', { valueAsNumber: true })} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Descripción</label>
-              <input {...methods.register('description')} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Descripción</label>
+              <input {...methods.register('description')} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Monto</label>
-              <input {...methods.register('amount', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Monto</label>
+              <input {...methods.register('amount', { valueAsNumber: true })} className="w-full border border-[#E0D6B7] dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white" />
             </div>
           </div>
         )}

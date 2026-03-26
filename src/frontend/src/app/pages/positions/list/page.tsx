@@ -87,10 +87,10 @@ export default function PositionsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Posiciones</h2>
+        <h2 className="text-2xl font-semibold text-[#3B4D36] dark:text-white">Posiciones</h2>
         <div>
-          <button onClick={() => refetch()} className="mr-2 px-4 py-2 bg-gray-200 rounded">Recargar</button>
-          <button onClick={openCreate} className="px-4 py-2 bg-green-600 text-white rounded">Nueva posición</button>
+          <button onClick={() => refetch()} className="mr-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Recargar</button>
+          <button onClick={openCreate} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Nueva posición</button>
         </div>
       </div>
 
@@ -100,18 +100,18 @@ export default function PositionsPage() {
         {(methods: UseFormReturn<Partial<Position>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Nombre</label>
-              <input {...methods.register('name')} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Nombre</label>
+              <input {...methods.register('name')} className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 rounded text-[#3B4D36] dark:text-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Descripción</label>
-              <input {...methods.register('description')} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Descripción</label>
+              <input {...methods.register('description')} className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 rounded text-[#3B4D36] dark:text-white" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Salario base</label>
-              <input {...methods.register('base_salary', { valueAsNumber: true })} className="w-full border px-2 py-1 rounded" />
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">Salario base</label>
+              <input {...methods.register('base_salary', { valueAsNumber: true })} className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 rounded text-[#3B4D36] dark:text-white" />
             </div>
 
             {/* version se envía en update para control optimista */}

@@ -27,7 +27,7 @@ const LoginScreen = () => {
     <>
       <div className="flex min-h-screen font-inter">
         {/* Left Panel */}
-        <div className="flex-none w-[40%] bg-[#FCF1D5] flex flex-col p-10 shadow-lg relative z-10 rounded-l-lg">
+        <div className="flex-none w-[40%] bg-[#FCF1D5] dark:bg-[#1a1a1a] flex flex-col p-10 shadow-lg relative z-10 rounded-l-lg">
           {/* Top-left aligned Logo and Title Section */}
           <div className="flex items-center self-start mb-auto">
             <Image
@@ -38,10 +38,10 @@ const LoginScreen = () => {
               className="mr-4 rounded-full"
             />
             <div className="flex flex-col">
-              <h1 className="text-4xl font-semibold text-[#3B4D36] tracking-tight leading-none whitespace-nowrap">
+              <h1 className="text-4xl font-semibold text-[#3B4D36] dark:text-white tracking-tight leading-none whitespace-nowrap">
                 VERDE PRADERA
               </h1>
-              <p className="text-xl text-[#D4BD80] mt-1 whitespace-nowrap">
+              <p className="text-xl text-[#D4BD80] dark:text-gray-400 mt-1 whitespace-nowrap">
                 Control de planilla
               </p>
             </div>
@@ -57,7 +57,7 @@ const LoginScreen = () => {
             <div className="mb-6">
               <label
                 htmlFor="username-input"
-                className="block mb-2 text-xl font-medium text-gray-700"
+                className="block mb-2 text-xl font-medium text-gray-700 dark:text-gray-300"
               >
                 Usuario
               </label>
@@ -66,7 +66,7 @@ const LoginScreen = () => {
                 id="username-input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-4 text-lg bg-white border border-gray-300 rounded-md focus:ring-green-600 focus:border-green-600"
+                className="w-full p-4 text-lg bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-md focus:ring-green-600 dark:focus:ring-green-500 focus:border-green-600 dark:focus:border-green-500 text-gray-900 dark:text-white"
                 aria-label="Username"
                 required
                 disabled={isLoading}
@@ -76,7 +76,7 @@ const LoginScreen = () => {
             <div className="mb-8">
               <label
                 htmlFor="password-input"
-                className="block mb-2 text-xl font-medium text-gray-700"
+                className="block mb-2 text-xl font-medium text-gray-700 dark:text-gray-300"
               >
                 Contraseña
               </label>
@@ -86,7 +86,7 @@ const LoginScreen = () => {
                   id="password-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-4 pr-12 text-lg bg-white border border-gray-300 rounded-md focus:ring-green-600 focus:border-green-600"
+                  className="w-full p-4 pr-12 text-lg bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-md focus:ring-green-600 dark:focus:ring-green-500 focus:border-green-600 dark:focus:border-green-500 text-gray-900 dark:text-white"
                   aria-label="Password"
                   required
                   disabled={isLoading}
@@ -94,7 +94,7 @@ const LoginScreen = () => {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 dark:text-gray-400"
                   aria-label={
                     showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                   }
@@ -115,8 +115,8 @@ const LoginScreen = () => {
               disabled={isLoading}
               className={`w-full py-4 rounded-md text-xl flex items-center justify-center gap-3 transition-colors duration-200 ${
                 isLoading
-                  ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                  : "bg-[#3B4D36] text-[#D4BD80] hover:bg-green-800 focus:ring-4 focus:ring-green-500 focus:ring-opacity-50"
+                  ? "bg-gray-400 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed"
+                  : "bg-[#3B4D36] dark:bg-[#4a6b4a] text-[#D4BD80] dark:text-gray-200 hover:bg-green-800 dark:hover:bg-[#3a5a3a] focus:ring-4 focus:ring-green-500 focus:ring-opacity-50"
               }`}
             >
               {isLoading ? (
@@ -153,7 +153,7 @@ const LoginScreen = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="flex-1 bg-[#344838] relative overflow-hidden">
+        <div className="flex-1 bg-[#344838] dark:bg-[#0a0f0a] relative overflow-hidden">
           <Image
             src="/images/LogInBackground.png"
             alt="Decorative Background Pattern"

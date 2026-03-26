@@ -78,26 +78,26 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
       onClick={onClose}
     >
       <div 
-        className="bg-[#F5F0E8] rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
+        className="bg-[#F5F0E8] dark:bg-[#2d2d2d] rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Layout principal con sidebar y contenido */}
         <div className="flex h-[90vh]">
           {/* Sidebar izquierdo */}
-          <div className="w-64 bg-[#E6DCC6] p-6 flex flex-col">
+          <div className="w-64 bg-[#E6DCC6] dark:bg-[#252525] p-6 flex flex-col">
             {/* Información del empleado */}
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-[#3B4D36] mb-2">
+              <h2 className="text-lg font-bold text-[#3B4D36] dark:text-[#E5E5E5] mb-2">
                 {employeeData.name}
               </h2>
-              <p className="text-sm text-[#5D4E37] mb-1">
+              <p className="text-sm text-[#5D4E37] dark:text-[#A3A3A3] mb-1">
                 {employeeData.position}
               </p>
-              <p className="text-sm text-[#5D4E37] mb-3">
+              <p className="text-sm text-[#5D4E37] dark:text-[#A3A3A3] mb-3">
                 {employeeData.phone}
               </p>
               <div className="inline-block">
-                <span className="px-2 py-1 bg-[#D4BD80] text-[#3B4D36] text-xs rounded-full font-medium">
+                <span className="px-2 py-1 bg-[#D4BD80] dark:bg-[#4a4a4a] text-[#3B4D36] dark:text-[#E5E5E5] text-xs rounded-full font-medium">
                   {employeeData.status}
                 </span>
               </div>
@@ -105,37 +105,37 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
 
             {/* Días con incidencia */}
             <div className="mb-6">
-              <h3 className="text-sm font-semibold text-[#3B4D36] mb-3">
+              <h3 className="text-sm font-semibold text-[#3B4D36] dark:text-[#E5E5E5] mb-3">
                 Días con incidencia
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-[#5D4E37]">Falta tiempo</span>
+                    <span className="text-[#5D4E37] dark:text-[#A3A3A3]">Falta tiempo</span>
                   </div>
-                  <span className="text-[#3B4D36] font-medium">{incidencesData.faltaTiempo}</span>
+                  <span className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">{incidencesData.faltaTiempo}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                    <span className="text-[#5D4E37]">Llegada tardía</span>
+                    <span className="text-[#5D4E37] dark:text-[#A3A3A3]">Llegada tardía</span>
                   </div>
-                  <span className="text-[#3B4D36] font-medium">{incidencesData.llegadaTardia}</span>
+                  <span className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">{incidencesData.llegadaTardia}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                    <span className="text-[#5D4E37]">Sobra tiempo</span>
+                    <span className="text-[#5D4E37] dark:text-[#A3A3A3]">Sobra tiempo</span>
                   </div>
-                  <span className="text-[#3B4D36] font-medium">{incidencesData.sobraTiempo}</span>
+                  <span className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">{incidencesData.sobraTiempo}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    <span className="text-[#5D4E37]">Sin marcas</span>
+                    <span className="text-[#5D4E37] dark:text-[#A3A3A3]">Sin marcas</span>
                   </div>
-                  <span className="text-[#3B4D36] font-medium">{incidencesData.sinMarcas}</span>
+                  <span className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">{incidencesData.sinMarcas}</span>
                 </div>
               </div>
             </div>
@@ -144,21 +144,21 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
           {/* Contenido principal */}
           <div className="flex flex-col flex-1">
             {/* Header con navegación de mes */}
-            <div className="bg-[#D4BD80] px-6 py-4 flex items-center justify-between border-b border-[#C4AD70]">
+            <div className="bg-[#D4BD80] dark:bg-[#3d3d3d] px-6 py-4 flex items-center justify-between border-b border-[#C4AD70] dark:border-[#4a4a4a]">
               <div className="flex items-center gap-4">
-                <button className="p-1 hover:bg-[#C4AD70] rounded">
-                  <ChevronLeftIcon className="w-5 h-5 text-[#3B4D36]" />
+                <button className="p-1 hover:bg-[#C4AD70] dark:hover:bg-[#4a4a4a] rounded">
+                  <ChevronLeftIcon className="w-5 h-5 text-[#3B4D36] dark:text-[#E5E5E5]" />
                 </button>
-                <span className="font-semibold text-[#3B4D36]">Julio 2025</span>
-                <button className="p-1 hover:bg-[#C4AD70] rounded">
-                  <ChevronRightIcon className="w-5 h-5 text-[#3B4D36]" />
+                <span className="font-semibold text-[#3B4D36] dark:text-[#E5E5E5]">Julio 2025</span>
+                <button className="p-1 hover:bg-[#C4AD70] dark:hover:bg-[#4a4a4a] rounded">
+                  <ChevronRightIcon className="w-5 h-5 text-[#3B4D36] dark:text-[#E5E5E5]" />
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[#3B4D36]">Hoy</span>
+                <span className="text-sm text-[#3B4D36] dark:text-[#E5E5E5]">Hoy</span>
                 <button 
                   onClick={onClose}
-                  className="ml-4 p-1 hover:bg-[#C4AD70] rounded text-[#3B4D36]"
+                  className="ml-4 p-1 hover:bg-[#C4AD70] dark:hover:bg-[#4a4a4a] rounded text-[#3B4D36] dark:text-[#E5E5E5]"
                 >
                   ✕
                 </button>
@@ -166,22 +166,22 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
             </div>
 
             {/* Rango de fechas */}
-            <div className="bg-[#E6DCC6] px-6 py-2">
-              <span className="text-sm text-[#5D4E37]">1 Julio, 2025 - 1 Agosto, 2025</span>
+            <div className="bg-[#E6DCC6] dark:bg-[#252525] px-6 py-2">
+              <span className="text-sm text-[#5D4E37] dark:text-[#A3A3A3]">1 Julio, 2025 - 1 Agosto, 2025</span>
             </div>
 
             {/* Tabla de asistencia */}
             <div className="flex-1 overflow-auto">
-              <div className="bg-white">
+              <div className="bg-white dark:bg-[#2d2d2d]">
                 {/* Headers con acciones */}
-                <div className="flex items-center justify-between px-6 py-3 bg-[#F0EBD8] border-b border-[#D2B48C]">
+                <div className="flex items-center justify-between px-6 py-3 bg-[#F0EBD8] dark:bg-[#252525] border-b border-[#D2B48C] dark:border-[#404040]">
                   <div className="flex items-center gap-4">
-                    <input type="checkbox" className="rounded" />
-                    <button className="flex items-center gap-2 px-3 py-1 bg-[#3B4D36] text-white text-sm rounded">
+                    <input type="checkbox" className="rounded dark:bg-[#404040]" />
+                    <button className="flex items-center gap-2 px-3 py-1 bg-[#3B4D36] dark:bg-[#4a4a4a] text-white text-sm rounded">
                       <EllipsisVerticalIcon className="w-4 h-4" />
                       Acciones
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-1 text-sm text-white bg-gray-500 rounded">
+                    <button className="flex items-center gap-2 px-3 py-1 text-sm text-white bg-gray-500 dark:bg-gray-600 rounded">
                       <ExclamationTriangleIcon className="w-4 h-4" />
                       Declarar Ausencia
                     </button>
@@ -189,9 +189,9 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
                 </div>
 
                 {/* Header de tabla */}
-                <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-[#F8F4E6] border-b border-[#D2B48C] text-sm font-medium text-[#3B4D36]">
+                <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-[#F8F4E6] dark:bg-[#1f1f1f] border-b border-[#D2B48C] dark:border-[#404040] text-sm font-medium text-[#3B4D36] dark:text-[#E5E5E5]">
                   <div className="flex items-center gap-2">
-                    <input type="checkbox" className="rounded" />
+                    <input type="checkbox" className="rounded dark:bg-[#404040]" />
                     <span>Fecha</span>
                   </div>
                   <div>Horario</div>
@@ -203,34 +203,34 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({
                 </div>
 
                 {/* Filas de datos */}
-                <div className="divide-y divide-[#E6DCC6]">
+                <div className="divide-y divide-[#E6DCC6] dark:divide-[#404040]">
                   {attendanceData.map((record, index) => (
-                    <div key={index} className="grid grid-cols-7 gap-4 px-6 py-4 text-sm hover:bg-[#F8F4E6] transition-colors">
+                    <div key={index} className="grid grid-cols-7 gap-4 px-6 py-4 text-sm hover:bg-[#F8F4E6] dark:hover:bg-[#333333] transition-colors">
                       <div className="flex items-center gap-2">
-                        <input type="checkbox" className="rounded" />
-                        <span className="text-[#5D4E37]">{record.date}</span>
+                        <input type="checkbox" className="rounded dark:bg-[#404040]" />
+                        <span className="text-[#5D4E37] dark:text-[#A3A3A3]">{record.date}</span>
                       </div>
-                      <div className="text-[#5D4E37]">
+                      <div className="text-[#5D4E37] dark:text-[#A3A3A3]">
                         {record.noRecords ? (
-                          <span className="text-gray-500">No se esperan registros</span>
+                          <span className="text-gray-500 dark:text-gray-400">No se esperan registros</span>
                         ) : (
                           record.shift
                         )}
                       </div>
-                      <div className="text-[#3B4D36] font-medium">
+                      <div className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">
                         {record.entryTime || '-'}
                       </div>
-                      <div className="text-[#3B4D36] font-medium">
+                      <div className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">
                         {record.exitTime || '-'}
                       </div>
-                      <div className="text-[#3B4D36] font-medium">
+                      <div className="text-[#3B4D36] dark:text-[#E5E5E5] font-medium">
                         {record.totalHours || '-'}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`font-medium ${
-                          record.balanceType === 'positive' ? 'text-green-600' : 
-                          record.balanceType === 'negative' ? 'text-red-600' : 
-                          'text-[#3B4D36]'
+                          record.balanceType === 'positive' ? 'text-green-600 dark:text-green-400' : 
+                          record.balanceType === 'negative' ? 'text-red-600 dark:text-red-400' : 
+                          'text-[#3B4D36] dark:text-[#E5E5E5]'
                         }`}>
                           {record.balance}
                         </span>

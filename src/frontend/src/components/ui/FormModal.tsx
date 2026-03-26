@@ -39,10 +39,10 @@ export default function FormModal<T extends FieldValues>({ title, open, initialV
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-[#E0D6B7] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 dark:bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-[#E0D6B7] dark:border-gray-700 overflow-hidden">
         {/* Header con gradiente */}
-        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] px-6 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] dark:from-gray-700 dark:to-gray-800 px-6 py-4 flex items-center justify-between">
           <h3 className="text-xl font-bold text-white">{title || 'Formulario'}</h3>
           <button 
             onClick={onClose} 
@@ -57,11 +57,11 @@ export default function FormModal<T extends FieldValues>({ title, open, initialV
             {renderChildren()}
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-[#E0D6B7]">
+          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-[#E0D6B7] dark:border-gray-600">
             <button 
               type="button" 
               onClick={onClose} 
-              className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl transition-colors font-medium"
+              className="px-5 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl transition-colors font-medium"
             >
               Cancelar
             </button>

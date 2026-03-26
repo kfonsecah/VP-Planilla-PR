@@ -70,7 +70,7 @@ export default function AttendancePage() {
       });
       modal.showSuccess('Actualizado', 'Marca actualizada correctamente');
       setEditingLog(null);
-      await handleFetch(); // Reload data
+      await handleFetch();
     } catch (err: unknown) {
       modal.showError('Error', err instanceof Error ? err.message : 'Error al actualizar marca');
     }
@@ -100,9 +100,9 @@ export default function AttendancePage() {
   };
 
   const getBalanceColor = (hours: number) => {
-    if (hours >= 8) return 'text-green-600';
-    if (hours >= 6) return 'text-yellow-600';
-    return 'text-red-600';
+    if (hours >= 8) return 'text-green-600 dark:text-green-400';
+    if (hours >= 6) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getBalanceIcon = (inconsistencies: string[]) => {
@@ -111,7 +111,7 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
+    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] dark:from-[#121212] via-[#F9F1DC] dark:via-[#1a1a1a] to-[#E7DCC1] dark:to-[#121212]">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-8 mb-8">
@@ -131,10 +131,10 @@ export default function AttendancePage() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-6 mb-6">
+        <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#3B4D36]">
+              <label className="block text-sm font-semibold mb-2 text-[#3B4D36] dark:text-white">
                 <CalendarIcon className="w-4 h-4 inline mr-1" />
                 Fecha inicio
               </label>
@@ -142,11 +142,11 @@ export default function AttendancePage() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border border-[#E0D6B7] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-[#E0D6B7] dark:border-gray-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#3B4D36]">
+              <label className="block text-sm font-semibold mb-2 text-[#3B4D36] dark:text-white">
                 <CalendarIcon className="w-4 h-4 inline mr-1" />
                 Fecha fin
               </label>
@@ -154,7 +154,7 @@ export default function AttendancePage() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border border-[#E0D6B7] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-[#E0D6B7] dark:border-gray-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
               />
             </div>
             <div className="flex gap-3 md:col-span-2">
@@ -181,7 +181,7 @@ export default function AttendancePage() {
                   setEndDate('');
                   setData([]);
                 }}
-                className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl transition-all font-medium"
+                className="px-6 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl transition-all font-medium"
               >
                 Limpiar
               </button>
@@ -191,11 +191,11 @@ export default function AttendancePage() {
 
         {/* Tabla de asistencia */}
         {data.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#E0D6B7] bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC]">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#E0D6B7] dark:border-gray-700 bg-[#E7DCC1] dark:bg-[#2a2a2a]">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#3B4D36]">Registros de Asistencia</h2>
-                <div className="flex items-center gap-2 text-sm text-[#6B5B3D]">
+                <h2 className="text-xl font-bold text-[#3B4D36] dark:text-white">Registros de Asistencia</h2>
+                <div className="flex items-center gap-2 text-sm text-[#6B5B3D] dark:text-gray-400">
                   <UserGroupIcon className="w-5 h-5" />
                   <span className="font-semibold">{data.length} registros</span>
                 </div>
@@ -204,32 +204,32 @@ export default function AttendancePage() {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#E7DCC1]">
+                <thead className="bg-[#E7DCC1] dark:bg-[#2a2a2a]">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Fecha
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Empleado
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Horario
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Entrada
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Salida
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Balance
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E0D6B7]">
+                <tbody className="divide-y divide-[#E0D6B7] dark:divide-gray-700">
                   {data.map((entry, idx) => {
                     const key = `${entry.employee_id}_${entry.date}`;
                     const isExpanded = expandedRows.has(key);
@@ -239,8 +239,8 @@ export default function AttendancePage() {
                       <React.Fragment key={key}>
                         <tr
                           onClick={() => toggleRow(key)}
-                          className={`cursor-pointer hover:bg-[#F5EDD5] transition-colors ${
-                            idx % 2 === 0 ? 'bg-white' : 'bg-[#FEFBF5]'
+                          className={`cursor-pointer hover:bg-[#F5EDD5] dark:hover:bg-[#2a2a2a] transition-colors ${
+                            idx % 2 === 0 ? 'bg-white dark:bg-[#1e1e1e]' : 'bg-[#FEFBF5] dark:bg-[#252525]'
                           }`}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -250,26 +250,26 @@ export default function AttendancePage() {
                               ) : (
                                 <ChevronRightIcon className="w-5 h-5 text-[#6F7153]" />
                               )}
-                              <span className="text-sm font-medium text-[#3B4D36]">
+                              <span className="text-sm font-medium text-[#3B4D36] dark:text-white">
                                 {formatDate(entry.date)}
                               </span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm font-semibold text-[#3B4D36]">
+                            <div className="text-sm font-semibold text-[#3B4D36] dark:text-white">
                               {entry.employee_name}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-center text-sm text-[#6B5B3D]">
+                          <td className="px-6 py-4 text-center text-sm text-[#6B5B3D] dark:text-gray-400">
                             Mañana 8h
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className="text-sm font-semibold text-[#3B4D36]">
+                            <span className="text-sm font-semibold text-[#3B4D36] dark:text-white">
                               {formatTime(entry.check_in)}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className="text-sm font-semibold text-[#3B4D36]">
+                            <span className="text-sm font-semibold text-[#3B4D36] dark:text-white">
                               {formatTime(entry.check_out)}
                             </span>
                           </td>
@@ -285,7 +285,7 @@ export default function AttendancePage() {
                                 {balance >= 0 ? '+' : ''}{balance.toFixed(2)}
                               </span>
                               {entry.inconsistencies.length > 0 && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
                                   ⚠️ {entry.inconsistencies.length}
                                 </span>
                               )}
@@ -295,19 +295,19 @@ export default function AttendancePage() {
 
                         {/* Fila expandida con detalles de marcas */}
                         {isExpanded && (
-                          <tr className="bg-[#FEFBF5]">
+                          <tr className="bg-[#FEFBF5] dark:bg-[#252525]">
                             <td colSpan={7} className="px-6 py-6">
                               <div className="pl-7">
-                                <h4 className="text-sm font-bold text-[#3B4D36] mb-4">
+                                <h4 className="text-sm font-bold text-[#3B4D36] dark:text-white mb-4">
                                   Detalle de marcas del día
                                 </h4>
 
                                 {entry.inconsistencies.length > 0 && (
-                                  <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-400 rounded-lg">
-                                    <p className="text-sm font-semibold text-red-800 mb-2">
+                                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-600 rounded-lg">
+                                    <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">
                                       Inconsistencias detectadas:
                                     </p>
-                                    <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                                    <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-400 space-y-1">
                                       {entry.inconsistencies.map((inc, i) => (
                                         <li key={i}>{inc}</li>
                                       ))}
@@ -319,20 +319,20 @@ export default function AttendancePage() {
                                   {entry.logs.map((log: ClockLog, logIdx: number) => (
                                     <div
                                       key={log.id}
-                                      className="bg-white border border-[#E0D6B7] rounded-xl p-4 hover:shadow-md transition-shadow"
+                                      className="bg-white dark:bg-[#2a2a2a] border border-[#E0D6B7] dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow"
                                     >
                                       <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-2">
                                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                            log.log_type === 'IN' ? 'bg-green-100' : 'bg-red-100'
+                                            log.log_type === 'IN' ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'
                                           }`}>
                                             <span className={`text-xs font-bold ${
-                                              log.log_type === 'IN' ? 'text-green-700' : 'text-red-700'
+                                              log.log_type === 'IN' ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
                                             }`}>
                                               {log.log_type}
                                             </span>
                                           </div>
-                                          <span className="text-xs text-[#6B5B3D] font-medium">
+                                          <span className="text-xs text-[#6B5B3D] dark:text-gray-400 font-medium">
                                             Marca #{logIdx + 1}
                                           </span>
                                         </div>
@@ -341,22 +341,22 @@ export default function AttendancePage() {
                                             e.stopPropagation();
                                             handleEditLog(log);
                                           }}
-                                          className="p-1.5 hover:bg-[#E7DCC1] rounded-lg transition-colors"
+                                          className="p-1.5 hover:bg-[#E7DCC1] dark:hover:bg-gray-700 rounded-lg transition-colors"
                                         >
                                           <PencilIcon className="w-4 h-4 text-[#6F7153]" />
                                         </button>
                                       </div>
                                       <div className="space-y-2">
                                         <div>
-                                          <p className="text-xs text-[#6B5B3D] mb-1">Hora</p>
-                                          <p className="text-sm font-bold text-[#3B4D36]">
+                                          <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Hora</p>
+                                          <p className="text-sm font-bold text-[#3B4D36] dark:text-white">
                                             {new Date(log.timestamp).toLocaleTimeString('es-CR')}
                                           </p>
                                         </div>
                                         {log.remarks && (
                                           <div>
-                                            <p className="text-xs text-[#6B5B3D] mb-1">Observaciones</p>
-                                            <p className="text-xs text-[#5D4E37]">{log.remarks}</p>
+                                            <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Observaciones</p>
+                                            <p className="text-xs text-[#5D4E37] dark:text-gray-300">{log.remarks}</p>
                                           </div>
                                         )}
                                       </div>
@@ -378,16 +378,16 @@ export default function AttendancePage() {
 
         {/* Estado vacío */}
         {data.length === 0 && !isLoading && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-16 text-center">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-16 text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#D2B48C] rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#D2B48C] dark:from-[#2a2a2a] dark:to-[#3a3a3a] rounded-2xl flex items-center justify-center shadow-lg">
                 <ClockIcon className="w-12 h-12 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-[#3B4D36] mb-3">
+            <h3 className="text-2xl font-bold text-[#3B4D36] dark:text-white mb-3">
               No hay registros de asistencia
             </h3>
-            <p className="text-base text-[#6B5B3D] max-w-md mx-auto">
+            <p className="text-base text-[#6B5B3D] dark:text-gray-400 max-w-md mx-auto">
               Selecciona un rango de fechas para consultar los registros de marcación de los empleados
             </p>
           </div>
@@ -396,8 +396,8 @@ export default function AttendancePage() {
 
       {/* Modal de edición */}
       {editingLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#E0D6B7] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 dark:bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#E0D6B7] dark:border-gray-700 overflow-hidden">
             <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] px-6 py-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">Editar Marca</h3>
               <button
@@ -410,25 +410,25 @@ export default function AttendancePage() {
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2 text-[#3B4D36]">
+                <label className="block text-sm font-semibold mb-2 text-[#3B4D36] dark:text-white">
                   Fecha y Hora
                 </label>
                 <input
                   type="datetime-local"
                   value={editingLog.timestamp}
                   onChange={(e) => setEditingLog({ ...editingLog, timestamp: e.target.value })}
-                  className="w-full border border-[#E0D6B7] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                  className="w-full border border-[#E0D6B7] dark:border-gray-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-[#3B4D36]">
+                <label className="block text-sm font-semibold mb-2 text-[#3B4D36] dark:text-white">
                   Tipo de Marca
                 </label>
                 <select
                   value={editingLog.log_type}
                   onChange={(e) => setEditingLog({ ...editingLog, log_type: e.target.value })}
-                  className="w-full border border-[#E0D6B7] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                  className="w-full border border-[#E0D6B7] dark:border-gray-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                 >
                   <option value="IN">Entrada (IN)</option>
                   <option value="OUT">Salida (OUT)</option>
@@ -436,22 +436,22 @@ export default function AttendancePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-[#3B4D36]">
+                <label className="block text-sm font-semibold mb-2 text-[#3B4D36] dark:text-white">
                   Observaciones
                 </label>
                 <textarea
                   value={editingLog.remarks || ''}
                   onChange={(e) => setEditingLog({ ...editingLog, remarks: e.target.value })}
-                  className="w-full border border-[#E0D6B7] px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                  className="w-full border border-[#E0D6B7] dark:border-gray-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-[#2a2a2a] text-[#3B4D36] dark:text-white"
                   rows={3}
                   placeholder="Ajuste manual, corrección de error, etc."
                 />
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-[#E0D6B7]">
+              <div className="flex gap-3 pt-4 border-t border-[#E0D6B7] dark:border-gray-700">
                 <button
                   onClick={() => setEditingLog(null)}
-                  className="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl transition-colors font-medium"
+                  className="flex-1 px-5 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl transition-colors font-medium"
                 >
                   Cancelar
                 </button>

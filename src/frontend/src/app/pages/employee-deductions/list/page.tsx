@@ -93,20 +93,20 @@ export default function EmployeeDeductionsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#E7DCC1]">
+    <div className="min-h-screen bg-[#E7DCC1] dark:bg-[#121212]">
       <div className="p-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-[#3B4D36]">Deducciones por Empleado</h1>
-          <p className="text-sm text-[#6B5B3D] mt-1">
+          <h1 className="text-2xl font-semibold text-[#3B4D36] dark:text-white">Deducciones por Empleado</h1>
+          <p className="text-sm text-[#6B5B3D] dark:text-gray-400 mt-1">
             Asigna y gestiona deducciones específicas para cada empleado
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Employee Selection Panel */}
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-6">
+          <div className="bg-[#F9F1DC] dark:bg-gray-800 rounded-xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#3B4D36]">Seleccionar Empleado</h2>
+              <h2 className="text-lg font-semibold text-[#3B4D36] dark:text-white">Seleccionar Empleado</h2>
               <UserGroupIcon className="w-6 h-6 text-[#6F7153]" />
             </div>
 
@@ -116,9 +116,9 @@ export default function EmployeeDeductionsPage() {
                 placeholder="Buscar empleado..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-[#D2B48C] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full pl-10 pr-4 py-2 border border-[#D2B48C] dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
               />
-              <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-5 h-5 text-[#6B5B3D]" />
+              <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-5 h-5 text-[#6B5B3D] dark:text-gray-400" />
             </div>
 
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -129,7 +129,7 @@ export default function EmployeeDeductionsPage() {
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     selectedEmployeeId === Number(employee.id)
                       ? 'bg-[#6F7153] text-white'
-                      : 'bg-white hover:bg-[#E7DCC1] text-[#3B4D36]'
+                      : 'bg-white dark:bg-gray-700 hover:bg-[#E7DCC1] dark:hover:bg-gray-600 text-[#3B4D36] dark:text-white'
                   }`}
                 >
                   <p className="font-medium">{employee.name}</p>
@@ -140,9 +140,9 @@ export default function EmployeeDeductionsPage() {
           </div>
 
           {/* Employee Deductions Panel */}
-          <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-6">
+          <div className="bg-[#F9F1DC] dark:bg-gray-800 rounded-xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#3B4D36]">
+              <h2 className="text-lg font-semibold text-[#3B4D36] dark:text-white">
                 {selectedEmployee ? `Deducciones de ${selectedEmployee.name}` : 'Deducciones del Empleado'}
               </h2>
               {selectedEmployeeId && (
@@ -158,18 +158,18 @@ export default function EmployeeDeductionsPage() {
 
             {!selectedEmployeeId ? (
               <div className="text-center py-12">
-                <UserGroupIcon className="w-16 h-16 text-[#D2B48C] mx-auto mb-3" />
-                <p className="text-[#6B5B3D]">Selecciona un empleado para ver sus deducciones</p>
+                <UserGroupIcon className="w-16 h-16 text-[#D2B48C] dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-[#6B5B3D] dark:text-gray-400">Selecciona un empleado para ver sus deducciones</p>
               </div>
             ) : loadingEmpDeductions ? (
               <div className="text-center py-8">
                 <ArrowPathIcon className="w-8 h-8 animate-spin text-[#6F7153] mx-auto mb-2" />
-                <p className="text-[#5D4E37]">Cargando deducciones...</p>
+                <p className="text-[#5D4E37] dark:text-gray-400">Cargando deducciones...</p>
               </div>
             ) : employeeDeductions.length === 0 ? (
               <div className="text-center py-12">
-                <CurrencyDollarIcon className="w-16 h-16 text-[#D2B48C] mx-auto mb-3" />
-                <p className="text-[#6B5B3D] mb-4">No hay deducciones asignadas</p>
+                <CurrencyDollarIcon className="w-16 h-16 text-[#D2B48C] dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-[#6B5B3D] dark:text-gray-400 mb-4">No hay deducciones asignadas</p>
                 <button
                   onClick={() => setShowAssignModal(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-colors"
@@ -183,28 +183,28 @@ export default function EmployeeDeductionsPage() {
                 {employeeDeductions.map((deduction: EmployeeDeductionWithDetails, index: number) => (
                   <div
                     key={`emp-${selectedEmployeeId}-ded-${deduction.deduction_id}-${index}`}
-                    className="flex items-center justify-between p-4 bg-white rounded-lg border border-[#E0D6B7] hover:shadow-md transition-shadow"
+                    className="flex items-center justify-between p-4 bg-white dark:bg-gray-700 rounded-lg border border-[#E0D6B7] dark:border-gray-600 hover:shadow-md transition-shadow"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[#6F7153] bg-opacity-10 rounded-lg">
+                        <div className="p-2 bg-[#6F7153] bg-opacity-10 dark:bg-[#6F7153]/20 rounded-lg">
                           <CurrencyDollarIcon className="w-5 h-5 text-[#6F7153]" />
                         </div>
                         <div>
-                          <p className="font-medium text-[#3B4D36]">
+                          <p className="font-medium text-[#3B4D36] dark:text-white">
                             {deduction.deduction_name || `Deducción #${deduction.deduction_id}`}
                           </p>
                           {deduction.deduction_description && (
-                            <p className="text-sm text-[#6B5B3D] mt-0.5">{deduction.deduction_description}</p>
+                            <p className="text-sm text-[#6B5B3D] dark:text-gray-400 mt-0.5">{deduction.deduction_description}</p>
                           )}
                           <div className="flex items-center gap-3 mt-2">
                             {deduction.fixed_amount > 0 && (
-                              <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
                                 ₡{deduction.fixed_amount.toLocaleString()}
                               </span>
                             )}
                             {deduction.percentage > 0 && (
-                              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                              <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
                                 {deduction.percentage}%
                               </span>
                             )}
@@ -214,7 +214,7 @@ export default function EmployeeDeductionsPage() {
                     </div>
                     <button
                       onClick={() => handleRemoveDeduction(deduction.deduction_id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-2"
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors ml-2"
                       title="Eliminar deducción"
                     >
                       <TrashIcon className="w-5 h-5" />
@@ -229,9 +229,9 @@ export default function EmployeeDeductionsPage() {
 
       {/* Assign Deduction Modal */}
       {showAssignModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#F9F1DC] rounded-xl shadow-lg border border-[#E0D6B7] p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-[#3B4D36] mb-4">Asignar Deducción</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-[#F9F1DC] dark:bg-gray-800 rounded-xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-[#3B4D36] dark:text-white mb-4">Asignar Deducción</h3>
 
             {loadingDeductions ? (
               <div className="text-center py-8">
@@ -247,7 +247,7 @@ export default function EmployeeDeductionsPage() {
                       className={`w-full text-left p-3 rounded-lg transition-colors ${
                         selectedDeductionId === deduction.id
                           ? 'bg-[#6F7153] text-white'
-                          : 'bg-white hover:bg-[#E7DCC1] text-[#3B4D36]'
+                          : 'bg-white dark:bg-gray-700 hover:bg-[#E7DCC1] dark:hover:bg-gray-600 text-[#3B4D36] dark:text-white'
                       }`}
                     >
                       <p className="font-medium">{deduction.name}</p>
@@ -264,7 +264,7 @@ export default function EmployeeDeductionsPage() {
                       setShowAssignModal(false);
                       setSelectedDeductionId(null);
                     }}
-                    className="flex-1 px-4 py-2 bg-[#B8A989] text-[#3B4D36] rounded-lg hover:bg-[#A89979] transition-colors"
+                    className="flex-1 px-4 py-2 bg-[#B8A989] dark:bg-gray-600 text-[#3B4D36] dark:text-white rounded-lg hover:bg-[#A89979] dark:hover:bg-gray-500 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -279,7 +279,7 @@ export default function EmployeeDeductionsPage() {
               </>
             ) : (
               <>
-                <p className="text-center text-[#6B5B3D] py-8">
+                <p className="text-center text-[#6B5B3D] dark:text-gray-400 py-8">
                   No hay más deducciones disponibles para asignar
                 </p>
                 <button
@@ -287,7 +287,7 @@ export default function EmployeeDeductionsPage() {
                     setShowAssignModal(false);
                     setSelectedDeductionId(null);
                   }}
-                  className="w-full px-4 py-2 bg-[#B8A989] text-[#3B4D36] rounded-lg hover:bg-[#A89979] transition-colors"
+                  className="w-full px-4 py-2 bg-[#B8A989] dark:bg-gray-600 text-[#3B4D36] dark:text-white rounded-lg hover:bg-[#A89979] dark:hover:bg-gray-500 transition-colors"
                 >
                   Cerrar
                 </button>

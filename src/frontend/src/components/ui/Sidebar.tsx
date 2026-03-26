@@ -56,9 +56,9 @@ export default function Sidebar() {
     { href: "/", icon: "/images/layout/logOut.png", text: "Cerrar sesión" },
   ];
   return (
-    <aside className="w-60 bg-[#FCF1D5] text-white flex flex-col shadow-sm border-r border-[#E0D6B7]">      <div className="flex items-center justify-start px-6 py-3">
+    <aside className="w-60 bg-[#FCF1D5] dark:bg-[#252525] text-white flex flex-col shadow-sm border-r border-[#E0D6B7] dark:border-[#404040]">      <div className="flex items-center justify-start px-6 py-3">
         <Image src="/images/Logo.png" alt="Verde Gestión Logo" width={45} height={45} className="mr-3 rounded-full" />
-        <span className="text-2xl text-[#4A5D3A] font-titulo titulo-verde-gestion" style={{ fontFamily: 'VerdeFont, Inter, sans-serif' }}>VERDE GESTIÓN</span>
+        <span className="text-2xl text-[#4A5D3A] dark:text-[#E5E5E5] font-titulo titulo-verde-gestion" style={{ fontFamily: 'VerdeFont, Inter, sans-serif' }}>VERDE GESTIÓN</span>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">

@@ -99,13 +99,13 @@ export default function PayrollTypesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E7DCC1]">
+    <div className="min-h-screen bg-[#E7DCC1] dark:bg-[#121212]">
       <div className="px-8 py-6 max-w-screen-2xl mx-auto">
         {/* Header con rectángulo verde */}
-        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] dark:from-gray-700 dark:to-gray-800 rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold text-[#E7DCC1] uppercase tracking-widest mb-2">
+              <p className="text-xs font-semibold text-[#E7DCC1] dark:text-gray-300 uppercase tracking-widest mb-2">
                 Gestión de Planillas
               </p>
               <h1 className="text-3xl font-bold text-white leading-none">Tipos de Planilla</h1>
@@ -133,20 +133,20 @@ export default function PayrollTypesPage() {
           </div>
         </div>
 
-        <div className="border-b border-[#C8BA9A] mb-6" />
+        <div className="border-b border-[#C8BA9A] dark:border-gray-700 mb-6" />
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-300 text-red-800 rounded-lg shadow-sm">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-300 rounded-lg shadow-sm">
             <p className="text-sm font-medium">⚠️ {error}</p>
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && (
-          <div className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] border-t-[#6F7153] mx-auto mb-4"></div>
-            <p className="text-lg text-[#5D4E37] font-medium">Cargando tipos de planilla...</p>
+          <div className="bg-[#F5F1E8] dark:bg-gray-800 rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] dark:border-gray-600 border-t-[#6F7153] mx-auto mb-4"></div>
+            <p className="text-lg text-[#5D4E37] dark:text-gray-300 font-medium">Cargando tipos de planilla...</p>
           </div>
         )}
 
@@ -156,20 +156,20 @@ export default function PayrollTypesPage() {
             {data.map((payrollType) => (
               <div
                 key={payrollType.id}
-                className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] overflow-hidden hover:shadow-md transition-all duration-300"
+                className="bg-[#F5F1E8] dark:bg-gray-800 rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
               >
                 {/* Header de la tarjeta */}
-                <div className="bg-[#EDE5D2] px-5 py-4 border-b border-[#D2B48C]">
+                <div className="bg-[#EDE5D2] dark:bg-gray-700 px-5 py-4 border-b border-[#D2B48C] dark:border-gray-600">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 bg-[#6F7153] rounded-xl flex items-center justify-center shadow-sm">
                         <DocumentTextIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-[#3B4D36]">
+                        <h3 className="text-lg font-bold text-[#3B4D36] dark:text-white">
                           {payrollType.name}
                         </h3>
-                        <p className="text-xs text-[#6B5B3D] font-medium">{payrollType.description || 'Sin descripción'}</p>
+                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 font-medium">{payrollType.description || 'Sin descripción'}</p>
                       </div>
                     </div>
                   </div>
@@ -179,11 +179,11 @@ export default function PayrollTypesPage() {
                 <div className="p-5">
                   {/* Fecha de creación */}
                   {payrollType.created_at && (
-                    <div className="bg-[#F9F1DC] rounded-lg p-3 mb-4">
-                      <p className="text-xs text-[#6B5B3D] font-medium mb-1">Fecha de Creación</p>
+                    <div className="bg-[#F9F1DC] dark:bg-gray-700 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400 font-medium mb-1">Fecha de Creación</p>
                       <div className="flex items-center gap-2">
                         <CalendarIcon className="w-4 h-4 text-[#6F7153]" />
-                        <span className="text-sm font-semibold text-[#3B4D36]">{formatDate(payrollType.created_at)}</span>
+                        <span className="text-sm font-semibold text-[#3B4D36] dark:text-white">{formatDate(payrollType.created_at)}</span>
                       </div>
                     </div>
                   )}
@@ -212,16 +212,16 @@ export default function PayrollTypesPage() {
 
         {/* Estado vacío */}
         {!isLoading && (!data || data.length === 0) && (
-          <div className="bg-[#F5F1E8] rounded-2xl shadow-sm border border-[#E0D6B7] p-12 text-center">
+          <div className="bg-[#F5F1E8] dark:bg-gray-800 rounded-2xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 p-12 text-center">
             <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 bg-[#E7DCC1] rounded-xl flex items-center justify-center">
+              <div className="w-20 h-20 bg-[#E7DCC1] dark:bg-gray-700 rounded-xl flex items-center justify-center">
                 <DocumentTextIcon className="w-10 h-10 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-xl font-bold text-[#3B4D36] mb-2">
+            <h3 className="text-xl font-bold text-[#3B4D36] dark:text-white mb-2">
               No hay tipos de planilla registrados
             </h3>
-            <p className="text-sm text-[#6B5B3D] mb-6 max-w-md mx-auto">
+            <p className="text-sm text-[#6B5B3D] dark:text-gray-400 mb-6 max-w-md mx-auto">
               Crea tu primer tipo de planilla para comenzar a gestionar los diferentes períodos de pago
             </p>
             <button
@@ -246,12 +246,12 @@ export default function PayrollTypesPage() {
         {(methods: UseFormReturn<Partial<PayrollType>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Nombre <span className="text-red-500">*</span>
               </label>
               <input 
                 {...methods.register('name', { required: 'El nombre es requerido' })} 
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 placeholder="Ej: Quincenal, Mensual, Semanal"
               />
               {methods.formState.errors?.name && (
@@ -262,12 +262,12 @@ export default function PayrollTypesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Descripción <span className="text-red-500">*</span>
               </label>
               <textarea 
                 {...methods.register('description', { required: 'La descripción es requerida' })} 
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 rows={3}
                 placeholder="Descripción del tipo de planilla..."
               />

@@ -364,12 +364,12 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
   }, 0) || 0;
 
   return (
-    <div className="bg-[#F9F1DC] rounded-xl shadow-sm border border-[#E0D6B7] p-6">
+    <div className="bg-[#F9F1DC] dark:bg-[#1e1e1e] rounded-xl shadow-sm border border-[#E0D6B7] dark:border-gray-700 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <DocumentCheckIcon className="w-6 h-6 text-[#6F7153]" />
-          <h3 className="text-xl font-semibold text-[#3B4D36]">Resultados del Cálculo</h3>
+          <h3 className="text-xl font-semibold text-[#3B4D36] dark:text-white">Resultados del Cálculo</h3>
         </div>
         <div className="flex gap-3">
           {employees && employees.length > 0 && (
@@ -394,8 +394,8 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
       </div>
 
       {!employees && (
-        <div className="p-4 bg-[#E7DCC1] rounded-lg border border-[#D2B48C]">
-          <pre className="overflow-auto text-xs text-[#5D4E37] whitespace-pre-wrap">
+        <div className="p-4 bg-[#E7DCC1] dark:bg-[#2a2a2a] rounded-lg border border-[#D2B48C] dark:border-gray-700">
+          <pre className="overflow-auto text-xs text-[#5D4E37] dark:text-gray-300 whitespace-pre-wrap">
             {JSON.stringify(payrollData, null, 2)}
           </pre>
         </div>
@@ -406,76 +406,76 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
           {/* Tarjetas de resumen */}
           <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
             {/* Fila 1: Datos generales */}
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <UserGroupIcon className="w-5 h-5 text-[#6F7153]" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Empleados</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Empleados</p>
               </div>
-              <p className="text-2xl font-bold text-[#3B4D36]">{employees.length}</p>
+              <p className="text-2xl font-bold text-[#3B4D36] dark:text-white">{employees.length}</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <ClockIcon className="w-5 h-5 text-[#8B7355]" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Horas Trabajadas</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Horas Trabajadas</p>
               </div>
-              <p className="text-2xl font-bold text-[#3B4D36]">{totalHours.toFixed(0)}h</p>
+              <p className="text-2xl font-bold text-[#3B4D36] dark:text-white">{totalHours.toFixed(0)}h</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <ClockIcon className="w-5 h-5 text-orange-600" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Horas Extras</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Horas Extras</p>
               </div>
               <p className="text-2xl font-bold text-orange-600">{totalOvertimeHours.toFixed(1)}h</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <ClockIcon className="w-5 h-5 text-blue-600" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Horas Descanso</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Horas Descanso</p>
               </div>
               <p className="text-2xl font-bold text-blue-600">{totalWeeklyRestHours.toFixed(1)}h</p>
             </div>
 
             {/* Fila 2: Datos monetarios */}
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-[#A0826D]" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Salario Bruto</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Salario Bruto</p>
               </div>
-              <p className="text-lg font-bold text-[#3B4D36]">{formatCRC(totalGross)}</p>
+              <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{formatCRC(totalGross)}</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-orange-600" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Pago Horas Extras</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Pago Horas Extras</p>
               </div>
               <p className="text-lg font-bold text-orange-600">{formatCRC(totalOvertimePay)}</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-blue-600" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Pago Descanso</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Pago Descanso</p>
               </div>
               <p className="text-lg font-bold text-blue-600">{formatCRC(totalWeeklyRestPay)}</p>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+            <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-green-600" />
-                <p className="text-xs font-medium text-[#6B5B3D]">Bonificaciones</p>
+                <p className="text-xs font-medium text-[#6B5B3D] dark:text-gray-400">Bonificaciones</p>
               </div>
               <p className="text-lg font-bold text-green-600">{formatCRC(totalBonuses)}</p>
             </div>
 
             {/* Fila 3: Deducciones y total */}
-            <div className="bg-red-50 rounded-lg p-4 border border-red-200 shadow-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-red-600" />
-                <p className="text-xs font-medium text-red-700">Total Deducciones</p>
+                <p className="text-xs font-medium text-red-700 dark:text-red-400">Total Deducciones</p>
               </div>
               <p className="text-lg font-bold text-red-600">{formatCRC(totalDeductions)}</p>
             </div>
@@ -492,41 +492,41 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
           </div>
 
           {/* Tabla de empleados */}
-          <div className="bg-white rounded-lg border border-[#E0D6B7] overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-lg border border-[#E0D6B7] dark:border-gray-700 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-[#E0D6B7]">
-                <thead className="bg-[#E7DCC1]">
+              <table className="min-w-full divide-y divide-[#E0D6B7] dark:divide-gray-700">
+                <thead className="bg-[#E7DCC1] dark:bg-[#2a2a2a]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Empleado
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Horas
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Descanso (h)
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       $ Descanso
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       $ Extras
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Bruto
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Deducciones
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Bonificaciones
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#3B4D36] dark:text-white uppercase tracking-wider">
                       Neto
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-[#E0D6B7]">
+                <tbody className="bg-white dark:bg-[#1e1e1e] divide-y divide-[#E0D6B7] dark:divide-gray-700">
                   {employees.map((e: unknown, idx: number) => {
                     const emp = e as Record<string, unknown>;
                     // DEBUG: Log each employee object
@@ -568,7 +568,7 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                       <React.Fragment key={employeeId}>
                         <tr 
                           onClick={() => toggleRow(employeeId)}
-                          className={`cursor-pointer hover:bg-[#F9F1DC] transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#FEFBF5]'}`}
+                          className={`cursor-pointer hover:bg-[#F9F1DC] dark:hover:bg-[#2a2a2a] transition-colors ${idx % 2 === 0 ? 'bg-white dark:bg-[#1e1e1e]' : 'bg-[#FEFBF5] dark:bg-[#252525]'}`}
                         >
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
@@ -578,12 +578,12 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                 <ChevronRightIcon className="w-4 h-4 text-[#6F7153]" />
                               )}
                               <div>
-                                <div className="text-sm font-medium text-[#3B4D36]">{employeeName}</div>
+                                <div className="text-sm font-medium text-[#3B4D36] dark:text-white">{employeeName}</div>
                                 {identification && (
-                                  <div className="text-xs text-[#6B5B3D]">{identification}</div>
+                                  <div className="text-xs text-[#6B5B3D] dark:text-gray-400">{identification}</div>
                                 )}
                                 {position && (
-                                  <div className="text-xs text-[#8B7355]">{position}</div>
+                                  <div className="text-xs text-[#8B7355] dark:text-gray-500">{position}</div>
                                 )}
                               </div>
                             </div>
@@ -591,7 +591,7 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                           <td className="px-4 py-3 text-right whitespace-nowrap">
                             {hours > 0 ? (
                               <div className="text-right">
-                                <span className="text-sm text-[#5D4E37]">
+                                <span className="text-sm text-[#5D4E37] dark:text-gray-300">
                                   {regularHours > 0 ? regularHours : hours}
                                 </span>
                                 {overtimeHours > 0 && (
@@ -602,100 +602,100 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                 )}
                               </div>
                             ) : (
-                              <span className="text-sm text-[#5D4E37]">-</span>
+                              <span className="text-sm text-[#5D4E37] dark:text-gray-300">-</span>
                             )}
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm text-[#5D4E37]">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}</span>
+                            <span className="text-sm text-[#5D4E37] dark:text-gray-300">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm text-[#5D4E37]">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : '-'}</span>
+                            <span className="text-sm text-[#5D4E37] dark:text-gray-300">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : '-'}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className={`text-sm font-medium ${overtimePay > 0 ? 'text-orange-600' : 'text-[#5D4E37]'}`}>{overtimePay > 0 ? formatCRC(overtimePay) : '-'}</span>
+                            <span className={`text-sm font-medium ${overtimePay > 0 ? 'text-orange-600' : 'text-[#5D4E37] dark:text-gray-300'}`}>{overtimePay > 0 ? formatCRC(overtimePay) : '-'}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm font-medium text-[#3B4D36]">{formatCRC(grossSalary)}</span>
+                            <span className="text-sm font-medium text-[#3B4D36] dark:text-white">{formatCRC(grossSalary)}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm text-red-600">{formatCRC(totalDeductions)}</span>
+                            <span className="text-sm text-red-600 dark:text-red-400">{formatCRC(totalDeductions)}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
                             <span className="text-sm text-green-600">{formatCRC(bonuses)}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm font-bold text-[#3B4D36]">{formatCRC(netSalary)}</span>
+                            <span className="text-sm font-bold text-[#3B4D36] dark:text-white">{formatCRC(netSalary)}</span>
                           </td>
                         </tr>
                         
                         {/* Fila expandida con desglose de deducciones */}
                         {isExpanded && (
-                          <tr className="bg-[#FEFBF5] border-t border-[#E0D6B7]">
+                          <tr className="bg-[#FEFBF5] dark:bg-[#252525] border-t border-[#E0D6B7] dark:border-gray-700">
                             <td colSpan={9} className="px-4 py-0">
                               <div className="py-4 pl-12 pr-4">
                                 {/* Resumen de Horas */}
                                 {scheduledHours > 0 && (
-                                  <div className="bg-white rounded-lg border border-[#E0D6B7] shadow-sm overflow-hidden mb-4">
-                                    <div className="bg-linear-to-r from-[#E7DCC1] to-[#D4C9A0] px-4 py-2 border-b border-[#D2B48C]">
-                                      <h4 className="text-xs font-bold text-[#3B4D36] uppercase tracking-wide">Resumen de Horas</h4>
+                                  <div className="bg-white dark:bg-[#2a2a2a] rounded-lg border border-[#E0D6B7] dark:border-gray-700 shadow-sm overflow-hidden mb-4">
+                                    <div className="bg-[#E7DCC1] dark:bg-[#333333] px-4 py-2 border-b border-[#D2B48C] dark:border-gray-700">
+                                      <h4 className="text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wide">Resumen de Horas</h4>
                                     </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-[#E0D6B7]">
+                                    <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-[#E0D6B7] dark:divide-gray-700">
                                       <div className="px-4 py-3">
-                                        <p className="text-xs text-[#6B5B3D] mb-1">Programadas</p>
-                                        <p className="text-lg font-bold text-[#3B4D36]">{scheduledHours}h</p>
+                                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Programadas</p>
+                                        <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{scheduledHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
-                                        <p className="text-xs text-[#6B5B3D] mb-1">Cumplidas</p>
-                                        <p className="text-lg font-bold text-[#3B4D36]">{regularHours}h</p>
+                                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Cumplidas</p>
+                                        <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{regularHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
-                                        <p className="text-xs text-[#6B5B3D] mb-1">Faltantes</p>
-                                        <p className={`text-lg font-bold ${missingHours > 0 ? 'text-red-600' : 'text-[#3B4D36]'}`}>{missingHours}h</p>
+                                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Faltantes</p>
+                                        <p className={`text-lg font-bold ${missingHours > 0 ? 'text-red-600' : 'text-[#3B4D36] dark:text-white'}`}>{missingHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
-                                        <p className="text-xs text-[#6B5B3D] mb-1">Extras (×1.5)</p>
-                                        <p className={`text-lg font-bold ${overtimeHours > 0 ? 'text-orange-600' : 'text-[#3B4D36]'}`}>{overtimeHours}h</p>
+                                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Extras (×1.5)</p>
+                                        <p className={`text-lg font-bold ${overtimeHours > 0 ? 'text-orange-600' : 'text-[#3B4D36] dark:text-white'}`}>{overtimeHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
-                                        <p className="text-xs text-[#6B5B3D] mb-1">Descanso</p>
-                                        <p className="text-lg font-bold text-[#3B4D36]">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}h</p>
+                                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Descanso</p>
+                                        <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}h</p>
                                       </div>
                                     </div>
                                   </div>
                                 )}
 
                                 {/* Resumen de Dinero por Horas */}
-                                <div className="bg-white rounded-lg border border-[#E0D6B7] shadow-sm overflow-hidden mb-4">
-                                  <div className="bg-linear-to-r from-[#E7DCC1] to-[#D4C9A0] px-4 py-2 border-b border-[#D2B48C]">
-                                    <h4 className="text-xs font-bold text-[#3B4D36] uppercase tracking-wide">Desglose de Pagos por Horas</h4>
+                                <div className="bg-white dark:bg-[#2a2a2a] rounded-lg border border-[#E0D6B7] dark:border-gray-700 shadow-sm overflow-hidden mb-4">
+                                  <div className="bg-[#E7DCC1] dark:bg-[#333333] px-4 py-2 border-b border-[#D2B48C] dark:border-gray-700">
+                                    <h4 className="text-xs font-bold text-[#3B4D36] dark:text-white uppercase tracking-wide">Desglose de Pagos por Horas</h4>
                                   </div>
-                                  <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-[#E0D6B7]">
+                                  <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-[#E0D6B7] dark:divide-gray-700">
                                     <div className="px-4 py-3">
-                                      <p className="text-xs text-[#6B5B3D] mb-1">$ Descanso</p>
-                                      <p className="text-lg font-bold text-[#3B4D36]">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : '₡0.00'}</p>
+                                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">$ Descanso</p>
+                                      <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : '₡0.00'}</p>
                                     </div>
                                     <div className="px-4 py-3">
-                                      <p className="text-xs text-[#6B5B3D] mb-1">$ Extras</p>
-                                      <p className={`text-lg font-bold ${overtimePay > 0 ? 'text-orange-600' : 'text-[#3B4D36]'}`}>{overtimePay > 0 ? formatCRC(overtimePay) : '₡0.00'}</p>
+                                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">$ Extras</p>
+                                      <p className={`text-lg font-bold ${overtimePay > 0 ? 'text-orange-600' : 'text-[#3B4D36] dark:text-white'}`}>{overtimePay > 0 ? formatCRC(overtimePay) : '₡0.00'}</p>
                                     </div>
                                     <div className="px-4 py-3">
-                                      <p className="text-xs text-[#6B5B3D] mb-1">Total Horas</p>
-                                      <p className="text-lg font-bold text-[#3B4D36]">{formatCRC(weeklyRestPay + overtimePay)}</p>
+                                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1">Total Horas</p>
+                                      <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{formatCRC(weeklyRestPay + overtimePay)}</p>
                                     </div>
                                   </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-3 mb-4 md:grid-cols-2">
-                                  <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+                                  <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide">Salario Base</span>
+                                      <span className="text-xs font-semibold text-[#6B5B3D] dark:text-gray-400 uppercase tracking-wide">Salario Base</span>
                                     </div>
-                                    <p className="text-lg font-bold text-[#3B4D36]">{formatCRC(grossSalary)}</p>
+                                    <p className="text-lg font-bold text-[#3B4D36] dark:text-white">{formatCRC(grossSalary)}</p>
                                   </div>
                                   
-                                  <div className="bg-white rounded-lg p-4 border border-[#E0D6B7] shadow-sm">
+                                  <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-4 border border-[#E0D6B7] dark:border-gray-700 shadow-sm">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-xs font-semibold text-[#6B5B3D] uppercase tracking-wide">Salario Neto</span>
+                                      <span className="text-xs font-semibold text-[#6B5B3D] dark:text-gray-400 uppercase tracking-wide">Salario Neto</span>
                                     </div>
                                     <p className="text-lg font-bold text-green-600">{formatCRC(netSalary)}</p>
                                   </div>
@@ -703,24 +703,20 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
 
                                 {/* Deducciones */}
                                 {deductionsBreakdown && deductionsBreakdown.length > 0 && (
-                                  <div className="bg-white rounded-lg border border-[#E0D6B7] shadow-sm overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-red-200 bg-linear-to-r from-red-50 to-red-100">
-                                      <h4 className="flex items-center gap-2 text-sm font-bold text-red-800">
+                                  <div className="bg-white dark:bg-[#2a2a2a] rounded-lg border border-[#E0D6B7] dark:border-gray-700 shadow-sm overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+                                      <h4 className="flex items-center gap-2 text-sm font-bold text-red-800 dark:text-red-300">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                                         </svg>
                                         Deducciones Aplicadas
                                       </h4>
                                     </div>
-                                    <div className="divide-y divide-[#E0D6B7]">
+                                    <div className="divide-y divide-[#E0D6B7] dark:divide-gray-700">
                                       {deductionsBreakdown.map((deduction: unknown, dedIdx: number) => {
                                         const ded = deduction as Record<string, unknown>;
-                                        // El backend envía: { code, type, amount, message }
-                                        // message tiene el formato: "Nombre: porcentaje%" o "Nombre: ₡monto"
-                                        
                                         const deductionAmount = Number(ded.amount || 0);
                                         
-                                        // Extraer el nombre del message (antes de los dos puntos)
                                         let deductionName = '';
                                         let percentageInfo = '';
                                         
@@ -728,97 +724,94 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                           const parts = String(ded.message).split(':');
                                           deductionName = parts[0].trim();
                                           
-                                          // Si hay información adicional (porcentaje o monto), extraerla
                                           if (parts[1]) {
                                             const info = parts[1].trim();
-                                            // Verificar si es un porcentaje
                                             if (info.includes('%')) {
                                               percentageInfo = info;
                                             }
                                           }
                                         } else {
-                                          // Fallback si no hay message
                                           deductionName = String(ded.code || '').replace(/_/g, ' ') || `Deducción ${dedIdx + 1}`;
                                         }
                                         
                                         return (
-                                          <div key={dedIdx} className="flex items-center justify-between px-4 py-3 hover:bg-[#F9F1DC] transition-colors">
+                                          <div key={dedIdx} className="flex items-center justify-between px-4 py-3 hover:bg-[#F9F1DC] dark:hover:bg-gray-700 transition-colors">
                                             <div className="flex items-center gap-3">
                                               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                                               <div>
-                                                <p className="text-sm font-medium text-[#3B4D36]">{deductionName}</p>
+                                                <p className="text-sm font-medium text-[#3B4D36] dark:text-white">{deductionName}</p>
                                                 {percentageInfo && (
-                                                  <p className="text-xs text-[#6B5B3D]">{percentageInfo}</p>
+                                                  <p className="text-xs text-[#6B5B3D] dark:text-gray-400">{percentageInfo}</p>
                                                 )}
                                               </div>
                                             </div>
-                                            <span className="text-sm font-bold text-red-600">
+                                            <span className="text-sm font-bold text-red-600 dark:text-red-400">
                                               - {formatCRC(deductionAmount)}
                                             </span>
                                           </div>
                                         );
                                       })}
                                     </div>
-                                    <div className="px-4 py-3 border-t-2 border-red-300 bg-red-50">
+                                    <div className="px-4 py-3 border-t-2 border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-red-900">TOTAL DEDUCCIONES</span>
-                                        <span className="text-lg font-bold text-red-700">
-                                          - {formatCRC(totalDeductions)}
-                                        </span>
+                                          <span className="text-sm font-bold text-red-900 dark:text-red-300">TOTAL DEDUCCIONES</span>
+                                          <span className="text-lg font-bold text-red-700 dark:text-red-400">
+                                            - {formatCRC(totalDeductions)}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
-                                {/* Bonificaciones si existen */}
-                                {bonuses > 0 && (
-                                  <div className="mt-3 overflow-hidden bg-white border border-green-200 rounded-lg shadow-sm">
-                                    <div className="px-4 py-3 bg-linear-to-r from-green-50 to-green-100">
-                                      <div className="flex items-center justify-between">
-                                        <h4 className="flex items-center gap-2 text-sm font-bold text-green-800">
-                                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                          </svg>
-                                          Bonificaciones
-                                        </h4>
-                                        <span className="text-lg font-bold text-green-700">
-                                          + {formatCRC(bonuses)}
-                                        </span>
+                                  {/* Bonificaciones si existen */}
+                                  {bonuses > 0 && (
+                                    <div className="mt-3 overflow-hidden bg-white dark:bg-[#2a2a2a] border border-green-200 dark:border-green-800 rounded-lg shadow-sm">
+                                      <div className="px-4 py-3 bg-green-50 dark:bg-green-900/20">
+                                        <div className="flex items-center justify-between">
+                                          <h4 className="flex items-center gap-2 text-sm font-bold text-green-800 dark:text-green-300">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Bonificaciones
+                                          </h4>
+                                          <span className="text-lg font-bold text-green-700 dark:text-green-400">
+                                            + {formatCRC(bonuses)}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
-                                {(!deductionsBreakdown || deductionsBreakdown.length === 0) && totalDeductions === 0 && (
-                                  <div className="p-4 text-center border border-green-200 rounded-lg bg-green-50">
-                                    <p className="text-sm font-medium text-green-700">✓ No se aplicaron deducciones a este empleado</p>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-                {total !== null && (
-                  <tfoot className="bg-[#E7DCC1] border-t-2 border-[#D2B48C]">
-                    <tr>
-                      <td colSpan={8} className="px-4 py-4 text-right">
-                        <span className="text-base font-bold text-[#3B4D36]">Total Neto</span>
-                      </td>
-                      <td className="px-4 py-4 text-right">
-                        <span className="text-xl font-bold text-[#3B4D36]">{formatCRC(total)}</span>
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
+                                  {(!deductionsBreakdown || deductionsBreakdown.length === 0) && totalDeductions === 0 && (
+                                    <div className="p-4 text-center border border-green-200 dark:border-green-800 rounded-lg bg-green-50 dark:bg-green-900/20">
+                                      <p className="text-sm font-medium text-green-700 dark:text-green-300">✓ No se aplicaron deducciones a este empleado</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                  {total !== null && (
+                    <tfoot className="bg-[#E7DCC1] dark:bg-[#2a2a2a] border-t-2 border-[#D2B48C] dark:border-gray-700">
+                      <tr>
+                        <td colSpan={8} className="px-4 py-4 text-right">
+                          <span className="text-base font-bold text-[#3B4D36] dark:text-white">Total Neto</span>
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          <span className="text-xl font-bold text-[#3B4D36] dark:text-white">{formatCRC(total)}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
             </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
+          </>
+        )}
+      </div>
+    );
+  }

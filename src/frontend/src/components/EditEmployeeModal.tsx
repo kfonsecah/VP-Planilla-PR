@@ -100,7 +100,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/30 z-40"
+              className="fixed inset-0 bg-black/30 dark:bg-black/60 z-40"
               variants={backdropVariants}
               initial="hidden"
               animate="visible"
@@ -110,7 +110,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
               <motion.div
-                className="pointer-events-auto bg-[#F9F1DC] rounded-xl shadow-2xl border border-[#E0D6B7] p-8"
+                className="pointer-events-auto bg-[#F9F1DC] dark:bg-gray-800 rounded-xl shadow-2xl border border-[#E0D6B7] dark:border-gray-700 p-8"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -118,7 +118,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
               >
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6F7153] mx-auto"></div>
-                  <p className="mt-4 text-[#3B4D36]">Cargando empleado...</p>
+                  <p className="mt-4 text-[#3B4D36] dark:text-white">Cargando empleado...</p>
                 </div>
               </motion.div>
             </div>
@@ -133,7 +133,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/30 z-40"
+            className="fixed inset-0 bg-black/30 dark:bg-black/60 z-40"
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
@@ -152,8 +152,8 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
               exit="exit"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-[#F9F1DC] rounded-xl shadow-2xl border border-[#E0D6B7] overflow-hidden">
-                <div className="bg-[#6F7153] px-6 py-4 flex items-center justify-between">
+              <div className="bg-[#F9F1DC] dark:bg-gray-800 rounded-xl shadow-2xl border border-[#E0D6B7] dark:border-gray-700 overflow-hidden">
+                <div className="bg-[#6F7153] dark:bg-gray-700 px-6 py-4 flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-white">Editar empleado</h2>
                   <div className="flex items-center gap-2">
                     <button
@@ -172,22 +172,22 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
                     {/* Datos Personales */}
                     <div>
-                      <h3 className="text-base font-medium text-[#3B4D36] mb-3 pb-2 border-b border-[#D2B48C]">
+                      <h3 className="text-base font-medium text-[#3B4D36] dark:text-white mb-3 pb-2 border-b border-[#D2B48C] dark:border-gray-600">
                         Datos Personales
                       </h3>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Primer nombre *</label>
-                          <input {...register('employee_first_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Primer nombre *</label>
+                          <input {...register('employee_first_name')} className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                           {errors.employee_first_name && <p className="mt-1 text-sm text-red-600">{String(errors.employee_first_name?.message)}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Segundo nombre</label>
-                          <input {...register('employee_middle_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Segundo nombre</label>
+                          <input {...register('employee_middle_name')} className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Apellidos *</label>
-                          <input {...register('employee_last_name')} className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Apellidos *</label>
+                          <input {...register('employee_last_name')} className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                           {errors.employee_last_name && <p className="mt-1 text-sm text-red-600">{String(errors.employee_last_name?.message)}</p>}
                         </div>
                       </div>
@@ -195,52 +195,52 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
                     {/* Identificación */}
                     <div>
-                      <h3 className="text-base font-medium text-[#3B4D36] mb-3 pb-2 border-b border-[#D2B48C]">
+                      <h3 className="text-base font-medium text-[#3B4D36] dark:text-white mb-3 pb-2 border-b border-[#D2B48C] dark:border-gray-600">
                         Identificación
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Cédula de identidad *</label>
-                          <input {...register('employee_national_id')} placeholder="1-2345-6789" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Cédula de identidad *</label>
+                          <input {...register('employee_national_id')} placeholder="1-2345-6789" className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                           {errors.employee_national_id && <p className="mt-1 text-sm text-red-600">{String(errors.employee_national_id?.message)}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Código de la CCSS</label>
-                          <input {...register('employee_social_code')} placeholder="123456789012" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Código de la CCSS</label>
+                          <input {...register('employee_social_code')} placeholder="123456789012" className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                         </div>
                       </div>
                     </div>
 
                     {/* Información de Contacto */}
                     <div>
-                      <h3 className="text-base font-medium text-[#3B4D36] mb-3 pb-2 border-b border-[#D2B48C]">
+                      <h3 className="text-base font-medium text-[#3B4D36] dark:text-white mb-3 pb-2 border-b border-[#D2B48C] dark:border-gray-600">
                         Información de Contacto
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Correo electrónico *</label>
-                          <input {...register('employee_email')} type="email" placeholder="juan.rodriguez@empresa.com" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Correo electrónico *</label>
+                          <input {...register('employee_email')} type="email" placeholder="juan.rodriguez@empresa.com" className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                           {errors.employee_email && <p className="mt-1 text-sm text-red-600">{String(errors.employee_email?.message)}</p>}
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Número telefónico</label>
-                          <input {...register('employee_phone')} placeholder="8888-1234" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Número telefónico</label>
+                          <input {...register('employee_phone')} placeholder="8888-1234" className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                         </div>
                       </div>
                     </div>
 
                     {/* Información Laboral */}
                     <div>
-                      <h3 className="text-base font-medium text-[#3B4D36] mb-3 pb-2 border-b border-[#D2B48C]">
+                      <h3 className="text-base font-medium text-[#3B4D36] dark:text-white mb-3 pb-2 border-b border-[#D2B48C] dark:border-gray-600">
                         Información Laboral
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Posición *</label>
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Posición *</label>
                           <select
                             {...register('employee_position_id')}
                             disabled={positionsLoading}
-                            className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]"
+                            className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white"
                           >
                             <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
                             {positionOptions.map((position) => (
@@ -253,12 +253,12 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Fecha de contratación</label>
-                          <input {...register('employee_hire_date')} type="date" className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" />
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Fecha de contratación</label>
+                          <input {...register('employee_hire_date')} type="date" className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-1">Horas requeridas por quincena</label>
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-1">Horas requeridas por quincena</label>
                           <input 
                             {...register('employee_required_hours_biweekly')} 
                             type="number"
@@ -266,34 +266,34 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                             min="0"
                             max="999.99"
                             placeholder="104.00" 
-                            className="w-full px-3 py-2 border border-[#D2B48C] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white text-[#3B4D36]" 
+                            className="w-full px-3 py-2 border border-[#D2B48C] dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-gray-700 text-[#3B4D36] dark:text-white" 
                           />
-                          <p className="mt-1 text-xs text-[#8B7355]">Ejemplo: 104h medio tiempo, 208h tiempo completo</p>
+                          <p className="mt-1 text-xs text-[#8B7355] dark:text-gray-400">Ejemplo: 104h medio tiempo, 208h tiempo completo</p>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-[#5D4E37] mb-2">Género</label>
+                          <label className="block text-sm font-medium text-[#5D4E37] dark:text-gray-300 mb-2">Género</label>
                           <div className="flex gap-4 pt-2">
                             <label className="flex items-center cursor-pointer">
                               <input {...register('employee_gender')} type="radio" value="Masculino" className="mr-2" />
-                              <span className="text-[#5D4E37]">Masculino</span>
+                              <span className="text-[#5D4E37] dark:text-gray-300">Masculino</span>
                             </label>
                             <label className="flex items-center cursor-pointer">
                               <input {...register('employee_gender')} type="radio" value="Femenino" className="mr-2" />
-                              <span className="text-[#5D4E37]">Femenino</span>
+                              <span className="text-[#5D4E37] dark:text-gray-300">Femenino</span>
                             </label>
                             <label className="flex items-center cursor-pointer">
                               <input {...register('employee_gender')} type="radio" value="Otro" className="mr-2" />
-                              <span className="text-[#5D4E37]">Otro</span>
+                              <span className="text-[#5D4E37] dark:text-gray-300">Otro</span>
                             </label>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="border-t border-[#E0D6B7] pt-4">
+                    <div className="border-t border-[#E0D6B7] dark:border-gray-600 pt-4">
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 px-4 py-3 text-[#3B4D36] border border-[#3B4D36] rounded-lg hover:bg-[#E7DCC1] transition-all duration-200 font-medium">Cancelar</button>
+                        <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 px-4 py-3 text-[#3B4D36] dark:text-white border border-[#3B4D36] dark:border-gray-500 rounded-lg hover:bg-[#E7DCC1] dark:hover:bg-gray-600 transition-all duration-200 font-medium">Cancelar</button>
                         <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-3 bg-[#6F7153] text-white rounded-lg hover:bg-[#5D614A] transition-all duration-200 font-medium">
                           {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
                         </button>

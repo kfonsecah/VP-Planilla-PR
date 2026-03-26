@@ -84,10 +84,10 @@ export default function BranchesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
+    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1] dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="p-6">
         {/* Header con gradiente */}
-        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-6 mb-6">
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] dark:from-gray-700 dark:to-gray-800 rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
@@ -95,7 +95,7 @@ export default function BranchesPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Gestión de Sucursales</h1>
-                <p className="text-white/80 mt-1">
+                <p className="text-white/80 dark:text-gray-300 mt-1">
                   Administra las sucursales y ubicaciones de la empresa
                 </p>
               </div>
@@ -122,7 +122,7 @@ export default function BranchesPage() {
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-5 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl shadow-md">
+          <div className="mb-6 p-5 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 dark:border-red-600 text-red-700 dark:text-red-300 rounded-xl shadow-md">
             <div className="flex items-center gap-3">
               <div className="text-2xl">⚠️</div>
               <div>
@@ -135,9 +135,9 @@ export default function BranchesPage() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] border-t-[#6F7153] mx-auto mb-4"></div>
-            <p className="text-[#5D4E37] font-medium">Cargando sucursales...</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] dark:border-gray-600 border-t-[#6F7153] mx-auto mb-4"></div>
+            <p className="text-[#5D4E37] dark:text-gray-300 font-medium">Cargando sucursales...</p>
           </div>
         )}
 
@@ -147,17 +147,17 @@ export default function BranchesPage() {
             {branches.map((branch) => (
               <div
                 key={branch.id}
-                className="bg-white rounded-2xl shadow-md border border-[#E0D6B7] p-6 hover:shadow-xl transition-all hover:-translate-y-1"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-[#E0D6B7] dark:border-gray-700 p-6 hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#6F7153] to-[#3B4D36] rounded-xl shadow-md">
+                    <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#6F7153] to-[#3B4D36] dark:from-gray-600 dark:to-gray-700 rounded-xl shadow-md">
                       <BuildingOfficeIcon className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-[#3B4D36]">{branch.name}</h3>
-                      <p className="text-xs text-[#6B5B3D] flex items-center gap-1">
+                      <h3 className="text-xl font-bold text-[#3B4D36] dark:text-white">{branch.name}</h3>
+                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400 flex items-center gap-1">
                         <span className="inline-block w-2 h-2 bg-[#6F7153] rounded-full"></span>
                         ID: {branch.id}
                       </p>
@@ -166,16 +166,16 @@ export default function BranchesPage() {
                 </div>
 
                 {/* Location */}
-                <div className="mb-5 bg-[#F9F1DC] rounded-xl p-4">
+                <div className="mb-5 bg-[#F9F1DC] dark:bg-gray-700 rounded-xl p-4">
                   <div className="flex items-start gap-2">
                     <MapPinIcon className="w-5 h-5 text-[#6F7153] flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-[#3B4D36] font-medium">{branch.location}</span>
+                    <span className="text-sm text-[#3B4D36] dark:text-white font-medium">{branch.location}</span>
                   </div>
                 </div>
 
                 {/* Metadata */}
                 {branch.created_at && (
-                  <div className="mb-5 text-xs text-[#6B5B3D] bg-[#F9F1DC] rounded-lg p-3">
+                  <div className="mb-5 text-xs text-[#6B5B3D] dark:text-gray-400 bg-[#F9F1DC] dark:bg-gray-700 rounded-lg p-3">
                     <p className="font-medium">Creada: {formatDate(branch.created_at)}</p>
                   </div>
                 )}
@@ -203,16 +203,16 @@ export default function BranchesPage() {
 
         {/* Empty state */}
         {!isLoading && (!branches || branches.length === 0) && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-16 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-16 text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#F9F1DC] rounded-full flex items-center justify-center shadow-inner">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#F9F1DC] dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center shadow-inner">
                 <BuildingOfficeIcon className="w-12 h-12 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-[#3B4D36] mb-3">
+            <h3 className="text-2xl font-bold text-[#3B4D36] dark:text-white mb-3">
               No hay sucursales registradas
             </h3>
-            <p className="text-[#6B5B3D] mb-8 max-w-md mx-auto">
+            <p className="text-[#6B5B3D] dark:text-gray-400 mb-8 max-w-md mx-auto">
               Crea tu primera sucursal para comenzar a organizar las ubicaciones de tu empresa
             </p>
             <button
@@ -237,12 +237,12 @@ export default function BranchesPage() {
         {(methods: UseFormReturn<Partial<Branch>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Nombre de la Sucursal <span className="text-red-500">*</span>
               </label>
               <input
                 {...methods.register('name', { required: 'El nombre es requerido' })}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 placeholder="Ej: Sucursal Central, Oficina Sur"
               />
               {methods.formState.errors?.name && (
@@ -253,12 +253,12 @@ export default function BranchesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Ubicación <span className="text-red-500">*</span>
               </label>
               <textarea
                 {...methods.register('location', { required: 'La ubicación es requerida' })}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 rows={3}
                 placeholder="Dirección completa de la sucursal..."
               />

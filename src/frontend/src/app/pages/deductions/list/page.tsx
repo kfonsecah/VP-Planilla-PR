@@ -69,10 +69,10 @@ export default function DeductionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1]">
+    <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] via-[#F9F1DC] to-[#E7DCC1] dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header con gradiente */}
-        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] rounded-2xl shadow-lg p-8 mb-8">
+        <div className="bg-gradient-to-r from-[#6F7153] to-[#3B4D36] dark:from-gray-700 dark:to-gray-800 rounded-2xl shadow-lg p-8 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -80,7 +80,7 @@ export default function DeductionsPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-1">Deducciones</h1>
-                <p className="text-[#E7DCC1]">
+                <p className="text-[#E7DCC1] dark:text-gray-300">
                   Gestiona todas las deducciones del sistema
                 </p>
               </div>
@@ -106,16 +106,16 @@ export default function DeductionsPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-xl flex items-center gap-3">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-3">
             <span className="text-2xl">⚠️</span>
             <p className="font-medium">{error}</p>
           </div>
         )}
 
         {isLoading && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] border-t-[#6F7153] mx-auto mb-4"></div>
-            <p className="text-lg text-[#5D4E37] font-medium">Cargando deducciones...</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#E7DCC1] dark:border-gray-600 border-t-[#6F7153] mx-auto mb-4"></div>
+            <p className="text-lg text-[#5D4E37] dark:text-gray-300 font-medium">Cargando deducciones...</p>
           </div>
         )}
 
@@ -124,17 +124,17 @@ export default function DeductionsPage() {
             {data.map((deduction) => (
               <div
                 key={deduction.id}
-                className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 duration-300"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 duration-300"
               >
                 {/* Header de la tarjeta */}
-                <div className="bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC] px-6 py-4 border-b border-[#E0D6B7]">
+                <div className="bg-gradient-to-r from-[#E7DCC1] to-[#F9F1DC] dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-[#E0D6B7] dark:border-gray-700">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-[#6F7153] rounded-xl flex items-center justify-center shadow-md">
                       <CurrencyDollarIcon className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-[#3B4D36]">{deduction.name}</h3>
-                      <p className="text-xs text-[#6B5B3D]">ID: {deduction.id}</p>
+                      <h3 className="text-xl font-bold text-[#3B4D36] dark:text-white">{deduction.name}</h3>
+                      <p className="text-xs text-[#6B5B3D] dark:text-gray-400">ID: {deduction.id}</p>
                     </div>
                   </div>
                 </div>
@@ -142,15 +142,15 @@ export default function DeductionsPage() {
                 {/* Contenido */}
                 <div className="p-6">
                   <div className="mb-4">
-                    <p className="text-sm text-[#5D4E37] leading-relaxed">
+                    <p className="text-sm text-[#5D4E37] dark:text-gray-300 leading-relaxed">
                       {deduction.description || 'Sin descripción'}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     {deduction.fixed_amount ? (
-                      <div className="bg-[#F9F1DC] rounded-lg p-3 border border-[#E0D6B7]">
-                        <p className="text-xs text-[#6B5B3D] mb-1 font-medium">Monto Fijo</p>
+                      <div className="bg-[#F9F1DC] dark:bg-gray-700 rounded-lg p-3 border border-[#E0D6B7] dark:border-gray-600">
+                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1 font-medium">Monto Fijo</p>
                         <p className="text-sm font-bold text-[#6F7153]">
                           {formatCurrency(deduction.fixed_amount)}
                         </p>
@@ -158,8 +158,8 @@ export default function DeductionsPage() {
                     ) : null}
                     
                     {deduction.percentage ? (
-                      <div className="bg-[#F9F1DC] rounded-lg p-3 border border-[#E0D6B7]">
-                        <p className="text-xs text-[#6B5B3D] mb-1 font-medium">Porcentaje</p>
+                      <div className="bg-[#F9F1DC] dark:bg-gray-700 rounded-lg p-3 border border-[#E0D6B7] dark:border-gray-600">
+                        <p className="text-xs text-[#6B5B3D] dark:text-gray-400 mb-1 font-medium">Porcentaje</p>
                         <p className="text-sm font-bold text-[#6F7153] flex items-center gap-1">
                           <CalculatorIcon className="w-4 h-4" />
                           {deduction.percentage}%
@@ -191,16 +191,16 @@ export default function DeductionsPage() {
         )}
 
         {!isLoading && (!data || data.length === 0) && (
-          <div className="bg-white rounded-2xl shadow-lg border border-[#E0D6B7] p-16 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-[#E0D6B7] dark:border-gray-700 p-16 text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#D2B48C] rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#E7DCC1] to-[#D2B48C] dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <CurrencyDollarIcon className="w-12 h-12 text-[#6F7153]" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-[#3B4D36] mb-3">
+            <h3 className="text-2xl font-bold text-[#3B4D36] dark:text-white mb-3">
               No hay deducciones registradas
             </h3>
-            <p className="text-base text-[#6B5B3D] mb-8 max-w-md mx-auto">
+            <p className="text-base text-[#6B5B3D] dark:text-gray-400 mb-8 max-w-md mx-auto">
               Crea tu primera deducción para comenzar a gestionar descuentos en nómina
             </p>
             <button
@@ -224,12 +224,12 @@ export default function DeductionsPage() {
         {(methods: UseFormReturn<Partial<Deduction>>) => (
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Nombre <span className="text-red-500">*</span>
               </label>
               <input
                 {...methods.register('name', { required: 'El nombre es requerido' })}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 placeholder="Ej: Seguro Social, Impuesto de Renta"
               />
               {methods.formState.errors?.name && (
@@ -240,12 +240,12 @@ export default function DeductionsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+              <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                 Descripción
               </label>
               <textarea
                 {...methods.register('description')}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                 rows={3}
                 placeholder="Descripción de la deducción..."
               />
@@ -253,34 +253,34 @@ export default function DeductionsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+                <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                   Monto Fijo
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   {...methods.register('fixed_amount', { valueAsNumber: true })}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                  className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1 text-[#3B4D36]">
+                <label className="block text-sm font-medium mb-1 text-[#3B4D36] dark:text-white">
                   Porcentaje (%)
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   {...methods.register('percentage', { valueAsNumber: true })}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153]"
+                  className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6F7153] text-[#3B4D36] dark:text-white"
                   placeholder="0.00"
                 />
               </div>
             </div>
 
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-800">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-xs text-blue-800 dark:text-blue-300">
                 💡 <strong>Nota:</strong> Puedes definir un monto fijo, un porcentaje, o ambos según el tipo de deducción.
               </p>
             </div>

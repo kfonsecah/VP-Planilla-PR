@@ -25,7 +25,7 @@ const EmployeeTabs = () => {
                 px-4 py-2 text-sm font-medium rounded-lg transition-colors
                 ${isActive 
                   ? 'bg-[#6F7153] text-white' 
-                  : 'text-[#3B4D36] hover:bg-[#A7AA94]/50'
+                  : 'text-[#3B4D36] dark:text-gray-300 hover:bg-[#A7AA94]/50 dark:hover:bg-gray-700'
                 }
               `}
             >
