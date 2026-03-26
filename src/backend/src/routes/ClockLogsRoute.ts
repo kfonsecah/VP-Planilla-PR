@@ -2,6 +2,8 @@ import { Router } from "express";
 import { ClockLogsController } from "../controller/ClockLogsController";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middleware/AuthMiddleware";
+import { validateBody } from '../middleware/validateBody';
+import { bulkCreateClockLogSchema } from '../schemas/ClockLogSchema';
 
 const router = Router();
 
@@ -47,6 +49,6 @@ const controller = new ClockLogsController();
  *         description: Internal server error
  */
 router.get("/clock-logs", asyncHandler((req, res) => controller.getClockLogs(req, res)));
-router.post("/clock-logs/bulk", asyncHandler((req, res) => controller.bulkCreate(req, res)));
+router.post("/clock-logs/bulk", validateBody(bulkCreateClockLogSchema), asyncHandler((req, res) => controller.bulkCreate(req, res)));
 
 export default router;
