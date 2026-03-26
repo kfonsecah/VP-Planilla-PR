@@ -30,7 +30,7 @@ const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 // Middlewares básicos
-app.use(cors());
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') }));
 app.use(express.json());
 
 console.log("Servidor en ejecución...");
