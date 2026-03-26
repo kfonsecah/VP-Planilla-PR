@@ -76,19 +76,19 @@ export class EmployeeController {
     const employeeId = parseInt(req.params.id, 10);
     const rawData = req.body;
 
-    // Map frontend fields to Employee model fields
+    // Map frontend fields to Employee model fields (support both prefixed and non-prefixed)
     const employeeData = {
-      name: rawData.employee_first_name,
+      name: rawData.employee_first_name || rawData.name,
       last_name: rawData.employee_last_name || rawData.last_name,
       middle_name: rawData.employee_middle_name || rawData.middle_name || '',
       national_id: rawData.employee_national_id || rawData.national_id || '',
       social_code: rawData.employee_social_code || rawData.social_code || '',
       email: rawData.employee_email || rawData.email,
-      position_id: rawData.employee_position_id || rawData.position_id,
+      position_id: rawData.employee_position_id ?? rawData.position_id,
       hire_date: rawData.employee_hire_date || rawData.hire_date,
       exit_date: rawData.employee_exit_date || rawData.exit_date,
       fired: rawData.employee_fired ?? rawData.fired ?? false,
-      required_hours_biweekly: rawData.employee_required_hours_biweekly || rawData.required_hours_biweekly || null,
+      required_hours_biweekly: rawData.employee_required_hours_biweekly ?? rawData.required_hours_biweekly ?? null,
       status: rawData.employee_status || rawData.status,
       version: rawData.employee_version || rawData.version
     };

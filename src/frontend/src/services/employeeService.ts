@@ -10,7 +10,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
 };
 
 export const createEmployee = async (employeeData: EmployeeFormData): Promise<Employee> => {
-  // Normalize fields to what backend/prisma expects
+  // Normalize fields to match backend schema (uses employee_ prefix)
   const normalizedNationalId = (employeeData.employee_national_id || '').replace(/\D/g, '');
   const normalizedSocialCode = (employeeData.employee_social_code || '').replace(/\D/g, '');
   const positionId = employeeData.employee_position_id ? parseInt(employeeData.employee_position_id, 10) : undefined;
@@ -20,17 +20,18 @@ export const createEmployee = async (employeeData: EmployeeFormData): Promise<Em
     ? parseFloat(employeeData.employee_required_hours_biweekly) 
     : null;
 
+  // Backend schema expects employee_ prefix
   const payload = {
-    name: employeeData.employee_first_name,
-    last_name: employeeData.employee_last_name,
-    middle_name: employeeData.employee_middle_name,
-    national_id: normalizedNationalId || null,
-    social_code: normalizedSocialCode || null,
-    email: employeeData.employee_email,
-    hire_date: hireDate ? hireDate.toISOString() : null,
-    position_id: typeof positionId === 'number' && !Number.isNaN(positionId) ? positionId : null,
-    required_hours_biweekly: requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null,
-    status: 'active'
+    employee_first_name: employeeData.employee_first_name,
+    employee_last_name: employeeData.employee_last_name,
+    employee_middle_name: employeeData.employee_middle_name || '',
+    employee_national_id: normalizedNationalId || null,
+    employee_social_code: normalizedSocialCode || null,
+    employee_email: employeeData.employee_email,
+    employee_position_id: typeof positionId === 'number' && !Number.isNaN(positionId) ? positionId : null,
+    employee_hire_date: hireDate ? hireDate.toISOString() : null,
+    employee_required_hours_biweekly: requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null,
+    employee_status: 'A'
   };
 
   try {
@@ -64,52 +65,52 @@ export interface EmployeeUpdateData {
 }
 
 export const updateEmployee = async (id: string | number, employeeData: Partial<EmployeeFormData> & { status?: string }): Promise<Employee> => {
-  // Normalize fields to what backend/prisma expects
-  const payload: EmployeeUpdateData = {};
+  // Backend schema expects employee_ prefix
+  const payload: Record<string, unknown> = {};
 
   if (employeeData.employee_first_name !== undefined) {
-    payload.name = employeeData.employee_first_name;
+    payload.employee_first_name = employeeData.employee_first_name;
   }
   
   if (employeeData.employee_last_name !== undefined) {
-    payload.last_name = employeeData.employee_last_name;
+    payload.employee_last_name = employeeData.employee_last_name;
   }
   
   if (employeeData.employee_middle_name !== undefined) {
-    payload.middle_name = employeeData.employee_middle_name;
+    payload.employee_middle_name = employeeData.employee_middle_name;
   }
   
   if (employeeData.employee_national_id !== undefined) {
     const normalizedNationalId = (employeeData.employee_national_id || '').replace(/\D/g, '');
-    payload.national_id = normalizedNationalId || null;
+    payload.employee_national_id = normalizedNationalId || null;
   }
   
   if (employeeData.employee_social_code !== undefined) {
     const normalizedSocialCode = (employeeData.employee_social_code || '').replace(/\D/g, '');
-    payload.social_code = normalizedSocialCode || null;
+    payload.employee_social_code = normalizedSocialCode || null;
   }
   
   if (employeeData.employee_email !== undefined) {
-    payload.email = employeeData.employee_email;
+    payload.employee_email = employeeData.employee_email;
   }
   
   if (employeeData.employee_hire_date !== undefined) {
     const hireDate = new Date(employeeData.employee_hire_date);
-    payload.hire_date = hireDate.toISOString();
+    payload.employee_hire_date = hireDate.toISOString();
   }
   
   if (employeeData.employee_position_id !== undefined) {
     const positionId = parseInt(employeeData.employee_position_id, 10);
-    payload.position_id = !Number.isNaN(positionId) ? positionId : null;
+    payload.employee_position_id = !Number.isNaN(positionId) ? positionId : null;
   }
 
   if (employeeData.employee_required_hours_biweekly !== undefined) {
     const requiredHours = parseFloat(employeeData.employee_required_hours_biweekly);
-    payload.required_hours_biweekly = requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null;
+    payload.employee_required_hours_biweekly = requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null;
   }
   
   if (employeeData.status !== undefined) {
-    payload.status = employeeData.status;
+    payload.employee_status = employeeData.status;
   }
 
   try {

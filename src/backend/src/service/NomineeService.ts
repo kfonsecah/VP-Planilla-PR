@@ -636,7 +636,11 @@ export class NomineeService {
         
         // Check if there are also clock logs for this vacation day
         const dayClockLogs = clockLogs.filter(log => {
-          const logDate = new Date(log.timestamp).toISOString().split('T')[0];
+          const timestamp = log.timestamp;
+          if (!timestamp) return false;
+          const parsedDate = new Date(timestamp);
+          if (isNaN(parsedDate.getTime())) return false;
+          const logDate = parsedDate.toISOString().split('T')[0];
           return logDate === dateStr;
         });
         
@@ -655,7 +659,11 @@ export class NomineeService {
       } else {
         // Process clock logs for the day
         const dayClockLogs = clockLogs.filter(log => {
-          const logDate = new Date(log.timestamp).toISOString().split('T')[0];
+          const timestamp = log.timestamp;
+          if (!timestamp) return false;
+          const parsedDate = new Date(timestamp);
+          if (isNaN(parsedDate.getTime())) return false;
+          const logDate = parsedDate.toISOString().split('T')[0];
           return logDate === dateStr;
         });
 

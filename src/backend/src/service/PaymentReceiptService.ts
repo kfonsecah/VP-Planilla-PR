@@ -200,7 +200,11 @@ export class PaymentReceiptService {
 
       const logsByDay: Record<string, typeof clockLogs> = {};
       for (const log of clockLogs) {
-        const dayKey = new Date(log.clock_logs_timestamp).toISOString().split('T')[0];
+        const timestamp = log.clock_logs_timestamp;
+        if (!timestamp) continue;
+        const parsedDate = new Date(timestamp);
+        if (isNaN(parsedDate.getTime())) continue;
+        const dayKey = parsedDate.toISOString().split('T')[0];
         if (!logsByDay[dayKey]) logsByDay[dayKey] = [];
         logsByDay[dayKey].push(log);
       }
