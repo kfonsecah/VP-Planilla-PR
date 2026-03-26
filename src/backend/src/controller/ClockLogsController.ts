@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { ClockLogsService } from "../service/ClockLogsService";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 function normalizeName(value: string) {
     return (value || '')
