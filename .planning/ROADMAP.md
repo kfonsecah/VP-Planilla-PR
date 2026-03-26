@@ -43,8 +43,8 @@ Plans:
   5. 5 archivos temporales eliminados del repositorio
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Add AuthMiddleware.verifyToken to all 13 unprotected route files
-- [ ] 02-02-PLAN.md — JWT startup assertion, login query-param fix, PayrollService throw fix, temp file cleanup
+- [x] 02-01-PLAN.md — Add AuthMiddleware.verifyToken to all 13 unprotected route files
+- [x] 02-02-PLAN.md — JWT startup assertion, login query-param fix, PayrollService throw fix, temp file cleanup
 
 ### Phase 3: Validación de Inputs y CORS
 **Goal**: Ningún `req.body` llega a Prisma sin validación Zod. CORS restringido a orígenes configurados en `.env`
