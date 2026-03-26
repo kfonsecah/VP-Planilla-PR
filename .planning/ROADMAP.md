@@ -7,7 +7,7 @@ Llevar VP-Planilla de "funcional pero frágil" a estable, seguro y completo. El 
 ## Phases
 
 - [x] **Phase 1: Singleton Prisma** - Eliminar las 16 instancias separadas de PrismaClient (completed 2026-03-25)
-- [ ] **Phase 2: Seguridad de Autenticación** - Cerrar huecos críticos de auth en rutas, JWT y login
+- [X] **Phase 2: Seguridad de Autenticación** - Cerrar huecos críticos de auth en rutas, JWT y login
 - [x] **Phase 3: Validación de Inputs y CORS** - Validación Zod en controllers, CORS restringido (completed 2026-03-26)
 - [ ] **Phase 4: Performance del Cálculo de Planilla** - O(1) queries en calculatePayrollForPeriod
 - [ ] **Phase 5: Funcionalidad de Negocio Faltante** - Ruta deprecated, updateLastLogin, audit logs
