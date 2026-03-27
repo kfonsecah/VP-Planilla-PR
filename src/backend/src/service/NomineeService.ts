@@ -988,8 +988,10 @@ export class NomineeService {
 
   /**
    * Get the payrolls ID from the date the employee is Hired
-   * @param hired_date Date from employee hired
+   * @param start_date Date from where to calculate
+   * @param end_date Date where to end calculation
    * @returns Promise<number[] | null> Returns a list of payrolls id, if not returns null
+   * @author AleLeonMarin
    */
   static async payrollsInPeriod(
     start_date: Date,
@@ -1013,6 +1015,13 @@ export class NomineeService {
     return period.map((p) => p.payrolls_id);
   }
 
+  /**
+   * Get the net salaries of an employee
+   * @param employeeID - The employee id
+   * @param payroll_ids - Payroll id
+   * @returns Promise <Decimal[] | null> returns a collections of all the salaries
+   * @author AleLeonMarin
+   */
   static async getSalaries(
     employeeID: number,
     payroll_ids: number[],
@@ -1035,11 +1044,16 @@ export class NomineeService {
     return salaries.map((s) => s.payroll_employee_net_salary);
   }
 
-  static async aguinaldo(
-    employeeID: number,
-    start_date: Date,
-    end_date: Date,
-  ) {
+  /**
+   * Calculate the aguinaldo of an employee in a given dates
+   * @param employeeID - Employee id
+   * @param start_date - Star date
+   * @param end_date - End date
+   * @returns the calculation of the aguinaldo of a employee
+   * @author AleLeonMarin
+   */
+
+  static async aguinaldo(employeeID: number, start_date: Date, end_date: Date) {
     const hired_date = await this.getHiredDate(employeeID);
     let payrollIds: number[] = [];
 
@@ -1049,9 +1063,10 @@ export class NomineeService {
 
     const effectiveStartDate = new Date(start_date);
     effectiveStartDate.setFullYear(effectiveStartDate.getFullYear() + 1);
-    payrollIds = hired_date <= effectiveStartDate
-      ? (await this.payrollsInPeriod(start_date, end_date)) ?? []
-      : [];
+    payrollIds =
+      hired_date <= effectiveStartDate
+        ? ((await this.payrollsInPeriod(start_date, end_date)) ?? [])
+        : [];
 
     const salaries = (await this.getSalaries(employeeID, payrollIds)) ?? [];
 
@@ -1062,19 +1077,36 @@ export class NomineeService {
     return aguinaldo;
   }
 
+  /**
+   * It calculates the aguinaldo of a list of employees
+   * @param employeeIds - List of employees
+   * @param start_date - Start date of calculation
+   * @param end_date - End date of calculation
+   * @returns Promise <Array<employeeID;aguinaldo>> returns an array
+   * of the employee with its id and the aguinaldo calculation
+   * @author AleLeonMarin
+   */
+
   static async aguinaldoForEmployees(
     employeeIds: number[],
     start_date: Date,
     end_date: Date,
-  ): Promise<Array<{ employeeId: number; aguinaldo: number | null; message: string }>> {
-    const results: Array<{ employeeId: number; aguinaldo: number | null; message: string }> = [];
+  ): Promise<
+    Array<{ employeeId: number; aguinaldo: number | null; message: string }>
+  > {
+    const results: Array<{
+      employeeId: number;
+      aguinaldo: number | null;
+      message: string;
+    }> = [];
 
     for (const id of employeeIds) {
       const value = await this.aguinaldo(id, start_date, end_date);
       results.push({
         employeeId: id,
         aguinaldo: value,
-        message: value === null ? "Sin fecha de contratación o no elegible" : "OK",
+        message:
+          value === null ? "Sin fecha de contratación o no elegible" : "OK",
       });
     }
 
