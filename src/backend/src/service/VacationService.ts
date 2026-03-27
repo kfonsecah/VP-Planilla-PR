@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { Vacation } from "../model/vacations";
-
-const prisma = new PrismaClient();
 
 export class VacationService {
   /**

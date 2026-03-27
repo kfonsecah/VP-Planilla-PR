@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { PositionController } from "../controller/PositionController";
 import { asyncHandler } from "../utils/asyncHandler";
+import { AuthMiddleware } from "../middleware/AuthMiddleware";
 
 const router = Router();
+
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @route   POST /positions

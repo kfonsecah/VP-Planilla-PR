@@ -2,6 +2,8 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middleware/AuthMiddleware";
 import { UserController } from "../controller/UserController";
+import { validateBody } from '../middleware/validateBody';
+import { updatePermissionsSchema } from '../schemas/UserSchema';
 
 const router = Router();
 
@@ -38,6 +40,7 @@ router.put(
   "/users/:userId/permissions",
   asyncHandler(AuthMiddleware.verifyToken),
   AuthMiddleware.requireRole(["admin"]),
+  validateBody(updatePermissionsSchema),
   asyncHandler(UserController.updatePermissions)
 );
 

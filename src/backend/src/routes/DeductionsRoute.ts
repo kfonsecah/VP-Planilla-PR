@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { DeductionsController } from "../controller/DeductionsController";
 import { asyncHandler } from "../utils/asyncHandler";
+import { AuthMiddleware } from "../middleware/AuthMiddleware";
+import { validateBody } from '../middleware/validateBody';
+import { createDeductionSchema, updateDeductionSchema } from '../schemas/DeductionSchema';
 
 const router = Router();
+
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @route   POST /deduction/create
@@ -51,7 +56,7 @@ const router = Router();
  *       '500':
  *         description: Internal server error
  */
-router.post("/deduction/create", asyncHandler(DeductionsController.createDeduction));
+router.post("/deduction/create", validateBody(createDeductionSchema), asyncHandler(DeductionsController.createDeduction));
 
 /**
  * @route   GET /deductions
@@ -121,7 +126,7 @@ router.get("/deductions", asyncHandler(DeductionsController.getAllDeductions));
  *       '500':
  *         description: Internal server error
  */
-router.put("/deductions/:id", asyncHandler(DeductionsController.updateDeduction));
+router.put("/deductions/:id", validateBody(updateDeductionSchema), asyncHandler(DeductionsController.updateDeduction));
 
 /**
  * @route   DELETE /deductions/:id

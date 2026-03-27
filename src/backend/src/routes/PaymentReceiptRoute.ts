@@ -1,7 +1,11 @@
 import express from 'express';
 import { PaymentReceiptController } from '../controller/PaymentReceiptController';
+import { asyncHandler } from '../utils/asyncHandler';
+import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 const router = express.Router();
+
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @swagger
@@ -39,7 +43,7 @@ const router = express.Router();
  */
 router.get(
   '/:payrollId/employee/:employeeId',
-  PaymentReceiptController.generateReceiptPDF
+  asyncHandler(PaymentReceiptController.generateReceiptPDF)
 );
 
 /**
@@ -82,7 +86,7 @@ router.get(
  */
 router.get(
   '/:payrollId/employee/:employeeId/data',
-  PaymentReceiptController.getReceiptData
+  asyncHandler(PaymentReceiptController.getReceiptData)
 );
 
 /**
@@ -120,7 +124,7 @@ router.get(
  */
 router.get(
   '/:payrollId/employee/:employeeId/html',
-  PaymentReceiptController.getReceiptHTML
+  asyncHandler(PaymentReceiptController.getReceiptHTML)
 );
 
 /**
@@ -166,6 +170,6 @@ router.get(
  *       500:
  *         description: Error al generar los comprobantes
  */
-router.post('/:payrollId/batch', PaymentReceiptController.generateBatchReceipts);
+router.post('/:payrollId/batch', asyncHandler(PaymentReceiptController.generateBatchReceipts));
 
 export default router;

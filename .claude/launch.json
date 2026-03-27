@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend (Express + tsx)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "src/backend", "run", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "Frontend (Next.js + Turbopack)",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["src/frontend/node_modules/next/dist/bin/next", "dev", "src/frontend", "--turbopack"],
+      "port": 3000
+    }
+  ]
+}

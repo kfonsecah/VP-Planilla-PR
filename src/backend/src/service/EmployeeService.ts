@@ -1,7 +1,5 @@
-import {PrismaClient} from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { Employee } from '../model/employee';
-
-const prisma = new PrismaClient();
 
 
 export class EmployeeService {
@@ -118,6 +116,20 @@ export class EmployeeService {
      * @returns The updated employee, or null if not found
      */
     static async updateEmployee(id: number, data: Partial<Employee>): Promise<Employee | null> {
+        // Map frontend status strings to single-char DB values (schema uses Char(1)).
+        // Mirrors the same mapping used in createEmployee.
+        const statusMap: Record<string, string> = {
+            active: 'A',
+            vacation: 'V',
+            incomplete_assistance: 'I',
+            incapacity_maternity: 'M'
+        };
+        const statusChar = data.status !== undefined
+            ? ((typeof data.status === 'string' && data.status.length === 1)
+                ? data.status
+                : statusMap[data.status as string] ?? data.status)
+            : undefined;
+
         const prismaEmployee = await prisma.vpg_employees.update({
             where: { employee_id: id },
             data: {
@@ -130,7 +142,7 @@ export class EmployeeService {
                 employee_hire_date: data.hire_date,
                 employee_exit_date: data.exit_date || null,
                 employee_fired: data.fired || false,
-                employee_status: data.status,
+                employee_status: statusChar,
                 employee_required_hours_biweekly: data.required_hours_biweekly || null,
                 employee_version: (data.version || 1) + 1, // Increment version
                 employee_position_id: data.position_id

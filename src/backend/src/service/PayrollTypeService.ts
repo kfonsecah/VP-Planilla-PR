@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { PayrollType } from "../model/payrollType";
-
-const prisma = new PrismaClient();
 
 export class PayrollTypeService {
   /**

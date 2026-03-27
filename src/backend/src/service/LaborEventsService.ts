@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { LaborEvent } from "../model/laborEvent";
 import { EmployeeLaborEvent } from "../model/employeeLaborEvent";
-
-const prisma = new PrismaClient();
 
 export class LaborEventsService {
   /**

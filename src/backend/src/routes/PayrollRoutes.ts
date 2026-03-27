@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { PayrollController } from "../controller/PayrollController";
 import { asyncHandler } from "../utils/asyncHandler";
+import { AuthMiddleware } from "../middleware/AuthMiddleware";
+import { validateBody } from '../middleware/validateBody';
+import { createPayrollSchema, updatePayrollSchema } from '../schemas/PayrollSchema';
 
 const router = Router();
+
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @route   GET /payrolls
@@ -75,7 +80,7 @@ router.get("/payrolls", asyncHandler(PayrollController.getAllPayrolls));
  *       '500':
  *         description: Internal server error
  */
-router.post("/payroll/create", asyncHandler(PayrollController.createPayroll));
+router.post("/payroll/create", validateBody(createPayrollSchema), asyncHandler(PayrollController.createPayroll));
 
 /**
  * @route   GET /payroll/:id
@@ -156,7 +161,7 @@ router.get("/payroll/:id", asyncHandler(PayrollController.getPayrollById));
  *       '500':
  *         description: Internal server error
  */
-router.put("/payroll/:id", asyncHandler(PayrollController.updatePayroll));
+router.put("/payroll/:id", validateBody(updatePayrollSchema), asyncHandler(PayrollController.updatePayroll));
 
 /**
  * @route   GET /payroll/:id/employees

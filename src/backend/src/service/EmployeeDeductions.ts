@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { DeductionsPerEmployee } from "../model/deductionsPerEmployee";
-
-const prisma = new PrismaClient();
 
 export class EmployeeDeductionsService {
   /**

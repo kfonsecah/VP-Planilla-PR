@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { AuditLog } from "../model/auditLog";
-
-const prisma = new PrismaClient();
 
 /**
  * Query parameters for filtering audit logs

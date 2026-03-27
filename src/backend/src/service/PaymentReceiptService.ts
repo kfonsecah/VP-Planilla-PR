@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import Handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
-
-const prisma = new PrismaClient();
 
 export interface PaymentReceiptData {
   logo_src: string;

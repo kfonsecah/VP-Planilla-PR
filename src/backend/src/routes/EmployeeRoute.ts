@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { EmployeeController } from "../controller/EmployeeController";
 import { asyncHandler } from "../utils/asyncHandler";
+import { AuthMiddleware } from "../middleware/AuthMiddleware";
+import { validateBody } from '../middleware/validateBody';
+import { createEmployeeSchema, updateEmployeeSchema } from '../schemas/EmployeeSchema';
 
 const router = Router();
+
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @route   POST /employee/create
@@ -49,7 +54,7 @@ const router = Router();
  *       '500':
  *         description: Internal server error
  */
-router.post("/employee/create", asyncHandler(EmployeeController.createEmployee));
+router.post("/employee/create", validateBody(createEmployeeSchema), asyncHandler(EmployeeController.createEmployee));
 /**
  * @route   GET /employee/:id
  * @desc    Get employee by ID
@@ -124,7 +129,7 @@ router.get("/employee/:id", asyncHandler(EmployeeController.getEmployeeById));
  *       '500':
  *         description: Internal server error
  */
-router.put("/employee/:id", asyncHandler(EmployeeController.updateEmployee));
+router.put("/employee/:id", validateBody(updateEmployeeSchema), asyncHandler(EmployeeController.updateEmployee));
 /**
  * @route   GET /employee
  * @desc    Get all employees

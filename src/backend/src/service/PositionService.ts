@@ -1,8 +1,6 @@
 // DONE Code documentation
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import { Position } from "../model/position";
-
-const prisma = new PrismaClient();
 
 export class PositionService {
   /**

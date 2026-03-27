@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import nodemailer from "nodemailer";
 import path from "path";
 import { promises as fs } from "fs";
 import { roundToMoney } from "../utils/payrollUtils";
-
-const prisma = new PrismaClient();
 const REPORT_TYPES = ["CCSS", "HACIENDA"] as const;
 const STORAGE_ROOT =
   process.env.REPORTS_OUTPUT_DIR || path.join(process.cwd(), "storage", "reports");

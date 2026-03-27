@@ -1,6 +1,5 @@
-import { PrismaClient, vpg_users } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
+import type { vpg_users } from "@prisma/client";
 
 export interface RoleDefinition {
   key: string;

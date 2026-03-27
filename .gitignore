@@ -19,3 +19,27 @@
 *.vscode/*
 *.json
 /docs/Formal/out/
+
+# Ignorar .json globalmente
+*.json
+
+# Mantener .claude completo (excepto local settings)
+!.claude/
+!.claude/**
+!.claude/**/*.json
+.claude/settings.local.json
+.claude/worktrees/
+
+# Mantener .planning completo
+!.planning/
+!.planning/**
+!.planning/**/*.json
+
+# Temp/debug scripts — do not commit
+parse_tmp.js
+temp_script.py
+test_hours.js
+check_employee.ts
+query_emp.mjs
+*.tmp.js
+*.tmp.ts

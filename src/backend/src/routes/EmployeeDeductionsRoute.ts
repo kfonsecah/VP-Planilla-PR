@@ -1,14 +1,11 @@
 import { Router } from "express";
 import { EmployeeDeductionsController } from "../controller/EmployeeDeductionsController";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AuthMiddleware } from "../middleware/AuthMiddleware";
 
 const router = Router();
 
-/**
- * Async handler wrapper to catch errors
- */
-const asyncHandler = (fn: Function) => (req: any, res: any, next: any) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
+router.use(AuthMiddleware.verifyToken);
 
 /**
  * @swagger
