@@ -1,195 +1,122 @@
 # External Integrations
 
-**Analysis Date:** 2026-03-26
+**Analysis Date:** 2026-03-31
 
 ## APIs & External Services
 
-**None.** No third-party external APIs detected (no Stripe, Twilio, AWS SDK, Supabase, Firebase, Sendgrid, or similar). All integrations are with self-hosted infrastructure.
+**Email Dispatch:**
+- Nodemailer - Email sending for payroll reports
+  - SDK/Client: `nodemailer` package 8.0.1
+  - Used in: `src/backend/src/service/ReportsService.ts`
+  - Configuration: SMTP settings stored in `vpg_mail_server_settings` table in PostgreSQL
+  - Fields: `mail_server_settings_host`, `mail_server_settings_port`, `mail_server_settings_username`, `mail_server_settings_password`, `mail_server_settings_use_ssl`, `mail_server_settings_use_tls`
+
+**Report Webhooks (Future):**
+- HTTP endpoints configured in `vpg_report_targets` table
+  - Fields: `report_targets_institution`, `report_targets_endpoint_url`, `report_targets_auth_token`, `report_targets_contact_email`
+  - Currently defined but not actively integrated; infrastructure ready for CCSS and Hacienda report dispatch
 
 ## Data Storage
 
-**Primary Database:**
-- PostgreSQL via Prisma 6.14.0
-- Connection: `DATABASE_URL` environment variable
-- Client singleton: `src/backend/src/lib/prisma.ts`
-- Schema: `src/backend/prisma/schema.prisma`
-- 22 models, all prefixed `vpg_`:
-
-| Model | Purpose |
-|---|---|
-| `vpg_users` | System admin users |
-| `vpg_employees` | Employee records |
-| `vpg_positions` | Job positions with base salary |
-| `vpg_branches` | Company branch offices |
-| `vpg_enterprise` | Enterprise profile (stores logo as bytes) |
-| `vpg_payrolls` | Payroll run records |
-| `vpg_payroll_types` | Payroll period type definitions |
-| `vpg_payroll_employee` | Per-employee payroll calculation rows |
-| `vpg_bonuses` | Employee bonuses per payroll |
-| `vpg_deductions` | Deduction definitions (CCSS, fixed amounts) |
-| `vpg_employee_deductions` | Deductions applied per employee per payroll |
-| `vpg_deductions_per_employee` | Deductions assigned to an employee |
-| `vpg_clock_logs` | Clock-in/clock-out records |
-| `vpg_vacations` | Vacation requests |
-| `vpg_labor_events` | Labor event types |
-| `vpg_employee_labor_event` | Per-employee labor event instances |
-| `vpg_employee_documents` | Document file path references |
-| `vpg_mail_server_settings` | SMTP configuration stored in DB |
-| `vpg_report_logs` | Report generation and dispatch audit trail |
-| `vpg_report_versions` | Versioned report file references |
-| `vpg_report_targets` | External institution dispatch targets (CCSS, Hacienda) |
-| `vpg_audit_logs` | User action audit trail |
+**Databases:**
+- PostgreSQL (primary)
+  - Connection: `DATABASE_URL` environment variable (required at startup)
+  - Client: Prisma 6.14.0 (`@prisma/client`)
+  - Schema: `src/backend/prisma/schema.prisma`
+  - Tables use `vpg_` prefix convention throughout schema
 
 **File Storage:**
-- Local filesystem only — no cloud storage
-- XML report files written to `storage/reports/payroll-{id}/` relative to backend cwd
-- Directory controlled by `REPORTS_OUTPUT_DIR` environment variable
-- Payment receipt HTML templates: `src/backend/templates/payment-receipt-template.html`, `src/backend/templates/payment-receipt-dynamic.html`
+- Local filesystem only
+  - PDF reports: `REPORTS_OUTPUT_DIR` environment variable (default: `storage/reports/`)
+  - Payment receipts: Generated in-memory via Puppeteer, returned as Base64 or file via HTTP
+  - Employee documents: File paths stored in `vpg_employee_documents.employee_documents_file_path` field; actual files stored externally or in `storage/documents/`
 
-**Caching:** None detected.
+**Caching:**
+- None currently implemented
+- Note: Token blocklist stored in `vpg_token_blocklist` table for JWT revocation tracking
 
 ## Authentication & Identity
 
-**Strategy:** Custom stateless JWT — no third-party auth provider.
+**Auth Provider:**
+- Custom JWT-based authentication (no third-party OAuth)
+  - Implementation: `src/backend/src/service/AuthService.ts`
+  - Token type: Bearer token (JWT)
+  - Token storage (frontend): `localStorage` with keys `vp_access_token` (short-lived) and `vp_refresh_token` (long-lived)
+  - Token verification: `src/backend/src/middleware/AuthMiddleware.ts`
 
-**Implementation:**
-- Service: `src/backend/src/service/AuthService.ts`
-- Middleware: `src/backend/src/middleware/AuthMiddleware.ts`
-- Library: `jsonwebtoken ^9.0.2`
-- Password hashing: `bcrypt ^6.0.0` (auto-detects bcrypt hash vs. plain-text for migration compatibility)
+**Password Management:**
+- Bcrypt hashing (version 6.0.0)
+  - Used in: `AuthService.hashPassword()` and `AuthService.verifyPassword()`
+  - Fallback: Supports plain-text password comparison for legacy credentials (documented tech debt)
 
-**Token mechanics:**
-- Access token: signed with `JWT_SECRET`, expires in 24h by default (override via `JWT_EXPIRES_IN`)
-- Refresh token: separate JWT, used by frontend to silently re-acquire an access token
-- Frontend storage: `localStorage` keys `vp_access_token` and `vp_refresh_token`
-- Transport: `Authorization: Bearer <token>` header on every request
-- Auto-refresh: implemented in `src/frontend/src/services/http.ts` — retries 401 once with refresh token, then forces logout
-
-**Roles:** Stored in `vpg_users.user_role`. Role gate: `AuthMiddleware.requireRole(allowedRoles[])`.
-
-**Auth status (post Phase 2):** All 16 route files apply `AuthMiddleware.verifyToken`. 15 use `router.use(AuthMiddleware.verifyToken)` at the top of the router; `AuthRoute.ts` applies it per-handler for protected endpoints (`/me`, `/validate`, `/change-password`) while login/refresh/logout remain public.
-
-**Remaining gap:** `src/backend/src/service/AuthService.ts` `generateToken()` and `verifyToken()` both contain a hardcoded fallback: `process.env.JWT_SECRET || 'your-default-secret-key'`. The startup assertion in `src/backend/src/index.ts` prevents the server from starting without `JWT_SECRET`, but the fallback string inside `AuthService.ts` is still present and would be reachable if `AuthService` were ever instantiated outside of the main server entry point (e.g., in tests). See `CONCERNS.md`.
-
-## Email (SMTP)
-
-**Library:** nodemailer ^8.0.1
-- Used by: `src/backend/src/service/ReportsService.ts`
-- Purpose: Send XML payroll reports (CCSS and Hacienda format) as email attachments
-
-**Configuration resolution order** (first match wins):
-1. Environment variables: `REPORTS_SMTP_HOST` / `SMTP_HOST` / `EMAIL_HOST`, port, user, pass, from address, SSL/TLS flags
-2. Database table: `vpg_mail_server_settings` (last record by ID)
-
-**Trigger:** `POST /api/reports/payroll/:id/send` — requires `Authorization: Bearer` token
-
-## PDF Generation (Server-Side)
-
-**Libraries:**
-- `puppeteer ^24.37.5` — Headless Chromium renders Handlebars HTML to PDF
-  - Used in: `src/backend/src/service/PaymentReceiptService.ts`
-  - Chromium flags: `--no-sandbox`, `--disable-setuid-sandbox`
-- `pdf-lib ^1.17.1` — PDF document merging (combines per-employee receipts into one file)
-- `handlebars ^4.7.8` — Template rendering: binds payroll data into HTML templates before PDF conversion
-
-**Templates:** `src/backend/templates/payment-receipt-template.html`, `payment-receipt-dynamic.html`
-**Trigger:** `POST /api/reports/payroll/:id/payment-receipts/pdf`
-
-## Report Formats (XML, Self-Generated)
-
-No external library — XML built by string construction in `src/backend/src/service/ReportsService.ts`:
-- **CCSS** — Caja Costarricense de Seguro Social employee contribution report
-- **Hacienda** — Ministerio de Hacienda income declaration report
-
-Files persisted to local filesystem before email dispatch. Dispatch target endpoints and auth tokens are stored in `vpg_report_targets` table.
-
-## Excel Export (Client-Side)
-
-**Library:** exceljs ^4.4.0 (frontend dependency)
-- Used in: `src/frontend/src/components/PayrollResults.tsx`, `src/frontend/src/app/pages/attendance/page.tsx`
-- Purpose: Generate `.xlsx` payroll exports and parse uploaded attendance Excel files in-browser
-
-## API Documentation
-
-**Libraries:**
-- `swagger-jsdoc ^6.2.8` — Generates OpenAPI 3.0 spec from `@swagger` JSDoc in `src/backend/src/routes/*.ts`
-- `@scalar/express-api-reference ^0.8.16` — Interactive Swagger UI
-
-**Endpoints:**
-- `GET /api/docs/swagger.json` — Raw OpenAPI spec (public)
-- `GET /api/docs` — Interactive Scalar UI (public)
-
-## Frontend → Backend HTTP Layer
-
-**Client:** Native `fetch` wrapped by `src/frontend/src/services/http.ts`
-- Base URL: `NEXT_PUBLIC_API_URL` env var (default: `http://localhost:3001`)
-- Config: `src/frontend/src/config/index.ts`
-- Automatic `Authorization: Bearer` injection from localStorage
-- Auto-refresh on 401 before forcing logout
-- All API calls must go through `http.ts` — never raw `fetch` in components or hooks
-
-## Exposed API Endpoints
-
-All prefixed with `/api`. All routes except login, refresh, logout, and docs require `Authorization: Bearer <token>` header.
-
-| Route group | Path prefix | Auth |
-|---|---|---|
-| Auth — public | `/api/login`, `/api/logout`, `/api/refresh` | None |
-| Auth — protected | `/api/me`, `/api/validate`, `/api/change-password` | `verifyToken` per-handler |
-| Employees | `/api/employees`, `/api/employee/create`, `/api/employee/:id` | `router.use(verifyToken)` |
-| Positions | `/api/positions` | `router.use(verifyToken)` |
-| Payroll | `/api/payrolls`, `/api/payroll/create`, `/api/payroll/:id` | `router.use(verifyToken)` |
-| Payroll Types | `/api/payroll-types` | `router.use(verifyToken)` |
-| Clock Logs | `/api/clock-logs` | `router.use(verifyToken)` |
-| Vacations | `/api/vacations` | `router.use(verifyToken)` |
-| Deductions | `/api/deductions` | `router.use(verifyToken)` |
-| Employee Deductions | `/api/employee-deductions` | `router.use(verifyToken)` |
-| Bonuses | `/api/bonuses` | `router.use(verifyToken)` |
-| Labor Events | `/api/labor-events` | `router.use(verifyToken)` |
-| Nominees | `/api/nominees` | `router.use(verifyToken)` |
-| Users | `/api/users` | `router.use(verifyToken)` per-handler |
-| Audit Logs | `/api/audit-logs` | `router.use(verifyToken)` |
-| Reports | `/api/reports` | `router.use(verifyToken)` |
-| Payment Receipts | `/api/payment-receipts` | `router.use(verifyToken)` |
-| Docs | `/api/docs`, `/api/docs/swagger.json` | Public |
-| Health | `/health`, `/` | Public |
-
-## Webhooks & Callbacks
-
-**Incoming:** None detected.
-**Outgoing:** Reports can be dispatched to external institution URLs stored in `vpg_report_targets.report_targets_endpoint_url` — the mechanism for this dispatch is defined in the schema but the HTTP dispatch implementation in `ReportsService.ts` uses email rather than HTTP POST to the target URL.
+**JWT Configuration:**
+- Secret: `JWT_SECRET` environment variable (fatal startup check at `src/backend/src/index.ts` line 25)
+- Fallback secret: `'your-default-secret-key'` (documented tech debt - should require explicit override)
+- Expiration: Configurable in `AuthService` (needs verification in implementation)
 
 ## Monitoring & Observability
 
-**Error Tracking:** None (no Sentry, Datadog, Rollbar, etc.)
-**Logs:** `console.log` / `console.error` only
-**Prisma query logging:** Enabled — singleton emits `query` events with counter at `src/backend/src/lib/prisma.ts`; `getQueryCount()` and `resetQueryCount()` are exported for use in tests and performance validation.
+**Error Tracking:**
+- None detected
+- Console logging present in services (e.g., `console.log`, `console.error`)
 
-## Environment Variables
+**Logs:**
+- Application logs: Console output from Express server
+- Audit logs: `vpg_audit_logs` table tracks user actions with fields `audit_logs_action`, `audit_logs_entity`, `audit_logs_timestamp`
+- Report logs: `vpg_report_logs` table tracks generated reports with `report_logs_status` and version history via `vpg_report_versions`
 
-**Backend (`src/backend/`) — required at startup:**
-- `DATABASE_URL` — PostgreSQL connection string (**required**)
-- `JWT_SECRET` — JWT signing secret (**required** — server exits with `process.exit(1)` if missing, see `src/backend/src/index.ts`)
+**Database Versioning:**
+- Optimistic locking via `_version` suffix on all tables (e.g., `audit_logs_version`, `employees_version`)
 
-**Backend — optional:**
-- `PORT` — HTTP port (default: `3001`)
-- `JWT_EXPIRES_IN` — Token expiry in seconds (default: `86400`)
-- `ALLOWED_ORIGINS` — Comma-separated CORS allowed origins (unset = no origin restriction)
-- `REPORTS_OUTPUT_DIR` — Filesystem path for XML report storage (default: `{cwd}/storage/reports`)
-- `REPORTS_ENTERPRISE_NAME` — Fallback enterprise name for XML reports
-- `REPORTS_ENTERPRISE_TAX_ID` — Employer tax ID for XML reports
-- `REPORTS_SMTP_HOST` / `SMTP_HOST` / `EMAIL_HOST` — SMTP server (falls back to DB if unset)
-- `REPORTS_SMTP_PORT` / `SMTP_PORT` / `EMAIL_PORT`
-- `REPORTS_SMTP_USER` / `SMTP_USER` / `EMAIL_USER`
-- `REPORTS_SMTP_PASS` / `SMTP_PASS` / `EMAIL_PASS`
-- `REPORTS_FROM` / `SMTP_FROM` / `EMAIL_FROM`
-- `REPORTS_SMTP_SECURE` / `SMTP_SECURE` — Use SSL (default: `false`)
-- `REPORTS_SMTP_TLS` / `SMTP_TLS` — Require TLS (default: `false`)
-- `NODE_ENV` — Controls Prisma query log level
+## CI/CD & Deployment
 
-**Frontend (`src/frontend/`) — optional:**
-- `NEXT_PUBLIC_API_URL` — Backend API base URL (default: `http://localhost:3001`)
+**Hosting:**
+- Likely Vercel for frontend (hardcoded allowlist in CORS: `origin.endsWith('.vercel.app') || origin === 'https://vp-planilla.vercel.app'`)
+- Backend hosting: Not explicitly configured; could be any Node-compatible platform
+
+**CI Pipeline:**
+- None detected
+- No GitHub Actions, GitLab CI, or similar in codebase
+
+**Deployment Artifacts:**
+- Frontend: Next.js build output from `npm run build`
+- Backend: TypeScript compiled to JavaScript via `tsc` to `dist/` directory
+- Prisma: Client auto-generated on `npm install` or `npx prisma generate`
+
+## Environment Configuration
+
+**Required Backend env vars:**
+- `DATABASE_URL` - PostgreSQL connection string (fatal if missing)
+- `JWT_SECRET` - JWT signing secret (fatal if missing)
+- `PORT` - Server port (default: 3001)
+- `ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins (parsed in `src/backend/src/index.ts`)
+- `REPORTS_OUTPUT_DIR` - Directory for PDF report storage (default: `storage/reports/`)
+
+**Required Frontend env vars:**
+- `NEXT_PUBLIC_API_URL` - Backend API base URL (default: `http://localhost:3001`)
+
+**Optional Backend env vars:**
+- Mail server configuration (can be read from `vpg_mail_server_settings` table instead of env)
+- Any custom report output paths or caching strategies
+
+**Optional Frontend env vars:**
+- None currently used beyond `NEXT_PUBLIC_API_URL`
+
+**Secrets location:**
+- Backend: `.env` file (plaintext, source control ignored via `.gitignore`)
+- Frontend: `.env` file (plaintext; only `NEXT_PUBLIC_*` variables are safe)
+- Production: Environment variables injected by deployment platform (Vercel, etc.)
+
+## Webhooks & Callbacks
+
+**Incoming:**
+- Payment receipt generation endpoint: `POST /api/payment-receipts` (route in `src/backend/src/routes/PaymentReceiptRoute.ts`)
+- Report dispatch webhook targets: Infrastructure in `vpg_report_targets` but no active webhook receiver (one-way HTTP POST to external endpoints)
+
+**Outgoing:**
+- Email notifications via Nodemailer (SMTP)
+- Report webhook dispatch: `ReportsService` sends HTTP POST to endpoints configured in `vpg_report_targets` table (not yet implemented in service)
 
 ---
 
-*Integration audit: 2026-03-26*
+*Integration audit: 2026-03-31*

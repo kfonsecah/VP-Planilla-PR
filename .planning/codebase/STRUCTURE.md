@@ -1,257 +1,397 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-03-26
+**Analysis Date:** 2026-03-31
 
 ## Directory Layout
 
 ```
 VP-Planilla/
 ├── src/
-│   ├── backend/                  # Express 5 REST API (Node.js 22, TypeScript 5.8)
-│   │   ├── prisma/               # Prisma schema and migrations
-│   │   │   └── schema.prisma     # Single source of truth for DB schema
-│   │   └── src/
-│   │       ├── index.ts          # Express app entry point, route registration, CORS
-│   │       ├── controller/       # HTTP request/response handlers (static classes)
-│   │       ├── service/          # Business logic + Prisma queries (static classes)
-│   │       ├── routes/           # Express Routers — auth + validation middleware applied here
-│   │       ├── middleware/       # AuthMiddleware.ts, validateBody.ts
-│   │       ├── schemas/          # Zod schemas for request body validation
-│   │       ├── model/            # Plain TypeScript interfaces (no logic)
-│   │       ├── types/            # Domain types (payroll.types.ts)
-│   │       ├── lib/              # Singleton Prisma client
-│   │       ├── utils/            # asyncHandler, payrollUtils, docs
-│   │       ├── scripts/          # One-off scripts (not called at runtime)
-│   │       └── __tests__/        # Jest unit tests
-│   │           ├── setup/        # Test setup files
-│   │           └── unit/
-│   │               └── services/ # Service-level unit tests
-│   ├── frontend/                 # Next.js 15 app (TypeScript 5.9, React 19)
-│   │   └── src/
-│   │       ├── app/              # Next.js App Router
-│   │       │   ├── page.tsx      # Root redirect to /pages/auth
-│   │       │   ├── layout.tsx    # Root layout (mounts ClientLayout)
-│   │       │   └── pages/        # Feature pages (all "use client")
-│   │       │       ├── auth/     # Login page
-│   │       │       ├── main/     # Dashboard
-│   │       │       ├── employee/ # Employee list, edit, events
-│   │       │       ├── payroll/  # Payroll list, calculate, detail
-│   │       │       ├── vacations/
-│   │       │       ├── clocklogs/
-│   │       │       ├── bonuses/
-│   │       │       ├── deductions/
-│   │       │       ├── employee-deductions/
-│   │       │       ├── payroll-types/
-│   │       │       ├── positions/
-│   │       │       ├── branches/
-│   │       │       ├── attendance/
-│   │       │       ├── audit-logs/
-│   │       │       ├── reports/
-│   │       │       └── users/
-│   │       ├── layouts/          # ClientLayout (auth guard, sidebar, header)
-│   │       ├── components/       # Reusable UI components and modals
-│   │       │   └── ui/           # Low-level UI primitives
-│   │       ├── hooks/            # Data/state hooks (use<Domain>.ts)
-│   │       ├── services/         # API call wrappers + http.ts
-│   │       ├── schemas/          # Zod schemas for form validation
-│   │       ├── types/            # Shared TypeScript interfaces
-│   │       ├── constants/        # SCREAMING_SNAKE_CASE constants
-│   │       ├── config/           # App configuration (API base URL)
-│   │       ├── utils/            # Pure utility functions
-│   │       └── styles/           # Global CSS
-│   └── Java/                     # Standalone clock-log parser (not called by API at runtime)
-├── design/                       # Design assets
-├── docs/                         # Project documentation
-└── CLAUDE.md                     # Operating manual for Claude Code
+│   ├── backend/              # Express API server
+│   │   ├── src/
+│   │   │   ├── index.ts      # Server entry point
+│   │   │   ├── routes/       # Express route handlers
+│   │   │   ├── controller/   # Request handlers, field mapping
+│   │   │   ├── service/      # Business logic, Prisma queries
+│   │   │   ├── model/        # TypeScript interfaces
+│   │   │   ├── middleware/   # Auth, validation, etc.
+│   │   │   ├── lib/          # Prisma singleton, utilities
+│   │   │   ├── utils/        # Helpers (asyncHandler, payroll math, docs)
+│   │   │   ├── types/        # Shared type definitions
+│   │   │   ├── schemas/      # Zod validation schemas (backend)
+│   │   │   └── __tests__/    # Jest unit & integration tests
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma # Database schema definition
+│   │   │   └── migrations/   # Prisma migrations
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── jest.config.js    # Jest test configuration
+│   │
+│   ├── frontend/             # Next.js 15 app
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── layout.tsx           # Root layout, loads ClientLayout
+│   │   │   │   ├── page.tsx             # Root page, redirects to /pages/auth
+│   │   │   │   └── pages/               # Domain-based page structure
+│   │   │   │       ├── auth/            # Login page
+│   │   │   │       ├── employee/        # Employee CRUD pages
+│   │   │   │       │   ├── list/
+│   │   │   │       │   └── edit/[id]/
+│   │   │   │       ├── payroll/         # Payroll pages
+│   │   │   │       ├── deductions/
+│   │   │   │       ├── bonuses/
+│   │   │   │       └── ...              # Other domain pages
+│   │   │   ├── components/              # Reusable UI components
+│   │   │   │   ├── EmployeeTable.tsx
+│   │   │   │   ├── AddEmployeeModal.tsx
+│   │   │   │   ├── ui/                  # Basic UI components
+│   │   │   │   └── ...
+│   │   │   ├── hooks/                   # Custom React hooks
+│   │   │   │   ├── useAuth.tsx          # Auth context + provider
+│   │   │   │   ├── useEmployeeList.ts
+│   │   │   │   ├── usePayroll.ts
+│   │   │   │   └── ...
+│   │   │   ├── services/                # API call methods
+│   │   │   │   ├── http.ts              # Central HTTP client
+│   │   │   │   ├── employeeService.ts
+│   │   │   │   ├── authService.ts
+│   │   │   │   └── ...
+│   │   │   ├── types/                   # TypeScript interfaces
+│   │   │   │   ├── employee.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── ...
+│   │   │   ├── schemas/                 # Zod validation schemas
+│   │   │   │   ├── employee.ts
+│   │   │   │   └── ...
+│   │   │   ├── layouts/                 # Page layout components
+│   │   │   │   └── main.tsx             # Main layout wrapper with sidebar
+│   │   │   ├── styles/                  # Global CSS
+│   │   │   │   └── globals.css
+│   │   │   ├── config/                  # Configuration
+│   │   │   │   └── index.ts             # API_CONFIG (baseUrl, etc.)
+│   │   │   ├── constants/               # Constants (enums, magic values)
+│   │   │   │   └── index.ts
+│   │   │   └── utils/                   # Utility functions
+│   │   │       └── employeeUtils.ts
+│   │   ├── next.config.js
+│   │   ├── tsconfig.json
+│   │   ├── tailwind.config.js
+│   │   └── package.json
+│   │
+│   └── Java/                 # Standalone clock-log parser (NOT called by Node API)
+│       └── ...
+│
+├── .planning/
+│   └── codebase/            # Codebase analysis documents (written by GSD)
+│       ├── ARCHITECTURE.md
+│       ├── STRUCTURE.md
+│       ├── CONVENTIONS.md
+│       ├── TESTING.md
+│       ├── STACK.md
+│       └── INTEGRATIONS.md
+│
+└── docs/                    # Documentation, formal thesis, contracts
 ```
-
----
 
 ## Directory Purposes
 
-### Backend
+**`src/backend/src/`:**
+- Purpose: Backend Express API source code
+- Core responsibility: Accept HTTP requests, validate, execute business logic, return JSON
 
 **`src/backend/src/routes/`:**
-- One file per domain: `EmployeeRoute.ts`, `PayrollRoutes.ts`, `NomineeRoute.ts`, etc.
-- Pattern: Apply `router.use(AuthMiddleware.verifyToken)` at the top, then declare routes with `asyncHandler` wrapper
-- Validated routes compose `validateBody(schema)` as a middleware step before the handler
-- All 16 route files registered in `src/backend/src/index.ts` under the `/api` prefix
+- Purpose: Express Router definitions
+- Contains: Route definitions with HTTP verbs, middleware, swagger docs
+- Key files: `EmployeeRoute.ts`, `PayrollRoutes.ts`, `AuthRoute.ts`, etc.
+- Pattern: All routes wrapped in `asyncHandler`, secured with `AuthMiddleware.verifyToken`
 
-**`src/backend/src/schemas/`:**
-- `EmployeeSchema.ts` — create and update schemas; update schema accepts both `employee_`-prefixed and unprefixed field names
-- `DeductionSchema.ts` — create and update schemas with optional `percentage` and `fixed_amount`
-- `PayrollSchema.ts` — create and update schemas
-- `ClockLogSchema.ts` — bulk create schema (array of log items)
-- `UserSchema.ts` — update permissions (role field only)
-- Each file exports: Zod schema object + `z.infer<>` TypeScript type
-
-**`src/backend/src/middleware/`:**
-- `AuthMiddleware.ts` — `verifyToken` (required), `requireRole(roles[])` (admin gate), `optionalAuth` (never fails)
-- `validateBody.ts` — factory `(schema: ZodSchema) => RequestHandler` — replaces `req.body` with parsed value
+**`src/backend/src/controller/`:**
+- Purpose: Parse requests, map field names, call services
+- Contains: Static async methods per entity
+- Pattern: Controllers delegate all business logic to services; controllers only handle HTTP concerns
+- Example: `EmployeeController.createEmployee()` maps `employee_first_name` → passes to `EmployeeService`
 
 **`src/backend/src/service/`:**
-- All files are static classes except `NomineeService.ts` (instance class with static preload methods)
-- `NomineeService.ts` is the most complex: contains `calculatePayrollForPeriod`, 6 private static preload methods, and `savePayrollEmployees`
-- `PayrollService.ts` handles CRUD for payroll records
-- `AuthService.ts` handles bcrypt verification, JWT signing/verification, token refresh
+- Purpose: Business logic, database queries, domain rules
+- Contains: Static async methods with full JSDoc
+- Scope: Employee management, payroll calculations, deductions, auditing, reporting
+- Key services: `EmployeeService`, `PayrollService`, `NomineeService`, `ReportsService`, `VacationService`
+- Database access: All use `prisma` singleton from `src/backend/src/lib/prisma.ts`
 
-**`src/backend/src/types/`:**
-- `payroll.types.ts` — the only file; defines all payroll calculation interfaces consumed by both backend services and frontend
+**`src/backend/src/model/`:**
+- Purpose: Domain entity type definitions
+- Contains: Plain TypeScript interfaces (no logic)
+- Examples: `Employee`, `Payroll`, `Deduction`, `PayrollCalculation`
+- No class methods or logic
+
+**`src/backend/src/middleware/`:**
+- Purpose: Cross-cutting concerns (auth, validation, etc.)
+- Key files:
+  - `AuthMiddleware.ts` — JWT verification, token blocklist check
+  - `validateBody.ts` — Zod schema validation for request bodies
+- Usage: Applied in routes via `router.use()` or `router.post('/path', middleware, handler)`
 
 **`src/backend/src/lib/`:**
-- `prisma.ts` — exports `prisma` (singleton), `getQueryCount()`, `resetQueryCount()`
+- Purpose: Infrastructure and singleton utilities
+- Key files:
+  - `prisma.ts` — Singleton PrismaClient with query logging
+  - Used by: All services (never instantiate own PrismaClient)
+
+**`src/backend/src/utils/`:**
+- Purpose: Pure utility functions
+- Key files:
+  - `asyncHandler.ts` — Wraps async route handlers
+  - `payrollUtils.ts` — Costa Rica payroll math (overtime, rest compensation, CCSS)
+  - `docs.ts` — Swagger spec generation
+- Scope: No business logic for specific entities; purely helper functions
+
+**`src/backend/src/types/`:**
+- Purpose: Shared type definitions (used across backend)
+- Examples: `payroll.types.ts` for PayrollCalculation, CostRicaPayrollResult
+
+**`src/backend/src/schemas/`:**
+- Purpose: Zod validation schemas for requests
+- Usage: Applied in routes via `validateBody(schema)` middleware
+- Examples: `EmployeeSchema.ts`, `PayrollSchema.ts`
 
 **`src/backend/src/__tests__/`:**
-- `unit/services/PayrollService.test.ts` — only test file currently present
-- `setup/` — Jest setup configuration
+- Purpose: Jest unit and integration tests
+- Structure:
+  - `unit/` — Tests for individual services/utils
+  - `integration/` — Tests for request → response flows
+  - `setup/` — Test fixtures, test database setup
 
-### Frontend
+**`src/backend/prisma/`:**
+- Purpose: Database schema and migrations
+- Key files:
+  - `schema.prisma` — Defines all tables (prefixed with `vpg_`), relations, indexes
+  - `migrations/` — Prisma-generated SQL migration files
+- Usage: Run `npx prisma migrate dev` after schema changes
+
+**`src/frontend/src/app/`:**
+- Purpose: Next.js 15 app directory (file-based routing)
+- Contains: `layout.tsx` (root HTML), `page.tsx` (root page), `pages/` (domain pages)
+- Convention: Domain pages are under `pages/<domain>/page.tsx` (e.g., `pages/employee/list/page.tsx`)
 
 **`src/frontend/src/app/pages/`:**
-- Each domain gets a subdirectory. Most have a `list/page.tsx`; some have nested routes like `payroll/[id]/employees` or `employee/edit/[id]`
-- All pages are `"use client"` and consume hooks — they do not import from `services/` directly
-
-**`src/frontend/src/layouts/main.tsx`:**
-- Single layout file. Wraps all non-auth pages with Sidebar + Header.
-- Contains auth guard: redirects to `/pages/auth` if `!isAuthenticated && !loading`
-
-**`src/frontend/src/hooks/`:**
-- Collocated with services (same directory): hooks are named `use<Domain>.ts`
-- Notable: `useAuth.ts` and `useAuth.tsx` both exist — `useAuth.tsx` provides `AuthProvider` context; `useAuth.ts` provides the hook
-- `useTheme.tsx` provides `ThemeProvider` + `useTheme` hook (dark mode)
-
-**`src/frontend/src/services/`:**
-- `http.ts` — central HTTP client (never bypass)
-- `index.ts` — barrel re-export of all service functions
-- One file per domain: `employeeService.ts`, `payrollService.ts`, `nomineeService.ts`, etc.
-- `branchService.ts` exists in services but has no corresponding backend route (frontend-only or placeholder)
-
-**`src/frontend/src/schemas/`:**
-- `employee.ts` — `employeeSchema` used in `AddEmployeeModal`
-- `vacationSchema.ts` — used in vacation creation form
-
-**`src/frontend/src/types/`:**
-- `index.ts` — barrel re-export
-- Domain files: `employee.ts`, `branch.ts`, `laborEvent.ts`, `payrollEmployee.ts`, `payrollTypes.ts`, `reports.ts`, `employeeDeductions.ts`, `auditLog.ts`
-
-**`src/frontend/src/constants/`:**
-- `index.ts` — exports SCREAMING_SNAKE_CASE constants (e.g., `EMPLOYEE_STATUS`)
-
-**`src/frontend/src/utils/`:**
-- `employeeUtils.ts` — `calculateEmployeeStats`, `filterEmployees`, `formatSalary`, `getStatusBadgeConfig`, etc.
-- `formatters.ts` — display formatting helpers
-- `number.ts` — numeric formatting
-- `time.ts` — date/time utilities
-- `weather.ts` — weather-related utilities
+- Purpose: Domain-organized page structure
+- Layout: Each domain (employee, payroll, deductions, etc.) has its own directory with list/edit/detail pages
+- Example structure:
+  ```
+  pages/
+  ├── auth/
+  │   └── page.tsx         # Login page
+  ├── employee/
+  │   ├── list/
+  │   │   └── page.tsx     # Employee listing with stats & modals
+  │   └── edit/
+  │       └── [id]/
+  │           └── page.tsx # Edit specific employee
+  ├── payroll/
+  │   ├── list/
+  │   ├── calculate/
+  │   └── [id]/
+  │       └── employees/   # Payroll employees view
+  └── ...
+  ```
 
 **`src/frontend/src/components/`:**
-- Feature components: `EmployeeTable.tsx`, `AddEmployeeModal.tsx`, `EditEmployeeModal.tsx`, `DismissEmployeeModal.tsx`, `PayrollCreateModal.tsx`, `PayrollResults.tsx`, `PositionsModal.tsx`, etc.
-- `ui/` subdirectory: low-level UI primitives (Sidebar, Header, DatePicker, EmployeeTabs, etc.)
+- Purpose: Reusable UI components
+- Scope: Tables, modals, cards, forms
+- Pattern: React.FC with typed props interface, use `@/` imports
+- Key components:
+  - `EmployeeTable.tsx` — Displays employee list with actions
+  - `AddEmployeeModal.tsx` — Modal form to create employee
+  - `EmployeeStatsCards.tsx` — Dashboard statistics
+  - `PayrollCalendar.tsx` — Calendar view for payroll periods
+- Animation: Use `framer-motion` with `AnimatePresence`, `motion.div`
 
----
+**`src/frontend/src/hooks/`:**
+- Purpose: Custom React hooks for data fetching and state management
+- Naming: `use<Domain>.ts` or `use<Domain>.tsx` (e.g., `useEmployeeList.ts`, `useAuth.tsx`)
+- Return shape: Always `{ data, isLoading, error, ...actions }`
+- Examples:
+  - `useAuth.tsx` — Provides `AuthContext`, manages login/logout, token storage
+  - `useEmployeeList.ts` — Fetches employees, filters, handles create/edit/delete
+  - `usePayroll.ts` — Fetches payrolls, calculates new, generates reports
+- Async pattern: Use `useCallback` to wrap async operations
+
+**`src/frontend/src/services/`:**
+- Purpose: API call methods using centralized HTTP client
+- Naming: `<domain>Service.ts` in camelCase (e.g., `employeeService.ts`)
+- Pattern: Export async functions, all use `http.get()`, `http.post()`, etc.
+- Examples:
+  - `employeeService.ts` — `getEmployees()`, `createEmployee()`, `updateEmployee()`, `fireEmployee()`
+  - `authService.ts` — `login()`, `logout()`, `refreshToken()`
+  - `payrollService.ts` — `getPayrolls()`, `calculatePayroll()`, `getPayrollDetails()`
+
+**`src/frontend/src/services/http.ts`:**
+- Purpose: Central HTTP abstraction with automatic token management
+- **CRITICAL**: All API calls must go through this client (never use raw `fetch`)
+- Methods: `http.get(path)`, `http.post(path, body)`, `http.put()`, `http.delete()`
+- Features:
+  - Reads/writes tokens from localStorage (`vp_access_token`, `vp_refresh_token`)
+  - Attaches Bearer token to all requests
+  - On 401, attempts one automatic token refresh
+  - On final auth failure, calls global `onAuthFailureCallback` → redirects to login
+
+**`src/frontend/src/types/`:**
+- Purpose: TypeScript interfaces for domain entities
+- Files: `employee.ts`, `payrollTypes.ts`, `laborEvent.ts`, etc.
+- Examples: `Employee`, `EmployeeFormData`, `EmployeeStats`, `Payroll`
+- Used by: Hooks, Components, Services
+
+**`src/frontend/src/schemas/`:**
+- Purpose: Zod validation schemas for forms
+- Pattern: One schema file per domain (e.g., `employee.ts`, `vacationSchema.ts`)
+- Usage: Applied in hooks via `zodResolver(schema)` for react-hook-form
+- Examples: `createEmployeeSchema`, `updateEmployeeSchema`, `vacationSchema`
+
+**`src/frontend/src/layouts/`:**
+- Purpose: Shared page layout components
+- Key file: `main.tsx` — Wraps all pages with sidebar, navbar, `AuthProvider`
+- Loaded from: `src/frontend/src/app/layout.tsx`
+
+**`src/frontend/src/config/`:**
+- Purpose: Application configuration
+- Key file: `index.ts` — Exports `API_CONFIG` with baseUrl (backend API endpoint)
+
+**`src/frontend/src/constants/`:**
+- Purpose: Magic values, enums, constants
+- Examples: Employee statuses (ACTIVE, VACATION, etc.), payroll periods
+
+**`src/frontend/src/utils/`:**
+- Purpose: Utility functions
+- Examples: `employeeUtils.ts` — Helper functions for employee name parsing, stats calculation
 
 ## Key File Locations
 
-**Entry Points:**
-- Backend: `src/backend/src/index.ts` — Express app, all route registrations
-- Frontend: `src/frontend/src/app/page.tsx` — redirects to auth; `src/frontend/src/app/layout.tsx` — mounts `ClientLayout`
-- Frontend layout + auth guard: `src/frontend/src/layouts/main.tsx`
+**Backend Entry Points:**
+- `src/backend/src/index.ts` — Server startup, route registration, middleware setup
 
-**Configuration:**
-- Backend: `src/backend/prisma/schema.prisma` — database schema
-- Backend: `src/backend/src/lib/prisma.ts` — singleton Prisma client
-- Frontend: `src/frontend/src/config/index.ts` — `API_CONFIG.baseUrl` from `NEXT_PUBLIC_API_URL`
-- Frontend: `src/frontend/src/services/http.ts` — central HTTP client
+**Database Setup:**
+- `src/backend/prisma/schema.prisma` — Full database schema definition
 
-**Core Logic:**
-- Payroll math: `src/backend/src/utils/payrollUtils.ts`
-- Payroll types: `src/backend/src/types/payroll.types.ts`
-- Payroll calculation: `src/backend/src/service/NomineeService.ts`
-- Auth: `src/backend/src/service/AuthService.ts`, `src/backend/src/middleware/AuthMiddleware.ts`
+**API Routes:**
+- `src/backend/src/routes/*.ts` — All route definitions organized by entity
 
-**Validation:**
-- Backend schemas: `src/backend/src/schemas/` (5 files)
-- Backend middleware: `src/backend/src/middleware/validateBody.ts`
-- Frontend schemas: `src/frontend/src/schemas/` (2 files)
+**Frontend Entry Point:**
+- `src/frontend/src/app/layout.tsx` — Root layout wrapper
 
-**Testing:**
-- `src/backend/src/__tests__/unit/services/PayrollService.test.ts`
-- Jest config: `src/backend/jest.config.*`
+**Frontend Root Page:**
+- `src/frontend/src/app/page.tsx` — Redirects to auth
 
----
+**Authentication:**
+- Backend: `src/backend/src/routes/AuthRoute.ts`, `src/backend/src/controller/AuthController.ts`, `src/backend/src/service/AuthService.ts`
+- Frontend: `src/frontend/src/hooks/useAuth.tsx` (context provider)
+
+**Core Business Logic:**
+- Backend: `src/backend/src/service/` (all services)
+- Frontend: `src/frontend/src/hooks/` (all hooks)
+
+**HTTP Communication:**
+- Frontend: `src/frontend/src/services/http.ts` — Central client (never bypass)
 
 ## Naming Conventions
 
-**Backend files:**
-- Routes, Controllers, Services: `PascalCase.ts` — e.g., `EmployeeRoute.ts`, `EmployeeController.ts`, `EmployeeService.ts`
-- Schemas: `PascalCase + Schema.ts` — e.g., `EmployeeSchema.ts`
-- Models: `camelCase.ts` — e.g., `employee.ts`, `payroll.ts`
+**Backend Files:**
+- Pattern: `PascalCase.ts`
+- Examples: `EmployeeService.ts`, `EmployeeController.ts`, `EmployeeRoute.ts`
 
-**Frontend files:**
-- Pages: `page.tsx` (Next.js convention) inside domain subdirectory
-- Components: `PascalCase.tsx` — e.g., `EmployeeTable.tsx`
-- Hooks: `use<Domain>.ts` or `use<Domain>.tsx` — e.g., `useEmployeeList.ts`
-- Services: `camelCase.ts` — e.g., `employeeService.ts`
-- Schemas: `camelCase.ts` — e.g., `employee.ts`, `vacationSchema.ts`
-- Types: `camelCase.ts` — e.g., `employee.ts`, `laborEvent.ts`
+**Frontend Components:**
+- Pattern: `PascalCase.tsx`
+- Examples: `EmployeeTable.tsx`, `AddEmployeeModal.tsx`
 
-**Database / Prisma:**
-- All table names: `vpg_` prefix + `snake_case` — e.g., `vpg_employees`, `vpg_payroll_employee`
-- All column names: `tablename_fieldname` pattern — e.g., `employee_first_name`, `payrolls_period_start`
+**Frontend Hooks:**
+- Pattern: `camelCase` prefixed with `use`
+- Examples: `useEmployeeList.ts`, `usePayroll.ts`, `useAuth.tsx`
 
----
+**Frontend Services:**
+- Pattern: `camelCase` (no `use` prefix)
+- Examples: `employeeService.ts`, `authService.ts`, `payrollService.ts`
+
+**Database Tables:**
+- Pattern: Prefixed with `vpg_`, snake_case columns
+- Examples: `vpg_employees`, `vpg_payrolls`, `vpg_deductions`
+- Column naming: `table_field_name` (e.g., `employee_first_name`, `employee_email`)
+
+**Frontend Form Field Names:**
+- Pattern: `entity_field_name` (matches backend schema)
+- Examples: `employee_first_name`, `employee_email`, `employee_status`
+
+**React Props Interfaces:**
+- Pattern: `PascalCase` suffix with `Props` (optional) or define inline
+- Example: `interface EmployeeTableProps { employees: Employee[] }`
+
+**Constants:**
+- Pattern: `SCREAMING_SNAKE_CASE`
+- Examples: `REGULAR_HOURS_PER_DAY`, `OVERTIME_MULTIPLIER_STANDARD`, `CCSS_DEDUCTION_PERCENTAGE`
 
 ## Where to Add New Code
 
-**New backend domain (e.g., "Benefits"):**
-1. Model interface: `src/backend/src/model/benefit.ts`
-2. Zod schemas: `src/backend/src/schemas/BenefitSchema.ts`
-3. Service: `src/backend/src/service/BenefitService.ts` (static class, import singleton prisma)
-4. Controller: `src/backend/src/controller/BenefitController.ts` (static class, calls service)
-5. Route: `src/backend/src/routes/BenefitRoute.ts` (start with `router.use(AuthMiddleware.verifyToken)`)
-6. Register: add `app.use("/api", benefitRoutes)` in `src/backend/src/index.ts`
+**New Backend Feature (e.g., Employee CRUD):**
+1. Create model: `src/backend/src/model/<domain>.ts` — Interface definition
+2. Create service: `src/backend/src/service/<Domain>Service.ts` — Business logic, Prisma queries
+3. Create controller: `src/backend/src/controller/<Domain>Controller.ts` — Request/response mapping
+4. Create route: `src/backend/src/routes/<Domain>Route.ts` — Express Router with swagger docs
+5. Add to main: Register route in `src/backend/src/index.ts`
+6. Test: Add tests in `src/backend/src/__tests__/unit/services/<Domain>Service.test.ts`
 
-**New frontend domain page:**
-1. Page: `src/frontend/src/app/pages/benefits/list/page.tsx` (`"use client"`, consumes hook)
-2. Hook: `src/frontend/src/hooks/useBenefits.ts` (returns `{ data, isLoading, error, ...actions }`)
-3. Service: `src/frontend/src/services/benefitsService.ts` (calls `http.get/post/put/delete`)
-4. Types: `src/frontend/src/types/benefit.ts`
-5. Components: `src/frontend/src/components/BenefitModal.tsx` (if modal needed)
+**New Frontend Feature (e.g., Employee List):**
+1. Create types: `src/frontend/src/types/<domain>.ts` — Entity interfaces
+2. Create schema: `src/frontend/src/schemas/<domain>.ts` — Zod validation
+3. Create service: `src/frontend/src/services/<domain>Service.ts` — API call methods
+4. Create hook: `src/frontend/src/hooks/use<Domain>.ts` — Data fetch & state
+5. Create components: `src/frontend/src/components/<Component>.tsx` — UI (modals, tables, cards)
+6. Create page: `src/frontend/src/app/pages/<domain>/list/page.tsx` — Route entry point
+7. Use components in page: Consume hook, render components
 
-**New backend validation schema:**
-- Create in `src/backend/src/schemas/BenefitSchema.ts`
-- Import and apply in route: `validateBody(createBenefitSchema)` as middleware before the handler
+**New Route/Endpoint:**
+- Must be wrapped in `asyncHandler` wrapper
+- Must apply `AuthMiddleware.verifyToken` (unless intentionally public — document why)
+- Must have `@swagger` JSDoc annotation
+- Must delegate all logic to service (controller only maps fields)
+- Run `npx tsc --noEmit` and `npm test` to verify
 
-**New frontend form:**
-- Zod schema in `src/frontend/src/schemas/benefitSchema.ts`
-- Use `useForm<InputType, unknown, OutputType>({ resolver: zodResolver(schema), defaultValues })`
+**New Database Table:**
+- Add model to `src/backend/prisma/schema.prisma` (follow `vpg_` prefix, snake_case columns)
+- Run `npx prisma migrate dev --name <description>`
+- Run `npx prisma generate`
+- All services must use singleton `prisma` from `src/backend/src/lib/prisma.ts`
 
-**New shared utility:**
-- Backend pure function: `src/backend/src/utils/` (only if truly generic — do not put business logic here)
-- Frontend pure function: `src/frontend/src/utils/` (appropriate file by concern)
-
----
+**New Zod Schema (Validation):**
+- Backend: `src/backend/src/schemas/<domain>Schema.ts` → use in `validateBody` middleware
+- Frontend: `src/frontend/src/schemas/<domain>.ts` → use in `zodResolver` in react-hook-form
 
 ## Special Directories
 
-**`src/backend/prisma/`:**
-- Purpose: Prisma schema and migration history
-- Generated: Migrations are generated by `npx prisma migrate dev`
-- Committed: Yes — both schema and migrations must be committed
+**`src/backend/__tests__/`:**
+- Purpose: Jest test files
+- Generated: No (manually written)
+- Committed: Yes
+- Structure:
+  - `unit/` — Service/utility tests with mocked Prisma
+  - `integration/` — End-to-end route tests
+  - `setup/` — Shared test config and fixtures
 
-**`src/Java/`:**
-- Purpose: Standalone Java utility for parsing clock-log exports
-- Generated: No
-- Runtime: Not called by the Node.js API at runtime; run independently
+**`src/backend/prisma/migrations/`:**
+- Purpose: Prisma-generated migration SQL files
+- Generated: Yes (by `npx prisma migrate dev`)
+- Committed: Yes (checked into version control)
+- Usage: Run `npx prisma migrate deploy` in production
 
-**`src/backend/src/scripts/`:**
-- Purpose: One-off database or data scripts
-- Runtime: Run manually, not imported by the application
+**`src/frontend/.next/`:**
+- Purpose: Next.js build output
+- Generated: Yes (by `npm run build`)
+- Committed: No (ignored)
+- Usage: Production deployment artifact
 
-**`src/backend/src/__tests__/`:**
-- Purpose: Jest unit tests; only services layer is currently tested
-- Test files: co-located under `__tests__/unit/services/`
+**`.planning/codebase/`:**
+- Purpose: Codebase analysis documents (written by GSD map-codebase)
+- Generated: Yes (by automation)
+- Committed: Yes
+- Contents: ARCHITECTURE.md, STRUCTURE.md, CONVENTIONS.md, TESTING.md, STACK.md, CONCERNS.md
 
 ---
 
-*Structure analysis: 2026-03-26*
+*Structure analysis: 2026-03-31*

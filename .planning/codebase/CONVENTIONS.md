@@ -1,266 +1,245 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-26
+**Analysis Date:** 2026-03-31
 
 ## Naming Patterns
 
-**Backend Files:**
-- Services: `PascalCase` — `EmployeeService.ts`, `NomineeService.ts`, `PayrollService.ts`
-- Controllers: `PascalCase` — `EmployeeController.ts`, `PayrollController.ts`
-- Routes: `PascalCase` — `EmployeeRoute.ts`, `PayrollRoutes.ts` (inconsistent: most are `Route.ts`, payroll is `Routes.ts`)
-- Schemas: `PascalCase` — `EmployeeSchema.ts`, `PayrollSchema.ts`, `ClockLogSchema.ts`
-- Models: lowercase `camelCase` file names — `employee.ts`, `payroll.ts` (not PascalCase like services)
+**Files:**
+- Backend: `PascalCase.ts` (e.g., `EmployeeService.ts`, `PayrollController.ts`, `AuthMiddleware.ts`)
+- Frontend components: `PascalCase.tsx` (e.g., `AddEmployeeModal.tsx`, `EmployeeTable.tsx`)
+- Frontend hooks: `camelCase` prefixed with `use` (e.g., `useEmployeeList.ts`, `usePositions.ts`)
+- Frontend services: `camelCase` (e.g., `employeeService.ts`, `payrollService.ts`, `http.ts`)
+- Test files: `*.test.ts` or `*.spec.ts` (e.g., `NomineeService.test.ts`, `payrollUtils.test.ts`)
 
-**Frontend Files:**
-- Components: `PascalCase.tsx` — `AddEmployeeModal.tsx`, `EmployeeTable.tsx`
-- Hooks: `camelCase` with `use` prefix — `useEmployeeList.ts`, `usePayroll.ts`
-- Services: `camelCase` — `employeeService.ts`, `payrollService.ts`
-- Schemas: mixed — `employee.ts` (no suffix), `vacationSchema.ts` (has suffix)
-- Types: `camelCase` — `employee.ts`, `laborEvent.ts`
-
-**Functions / Methods:**
-- Backend: `camelCase` static methods — `createEmployee`, `getAllEmployees`, `getEmployeeById`
-- Frontend hook actions: `handleX` prefix for event handlers — `handleAddEmployee`, `handleUpdateEmployee`
-- Modal controls: `openX` / `closeX` naming — `openAddEmployeeModal`, `closeEditEmployeeModal`
+**Functions:**
+- camelCase: `calculatePayroll()`, `getEmployeeById()`, `validateClockLogPairs()`
+- Static methods in service classes: `static async methodName()`
+- Backend: no instance methods, only static methods
 
 **Variables:**
-- `camelCase` throughout both backend and frontend
-- `snake_case` for domain / DB field names — `employee_first_name`, `period_start`, `national_id`
+- camelCase for local variables: `employeeData`, `isLoading`, `searchTerm`
+- camelCase for function parameters: `data`, `id`, `date`, `options`
 
-**Types / Interfaces:**
-- `PascalCase` — `Employee`, `Payroll`, `EmployeeFormData`, `PayrollCalculationResult`
-- Exported type aliases: `PascalCase` — `EmployeeStatus`, `CreateEmployeeInput`, `UpdateEmployeeInput`
+**Types/Interfaces:**
+- PascalCase: `Employee`, `EmployeeFormData`, `Payroll`, `DayWork`
+- Model interfaces: `Employee`, `Position`, `Deduction` (live in `src/backend/src/model/`)
+- Frontend schemas: Zod types exported as `EmployeeSchemaType`, `EmployeeSchemaInputType`
 
-**Constants:**
-- `SCREAMING_SNAKE_CASE` — `REGULAR_HOURS_PER_DAY`, `OVERTIME_MULTIPLIER`, `EMPLOYEE_STATUS`, `STATUS_BADGE_CONFIG`
-- Frontend constants: `src/frontend/src/constants/index.ts`
-- Backend constants: module-level in `src/backend/src/utils/payrollUtils.ts`
+**Database fields/table names:**
+- `snake_case` matching Prisma schema: `period_start`, `employee_first_name`, `national_id`
+- Table prefix convention: all tables start with `vpg_` (e.g., `vpg_employees`, `vpg_payrolls`, `vpg_positions`)
+- Relation fields use underscore pattern: `employee_position_id`, `payroll_type_id`
 
-**DB / Form Field Names:**
-- All DB fields follow `tablename_fieldname` snake_case — `employee_first_name`, `payrolls_period_start`
-- All HTML form input names follow `entity_field_name` — `employee_first_name`, `employee_email`
-- The `employee_` prefix convention is respected by both frontend forms and backend Zod schemas
+**Form field names:**
+- `entity_field_name` pattern (e.g., `employee_first_name`, `employee_social_code`, `employee_hire_date`)
+- Frontend forms match backend schema with `employee_` prefix throughout
+
+**Top-level constants:**
+- `SCREAMING_SNAKE_CASE`: `REGULAR_HOURS_PER_DAY`, `OVERTIME_MULTIPLIER`, `WORKING_DAYS_PER_WEEK`, `FERIADOS_CR`
+- Constant objects use `SCREAMING_SNAKE_CASE` with nested key casing: `EMPLOYEE_STATUS`, `STATUS_BADGE_CONFIG`, `MESSAGES`
 
 ## Code Style
 
 **Formatting:**
-- No `.prettierrc` or `biome.json` detected — formatting is manual / editor-enforced
-- Indentation: 2 spaces throughout both backend and frontend
+- No explicit formatter enforced (eslint present on frontend, none detected on backend)
+- Consistent 2-space indentation observed throughout
+- Line lengths typically 80-100 characters (no hard limit enforced)
 
-**Linting (Frontend):**
-- ESLint via Next.js: `next/core-web-vitals` + `next/typescript`
-- Run: `npx next lint` from `src/frontend/`
-- Active suppression example in `useEmployeeList.ts`: `// eslint-disable-next-line react-hooks/exhaustive-deps`
+**Linting:**
+- Frontend: ESLint with `next/core-web-vitals` and `next/typescript` presets
+- Backend: No linter configured; relies on TypeScript strict mode
+- Command: `npx next lint` (frontend only)
 
 **TypeScript:**
-- Backend: `tsconfig.json` at `src/backend/`; 27 active type errors (see CONCERNS.md for details)
-- Frontend: `tsconfig.json` at `src/frontend/`; uses `@/` path alias configured via `paths`
-- `any` used in controller layer (`createPayload: any` in `EmployeeService.ts`) and in `NomineeService.ts`
+- Strict mode enabled: `"strict": true` in both `tsconfig.json` files
+- Target: ES2020 (backend), matching Node 22 capabilities
+- Module resolution: node16 (backend)
+- No `any` types allowed in method signatures (enforced by CLAUDE.md policy)
+- Explicit type annotations on all function parameters and returns
 
 ## Import Organization
 
-**Backend:**
-1. External packages — `import { Router } from 'express'`
-2. Internal services / controllers — `import { EmployeeService } from '../service/EmployeeService'`
-3. Middleware / utils — `import { asyncHandler } from '../utils/asyncHandler'`
-4. Schemas — `import { createEmployeeSchema } from '../schemas/EmployeeSchema'`
-
-**Frontend:**
-- Path alias `@/` used throughout — `import { http } from '@/services/http'`
-- Never use relative imports deeper than one level (`../../`)
-- External packages first, then `@/` imports
+**Order:**
+1. External packages (`express`, `react`, `zod`, `@prisma/client`)
+2. Internal relative imports from `../` paths (backend) or `@/` aliases (frontend)
+3. Type imports grouped separately if needed
 
 **Path Aliases:**
-- Frontend: `@/` maps to `src/frontend/src/`
-- Backend: no path aliases; uses relative `../` imports
+- Frontend: `@/` prefix for all imports from `src/` (e.g., `@/components`, `@/services`, `@/types`, `@/schemas`, `@/hooks`, `@/constants`)
+- Backend: relative paths only; no alias convention
+- Frontend policy: Never use `../../` relative imports beyond 1 level — always use `@/`
+
+**Example Frontend:**
+```typescript
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Employee } from '@/types';
+import { employeeService } from '@/services/employeeService';
+import useEmployeeList from '@/hooks/useEmployeeList';
+```
+
+**Example Backend:**
+```typescript
+import { Request, Response } from "express";
+import { prisma } from '../lib/prisma';
+import { EmployeeService } from "../service/EmployeeService";
+```
 
 ## Error Handling
 
-**Backend Controller Pattern:**
+**Backend patterns:**
+- Services throw native JavaScript `Error` objects with descriptive messages
+- Controllers wrap try-catch and return JSON: `{ error: "message" }` with appropriate HTTP status
+- No custom error classes observed; uses plain Error
+- asyncHandler utility wraps all route handlers to catch promise rejections
+
+**Frontend patterns:**
+- Service methods throw native `Error` for API call failures
+- Hooks catch errors and expose via hook return shape: `{ data, isLoading, error, ...actions }`
+- Modal components handle submission errors with try-catch and don't re-throw
+- Error messages displayed inline in UI, not propagated up
+
+**Example Backend:**
 ```typescript
 try {
-  const result = await SomeService.method(data);
-  return res.status(200).json(result);
+  const employee = await EmployeeService.createEmployee(data);
+  return res.status(201).json(employee);
 } catch (error) {
-  console.error("Error doing X:", error);
-  return res.status(500).json({ error: "Failed to do X" });
+  console.error("Error creating employee:", error);
+  return res.status(500).json({ error: "Failed to create employee" });
 }
 ```
 
-**Zod Validation Errors (via `validateBody` middleware):**
-- Returns `400` with `{ success: false, error: "<comma-joined messages>" }`
-- Located at `src/backend/src/middleware/validateBody.ts`
-
-**`asyncHandler` wrapping:**
-- All routes must use `asyncHandler` from `src/backend/src/utils/asyncHandler.ts`
-- Wraps handler in `Promise.resolve(fn()).catch(next)` to forward unhandled rejections
-
-**Frontend Service Pattern:**
+**Example Frontend:**
 ```typescript
-export const getEmployees = async (): Promise<Employee[]> => {
-  try {
-    return await http.get('/employee');
-  } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Failed to fetch employees');
-  }
-};
+const [error, setError] = useState<string | null>(null);
+try {
+  await employeeService.updateEmployee(id, data);
+} catch (err) {
+  setError(err instanceof Error ? err.message : 'Failed to update');
+}
 ```
-
-**Frontend Hook Error Handling:**
-- Hooks catch service errors with `console.error` + `alert()` — no toast library in use
-- Errors are not stored in hook state by default
 
 ## Logging
 
-**Backend:**
-- `console.log` / `console.error` directly — no structured logging library
-- Singleton Prisma (`src/backend/src/lib/prisma.ts`) logs every SQL query via `$on('query')` with a running counter
-- Source-identified prefix pattern: `console.log('[Payroll] ...')`, `console.log('[QUERY N] ...')`
-- Debug-level logs remain in production code (deduction loading, payroll record saves in `NomineeService.ts`)
+**Framework:** `console` (no logging library in use)
 
-**Frontend:**
-- `console.error` in hook catch blocks
-- `console.log` for debug traces left in `useEmployeeList.ts`
-- `src/frontend/src/services/http.ts` logs `[http] API_BASE =` on every page load when `window` is defined
+**Patterns:**
+- Development logs: `console.log()` for startup messages, route access
+- Error logs: `console.error()` when exceptions occur in controllers
+- No structured logging; informal messages like `"Ruta raíz accesada"`, `"Servidor en ejecución..."`
+- Comments in Spanish OK; infrastructure comments in English preferred
+
+**Observed locations:**
+- `src/backend/src/index.ts`: server startup messages
+- `src/backend/src/controller/`: error logging on catch blocks
+- `src/frontend/src/services/http.ts`: debug log for API_BASE URL during development
 
 ## Comments
 
 **When to Comment:**
-- Every public backend method has JSDoc with `@param`, `@returns`, `@throws`
-- Every route has a `@swagger` JSDoc annotation
-- Business logic comments: Spanish — `// Formato cédula: X-XXXX-XXXX`
-- Infrastructure comments: English — `// Build API_BASE defensively`
+- All public methods require JSDoc with `@param`, `@returns`, `@throws`
+- Inline comments for non-obvious logic (e.g., timezone offset calculations, field mapping)
+- Business logic comments in Spanish allowed; technical/infrastructure comments in English
 
-**JSDoc Example (backend service):**
+**JSDoc/TSDoc Format:**
 ```typescript
 /**
- * Create a new employee
- * @param data - Employee data to create
- * @returns The created employee
- * @throws Error if the employee creation fails
+ * Brief description of what this does
+ * @param fieldName - Description of parameter
+ * @returns Description of return value
+ * @throws Description of exceptions
  */
-static async createEmployee(data: Employee): Promise<Employee>
+static async methodName(fieldName: string): Promise<Result> {
+  // implementation
+}
 ```
 
-**Swagger JSDoc Example (route):**
+**Example observed:**
 ```typescript
 /**
- * @swagger
- * /api/employee/create:
- *   post:
- *     tags: [Employees]
- *     summary: Create a new employee
+ * Create a new employee in the system
+ * POST /employee/create
+ * @param req - Express request object containing employee data
+ * @param res - Express response object
+ * @returns Promise<Response> - HTTP response with created employee data or error
  */
-router.post("/employee/create", validateBody(createEmployeeSchema), asyncHandler(EmployeeController.createEmployee));
+static async createEmployee(req: Request, res: Response): Promise<Response> {
 ```
 
 ## Function Design
 
-**Backend Services:**
-- Static methods only — service classes are never instantiated
-- Method ordering within each class: `create` → `getAll` → `getById` → `update` → `delete`
-- No `any` in method signatures — use types from `src/backend/src/model/`
-- Exception: `NomineeService.ts` still uses instance methods (`async getClockLogs`) — legacy design, not replicated
+**Size:**
+- Service methods typically 20-50 lines; larger methods break down complex payroll logic
+- Utility functions are small (5-25 lines) and pure
+- No strict length limit; follows single-responsibility principle
 
-**Frontend Hooks:**
-- Async operations wrapped in `useCallback` (convention; some hooks use inline `async` inside `useEffect`)
-- Return shape: `{ data, isLoading, error, ...actions }` — always a plain object, never a tuple
-- Modal open/close exposed as plain functions: `openAddEmployeeModal`, `closeEditEmployeeModal`
+**Parameters:**
+- Explicit object parameters preferred over positional args
+- Optional fields use `?` suffix: `data?: string`
+- Objects destructured in function bodies when needed
 
-**Frontend Components:**
-- All components: `React.FC<PropsInterface>` with interface defined in the same file
-- `"use client"` directive required at top of every file that uses hooks or browser APIs
+**Return Values:**
+- All async service methods return Promise-wrapped domain types
+- Controllers return Express `Response` (explicit `return res.status(...).json(...)`)
+- Frontend hooks return object shapes: `{ data, isLoading, error, ...actions }`
+- Null/undefined returned explicitly when not found (no generic fallbacks)
 
-## Form Pattern
-
-**Required stack:** `react-hook-form` + `zodResolver` — never raw `useState` for form fields.
-
-**Typing pattern:**
+**Example:**
 ```typescript
-const { register, handleSubmit, formState, reset } =
-  useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
-    resolver: zodResolver(employeeSchema),
-    defaultValues: { ... }
+static async getEmployeeById(id: number): Promise<Employee | null> {
+  const prismaEmployee = await prisma.vpg_employees.findUnique({
+    where: { employee_id: id }
   });
+  if (!prismaEmployee) return null;
+  return mapPrismaToEmployee(prismaEmployee);
+}
 ```
-
-**useEffect reset on modal open:**
-```typescript
-useEffect(() => {
-  if (!isOpen) return;
-  reset();
-  // focus first input via ref
-}, [isOpen, reset]);
-```
-
-Example: `src/frontend/src/components/AddEmployeeModal.tsx`
-
-## Modal Animation Pattern
-
-All modals use `framer-motion` `AnimatePresence` + `motion.div`. Use exactly these variant names for consistency:
-
-```typescript
-const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
-const modalVariants = {
-  hidden: { scale: 0.9, opacity: 0, y: 30 },
-  visible: {
-    scale: 1, opacity: 1, y: 0,
-    transition: { type: 'spring' as const, damping: 20, stiffness: 250 }
-  },
-  exit: { scale: 0.9, opacity: 0, y: 30, transition: { duration: 0.2 } }
-};
-```
-
-Backdrop: `bg-black/30 dark:bg-black/60 z-40`
-
-Example: `src/frontend/src/components/AddEmployeeModal.tsx`
-
-## Status Mapping Pattern (EmployeeService)
-
-The `statusMap` in `src/backend/src/service/EmployeeService.ts` translates frontend string values to the DB `Char(1)` values. This pattern is duplicated in **both** `createEmployee` and `updateEmployee`:
-
-```typescript
-const statusMap: Record<string, string> = {
-    active: 'A',
-    vacation: 'V',
-    incomplete_assistance: 'I',
-    incapacity_maternity: 'M'
-};
-// Pass through if already Char(1), otherwise map, fallback to 'A'
-const statusChar = (typeof data.status === 'string' && data.status.length === 1)
-    ? data.status
-    : statusMap[data.status as string] ?? 'A';
-```
-
-The reverse mapping (DB `Char(1)` → frontend constant) lives in `useEmployeeList.ts` inside `mapApiEmployees()`.
-
-## Zod Schema Conventions
-
-**Backend schemas** (`src/backend/src/schemas/`):
-- File per domain: `EmployeeSchema.ts`, `PayrollSchema.ts`, `DeductionSchema.ts`, `ClockLogSchema.ts`, `UserSchema.ts`
-- Export `createXSchema` + `updateXSchema` (usually `createXSchema.partial()`)
-- Export `CreateXInput` / `UpdateXInput` via `z.infer<typeof schema>`
-- Use `z.coerce.number()` for numeric IDs received as strings from HTTP bodies
-- Error messages in Spanish: `'El primer nombre es requerido'`
-- `updateEmployeeSchema` accepts both `employee_`-prefixed and non-prefixed fields for backward compatibility
-
-**Frontend schemas** (`src/frontend/src/schemas/`):
-- Optional string fields: `.optional().transform((v) => v ?? '')` to guarantee `string` output type
-- Export both `SchemaType` (output) and `SchemaInputType` (input = `z.input<typeof schema>`) for `useForm` typing
 
 ## Module Design
 
-**Backend:**
-- Each domain: one file per layer (route, controller, service, schema)
-- Services export a class with static methods only
-- Models export plain interfaces — zero logic allowed in `src/backend/src/model/`
+**Exports:**
+- Backend: class with static methods exported as named export: `export class EmployeeService { ... }`
+- Frontend services: named function exports: `export const getEmployees = async () => ...`
+- Frontend components: default export as `React.FC<PropsInterface>`
+- Frontend hooks: default export function: `export default useEmployeeList`
 
-**Frontend:**
-- Services export named async functions (not classes)
-- `src/frontend/src/services/index.ts` re-exports from all services
-- `src/frontend/src/types/index.ts` re-exports from all type files
-- No barrel file for hooks or components
+**Barrel Files:**
+- `src/constants/index.ts`: exports all constants
+- No other barrel files observed; imports are direct from source files
+- Frontend hooks imported individually: `import useEmployeeList from '@/hooks/useEmployeeList'`
+
+**Example Backend Export:**
+```typescript
+export class EmployeeService {
+  static async createEmployee(data: Employee): Promise<Employee> { ... }
+  static async getEmployeeById(id: number): Promise<Employee | null> { ... }
+  static async updateEmployee(id: number, data: Partial<Employee>): Promise<Employee | null> { ... }
+}
+```
+
+**Example Frontend Export:**
+```typescript
+const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  // component body
+};
+export default AddEmployeeModal;
+```
+
+## Prisma Integration
+
+**Pattern:**
+- Always import singleton: `import { prisma } from '../lib/prisma'`
+- Never instantiate `new PrismaClient()`
+- Prisma queries in service layer only, never in controllers
+- Direct method chaining: `prisma.vpg_employees.findUnique()`, `prisma.vpg_payrolls.create()`
+
+**Data Mapping:**
+- Services map Prisma objects to domain models: `mapPrismaToEmployee(prismaEmployee)`
+- Field names use Prisma schema names (with `vpg_` prefix)
+- Convert between frontend form names (`employee_first_name`) and DB names internally
 
 ---
 
-*Convention analysis: 2026-03-26*
+*Convention analysis: 2026-03-31*
