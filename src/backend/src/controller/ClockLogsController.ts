@@ -2,6 +2,22 @@ import { Request, Response } from "express";
 import { ClockLogsService } from "../service/ClockLogsService";
 import { prisma } from "../lib/prisma";
 
+/**
+ * Normalizes clock log type to IN or OUT for payroll calculation compatibility.
+ * Handles Spanish/English variants from Excel imports.
+ */
+function normalizeLogType(value: string): string {
+    const v = value.toLowerCase().trim();
+    const inTypes = ['in', 'entrada', 'entry', 'start', 'check_in', 'checkin'];
+    const outTypes = ['out', 'salida', 'exit', 'end', 'check_out', 'checkout', 'salida final', 'fin turno'];
+    if (inTypes.includes(v)) return 'IN';
+    if (outTypes.includes(v)) return 'OUT';
+    // For lunch/break: treat LUNCH_OUT as OUT and LUNCH_IN as IN (paired calculation)
+    if (['almuerzo', 'almuerzo_salida', 'lunch_out', 'break_out', 'salida almuerzo'].includes(v)) return 'OUT';
+    if (['almuerzo_entrada', 'lunch_in', 'break_in', 'entrada almuerzo'].includes(v)) return 'IN';
+    return value.toUpperCase();
+}
+
 function normalizeName(value: string) {
     return (value || '')
         .toLowerCase()
@@ -116,7 +132,7 @@ export class ClockLogsController {
             resolved.push({
                 employee_id: employeeId,
                 timestamp,
-                log_type: String(l.log_type),
+                log_type: normalizeLogType(String(l.log_type)),
                 remarks: l.remarks ?? null
             });
         }
@@ -131,7 +147,13 @@ export class ClockLogsController {
         const service = new ClockLogsService();
         try {
             const result = await service.bulkCreate(resolved);
-            return res.status(201).json({ success: true, created: result.created, skipped });
+            return res.status(201).json({
+                success: true,
+                created: result.created,
+                skipped,
+                skipped_count: skipped.length,
+                matched_count: resolved.length
+            });
         } catch (error) {
             console.error('Error en bulkCreate de clock logs:', error);
             return res.status(500).json({ error: 'Error interno del servidor', detail: String(error) });

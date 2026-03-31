@@ -664,8 +664,15 @@ export default function AttendancePage() {
       // Guardar marcas en la base de datos para que la planilla pueda usarlas
       try {
         const saveResult = await ClockLogsService.bulkSave(result.logs);
-        console.log('✅ Marcas guardadas en BD:', saveResult.created);
-        modal.showSuccess('Archivo importado', `Se importaron ${result.stats.validRows} marcas desde ${file.name}. ${saveResult.created} guardadas en base de datos.`);
+        console.log('✅ Marcas guardadas en BD:', saveResult);
+        const skippedCount = saveResult.skipped_count ?? saveResult.skipped?.length ?? 0;
+        const skippedMsg = skippedCount > 0
+          ? ` ${skippedCount} marcas ignoradas por empleado no encontrado.`
+          : '';
+        modal.showSuccess(
+          'Archivo importado',
+          `${saveResult.created} marcas guardadas en base de datos desde ${file.name}.${skippedMsg}`
+        );
       } catch (saveErr: unknown) {
         console.error('⚠️ Marcas cargadas en vista pero no guardadas en BD:', saveErr);
         const saveErrMsg = saveErr instanceof Error ? saveErr.message : 'error desconocido';

@@ -72,6 +72,7 @@ model vpg_clock_logs {
   clock_logs_version     Int           @default(1)
   vpg_employees          vpg_employees @relation(fields: [clock_logs_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_16")
 
+  @@unique([clock_logs_employee_id, clock_logs_timestamp, clock_logs_log_type], map: "uq_vpg_clock_logs_emp_ts_type")
   @@index([clock_logs_employee_id], map: "idx_vpg_clock_logs_employee_id")
   @@index([clock_logs_log_type], map: "idx_vpg_clock_logs_log_type")
   @@index([clock_logs_timestamp], map: "idx_vpg_clock_logs_timestamp")
