@@ -52,25 +52,25 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TESTS-01 | — | Pending |
-| TESTS-02 | — | Pending |
-| TESTS-03 | — | Pending |
-| TESTS-04 | — | Pending |
-| TESTS-05 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
-| UI-04 | — | Pending |
-| UI-05 | — | Pending |
-| INTEG-01 | — | Pending |
-| INTEG-02 | — | Pending |
-| INTEG-03 | — | Pending |
+| TESTS-01 | Phase 9 | Pending |
+| TESTS-02 | Phase 9 | Pending |
+| TESTS-03 | Phase 10 | Pending |
+| TESTS-04 | Phase 10 | Pending |
+| TESTS-05 | Phase 10 | Pending |
+| UI-01 | Phase 11 | Pending |
+| UI-02 | Phase 11 | Pending |
+| UI-03 | Phase 12 | Pending |
+| UI-04 | Phase 12 | Pending |
+| UI-05 | Phase 12 | Pending |
+| INTEG-01 | Phase 13 | Pending |
+| INTEG-02 | Phase 13 | Pending |
+| INTEG-03 | Phase 13 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 13 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 13 ⚠️
+- Mapped to phases: 13 ✓
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-31*
-*Last updated: 2026-03-31 after initial definition*
+*Last updated: 2026-03-31 — traceability mapped after roadmap creation*
