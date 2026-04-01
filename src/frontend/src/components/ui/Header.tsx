@@ -1,56 +1,26 @@
 "use client";
 import { getCurrentSpanishFormattedDateString } from "@/utils/time";
 import { useWeather } from "@/utils/weather";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@/hooks/user";
 import { useTheme } from "@/hooks/useTheme";
+import { useNotifications } from "@/hooks/useNotifications";
 import { SunIcon, MoonIcon, Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
+import { NotificationPanel } from "./NotificationPanel";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
+  const router = useRouter();
   const currentDate = getCurrentSpanishFormattedDateString();
   const { weather: currentWeather, isLoadingWeather } = useWeather();
   const { user: currentUser } = useUser();
   const { theme, toggleTheme, mounted } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const notifications = [
-    {
-      id: 1,
-      title: "Quincena de Pago",
-      message: "La quincena de pago se procesará mañana",
-      time: "Hace 2 horas",
-      type: "payment",
-      unread: true
-    },
-    {
-      id: 2,
-      title: "Registro de Asistencia",
-      message: "3 empleados no han marcado salida",
-      time: "Hace 4 horas",
-      type: "attendance",
-      unread: true
-    },
-    {
-      id: 3,
-      title: "Reporte Mensual",
-      message: "El reporte de junio está listo para revisión",
-      time: "Hace 1 día",
-      type: "report",
-      unread: false
-    },
-    {
-      id: 4,
-      title: "Nuevo Empleado",
-      message: "Se ha registrado un nuevo empleado en el sistema",
-      time: "Hace 2 días",
-      type: "employee",
-      unread: false
-    }
-  ];
+  const { data, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotifications();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -81,10 +51,19 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   const toggleNotifications = () => {
+    if (!showNotifications) {
+      fetchNotifications(1, 10);
+    }
     setShowNotifications(!showNotifications);
   };
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const handleMarkRead = useCallback(async (id: number) => {
+    await markAsRead(id);
+  }, [markAsRead]);
+
+  const handleMarkAllRead = useCallback(async () => {
+    await markAllAsRead();
+  }, [markAllAsRead]);
 
   return (
     <header className="bg-[#FCF1D5] dark:bg-zinc-900 border-b border-[#D4C89A] dark:border-zinc-800 px-4 md:px-6 py-3 flex items-center justify-between shadow-sm">
@@ -136,52 +115,26 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      {showNotifications && (
-        <div className="fixed top-16 right-6 w-80 bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-[#E0D6B7] dark:border-zinc-800 z-50 animate-in slide-in-from-top-2 duration-200">
-          <div className="px-4 py-3 border-b border-[#F0EDE5] dark:border-zinc-800 bg-[#FCF1D5] dark:bg-zinc-800 rounded-t-lg">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[#4A5D3A] dark:text-zinc-100 text-sm">Notificaciones</h3>
-              <span className="text-xs text-[#6B7556] dark:text-zinc-400">{unreadCount} sin leer</span>
-            </div>
-          </div>
+      <NotificationPanel
+        open={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notifications={data}
+        unreadCount={unreadCount}
+        onMarkRead={handleMarkRead}
+        onMarkAllRead={handleMarkAllRead}
+        isLoading={isLoading}
+      />
 
-          <div className="overflow-y-auto max-h-96">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`px-4 py-3 border-b border-[#F8F6F1] dark:border-zinc-800 hover:bg-[#FDFCF9] dark:hover:bg-zinc-800/50 transition-colors cursor-pointer ${
-                  notification.unread ? 'bg-[#FFF9E6] dark:bg-zinc-800/30' : ''
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                    notification.unread ? 'bg-blue-500' : 'bg-gray-300 dark:bg-zinc-600'
-                  }`}></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-[#4A5D3A] dark:text-zinc-100 truncate">
-                        {notification.title}
-                      </p>
-                      <span className="text-xs text-[#8B8B8B] dark:text-zinc-500 flex-shrink-0 ml-2">
-                        {notification.time}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#6B7556] dark:text-zinc-400 mt-1 leading-relaxed">
-                      {notification.message}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="px-4 py-3 bg-[#F8F6F1] dark:bg-zinc-800 rounded-b-lg">
-            <button className="text-xs text-[#4A5D3A] dark:text-zinc-400 hover:text-[#2A3A1A] dark:hover:text-zinc-200 font-medium transition-colors">
-              Ver todas las notificaciones
-            </button>
-          </div>
-        </div>
-      )}
+      {/* "View all" link rendered inside NotificationPanel footer */}
+      <div className="hidden">
+        <button
+          id="view-all-notifications-btn"
+          onClick={() => {
+            setShowNotifications(false);
+            router.push("/pages/notifications");
+          }}
+        />
+      </div>
     </header>
   );
 }
