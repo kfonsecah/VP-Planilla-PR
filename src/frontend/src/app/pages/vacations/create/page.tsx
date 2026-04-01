@@ -13,6 +13,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 export default function CreateVacationPage() {
   const router = useRouter();
@@ -136,20 +137,18 @@ export default function CreateVacationPage() {
                       <span className="text-sm text-zinc-500 dark:text-zinc-400">Cargando empleados...</span>
                     </div>
                   ) : (
-                    <select
-                      name="employee_id"
+                    <Select
                       value={formData.employee_id}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-zinc-700 dark:text-zinc-100"
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, employee_id: value }))}
+                      placeholder="Selecciona un empleado"
+                      className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
                     >
-                      <option value="">Selecciona un empleado</option>
                       {employees.map((emp) => (
-                        <option key={emp.id} value={emp.id}>
+                        <SelectItem key={emp.id} value={String(emp.id)}>
                           {emp.name} {emp.last_name} {emp.middle_name || ''}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
+                    </Select>
                   )}
                 </div>
 

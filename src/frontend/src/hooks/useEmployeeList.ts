@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Employee, EmployeeStats, EmployeeFormData } from '@/types';
 import { 
   calculateEmployeeStats, 
@@ -230,7 +231,7 @@ const useEmployeeList = () => {
         setEditingEmployeeData(normalizeEmployeeForEdit(employeeData));
       } catch (error) {
         console.error('Error loading employee:', error);
-        alert('No se pudo cargar el empleado. Intenta de nuevo.');
+        toast.error('No se pudo cargar el empleado. Intenta de nuevo.');
         setShowEditEmployeeModal(false);
       } finally {
         setIsLoadingEmployee(false);
@@ -245,7 +246,7 @@ const useEmployeeList = () => {
     } else if (action === 'delete') {
       // Kept for backward compatibility — dismiss replaces this in the UI
       console.log(`Eliminar empleado: ${employeeId}`);
-      alert('Use la opción "Despedir" para desactivar un empleado.');
+      toast.warning('Use la opción "Despedir" para desactivar un empleado.');
     } else {
       console.log(`Acción: ${action} para empleado: ${employeeId}`);
     }
@@ -279,10 +280,10 @@ const useEmployeeList = () => {
       const apiEmployees = await apiGetEmployees();
       setRawEmployees(apiEmployees as RawEmployee[]);
       
-      alert('Empleado actualizado correctamente');
+      toast.success('Empleado actualizado correctamente');
     } catch (error) {
       console.error('Error updating employee', error);
-      alert('No se pudo actualizar el empleado. Revisa la consola para más detalles.');
+      toast.error('No se pudo actualizar el empleado. Revisa la consola para más detalles.');
       throw error;
     }
   };

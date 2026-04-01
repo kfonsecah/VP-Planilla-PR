@@ -14,6 +14,7 @@ import {
   PencilIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 export default function AttendancePage() {
   const modal = useModal();
@@ -425,14 +426,14 @@ export default function AttendancePage() {
                 <label className="block text-sm font-semibold mb-2 text-zinc-700 dark:text-white">
                   Tipo de Marca
                 </label>
-                <select
+                <Select
                   value={editingLog.log_type}
-                  onChange={(e) => setEditingLog({ ...editingLog, log_type: e.target.value })}
-                  className="w-full border border-zinc-200 dark:border-zinc-600 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F7153] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
+                  onValueChange={(value) => setEditingLog({ ...editingLog, log_type: value })}
+                  className="border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
                 >
-                  <option value="IN">Entrada (IN)</option>
-                  <option value="OUT">Salida (OUT)</option>
-                </select>
+                  <SelectItem value="IN">Entrada (IN)</SelectItem>
+                  <SelectItem value="OUT">Salida (OUT)</SelectItem>
+                </Select>
               </div>
 
               <div>

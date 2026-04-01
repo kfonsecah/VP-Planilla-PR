@@ -8,6 +8,7 @@ import PayrollResults from '@/components/PayrollResults';
 import PayrollCreateModal from '@/components/PayrollCreateModal';
 import DatePicker from '@/components/DatePicker';
 import { useModal } from '@/hooks/useModal';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 export default function PayrollCalculatePage() {
   const { data, isLoading, error, calculatePayrollForPeriod } = useNominee();
@@ -273,19 +274,19 @@ export default function PayrollCalculatePage() {
               <label className="block text-sm font-medium text-zinc-600 dark:text-[#A3A3A3] mb-2">
                 Tipo de Planilla <span className="text-red-500">*</span>
               </label>
-              <select
-                value={payrollTypeId || ''}
-                onChange={(e) => setPayrollTypeId(e.target.value ? Number(e.target.value) : null)}
+              <Select
+                value={payrollTypeId ? String(payrollTypeId) : ''}
+                onValueChange={(value) => setPayrollTypeId(value ? Number(value) : null)}
                 disabled={loadingTypes}
-                className="w-full border border-zinc-300 dark:border-[#404040] px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-[#E5E5E5]"
+                placeholder="Seleccione..."
+                className="border-zinc-300 dark:border-[#404040] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-[#E5E5E5]"
               >
-                <option value="">Seleccione...</option>
                 {payrollTypes?.map((type) => (
-                  <option key={type.id} value={type.id}>
+                  <SelectItem key={type.id} value={String(type.id)}>
                     {type.name}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>

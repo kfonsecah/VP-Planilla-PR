@@ -13,6 +13,7 @@ import { Employee } from '@/types';
 import { formatSalary } from '@/utils/employeeUtils';
 import EmployeeProfileModal from './EmployeeProfileModal';
 import useEmployeeTable from '@/hooks/useEmployeeTable';
+import { Tooltip } from '@/components/ui/Tooltip';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -260,32 +261,38 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                       {selectedEmployee === employee.id && (
                         <div className="absolute right-0 z-10 w-52 mt-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl">
                           <div className="py-1">
-                            <button
-                              onClick={() => handleViewProfile(employee)}
-                              className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                              Ver Perfil
-                            </button>
-                            {!isFired && (
+                            <Tooltip content="Ver perfil completo">
                               <button
-                                onClick={() => handleEmployeeAction('edit', employee.id)}
+                                onClick={() => handleViewProfile(employee)}
                                 className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
                               >
-                                <PencilIcon className="w-4 h-4" />
-                                Editar Información
+                                <EyeIcon className="w-4 h-4" />
+                                Ver Perfil
                               </button>
+                            </Tooltip>
+                            {!isFired && (
+                              <Tooltip content="Editar información del empleado">
+                                <button
+                                  onClick={() => handleEmployeeAction('edit', employee.id)}
+                                  className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                  Editar Información
+                                </button>
+                              </Tooltip>
                             )}
                             {!isFired && (
                               <>
                                 <div className="border-t border-zinc-200 dark:border-zinc-700 mx-2 my-1" />
-                                <button
-                                  onClick={() => handleEmployeeAction('dismiss', employee.id)}
-                                  className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                >
-                                  <NoSymbolIcon className="w-4 h-4" />
-                                  Despedir empleado
-                                </button>
+                                <Tooltip content="Despedir empleado">
+                                  <button
+                                    onClick={() => handleEmployeeAction('dismiss', employee.id)}
+                                    className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                  >
+                                    <NoSymbolIcon className="w-4 h-4" />
+                                    Despedir empleado
+                                  </button>
+                                </Tooltip>
                               </>
                             )}
                           </div>

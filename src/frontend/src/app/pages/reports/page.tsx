@@ -25,6 +25,7 @@ import {
   ClockIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 const REPORT_LABELS: Record<OfficialReportType, string> = {
   CCSS: 'CCSS · Seguridad Social',
@@ -315,18 +316,18 @@ export default function ReportsPage() {
             <label className="text-sm font-semibold text-zinc-700 dark:text-white">
               Planilla disponible
             </label>
-            <select
-              value={selectedPayrollId ?? ''}
-              onChange={(event) => setSelectedPayrollId(Number(event.target.value))}
-              className="mt-2 w-full rounded-2xl border border-zinc-200 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 px-4 py-3 text-zinc-700 dark:text-white focus:border-[#6F7153] dark:focus:border-zinc-500 focus:outline-none"
+            <Select
+              value={selectedPayrollId ? String(selectedPayrollId) : ''}
+              onValueChange={(value) => setSelectedPayrollId(Number(value))}
+              placeholder={!dashboard ? 'Cargando planillas...' : 'Seleccionar planilla'}
+              className="mt-2 bg-zinc-50 dark:bg-zinc-700 text-zinc-700 dark:text-white"
             >
-              {!dashboard && <option value="">Cargando planillas...</option>}
               {dashboard?.payrolls.map((payroll) => (
-                <option key={payroll.id} value={payroll.id}>
+                <SelectItem key={payroll.id} value={String(payroll.id)}>
                   {payroll.label}
-                </option>
+                </SelectItem>
               ))}
-            </select>
+            </Select>
             {currentPayroll && (
               <p className="mt-2 text-xs text-gray-500 dark:text-zinc-400">
                 Último envío: {currentPayroll.last_sent_at ? formatDate(currentPayroll.last_sent_at) : 'Nunca'} ·{' '}

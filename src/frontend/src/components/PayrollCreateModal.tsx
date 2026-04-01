@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePayroll } from '@/hooks/usePayroll';
 import { useNominee } from '@/hooks/useNominee';
 import { XMarkIcon, CalendarIcon, DocumentTextIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -25,7 +26,6 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
   const { createPayroll } = usePayroll();
   const { calculatePayrollForPeriod } = useNominee();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
@@ -53,9 +53,7 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
 
   const handleSave = async (values: PayrollFormValues) => {
     setSaving(true);
-    setError(null);
     try {
-      // 1. Create payroll record
       const payload = {
         payroll_type_id: values.payroll_type_id || 1,
         period_start: periodStart,
@@ -68,10 +66,8 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
       const created = await createPayroll(payload);
       console.log('Payroll created:', created);
 
-      // 2. Recalculate and save to vpg_payroll_employee
       await calculatePayrollForPeriod(periodStart, periodEnd, created.id);
 
-      // 3. Store id in local history
       try {
         const key = 'vp_payroll_history';
         const raw = localStorage.getItem(key);
@@ -80,11 +76,12 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
         localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
       } catch {}
 
+      toast.success('Planilla guardada exitosamente');
       if (onSaved) onSaved(created.id);
       onClose();
     } catch (err: unknown) {
       console.error('Error saving payroll:', err);
-      setError(err instanceof Error ? err.message : 'Error al guardar la planilla');
+      toast.error(err instanceof Error ? err.message : 'Error al guardar la planilla');
     } finally {
       setSaving(false);
     }
@@ -202,21 +199,6 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
                     </p>
                   </div>
                 </div>
-
-                {/* Error Message */}
-                {error && (
-                  <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-400 dark:border-red-600 rounded-lg p-4">
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0">
-                        <span className="text-2xl">❌</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">Error al guardar</p>
-                        <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-2">

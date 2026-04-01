@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { LaborEventFormData, EmployeeLaborEvent } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 interface Props {
   isOpen: boolean;
@@ -387,19 +388,18 @@ const LaborEventModal: React.FC<Props> = ({
                             name="employee_id"
                             control={control}
                             render={({ field }) => (
-                              <select
-                                {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
-                                aria-describedby={errors.employee_id ? "employee-error" : undefined}
+                              <Select
+                                value={field.value ? String(field.value) : ''}
+                                onValueChange={(value) => field.onChange(Number(value))}
+                                placeholder="Seleccionar empleado"
+                                className="border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
                               >
-                                <option value={0}>Seleccionar empleado</option>
                                 {employees.map(employee => (
-                                  <option key={employee.id} value={employee.id}>
+                                  <SelectItem key={employee.id} value={String(employee.id)}>
                                     {employee.name}
-                                  </option>
+                                  </SelectItem>
                                 ))}
-                              </select>
+                              </Select>
                             )}
                           />
                           {errors.employee_id && (
@@ -459,14 +459,15 @@ const LaborEventModal: React.FC<Props> = ({
                             name="status"
                             control={control}
                             render={({ field }) => (
-                              <select
-                                {...field}
-                                className="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 p-3 focus:ring-2 focus:ring-[#6F7153] focus:border-transparent transition-all bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                className="border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
                               >
-                                <option value="active">Activo</option>
-                                <option value="completed">Completado</option>
-                                <option value="cancelled">Cancelado</option>
-                              </select>
+                                <SelectItem value="active">Activo</SelectItem>
+                                <SelectItem value="completed">Completado</SelectItem>
+                                <SelectItem value="cancelled">Cancelado</SelectItem>
+                              </Select>
                             )}
                           />
                         </div>

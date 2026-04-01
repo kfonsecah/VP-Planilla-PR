@@ -19,6 +19,7 @@ import { PayrollService, Payroll, PayrollEmployee } from '@/services/payrollServ
 import { formatCRC } from '@/utils/number';
 import ExcelJS from 'exceljs';
 import { useModal } from '@/hooks/useModal';
+import { toast } from 'sonner';
 
 export default function PayrollDetailPage() {
   const pathname = usePathname();
@@ -28,7 +29,6 @@ export default function PayrollDetailPage() {
   const [employees, setEmployees] = useState<PayrollEmployee[]>([]);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const parts = pathname?.split('/') || [];
@@ -44,7 +44,6 @@ export default function PayrollDetailPage() {
 
   const loadPayrollDetails = async (id: number) => {
     setIsLoading(true);
-    setError(null);
     try {
       const payrollData = await PayrollService.getPayrollById(id);
       setPayroll(payrollData);
@@ -52,7 +51,7 @@ export default function PayrollDetailPage() {
       setEmployees(employeesData);
     } catch (err) {
       const message = (err as Error)?.message || 'Error al cargar los detalles de la planilla';
-      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -229,12 +228,12 @@ export default function PayrollDetailPage() {
     );
   }
 
-  if (error || !payroll) {
+  if (!payroll) {
     return (
       <div className="min-h-screen bg-zinc-100 dark:bg-[#121212] p-6">
         <div className="mx-auto max-w-7xl">
-          <div className="p-8 text-center border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-xl">
-            <p className="mb-4 text-red-700 dark:text-red-300">⚠️ {error || 'No se pudo cargar la planilla'}</p>
+          <div className="p-8 text-center border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/20 rounded-xl">
+            <p className="mb-4 text-zinc-700 dark:text-zinc-300">No se pudo cargar la planilla</p>
             <Link
               href="/pages/payroll/list"
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors"

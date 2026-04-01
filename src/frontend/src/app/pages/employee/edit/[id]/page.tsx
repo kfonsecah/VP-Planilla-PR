@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
 import { useEmployeeEdit } from '@/hooks/useEmployeeEdit';
 import { employeeSchema, EmployeeSchemaType, EmployeeSchemaInputType } from '@/schemas/employee';
 import { usePositions } from '@/hooks/usePositions';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 interface EditEmployeePageProps {
   params: Promise<{
@@ -25,15 +26,13 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
   const { id } = use(params);
   const { employee, isLoading, error, update } = useEmployeeEdit(id);
   const { data: positions, isLoading: positionsLoading } = usePositions();
-  const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
   const positionOptions = (positions || []).map((position) => ({
     id: String(position.id),
     name: position.name || 'Sin nombre',
     salary: typeof position.base_salary === 'number' ? position.base_salary : Number(position.base_salary) || 0
   }));
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting }, reset } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
     resolver: zodResolver(employeeSchema),
   });
 
@@ -56,9 +55,6 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
   }, [employee, reset]);
 
   const onSubmit = async (data: EmployeeSchemaType) => {
-    setUpdateSuccess(false);
-    setUpdateError(null);
-
     try {
       const updates = {
         name: data.employee_first_name,
@@ -75,23 +71,22 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
       };
 
       await update(updates);
-      setUpdateSuccess(true);
-      
+      toast.success('Empleado actualizado correctamente');
       setTimeout(() => {
         router.push('/pages/employee/list');
-      }, 2000);
+      }, 1500);
     } catch (err: unknown) {
-      setUpdateError(err instanceof Error ? err.message : 'Error al actualizar empleado');
+      toast.error(err instanceof Error ? err.message : 'Error al actualizar empleado');
       console.error('Error updating employee:', err);
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6F7153] mx-auto"></div>
-          <p className="mt-4 text-zinc-700 dark:text-zinc-300">Cargando empleado...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Cargando empleado...</p>
         </div>
       </div>
     );
@@ -135,30 +130,8 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
           </div>
         </div>
 
-        {/* Success Message */}
-        {updateSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-4 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg"
-          >
-            ✓ Empleado actualizado correctamente. Redirigiendo...
-          </motion.div>
-        )}
-
-        {/* Error Message */}
-        {updateError && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg"
-          >
-            ✗ {updateError}
-          </motion.div>
-        )}
-
         {/* Formulario */}
-        <div className="bg-zinc-50 dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
           <div className="bg-green-700 px-6 py-4">
             <h2 className="text-xl font-semibold text-white">
               Información del Empleado
@@ -169,7 +142,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Nombres */}
               <div>
-                <h3 className="text-lg font-medium text-zinc-700 dark:text-white mb-3 border-b border-zinc-300 dark:border-zinc-700 pb-2">
+                <h3 className="text-lg font-medium text-zinc-700 dark:text-zinc-100 mb-3 border-b border-zinc-200 dark:border-zinc-700 pb-2">
                   Datos Personales
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -179,7 +152,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
                     </label>
                     <input
                       {...register('employee_first_name')}
-                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
+                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
                     />
                     {errors.employee_first_name && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -296,18 +269,25 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
                     <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
                       Posición <span className="text-red-500">*</span>
                     </label>
-                    <select
-                      {...register('employee_position_id')}
-                      disabled={positionsLoading}
-                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
-                    >
-                      <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
-                      {positionOptions.map((position) => (
-                        <option key={position.id} value={position.id}>
-                          {position.name} - ₡{position.salary.toLocaleString()}
-                        </option>
-                      ))}
-                    </select>
+                    <Controller
+                      name="employee_position_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ''}
+                          onValueChange={field.onChange}
+                          disabled={positionsLoading}
+                          placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
+                          className="border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
+                        >
+                          {positionOptions.map((position) => (
+                            <SelectItem key={position.id} value={position.id}>
+                              {position.name} - ₡{position.salary.toLocaleString()}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      )}
+                    />
                     {errors.employee_position_id && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                         {String(errors.employee_position_id?.message)}
@@ -330,15 +310,23 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
                     <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
                       Horario
                     </label>
-                    <select
-                      {...register('employee_schedule')}
-                      className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B5AF9A] bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
-                    >
-                      <option value="Horario Diurno">Horario Diurno</option>
-                      <option value="Horario Nocturno">Horario Nocturno</option>
-                      <option value="Horario Mixto">Horario Mixto</option>
-                      <option value="Medio Tiempo">Medio Tiempo</option>
-                    </select>
+                    <Controller
+                      name="employee_schedule"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ''}
+                          onValueChange={field.onChange}
+                          placeholder="Seleccionar horario"
+                          className="border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white"
+                        >
+                          <SelectItem value="Horario Diurno">Horario Diurno</SelectItem>
+                          <SelectItem value="Horario Nocturno">Horario Nocturno</SelectItem>
+                          <SelectItem value="Horario Mixto">Horario Mixto</SelectItem>
+                          <SelectItem value="Medio Tiempo">Medio Tiempo</SelectItem>
+                        </Select>
+                      )}
+                    />
                   </div>
 
                   <div>

@@ -13,6 +13,7 @@ import {
   UserIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,7 +24,6 @@ export default function VacationDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [vacation, setVacation] = useState<Vacation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVacation = async () => {
@@ -32,7 +32,7 @@ export default function VacationDetailPage({ params }: PageProps) {
         const data = await VacationsService.getById(parseInt(id));
         setVacation(data);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Error al cargar vacación');
+        toast.error(err instanceof Error ? err.message : 'Error al cargar vacación');
       } finally {
         setLoading(false);
       }
@@ -96,16 +96,15 @@ export default function VacationDetailPage({ params }: PageProps) {
     );
   }
 
-  if (error || !vacation) {
+  if (!vacation) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#E7DCC1] dark:from-[#121212] via-[#F9F1DC] dark:via-[#1a1a1a] to-[#E7DCC1] dark:to-[#121212]">
         <div className="p-6">
-          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 rounded-2xl p-8 text-center shadow-lg">
-            <p className="text-2xl font-bold mb-3">⚠️ Error</p>
-            <p className="text-lg mb-6">{error || 'No se pudo cargar la información de la vacación'}</p>
+          <div className="bg-zinc-50 dark:bg-zinc-900/20 border-l-4 border-zinc-400 dark:border-zinc-600 rounded-2xl p-8 text-center shadow-lg">
+            <p className="text-2xl font-bold mb-3">No se encontró la vacación</p>
             <button
               onClick={() => router.back()}
-              className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-medium shadow-lg"
+              className="px-6 py-3 bg-zinc-600 text-white rounded-xl hover:bg-zinc-700 transition-all font-medium shadow-lg"
             >
               Volver
             </button>

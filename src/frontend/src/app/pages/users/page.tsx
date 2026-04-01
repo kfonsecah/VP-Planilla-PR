@@ -11,6 +11,8 @@ import {
   ShieldCheckIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
+import { toast } from 'sonner';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 const ROLE_COLORS: Record<string, string> = {
   admin: "bg-red-100 text-red-800",
@@ -24,12 +26,10 @@ export default function UsersPermissionsPage() {
   const [roles, setRoles] = useState<RoleDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingUserId, setSavingUserId] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const [usersResponse, roleCatalog] = await Promise.all([
         UserService.getUsers(),
@@ -38,7 +38,7 @@ export default function UsersPermissionsPage() {
       setUsers(usersResponse);
       setRoles(roleCatalog);
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof Error
           ? err.message
           : "No se pudieron cargar los usuarios y permisos"
@@ -65,7 +65,6 @@ export default function UsersPermissionsPage() {
 
   const handleRoleChange = async (userId: number, newRole: string) => {
     setSavingUserId(userId);
-    setError(null);
     try {
       const updated = await UserService.updatePermissions(userId, {
         role: newRole,
@@ -74,7 +73,7 @@ export default function UsersPermissionsPage() {
         prev.map((user) => (user.id === userId ? updated : user))
       );
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof Error
           ? err.message
           : "No se pudo actualizar el rol del usuario"
@@ -128,11 +127,6 @@ export default function UsersPermissionsPage() {
                 Actualizar
               </button>
             </div>
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800 rounded-lg px-3 py-2">
-                {error}
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -228,20 +222,19 @@ export default function UsersPermissionsPage() {
                         >
                           {user.roleLabel}
                         </span>
-                        <select
-                          className="border border-neutral-200 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:bg-gray-700 dark:text-white"
+                        <Select
                           value={user.role}
-                          onChange={(event) =>
-                            void handleRoleChange(user.id, event.target.value)
-                          }
+                          onValueChange={(value) => void handleRoleChange(user.id, value)}
                           disabled={savingUserId === user.id}
+                          placeholder="Seleccionar rol"
+                          className="border-neutral-200 dark:border-zinc-600 bg-white dark:bg-gray-700 text-zinc-700 dark:text-white"
                         >
                           {roleOptions.map((role) => (
-                            <option key={role.key} value={role.key}>
+                            <SelectItem key={role.key} value={role.key}>
                               {role.label}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </select>
+                        </Select>
                         {savingUserId === user.id && (
                           <p className="text-xs text-neutral-500 dark:text-zinc-400">
                             Guardando cambios...

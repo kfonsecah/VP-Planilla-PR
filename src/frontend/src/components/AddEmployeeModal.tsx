@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { employeeSchema, EmployeeSchemaType, EmployeeSchemaInputType } from '@/schemas/employee';
 import { Position } from '@/services/positionsService';
+import { Select, SelectItem } from '@/components/ui/Select';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     salary: typeof position.base_salary === 'number' ? position.base_salary : Number(position.base_salary) || 0
   }));
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
+  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       employee_first_name: '',
@@ -152,18 +153,25 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
                     <div>
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Posición *</label>
-                      <select
-                        {...register('employee_position_id')}
-                        disabled={positionsLoading}
-                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
-                      >
-                        <option value="">{positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}</option>
-                        {positionOptions.map((position) => (
-                          <option key={position.id} value={position.id}>
-                            {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
-                          </option>
-                        ))}
-                      </select>
+                      <Controller
+                        name="employee_position_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            disabled={positionsLoading}
+                            placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
+                            className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+                          >
+                            {positionOptions.map((position) => (
+                              <SelectItem key={position.id} value={position.id}>
+                                {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
+                              </SelectItem>
+                            ))}
+                          </Select>
+                        )}
+                      />
                       {errors.employee_position_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{String(errors.employee_position_id?.message)}</p>}
                     </div>
 

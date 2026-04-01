@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { NoSymbolIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
 
 interface DismissEmployeeModalProps {
   isOpen: boolean;
@@ -20,13 +21,11 @@ const DismissEmployeeModal: React.FC<DismissEmployeeModalProps> = ({
 }) => {
   const [exitDate, setExitDate] = useState(todayISO());
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setExitDate(todayISO());
       setBusy(false);
-      setError(null);
     }
   }, [isOpen]);
 
@@ -34,15 +33,17 @@ const DismissEmployeeModal: React.FC<DismissEmployeeModalProps> = ({
 
   const handleConfirm = async () => {
     if (!exitDate) {
-      setError('La fecha de salida es requerida.');
+      toast.error('La fecha de salida es requerida.');
       return;
     }
     setBusy(true);
-    setError(null);
     try {
       await onConfirm(exitDate);
+      toast.success('Empleado despedido exitosamente');
+      onClose();
     } catch {
-      setError('No se pudo procesar el despido. Intenta de nuevo.');
+      toast.error('No se pudo procesar el despido. Intenta de nuevo.');
+    } finally {
       setBusy(false);
     }
   };
@@ -109,12 +110,6 @@ const DismissEmployeeModal: React.FC<DismissEmployeeModalProps> = ({
               className="w-full px-3 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100 text-sm"
             />
           </div>
-
-          {error && (
-            <p className="text-sm text-red-400 bg-red-900/20 border border-red-800/50 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
         </div>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800">
