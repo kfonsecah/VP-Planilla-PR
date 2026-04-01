@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: — Calidad, UI Moderna y Cobertura de Tests
 status: verifying
 stopped_at: Completed 14-02-PLAN.md - Frontend notification UI
-last_updated: "2026-04-01T23:48:32.281Z"
+last_updated: "2026-04-01T23:49:33.470Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 7
@@ -62,6 +62,8 @@ Key decisions from v1.0/v1.1:
 - [13] Field names: frontend debe coincidir exactamente con backend controller destructuring
 - [14-01] Notification service: static class pattern, ownership verification on markAsRead/deleteNotification, prisma db push used instead of migrate dev due to shadow DB conflict
 - [Phase 14-servicio-de-notificaciones]: NotificationPanel uses named export (export const) matching project convention for UI components
+- [Phase 14-servicio-de-notificaciones]: NotificationPanel uses named export (export const) matching project convention for UI components
+- [Phase 14-servicio-de-notificaciones]: Notifications page uses card/list layout rather than table for better mobile readability
 
 ### Tests
 
@@ -82,7 +84,7 @@ Key decisions from v1.0/v1.1:
 
 ## Session Continuity
 
-Last session: 2026-04-01T23:48:32.275Z
+Last session: 2026-04-01T23:49:15.890Z
 Stopped at: Completed 14-02-PLAN.md - Frontend notification UI
 Resume: ejecutar `/gsd:plan-phase 14` para Phase 14
 
