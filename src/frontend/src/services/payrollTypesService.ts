@@ -18,6 +18,7 @@ export interface PayrollType {
 export interface PayrollTypePayload {
   name: string;
   description: string;
+  frequency: string;
 }
 
 /**

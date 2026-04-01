@@ -53,7 +53,8 @@ export const useLaborEvents = () => {
       if (!laborEventId && (eventData.name || eventData.description)) {
         created = await LaborEventsService.createLaborEvent({
           name: eventData.name!,
-          description: eventData.description!
+          description: eventData.description!,
+          event_type: 'custom'
         });
         laborEventId = created.id;
       }

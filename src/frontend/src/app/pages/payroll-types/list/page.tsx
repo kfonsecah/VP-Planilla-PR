@@ -63,7 +63,7 @@ export default function PayrollTypesPage() {
         await update(editing.id, values);
         modal.showSuccess('Actualizado', 'Tipo de planilla actualizado correctamente');
       } else {
-        await create({ name: values.name!, description: values.description! });
+        await create({ name: values.name!, description: values.description!, frequency: (values as any).frequency || 'mensual' });
         modal.showSuccess('Creado', 'Tipo de planilla creado correctamente');
       }
       refetch();
