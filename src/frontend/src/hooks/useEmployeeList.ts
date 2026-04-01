@@ -301,7 +301,7 @@ const useEmployeeList = () => {
       setDismissingEmployee(null);
     } catch (error) {
       console.error('Error dismissing employee', error);
-      alert('No se pudo despedir al empleado. Intenta de nuevo.');
+      toast.error('No se pudo despedir al empleado. Intenta de nuevo.');
     }
   };
 
@@ -327,7 +327,7 @@ const useEmployeeList = () => {
       setRawEmployees((prev) => [...prev, createdObj]);
     } catch (error) {
       console.error('Error creating employee', error);
-      alert('No se pudo guardar el empleado. Revisa la consola para más detalles.');
+      toast.error('No se pudo guardar el empleado. Revisa la consola para más detalles.');
     }
   };
 
