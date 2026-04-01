@@ -852,7 +852,7 @@ export default function AttendancePage() {
                   setEndDate('');
                   setData([]);
                 }}
-                className="px-6 py-2.5 bg-gray-200 dark:bg-[#404040] hover:bg-gray-300 dark:hover:bg-[#4a4a4a] text-gray-700 dark:text-[#E5E5E5] rounded-xl transition-all font-medium"
+                className="px-6 py-2.5 bg-zinc-200 dark:bg-[#404040] hover:bg-zinc-300 dark:hover:bg-[#4a4a4a] text-zinc-700 dark:text-[#E5E5E5] rounded-xl transition-all font-medium"
               >
                 Limpiar
               </button>

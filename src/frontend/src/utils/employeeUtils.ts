@@ -59,7 +59,7 @@ export const getStatusBadgeConfig = (status: string) => {
   const statusKey = status as keyof typeof STATUS_BADGE_CONFIG;
   return STATUS_BADGE_CONFIG[statusKey] || {
     text: 'Desconocido',
-    className: 'px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded-full'
+    className: 'px-2 py-1 text-xs text-zinc-800 bg-zinc-100 rounded-full'
   };
 };
 
