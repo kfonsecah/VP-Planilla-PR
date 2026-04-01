@@ -1,33 +1,37 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-31T23:25:41.137Z",
-  "phase": "9",
-  "phase_name": "Tests — EmployeeService y ClockLogService",
-  "phase_dir": null,
+  "timestamp": "2026-03-31T23:50:00.000Z",
+  "phase": "10",
+  "phase_name": "Tests — DeductionService, AuthService y cobertura",
+  "phase_dir": ".planning/phases/10-tests-deduction-auth-coverage",
   "plan": 0,
   "task": 0,
   "total_tasks": 0,
-  "status": "paused",
+  "status": "partial_complete",
   "completed_tasks": [
     {"id": 1, "name": "Milestone v1.1 iniciado — PROJECT.md actualizado", "status": "done", "commit": "a42c347"},
     {"id": 2, "name": "REQUIREMENTS.md definido — 13 requisitos en 3 categorias", "status": "done", "commit": "6b3ea50"},
-    {"id": 3, "name": "ROADMAP.md creado — 5 fases (9-13), 100% cobertura", "status": "done", "commit": "d3f1561"}
+    {"id": 3, "name": "ROADMAP.md creado — 5 fases (9-13), 100% cobertura", "status": "done", "commit": "d3f1561"},
+    {"id": 4, "name": "Phase 9 — EmployeeService.test.ts (17 tests) + ClockLogsService.test.ts (9 tests)", "status": "done"},
+    {"id": 5, "name": "Phase 10 — DeductionsService.test.ts (11 tests, 90%) + AuthService.test.ts (17 tests, 84%)", "status": "done"}
   ],
   "remaining_tasks": [
-    {"id": 4, "name": "Planificar y ejecutar Phase 9 — Tests EmployeeService + ClockLogService", "status": "not_started"},
-    {"id": 5, "name": "Planificar y ejecutar Phase 10 — Tests DeductionService + AuthService + 60% coverage", "status": "not_started"},
-    {"id": 6, "name": "Planificar y ejecutar Phase 11 — Design System Dark Mode", "status": "not_started"},
-    {"id": 7, "name": "Planificar y ejecutar Phase 12 — Tablas, Formularios y Modales", "status": "not_started"},
-    {"id": 8, "name": "Planificar y ejecutar Phase 13 — Integracion Frontend-Backend", "status": "not_started"}
+    {"id": 6, "name": "TESTS-05 coverage 60% — requiere decision (actual: 33%)", "status": "pending", "note": "Revisar target o separar en phase opcional"},
+    {"id": 7, "name": "Planificar y ejecutar Phase 11 — Design System Dark Mode", "status": "not_started"},
+    {"id": 8, "name": "Planificar y ejecutar Phase 12 — Tablas, Formularios y Modales", "status": "not_started"},
+    {"id": 9, "name": "Planificar y ejecutar Phase 13 — Integracion Frontend-Backend", "status": "not_started"}
   ],
   "blockers": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {"task": "Decidir scope TESTS-05", "options": ["Revisar target a 40%", "Crear Phase 10b opcional", "Mantener 60% en scope"]}
+  ],
   "decisions": [
     {"decision": "Dark mode SaaS moderno (Linear/Vercel style)", "rationale": "Usuario eligio este estilo para rediseno sistemico de todas las vistas", "phase": "11"},
-    {"decision": "Research omitido — agentes detenidos por usuario", "rationale": "Usuario prefiro ir directo a requisitos sin investigacion previa", "phase": "milestone"},
-    {"decision": "Tests E2E y frontend diferidos a v1.2", "rationale": "Fuera del scope v1.1, complejidad alta, primero arreglar UI", "phase": "milestone"}
+    {"decision": "Research omitido — agentes detenidos por usuario", "rationale": "Usuario prefrio ir directo a requisitos sin investigacion previa", "phase": "milestone"},
+    {"decision": "Tests E2E y frontend diferidos a v1.2", "rationale": "Fuera del scope v1.1, complejidad alta, primero arreglar UI", "phase": "milestone"},
+    {"decision": "TESTS-05 coverage 33% (no 60%)", "rationale": "NomineeService y ReportsService requieren mucho mas trabajo para impacto significativo", "phase": "10"}
   ],
   "uncommitted_files": [],
-  "next_action": "Ejecutar /gsd:plan-phase 9 para planificar tests de EmployeeService y ClockLogService",
-  "context_notes": "Milestone v1.1 completamente inicializado. 3 frentes: tests ~60%, rediseno dark mode sistemico (todas las vistas), validacion contratos frontend-backend. Phase 9 es el primer paso."
+  "next_action": "Decidir TESTS-05 scope, luego /gsd:plan-phase 11 para Design System Dark Mode",
+  "context_notes": "Phase 10 partial: TESTS-03/04 complete (104 tests total). TESTS-05 at 33% — target 60% no alcanzable sin NomineeService coverage. Cobertura servicio: 33% (antes: 26%)."
 }

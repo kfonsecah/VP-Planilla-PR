@@ -212,6 +212,16 @@ This is a **Costa Rican payroll system** (planilla). Key domain rules baked into
 /gsd:complete-milestone → archivar v1.0
 /gsd:new-milestone      → definir v1.1
 
+/gsd:audit-milestone   → confirmar que v1.0 está completo
+/gsd:complete-milestone → archivar v1.0
+/gsd:new-milestone      → definir v1.1
+/gsd:debug              → systematic debug session
+/gsd:fast <desc>        → quick obvious fix (1-2 files)
+/gsd:quick <desc>       → medium fix (not trivial, not full feature)
+/gsd:plan-phase         → research + plan + verification
+/gsd:execute-phase      → execute planned phase
+
+
 
 Use GSD commands at every stage, not just planning:
 

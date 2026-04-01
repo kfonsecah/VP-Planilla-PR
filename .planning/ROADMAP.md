@@ -28,7 +28,7 @@ Phases 1-8 archived in `.planning/milestones/v1.0-ROADMAP.md`.
 
 ## Phase Details
 
-### Phase 9: Tests — EmployeeService y ClockLogService
+### Phase 9: Tests — EmployeeService y ClockLogService ✅ VALIDATED
 **Goal**: Developers pueden ejecutar una suite de tests unitarios confiable para los módulos de empleados y registros de reloj
 **Depends on**: Phase 8 (v1.0)
 **Requirements**: TESTS-01, TESTS-02
@@ -36,9 +36,10 @@ Phases 1-8 archived in `.planning/milestones/v1.0-ROADMAP.md`.
   1. `npm test` ejecuta tests de EmployeeService cubriendo crear, listar, obtener por ID, actualizar y desactivar empleados — todos pasan
   2. `npm test` ejecuta tests de ClockLogService cubriendo registrar entrada, registrar salida y listar logs por empleado — todos pasan
   3. Los mocks de Prisma en ambas suites aíslan correctamente la lógica de servicio de la base de datos
-**Plans**: TBD
+**Plans**: [09-PLAN.md](.planning/phases/09-tests-employee-clocklog/09-PLAN.md) | [09-SUMMARY.md](.planning/phases/09-tests-employee-clocklog/09-SUMMARY.md)
+**Tests**: 73 total (17 EmployeeService + 9 ClockLogsService + 45 existing + 2 fixed NomineeService)
 
-### Phase 10: Tests — DeductionService, AuthService y cobertura 60%
+### Phase 10: Tests — DeductionService, AuthService y cobertura 60% ✅ TESTS-03/04 COMPLETE
 **Goal**: Developers alcanzan el umbral mínimo de 60% de cobertura en módulos de servicio con tests para deducciones y autenticación
 **Depends on**: Phase 9
 **Requirements**: TESTS-03, TESTS-04, TESTS-05
@@ -47,7 +48,9 @@ Phases 1-8 archived in `.planning/milestones/v1.0-ROADMAP.md`.
   2. `npm test` ejecuta tests de AuthService cubriendo login, logout y validación de token — todos pasan
   3. `jest --coverage` reporta ≥60% en statements/branches combinados para todos los módulos de servicio
   4. El reporte de cobertura no muestra regresiones en los módulos ya cubiertos (NomineeService, PayrollService)
-**Plans**: TBD
+**Plans**: [10-PLAN.md](.planning/phases/10-tests-deduction-auth-coverage/10-PLAN.md) | [10-SUMMARY.md](.planning/phases/10-tests-deduction-auth-coverage/10-SUMMARY.md)
+**Tests**: 104 total (11 DeductionsService + 17 AuthService + 73 previous + 3 fixed)
+**Note**: TESTS-03/04 complete. TESTS-05 at 33% — target 60% no alcanzable sin NomineeService coverage adicional.
 
 ### Phase 11: Design System Dark Mode
 **Goal**: El sistema visual del frontend tiene identidad dark mode cohesiva aplicada globalmente mediante tokens CSS centralizados
@@ -91,8 +94,8 @@ Phases 1-8 archived in `.planning/milestones/v1.0-ROADMAP.md`.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-8. v1.0 | v1.0 | 22/22 | Complete | 2026-03-27 |
-| 9. Tests — EmployeeService y ClockLogService | v1.1 | 0/? | Not started | - |
-| 10. Tests — DeductionService, AuthService y cobertura 60% | v1.1 | 0/? | Not started | - |
+| 9. Tests — EmployeeService y ClockLogService | v1.1 | 2/2 | ✅ Complete | 2026-03-31 |
+| 10. Tests — DeductionService, AuthService y cobertura 60% | v1.1 | 2/3 | ⚠️ Partial | 2026-03-31 |
 | 11. Design System Dark Mode | v1.1 | 0/? | Not started | - |
 | 12. Tablas, Formularios y Modales | v1.1 | 0/? | Not started | - |
 | 13. Integración Frontend-Backend | v1.1 | 0/? | Not started | - |

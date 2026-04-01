@@ -7,11 +7,11 @@
 
 ### Tests Unitarios
 
-- [ ] **TESTS-01**: Developer puede ejecutar tests de EmployeeService con cobertura de crear, listar, obtener por ID, actualizar y desactivar empleados
-- [ ] **TESTS-02**: Developer puede ejecutar tests de ClockLogService con cobertura de registrar entrada, registrar salida y listar logs por empleado
-- [ ] **TESTS-03**: Developer puede ejecutar tests de DeductionService con cobertura de asignar deducción a empleado y calcular montos
-- [ ] **TESTS-04**: Developer puede ejecutar tests de AuthService con cobertura de login, logout y validación de token
-- [ ] **TESTS-05**: `jest --coverage` reporta ≥60% en statements/branches combinados en módulos de servicio
+- [x] **TESTS-01**: Developer puede ejecutar tests de EmployeeService con cobertura de crear, listar, obtener por ID, actualizar y desactivar empleados
+- [x] **TESTS-02**: Developer puede ejecutar tests de ClockLogService con cobertura de registrar entrada, registrar salida y listar logs por empleado
+- [x] **TESTS-03**: Developer puede ejecutar tests de DeductionService con cobertura de asignar deducción a empleado y calcular montos
+- [x] **TESTS-04**: Developer puede ejecutar tests de AuthService con cobertura de login, logout y validación de token
+- [ ] **TESTS-05**: `jest --coverage` reporta ≥60% en statements/branches combinados en módulos de servicio — **PARTIAL (33%)** — requiere decisión de scope
 
 ### UI — Design System
 
@@ -52,11 +52,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TESTS-01 | Phase 9 | Pending |
-| TESTS-02 | Phase 9 | Pending |
-| TESTS-03 | Phase 10 | Pending |
-| TESTS-04 | Phase 10 | Pending |
-| TESTS-05 | Phase 10 | Pending |
+| TESTS-01 | Phase 9 | ✅ Complete |
+| TESTS-02 | Phase 9 | ✅ Complete |
+| TESTS-03 | Phase 10 | ✅ Complete |
+| TESTS-04 | Phase 10 | ✅ Complete |
+| TESTS-05 | Phase 10 | ⚠️ Partial (33%) |
 | UI-01 | Phase 11 | Pending |
 | UI-02 | Phase 11 | Pending |
 | UI-03 | Phase 12 | Pending |
