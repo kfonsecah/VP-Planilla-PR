@@ -7,14 +7,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { useNotifications } from "@/hooks/useNotifications";
 import { SunIcon, MoonIcon, Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import { NotificationPanel } from "./NotificationPanel";
-import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const router = useRouter();
   const currentDate = getCurrentSpanishFormattedDateString();
   const { weather: currentWeather, isLoadingWeather } = useWeather();
   const { user: currentUser } = useUser();
