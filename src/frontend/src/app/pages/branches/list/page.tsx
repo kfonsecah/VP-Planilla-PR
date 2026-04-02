@@ -14,6 +14,7 @@ import {
   TrashIcon,
   ArrowPathIcon,
   MapPinIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function BranchesPage() {
@@ -107,8 +108,21 @@ export default function BranchesPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg">
-            {error}
+          <div className="mb-6 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
+              <div className="flex flex-col items-center">
+                <ExclamationTriangleIcon className="w-10 h-10 mb-3 text-red-500 dark:text-red-400" />
+                <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar datos</p>
+                <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
+                <button
+                  onClick={() => refetch()}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Reintentar
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

@@ -15,6 +15,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function VacationsListPage() {
