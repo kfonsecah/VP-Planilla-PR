@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useModal } from '@/hooks/useModal';
+import { toast } from 'sonner';
 import { ClockLogsService, ClockLog } from '@/services/clockLogsService';
 import { getEmployees } from '@/services/employeeService';
 import {
@@ -252,7 +252,6 @@ interface AttendanceData {
 }
 
 export default function AttendancePage() {
-  const modal = useModal();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [data, setData] = useState<AttendanceData[]>([]);
@@ -648,7 +647,7 @@ export default function AttendancePage() {
       
       if (!result.logs.length) {
         console.error('NO SE ENCONTRARON MARCAS');
-        modal.showError('Archivo sin marcas', 'No se encontraron registros válidos en el archivo seleccionado. Revisa la consola del navegador para más detalles.');
+        toast.error('No se encontraron registros válidos en el archivo seleccionado. Revisa la consola del navegador para más detalles.');
         setUploadedLogs([]);
         setUploadSummary(null);
         return;
@@ -670,18 +669,15 @@ export default function AttendancePage() {
         const skippedMsg = skippedCount > 0
           ? ` ${skippedCount} marcas ignoradas por empleado no encontrado.`
           : '';
-        modal.showSuccess(
-          'Archivo importado',
-          `${saveResult.created} marcas guardadas en base de datos desde ${file.name}.${skippedMsg}`
-        );
+        toast.success(`${saveResult.created} marcas guardadas en base de datos desde ${file.name}.${skippedMsg}`);
       } catch (saveErr: unknown) {
         console.error('⚠️ Marcas cargadas en vista pero no guardadas en BD:', saveErr);
         const saveErrMsg = saveErr instanceof Error ? saveErr.message : 'error desconocido';
-        modal.showSuccess('Archivo importado (solo vista)', `Se cargaron ${result.stats.validRows} marcas para visualización, pero no se pudieron guardar en BD: ${saveErrMsg}`);
+        toast.success(`Se cargaron ${result.stats.validRows} marcas para visualización, pero no se pudieron guardar en BD: ${saveErrMsg}`);
       }
     } catch (err: unknown) {
       console.error('❌ ERROR EN IMPORTACIÓN:', err);
-      modal.showError('Error al importar', (err instanceof Error ? err.message : null) || 'No se pudo procesar el archivo');
+      toast.error((err instanceof Error ? err.message : null) || 'No se pudo procesar el archivo');
     } finally {
       setIsImporting(false);
       event.target.value = '';
@@ -690,7 +686,7 @@ export default function AttendancePage() {
 
   const handleFetch = async () => {
     if (!startDate || !endDate) {
-      modal.showError('Fechas incompletas', 'Selecciona fecha de inicio y fin');
+      toast.error('Selecciona fecha de inicio y fin');
       return;
     }
 
@@ -704,7 +700,7 @@ export default function AttendancePage() {
         const rangeStart = parseDateInput(startDate);
         const rangeEnd = parseDateInput(endDate, true);
         if (rangeStart === null || rangeEnd === null) {
-          modal.showError('Fechas inválidas', 'No se pudo interpretar el rango seleccionado');
+          toast.error('No se pudo interpretar el rango seleccionado');
           return;
         }
 
@@ -719,21 +715,20 @@ export default function AttendancePage() {
 
       if (!logs.length) {
         setData([]);
-        modal.showError('Sin marcas', 'No se encontraron registros en el rango seleccionado');
+        toast.error('No se encontraron registros en el rango seleccionado');
         return;
       }
 
       const processed = processAttendanceData(logs, source);
       setData(processed);
-      modal.showSuccess(
-        'Registros cargados',
+      toast.success(
         source === 'excel'
           ? `Se encontraron ${processed.length} registros en el archivo importado`
           : `Se encontraron ${processed.length} registros desde la API`
       );
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al obtener registros');
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al obtener registros');
+      toast.error(err instanceof Error ? err.message : 'Error al obtener registros');
     } finally {
       setIsLoading(false);
     }
@@ -1104,8 +1099,6 @@ export default function AttendancePage() {
           </div>
         )}
       </div>
-
-      <modal.ModalComponent />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { ReportsService } from '@/services/reportsService';
-import { useModal } from '@/hooks/useModal';
 import {
   OfficialReportType,
   PayrollEmployeeReportRow,
@@ -78,7 +78,6 @@ const filterEmployees = (
 };
 
 export default function ReportsPage() {
-  const modal = useModal();
   const [dashboard, setDashboard] = useState<ReportsDashboardData | null>(null);
   const [selectedPayrollId, setSelectedPayrollId] = useState<number | null>(null);
   const [dataset, setDataset] = useState<PayrollReportDataset | null>(null);
@@ -104,7 +103,7 @@ export default function ReportsPage() {
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'No se pudo cargar el dashboard de reportes');
-      modal.showError('Error', 'No se pudo cargar el dashboard de reportes');
+      toast.error('No se pudo cargar el dashboard de reportes');
     }
   };
 
@@ -121,7 +120,7 @@ export default function ReportsPage() {
       setSelectedEmployees(datasetResponse.employees.map((employee) => employee.employeeId));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'No se pudo cargar la planilla seleccionada');
-      modal.showError('Error', 'No se pudo cargar la planilla seleccionada');
+      toast.error('No se pudo cargar la planilla seleccionada');
     } finally {
       setLoadingDataset(false);
     }
@@ -187,17 +186,17 @@ export default function ReportsPage() {
 
   const handleSendReports = async () => {
     if (!selectedPayrollId || !dataset) {
-      modal.showWarning('Selecciona una planilla', 'Debes elegir una planilla para enviar los comprobantes.');
+      toast.warning('Debes elegir una planilla para enviar los comprobantes.');
       return;
     }
 
     if (selectedEmployees.length === 0) {
-      modal.showWarning('Sin empleados', 'Selecciona al menos un empleado para enviar los reportes.');
+      toast.warning('Selecciona al menos un empleado para enviar los reportes.');
       return;
     }
 
     if (reportTypes.length === 0) {
-      modal.showWarning('Tipo requerido', 'Debes seleccionar al menos un tipo de reporte.');
+      toast.warning('Debes seleccionar al menos un tipo de reporte.');
       return;
     }
 
@@ -216,8 +215,7 @@ export default function ReportsPage() {
         customMessage: customMessage.trim() || undefined,
       });
       setDispatchSummary(response);
-      modal.showSuccess(
-        'Reportes enviados',
+      toast.success(
         `Se procesaron ${response.requested} colaboradores (${response.sent} enviados, ${response.failed} fallidos).`
       );
       await refreshDataset(selectedPayrollId);
@@ -225,7 +223,7 @@ export default function ReportsPage() {
     } catch (error: unknown) {
       console.error(error);
       const message = error instanceof Error ? error.message : 'No se pudo enviar los reportes';
-      modal.showError('Error en envío', message);
+      toast.error(message);
     } finally {
       setSending(false);
     }
@@ -233,12 +231,12 @@ export default function ReportsPage() {
 
   const handleDownloadReceiptsPdf = async () => {
     if (!selectedPayrollId || !dataset) {
-      modal.showWarning('Selecciona una planilla', 'Debes elegir una planilla para descargar los comprobantes.');
+      toast.warning('Debes elegir una planilla para descargar los comprobantes.');
       return;
     }
 
     if (selectedEmployees.length === 0) {
-      modal.showWarning('Sin empleados', 'Selecciona al menos un empleado para generar el comprobante.');
+      toast.warning('Selecciona al menos un empleado para generar el comprobante.');
       return;
     }
 
@@ -256,8 +254,7 @@ export default function ReportsPage() {
       link.click();
       window.URL.revokeObjectURL(url);
 
-      modal.showSuccess(
-        'PDF generado',
+      toast.success(
         selectedEmployees.length === 1
           ? 'Se descargó el comprobante del empleado seleccionado.'
           : 'Se descargó un único PDF con todos los comprobantes seleccionados.'
@@ -265,7 +262,7 @@ export default function ReportsPage() {
     } catch (error: unknown) {
       console.error(error);
       const message = error instanceof Error ? error.message : 'No se pudo generar el PDF de comprobantes';
-      modal.showError('Error en descarga', message);
+      toast.error(message);
     } finally {
       setDownloadingPdf(false);
     }
@@ -656,7 +653,6 @@ export default function ReportsPage() {
           </div>
         </section>
       </div>
-      <modal.ModalComponent />
     </div>
   );
 }

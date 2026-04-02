@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useDeductions } from '@/hooks/useDeductions';
 import { Deduction } from '@/services/deductionsService';
-import { useModal } from '@/hooks/useModal';
 import { UseFormReturn } from 'react-hook-form';
 import {
   CurrencyDollarIcon,
@@ -19,7 +19,6 @@ import {
 
 export default function DeductionsPage() {
   const { data, isLoading, error, refetch, create, update, remove } = useDeductions();
-  const modal = useModal();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Deduction | null>(null);
@@ -34,15 +33,15 @@ export default function DeductionsPage() {
     try {
       if (editing) {
         await update(editing.id, values);
-        modal.showSuccess('Actualizado', 'Deducción actualizada correctamente');
+        toast.success('Deducción actualizada correctamente');
       } else {
         await create(values);
-        modal.showSuccess('Creado', 'Deducción creada correctamente');
+        toast.success('Deducción creada correctamente');
       }
       refetch();
       setFormOpen(false);
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al guardar');
+      toast.error(err instanceof Error ? err.message : 'Error al guardar');
     }
   };
 
@@ -50,10 +49,10 @@ export default function DeductionsPage() {
     if (!toDelete) return;
     try {
       await remove(toDelete.id);
-      modal.showSuccess('Eliminado', 'Deducción eliminada correctamente');
+      toast.success('Deducción eliminada correctamente');
       refetch();
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
+      toast.error(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);
@@ -325,7 +324,6 @@ export default function DeductionsPage() {
         onConfirm={handleConfirmDelete}
       />
 
-      <modal.ModalComponent />
     </div>
   );
 }

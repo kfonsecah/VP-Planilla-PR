@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useModal } from '@/hooks/useModal';
+import { toast } from 'sonner';
 import { ClockLogsService, AttendanceSummary, ClockLog } from '@/services/clockLogsService';
 import {
   ClockIcon,
@@ -18,7 +18,6 @@ import {
 import { Select, SelectItem } from '@/components/ui/Select';
 
 export default function AttendancePage() {
-  const modal = useModal();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [data, setData] = useState<AttendanceSummary[]>([]);
@@ -29,7 +28,7 @@ export default function AttendancePage() {
 
   const handleFetch = async () => {
     if (!startDate || !endDate) {
-      modal.showError('Fechas incompletas', 'Selecciona fecha de inicio y fin');
+      toast.error('Selecciona fecha de inicio y fin');
       return;
     }
 
@@ -38,10 +37,10 @@ export default function AttendancePage() {
     try {
       const res = await ClockLogsService.getAttendanceSummary(startDate, endDate);
       setData(res);
-      modal.showSuccess('Registros cargados', `Se encontraron ${res.length} registros de asistencia`);
+      toast.success(`Se encontraron ${res.length} registros de asistencia`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al obtener registros');
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al obtener registros');
+      toast.error(err instanceof Error ? err.message : 'Error al obtener registros');
     } finally {
       setIsLoading(false);
     }
@@ -73,11 +72,11 @@ export default function AttendancePage() {
         log_type: editingLog.log_type,
         remarks: editingLog.remarks
       });
-      modal.showSuccess('Actualizado', 'Marca actualizada correctamente');
+      toast.success('Marca actualizada correctamente');
       setEditingLog(null);
       await handleFetch();
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al actualizar marca');
+      toast.error(err instanceof Error ? err.message : 'Error al actualizar marca');
     }
   };
 
@@ -528,8 +527,6 @@ export default function AttendancePage() {
           </div>
         </div>
       )}
-
-      <modal.ModalComponent />
     </div>
   );
 }

@@ -1,19 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { CalculatorIcon, ArrowPathIcon, DocumentTextIcon, ExclamationTriangleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { useNominee } from '@/hooks/useNominee';
 import { usePayrollTypes } from '@/hooks/usePayrollTypes';
 import PayrollResults from '@/components/PayrollResults';
 import PayrollCreateModal from '@/components/PayrollCreateModal';
 import DatePicker from '@/components/DatePicker';
-import { useModal } from '@/hooks/useModal';
 import { Select, SelectItem } from '@/components/ui/Select';
 
 export default function PayrollCalculatePage() {
   const { data, isLoading, error, calculatePayrollForPeriod } = useNominee();
   const { data: payrollTypes, isLoading: loadingTypes } = usePayrollTypes();
-  const modal = useModal();
 
   const [payrollTypeId, setPayrollTypeId] = useState<number | null>(null);
   const [startDate, setStartDate] = useState<string>('');
@@ -195,17 +194,17 @@ export default function PayrollCalculatePage() {
 
   const handleCalculate = async () => {
     if (!payrollTypeId) {
-      modal.showError('Tipo de planilla requerido', 'Debes seleccionar un tipo de planilla');
+      toast.error('Tipo de planilla requerido — debes seleccionar un tipo de planilla');
       return;
     }
     if (!startDate || !endDate) {
-      modal.showError('Fechas incompletas', 'Selecciona fecha de inicio y fin');
+      toast.error('Selecciona fecha de inicio y fin');
       return;
     }
 
     const validationError = validateDatesForType();
     if (validationError) {
-      modal.showError('Error en fechas', validationError);
+      toast.error(validationError);
       return;
     }
 
@@ -215,14 +214,14 @@ export default function PayrollCalculatePage() {
       
       await calculatePayrollForPeriod(backendStartDate, backendEndDate);
       
-      modal.showSuccess('Cálculo completado', 'Se generó el resultado del cálculo');
+      toast.success('Se generó el resultado del cálculo');
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al calcular nómina');
+      toast.error(err instanceof Error ? err.message : 'Error al calcular nómina');
     }
   };
 
   const handleSave = (id: number) => {
-    modal.showSuccess('Planilla guardada', `Planilla creada con id ${id}`);
+    toast.success(`Planilla creada con id ${id}`);
   };
 
   return (

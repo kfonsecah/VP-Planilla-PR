@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useVacations } from '@/hooks/useVacations';
 import { getEmployees } from '@/services/employeeService';
 import { Employee } from '@/types/employee';
-import { useModal } from '@/hooks/useModal';
 import {
   CalendarDaysIcon,
   ArrowLeftIcon,
@@ -18,7 +18,6 @@ import { Select, SelectItem } from '@/components/ui/Select';
 export default function CreateVacationPage() {
   const router = useRouter();
   const { create } = useVacations();
-  const modal = useModal();
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
@@ -61,17 +60,17 @@ export default function CreateVacationPage() {
     e.preventDefault();
 
     if (!formData.employee_id) {
-      modal.showError('Error', 'Debes seleccionar un empleado');
+      toast.error('Debes seleccionar un empleado');
       return;
     }
 
     if (!formData.start_date || !formData.end_date) {
-      modal.showError('Error', 'Debes seleccionar las fechas de inicio y fin');
+      toast.error('Debes seleccionar las fechas de inicio y fin');
       return;
     }
 
     if (new Date(formData.end_date) < new Date(formData.start_date)) {
-      modal.showError('Error', 'La fecha de fin debe ser posterior a la fecha de inicio');
+      toast.error('La fecha de fin debe ser posterior a la fecha de inicio');
       return;
     }
 
@@ -87,12 +86,12 @@ export default function CreateVacationPage() {
       };
 
       await create(payload);
-      modal.showSuccess('Éxito', 'Solicitud de vacaciones creada correctamente');
+      toast.success('Solicitud de vacaciones creada correctamente');
       setTimeout(() => {
         router.push('/pages/vacations/list');
       }, 1500);
     } catch (error: unknown) {
-      modal.showError('Error', error instanceof Error ? error.message : 'Error al crear la solicitud');
+      toast.error(error instanceof Error ? error.message : 'Error al crear la solicitud');
     } finally {
       setSubmitting(false);
     }

@@ -71,16 +71,10 @@ export default function PayrollDetailPage() {
         try {
           const updated = await PayrollService.updatePayroll(payrollId, { status: 'PAGADO' });
           setPayroll(updated);
-          modal.showSuccess(
-            'Actualización exitosa',
-            'La planilla ha sido marcada como PAGADA'
-          );
+          toast.success('La planilla ha sido marcada como PAGADA');
         } catch (err) {
           const message = (err as Error)?.message || 'Error al actualizar el estado de la planilla';
-          modal.showError(
-            'Error',
-            message
-          );
+          toast.error(message);
         }
       }
     );
@@ -312,7 +306,6 @@ export default function PayrollDetailPage() {
             </div>
           </div>
         </div>
-        <modal.ModalComponent />
       </div>
     );
   }

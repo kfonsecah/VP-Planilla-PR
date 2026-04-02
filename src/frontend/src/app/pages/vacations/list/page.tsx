@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useVacations } from '@/hooks/useVacations';
 import { Vacation } from '@/services/vacationsService';
-import { useModal } from '@/hooks/useModal';
 import {
   CalendarDaysIcon,
   PlusCircleIcon,
@@ -21,7 +21,6 @@ import {
 export default function VacationsListPage() {
   const router = useRouter();
   const { data, isLoading, error, refetch, remove } = useVacations();
-  const modal = useModal();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toDelete, setToDelete] = useState<Vacation | null>(null);
@@ -32,10 +31,10 @@ export default function VacationsListPage() {
     if (!toDelete) return;
     try {
       await remove(toDelete.id);
-      modal.showSuccess('Eliminado', 'Vacación eliminada correctamente');
+      toast.success('Vacación eliminada correctamente');
       refetch();
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
+      toast.error(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);

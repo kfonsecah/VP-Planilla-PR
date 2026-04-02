@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { useBranches } from '@/hooks/useBranches';
-import { useModal } from '@/hooks/useModal';
 import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Branch, BranchFormData } from '@/types/branch';
@@ -19,7 +19,6 @@ import {
 
 export default function BranchesPage() {
   const { data: branches, isLoading, error, create, update, remove, refetch } = useBranches();
-  const modal = useModal();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
@@ -45,15 +44,15 @@ export default function BranchesPage() {
     try {
       if (editing) {
         await update(editing.id, values);
-        modal.showSuccess('Actualizado', 'Sucursal actualizada correctamente');
+        toast.success('Sucursal actualizada correctamente');
       } else {
         await create(values as BranchFormData);
-        modal.showSuccess('Creada', 'Sucursal creada correctamente');
+        toast.success('Sucursal creada correctamente');
       }
       refetch();
       setFormOpen(false);
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al guardar');
+      toast.error(err instanceof Error ? err.message : 'Error al guardar');
     }
   };
 
@@ -61,10 +60,10 @@ export default function BranchesPage() {
     if (!toDelete) return;
     try {
       await remove(toDelete.id);
-      modal.showSuccess('Eliminada', 'Sucursal eliminada correctamente');
+      toast.success('Sucursal eliminada correctamente');
       refetch();
     } catch (err: unknown) {
-      modal.showError('Error', err instanceof Error ? err.message : 'Error al eliminar');
+      toast.error(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setConfirmOpen(false);
       setToDelete(null);

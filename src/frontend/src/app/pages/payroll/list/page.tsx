@@ -17,6 +17,7 @@ import {
 import { usePayroll } from '@/hooks/usePayroll';
 import { PayrollService, Payroll } from '@/services/payrollService';
 import { useModal } from '@/hooks/useModal';
+import { toast } from 'sonner';
 
 export default function PayrollListPage() {
   const { getAllPayrolls, isLoading, error } = usePayroll();
@@ -114,16 +115,10 @@ export default function PayrollListPage() {
         try {
           await PayrollService.updatePayroll(payrollId, { status: 'PAGADO' });
           await loadPayrolls();
-          modal.showSuccess(
-            'Actualización exitosa',
-            'La planilla ha sido marcada como PAGADA'
-          );
+          toast.success('La planilla ha sido marcada como PAGADA');
         } catch (err) {
           const message = (err as Error)?.message || 'Error al actualizar el estado';
-          modal.showError(
-            'Error',
-            message
-          );
+          toast.error(message);
         } finally {
           setUpdatingId(null);
         }

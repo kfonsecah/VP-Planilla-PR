@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useEmployeeDeductions } from '@/hooks/useEmployeeDeductions';
 import useEmployeeList from '@/hooks/useEmployeeList';
 import { useDeductions } from '@/hooks/useDeductions';
-import { useModal } from '@/hooks/useModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Employee } from '@/types/employee';
 import { EmployeeDeductionWithDetails } from '@/types/employeeDeductions';
@@ -20,7 +20,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function EmployeeDeductionsPage() {
-  const modal = useModal();
   const { employees } = useEmployeeList();
   const { data: allDeductions, isLoading: loadingDeductions, error: deductionsError, refetch: refetchDeductions } = useDeductions();
   const { 
@@ -49,20 +48,20 @@ export default function EmployeeDeductionsPage() {
 
   const handleAssignDeduction = async () => {
     if (!selectedEmployeeId || !selectedDeductionId) {
-      modal.showError('Error', 'Debes seleccionar un empleado y una deducción');
+      toast.error('Debes seleccionar un empleado y una deducción');
       return;
     }
 
     try {
       await assignDeduction({ employeeId: selectedEmployeeId, deductionId: selectedDeductionId });
-      modal.showSuccess('Éxito', 'Deducción asignada correctamente');
+      toast.success('Deducción asignada correctamente');
       setShowAssignModal(false);
       setSelectedDeductionId(null);
       if (selectedEmployeeId) {
         await fetchEmployeeDeductions(selectedEmployeeId);
       }
     } catch (error: unknown) {
-      modal.showError('Error', error instanceof Error ? error.message : 'Error al asignar deducción');
+      toast.error(error instanceof Error ? error.message : 'Error al asignar deducción');
     }
   };
 
@@ -76,9 +75,9 @@ export default function EmployeeDeductionsPage() {
 
     try {
       await removeDeduction(selectedEmployeeId, deductionToDelete);
-      modal.showSuccess('Éxito', 'Deducción eliminada correctamente');
+      toast.success('Deducción eliminada correctamente');
     } catch (error: unknown) {
-      modal.showError('Error', error instanceof Error ? error.message : 'Error al eliminar deducción');
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar deducción');
     } finally {
       setShowConfirmDelete(false);
       setDeductionToDelete(null);
