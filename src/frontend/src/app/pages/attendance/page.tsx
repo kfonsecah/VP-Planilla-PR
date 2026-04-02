@@ -4,7 +4,6 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useModal } from '@/hooks/useModal';
 import { ClockLogsService, ClockLog } from '@/services/clockLogsService';
 import { getEmployees } from '@/services/employeeService';
-import ExcelJS from 'exceljs';
 import {
   ClockIcon,
   CalendarIcon,
@@ -303,6 +302,7 @@ export default function AttendancePage() {
 
   const parseExcelMarks = async (file: File) => {
     try {
+      const ExcelJS = (await import('exceljs')).default;
       const buffer = await file.arrayBuffer();
       console.log('1. Buffer creado, tamaño:', buffer.byteLength);
       

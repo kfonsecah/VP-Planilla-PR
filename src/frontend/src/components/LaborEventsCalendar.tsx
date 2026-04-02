@@ -1,12 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import FullCalendar from '@fullcalendar/react';
+import dynamic from 'next/dynamic';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import { EventResizeDoneArg } from '@fullcalendar/interaction';
+
+// Lazy-load FullCalendar component — plugins kept static (small ~30-50KB each, needed as objects not components)
+const FullCalendar = dynamic(() => import('@fullcalendar/react'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-96 text-zinc-400">
+      Cargando calendario...
+    </div>
+  ),
+});
 import { EmployeeLaborEvent, LaborEventFormData } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';

@@ -20,7 +20,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { PayrollService, Payroll, PayrollEmployee } from '@/services/payrollService';
 import { formatCRC } from '@/utils/number';
-import ExcelJS from 'exceljs';
 import { useModal } from '@/hooks/useModal';
 import { toast } from 'sonner';
 
@@ -100,6 +99,7 @@ export default function PayrollDetailPage() {
   const exportToExcel = async () => {
     if (!payroll || employees.length === 0) return;
 
+    const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
 
     const ws1 = workbook.addWorksheet('Resumen');

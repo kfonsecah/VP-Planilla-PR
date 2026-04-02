@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { formatCRC } from '@/utils/number';
-import ExcelJS from 'exceljs';
 import { 
   DocumentCheckIcon, 
   UserGroupIcon, 
@@ -39,6 +38,7 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
   const exportToExcel = async () => {
     if (!employees || employees.length === 0) return;
 
+    const ExcelJS = (await import('exceljs')).default;
     // Obtener información del periodo
     const period = payrollData.period as Record<string, unknown> | undefined;
     const periodStart = period?.startDate || payrollData.periodStart || '';
