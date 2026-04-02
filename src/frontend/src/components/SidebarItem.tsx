@@ -40,7 +40,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon, text, subItems })
           {text}
         </span>
         {subItems && (
-          <span className="ml-2 text-xs text-zinc-500">
+          <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
             {isOpen ? '▲' : '▼'}
           </span>
         )}
