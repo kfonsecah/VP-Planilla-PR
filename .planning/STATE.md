@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: — Calidad, UI Moderna y Cobertura de Tests
 status: verifying
-stopped_at: Completed 15-04-PLAN.md - Error banners on payroll, attendance, clocklogs, reports
-last_updated: "2026-04-02T03:39:57.362Z"
+stopped_at: Completed 15-04-PLAN.md - Error banners with retry on 4 pages
+last_updated: "2026-04-02T03:46:36.647Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 8
@@ -71,6 +71,7 @@ Key decisions from v1.0/v1.1:
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Notifications page had zero error banners (not duplicates as plan expected) — added one per Rule 2. Employee-deductions already had correct error condition and retry — only replaced inline SVG with ExclamationTriangleIcon
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Payroll detail page uses three separate early returns (loading → error → content) instead of conditional rendering inside a single return block
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Payroll detail page uses three separate early returns (loading → error → content) instead of conditional rendering inside a single return block
+- [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Error banners use three separate early returns (loading → error → content) for payroll detail page instead of conditional rendering inside loading block
 
 ### Tests
 
@@ -93,8 +94,8 @@ Key decisions from v1.0/v1.1:
 
 ## Session Continuity
 
-Last session: 2026-04-02T03:39:57.357Z
-Stopped at: Completed 15-04-PLAN.md - Error banners on payroll, attendance, clocklogs, reports
+Last session: 2026-04-02T03:46:36.641Z
+Stopped at: Completed 15-04-PLAN.md - Error banners with retry on 4 pages
 Resume: ejecutar `/gsd:plan-phase 14` para Phase 14
 
 ---
