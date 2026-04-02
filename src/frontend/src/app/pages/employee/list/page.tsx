@@ -19,6 +19,8 @@ const EmployeeListPage: React.FC = () => {
   const [showPositionsModal, setShowPositionsModal] = useState(false);
   const {
     employees,
+    isLoading,
+    error,
     searchTerm,
     stats,
     positions,
@@ -97,21 +99,68 @@ const EmployeeListPage: React.FC = () => {
           </div>
         )}
 
+        {/* Error banner for employees */}
+        {error && (
+          <div className="mb-4 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
+              <ExclamationTriangleIcon className="w-10 h-10 mb-3 text-red-500 dark:text-red-400 mx-auto" />
+              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar empleados</p>
+              <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
+              <button onClick={refreshEmployees} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors mx-auto">
+                <ArrowPathIcon className="w-4 h-4" />
+                Reintentar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Employee Tabs */}
         <EmployeeTabs />
 
-        {/* Stats Cards */}
-        <EmployeeStatsCards stats={stats} />
+        {/* Stats Cards — skeleton or real */}
+        {isLoading && employees.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-5 animate-pulse">
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2 mb-3" />
+                <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-1/3" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmployeeStatsCards stats={stats} />
+        )}
 
-        {/* Employee Table */}
-        <EmployeeTable
-          employees={employees}
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          onEmployeeAction={handleEmployeeAction}
-          showFiredEmployees={showFiredEmployees}
-          onToggleFiredEmployees={setShowFiredEmployees}
-        />
+        {/* Employee Table — skeleton or real */}
+        {isLoading && employees.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden animate-pulse">
+            <div className="px-5 py-4 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/4 mb-2" />
+              <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/3" />
+            </div>
+            <div className="p-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded flex-1" />
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded flex-1" />
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded w-24" />
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded w-24" />
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded w-20" />
+                  <div className="h-5 bg-zinc-200 dark:bg-zinc-700 rounded w-10" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <EmployeeTable
+            employees={employees}
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            onEmployeeAction={handleEmployeeAction}
+            showFiredEmployees={showFiredEmployees}
+            onToggleFiredEmployees={setShowFiredEmployees}
+          />
+        )}
 
       </div>
 

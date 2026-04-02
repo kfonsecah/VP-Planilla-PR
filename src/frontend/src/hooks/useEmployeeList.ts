@@ -118,6 +118,8 @@ const useEmployeeList = () => {
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false);
   const [showDismissModal, setShowDismissModal] = useState(false);
   const [dismissingEmployee, setDismissingEmployee] = useState<{ id: string; name: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<EmployeeStats>({
     total: 0,
     onVacation: 0,
@@ -172,20 +174,22 @@ const useEmployeeList = () => {
   // Cargar empleados desde el backend
   useEffect(() => {
     const loadEmployees = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const apiEmployees = await apiGetEmployees();
         setRawEmployees(apiEmployees as RawEmployee[]);
-      } catch (error) {
-        console.error('Error loading employees from API', error);
-        // Si falla, dejar la lista vacía (o podríamos mantener datos locales)
+      } catch (err) {
+        console.error('Error loading employees from API', err);
+        setError(err instanceof Error ? err.message : 'Error al cargar empleados');
         setRawEmployees([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-  loadEmployees();
-
-  // expose a refresh function by returning it from closure
-  // (we'll create a named function below to call from outside via returned object)
+    loadEmployees();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -352,6 +356,8 @@ const useEmployeeList = () => {
 
   return {
     employees: filteredEmployees,
+    isLoading,
+    error,
     searchTerm,
     stats,
     positions,
