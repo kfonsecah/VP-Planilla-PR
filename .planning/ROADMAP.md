@@ -24,7 +24,7 @@ Phases 1-8 archived in `.planning/milestones/v1.0-ROADMAP.md`.
 - [x] **Phase 10: Tests — DeductionService, AuthService y cobertura 60%** - Completar cobertura de tests en servicios críticos hasta umbral mínimo
 - [x] **Phase 11: Design System Dark Mode** - Tokens CSS globales, sidebar dark moderno y navegación cohesiva
 - [x] **Phase 12: Tablas, Formularios y Modales** - UI dark consistente en todos los módulos de datos y flujos críticos
-- [ ] **Phase 13: Integración Frontend-Backend** - Contratos de API verificados, manejo de errores real y estados de carga
+- [x] **Phase 13: Integración Frontend-Backend** - Contratos de API verificados, manejo de errores real y estados de carga (completed 2026-04-02)
 - [x] **Phase 14: Servicio de Notificaciones** - Implementar el servicio de notificaciones aún no desarrollado (completed 2026-04-01)
 
 ## Phase Details
@@ -89,9 +89,9 @@ Plans:
 - [x] 13-01-PLAN.md — Audit frontend service payloads against backend Zod schemas, fix mismatches
 - [x] 13-02-PLAN.md — Enhance error message propagation from backend to frontend
 - [x] 13-03-PLAN.md — Wire loading/error states to all data pages with Table skeletons
-- [ ] 13-04-PLAN.md — Replace modal notifications with sonner toasts across 4 page files
-- [ ] 13-05-PLAN.md — Separate isFetching/isMutating state, fix error state detection
-- [ ] 13-06-PLAN.md — Fix labor_event_ids → labor_event_id field name mismatch (blocker)
+- [x] 13-04-PLAN.md — Replace modal notifications with sonner toasts across 4 page files
+- [x] 13-05-PLAN.md — Separate isFetching/isMutating state, fix error state detection
+- [x] 13-06-PLAN.md — Fix labor_event_ids → labor_event_id field name mismatch (blocker)
 
 ---
 
@@ -104,7 +104,7 @@ Plans:
 | 10. Tests — DeductionService, AuthService y cobertura 60% | v1.1 | 2/3 | ⚠️ Partial | 2026-03-31 |
 | 11. Design System Dark Mode | v1.1 | 2/2 | ✅ Complete | 2026-03-31 |
 | 12. Tablas, Formularios y Modales | v1.1 | 3/3 | ✅ Complete | 2026-04-01 |
-| 13. Integración Frontend-Backend | v1.1 | 0/? | Not started | - |
+| 13. Integración Frontend-Backend | v1.1 | 8/8 | Complete   | 2026-04-02 |
 | 14. Servicio de Notificaciones | v1.1 | 2/2 | Complete    | 2026-04-02 |
 | 14. Servicio de Notificaciones | v1.1 | 2/2 | Complete    | 2026-04-02 |
 | 15. UI Polish - Skeletons y Error Banners | v1.1 | 4/4 | Complete    | 2026-04-02 |
@@ -129,7 +129,7 @@ Plans:
 **Goal:** Todas las vistas del sistema muestran estados de carga (skeletons) y banners de error con reintento consistentes — ninguna vista queda en blanco indefinidamente
 **Requirements**: UI-POLISH-01, UI-POLISH-02, UI-POLISH-03
 **Depends on:** Phase 14
-**Plans:** 4/4 plans complete
+**Plans:** 8/8 plans complete
 
 Plans:
 - [x] 15-01-PLAN.md — Skeleton loading + error banners en 6 list pages (deductions, vacations, branches, payroll-types, events, users)
