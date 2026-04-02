@@ -109,3 +109,17 @@ None - no external service configuration required.
 ---
 *Phase: 16-mejorar-rendimiento-web-reducir-lcp-de-5-86s-a-2-5s*
 *Completed: 2026-04-02*
+
+## Self-Check: PASSED
+
+- [x] SUMMARY.md exists at `.planning/phases/16-mejorar-rendimiento-web-reducir-lcp-de-5-86s-a-2-5s/16-02-SUMMARY.md`
+- [x] STATE.md exists and updated
+- [x] ROADMAP.md exists and updated
+- [x] All 4 commits verified in git log: `42eb203`, `ecf0426`, `8798845`, `68db272`
+
+## Self-Check: PASSED
+
+- [x] SUMMARY.md exists at `.planning/phases/16-mejorar-rendimiento-web-reducir-lcp-de-5-86s-a-2-5s/16-02-SUMMARY.md`
+- [x] STATE.md exists and updated
+- [x] ROADMAP.md exists and updated
+- [x] All 4 commits verified in git log: `42eb203`, `ecf0426`, `8798845`, `68db272`
