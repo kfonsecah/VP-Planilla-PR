@@ -866,8 +866,47 @@ export default function AttendancePage() {
           </div>
         </div>
 
+        {/* Loading state - skeleton table */}
+        {isLoading && (
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="h-4 w-40 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-zinc-400 uppercase tracking-wider border-b border-zinc-100 dark:border-zinc-800">
+                    <th className="px-5 py-3 text-left font-medium">Fecha</th>
+                    <th className="px-5 py-3 text-left font-medium">Empleado</th>
+                    <th className="px-5 py-3 text-center font-medium">Entrada</th>
+                    <th className="px-5 py-3 text-center font-medium">Salida alm.</th>
+                    <th className="px-5 py-3 text-center font-medium">Entrada alm.</th>
+                    <th className="px-5 py-3 text-center font-medium">Salida final</th>
+                    <th className="px-5 py-3 text-center font-medium">Horas</th>
+                    <th className="px-5 py-3 text-center font-medium">Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-5 py-3.5"><div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-16 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-16 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-16 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-16 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-14 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                      <td className="px-5 py-3.5"><div className="h-4 w-12 mx-auto bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Attendance table */}
-        {data.length > 0 && (
+        {data.length > 0 && !isLoading && (
           <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Registros de Asistencia</h2>

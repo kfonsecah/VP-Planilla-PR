@@ -218,11 +218,78 @@ export default function PayrollDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 p-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-zinc-600 dark:text-zinc-300">Cargando detalles de la planilla...</p>
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
+        <div className="p-6">
+          <div className="mx-auto max-w-7xl">
+            {/* Skeleton breadcrumb */}
+            <div className="mb-6">
+              <div className="h-3 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-2" />
+              <div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-4" />
+              {/* Skeleton header card */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-8 w-48 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                      <div className="h-4 w-64 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-12 w-44 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+                    <div className="h-12 w-32 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+                    <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-700 rounded-full animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Skeleton stat cards */}
+            <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                  </div>
+                  <div className="h-6 w-24 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton summary section */}
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 mb-6">
+              <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-6" />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="bg-zinc-50 dark:bg-zinc-800 rounded-lg p-4">
+                    <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-2" />
+                    <div className="h-7 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Skeleton employee table */}
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+              <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+                <div className="h-6 w-48 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+              </div>
+              <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="px-6 py-4 flex items-center gap-4">
+                    <div className="w-5 h-5 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-40 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                      <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
