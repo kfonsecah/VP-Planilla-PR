@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: — Calidad, UI Moderna y Cobertura de Tests
 status: verifying
-stopped_at: Completed 15-02-PLAN.md - Skeleton loading and error banners on 12 complex pages
-last_updated: "2026-04-02T02:37:50.310Z"
+stopped_at: Completed 15-03-PLAN.md - Fix error banner bugs in employee-deductions and notifications
+last_updated: "2026-04-02T03:25:34.910Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 8
-  completed_phases: 7
-  total_plans: 14
-  completed_plans: 14
+  completed_phases: 6
+  total_plans: 16
+  completed_plans: 15
   percent: 100
 ---
 
@@ -67,6 +67,8 @@ Key decisions from v1.0/v1.1:
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Skeleton layouts match actual content structure for visual consistency
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Skeleton layouts match actual content structure for visual consistency across all 12 complex pages
 - [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Skeleton layouts match actual content structure for visual consistency across all 12 complex pages
+- [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Notifications page had zero error banners (not duplicates as plan expected) — added one per Rule 2. Employee-deductions already had correct error condition and retry — only replaced inline SVG with ExclamationTriangleIcon
+- [Phase 15-ui-polish-skeletons-y-error-banners-en-todas-las-vistas]: Notifications page had zero error banners (not duplicates as plan expected) — added one per Rule 2. Employee-deductions already had correct error condition and retry — only replaced inline SVG with ExclamationTriangleIcon
 
 ### Tests
 
@@ -89,8 +91,8 @@ Key decisions from v1.0/v1.1:
 
 ## Session Continuity
 
-Last session: 2026-04-02T02:37:50.306Z
-Stopped at: Completed 15-02-PLAN.md - Skeleton loading and error banners on 12 complex pages
+Last session: 2026-04-02T03:25:34.905Z
+Stopped at: Completed 15-03-PLAN.md - Fix error banner bugs in employee-deductions and notifications
 Resume: ejecutar `/gsd:plan-phase 14` para Phase 14
 
 ---
