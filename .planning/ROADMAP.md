@@ -132,7 +132,7 @@ Plans:
 Plans:
 - [ ] TBD (run /gsd:plan-phase 15 to break down)
 
-### Phase 16: Mejorar rendimiento web — reducir LCP de 5.86s a <2.5s
+### Phase 16: Mejorar rendimiento web — reducir LCP de 5.86s a <2.5s y mejorar CLS
 
 **Goal:** [To be planned]
 **Requirements**: TBD
@@ -141,16 +141,6 @@ Plans:
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 16 to break down)
-
-### Phase 17: Mejorar rendimiento web — reducir LCP de 5.86s a <2.5s
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 16
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 17 to break down)
 
 
 
