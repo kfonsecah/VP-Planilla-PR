@@ -142,12 +142,12 @@ Plans:
 **Goal:** LCP reduced from 5.86s to under 2.5s and CLS improved through image compression, code splitting, and Next.js optimization
 **Requirements**: PERF-01, PERF-02, PERF-03
 **Depends on:** Phase 15
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 16-01-PLAN.md — Dynamic import heavy libraries (FullCalendar, ExcelJS, framer-motion)
 - [x] 16-02-PLAN.md — Next.js performance config, font preload, Image component audit
-- [ ] 16-03-PLAN.md — Compress oversized PNG images (11MB → under 400KB)
+- [x] 16-03-PLAN.md — Compress oversized PNG images (11MB → under 400KB)
 
 
 

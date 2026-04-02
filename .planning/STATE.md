@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: — Calidad, UI Moderna y Cobertura de Tests
 status: verifying
-stopped_at: Completed 16-02-PLAN.md - Configure Next.js performance optimizations and fix font/image loading
-last_updated: "2026-04-02T04:18:29.966Z"
+stopped_at: Completed 16-03-PLAN.md - Compress oversized PNG images (11.5MB to 39KB)
+last_updated: "2026-04-02T04:49:24.881Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
   percent: 100
 ---
 
@@ -75,6 +75,9 @@ Key decisions from v1.0/v1.1:
 - [Phase 16]: FullCalendar plugins kept static (small ~30-50KB each, needed as plain objects not React components); useDragControls kept static (React hooks cannot be dynamically imported); ExcelJS uses await import() inside async handlers, not next/dynamic (not a React component)
 - [Phase 16]: FullCalendar plugins kept static (small ~30-50KB each, needed as plain objects not React components); useDragControls kept static (React hooks cannot be dynamically imported); ExcelJS uses await import() inside async handlers, not next/dynamic (not a React component)
 - [Phase 16-mejorar-rendimiento-web-reducir-lcp-de-5-86s-a-2-5s]: Used metadata.other.link for font preload instead of next/font (custom local .woff files)
+- [Phase 16-03]: Compressed 10 LCP-critical images from ~11.5MB to 39KB (99.7% reduction); sidebar icons 40x40px, LogInBackground alpha stripped for opacity-15 usage
+- [Phase 16-03]: Compressed 10 LCP-critical images from ~11.5MB to 39KB (99.7% reduction); sidebar icons 40x40px, LogInBackground alpha stripped for opacity-15 usage
+- [Phase 16]: Compressed 10 LCP-critical images from ~11.5MB to 39KB (99.7% reduction); sidebar icons 40x40px, LogInBackground alpha stripped for opacity-15 usage
 
 ### Tests
 
@@ -97,8 +100,8 @@ Key decisions from v1.0/v1.1:
 
 ## Session Continuity
 
-Last session: 2026-04-02T04:18:29.960Z
-Stopped at: Completed 16-02-PLAN.md - Configure Next.js performance optimizations and fix font/image loading
+Last session: 2026-04-02T04:49:24.874Z
+Stopped at: Completed 16-03-PLAN.md - Compress oversized PNG images (11.5MB to 39KB)
 Resume: ejecutar `/gsd:plan-phase 14` para Phase 14
 
 ---
