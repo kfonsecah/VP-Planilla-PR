@@ -83,10 +83,82 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Cargando empleado...</p>
+      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+        <div className="p-6">
+          {/* Header skeleton */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-24 h-10 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+              <div className="h-8 w-40 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+            </div>
+          </div>
+
+          {/* Form skeleton */}
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className="bg-green-700 px-6 py-4">
+              <div className="h-6 w-48 bg-green-600 rounded animate-pulse" />
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Datos Personales */}
+              <div>
+                <div className="h-5 w-36 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-3" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i}>
+                      <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-1" />
+                      <div className="h-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Identificación */}
+              <div>
+                <div className="h-5 w-28 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-3" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[0, 1].map((i) => (
+                    <div key={i}>
+                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-1" />
+                      <div className="h-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Contacto */}
+              <div>
+                <div className="h-5 w-36 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-3" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[0, 1].map((i) => (
+                    <div key={i}>
+                      <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-1" />
+                      <div className="h-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Información Laboral */}
+              <div>
+                <div className="h-5 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-3" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i}>
+                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mb-1" />
+                      <div className="h-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 flex gap-3">
+                <div className="flex-1 h-12 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+                <div className="flex-1 h-12 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -94,17 +166,35 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212] flex items-center justify-center p-6">
-        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-lg p-6 max-w-md w-full">
-          <div className="text-red-600 dark:text-red-400 text-center">
-            <h2 className="text-xl font-semibold mb-2">Error</h2>
-            <p>{error}</p>
-            <button
-              onClick={() => router.push('/pages/employee/list')}
-              className="mt-4 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors"
-            >
-              Volver a la lista
-            </button>
+      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.push('/pages/employee/list')}
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white rounded-lg hover:bg-[#F5F1E8] dark:hover:bg-[#333333] transition-colors border border-zinc-300 dark:border-zinc-700"
+              >
+                <ArrowLeftIcon className="w-5 h-5" />
+                Volver
+              </button>
+            </div>
+          </div>
+          <div className="overflow-auto rounded-lg border border-red-200 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
+              <svg className="w-10 h-10 mx-auto mb-3 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar datos del empleado</p>
+              <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => router.push('/pages/employee/list')}
+                  className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm font-medium"
+                >
+                  Volver a la lista
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

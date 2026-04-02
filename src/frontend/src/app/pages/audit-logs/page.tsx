@@ -168,8 +168,21 @@ export default function AuditLogsPage() {
         )}
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg">
-            {error}
+          <div className="mb-6 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
+              <svg className="w-10 h-10 mx-auto mb-3 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar logs de auditoría</p>
+              <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
+              <button
+                onClick={() => fetchAuditLogs(filters)}
+                className="flex items-center gap-2 mx-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <ArrowPathIcon className="w-4 h-4" />
+                Reintentar
+              </button>
+            </div>
           </div>
         )}
 
@@ -184,9 +197,24 @@ export default function AuditLogsPage() {
         {/* Logs List */}
         <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 p-6">
           {isLoading ? (
-            <div className="text-center py-12">
-              <ArrowPathIcon className="w-12 h-12 animate-spin text-green-600 mx-auto mb-3" />
-              <p className="text-zinc-600 dark:text-zinc-400">Cargando logs...</p>
+            <div className="space-y-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 animate-pulse">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+                        <div className="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                        <div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                        <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-12">

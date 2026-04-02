@@ -161,9 +161,16 @@ export default function EmployeeDeductionsPage() {
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm">Selecciona un empleado para ver sus deducciones</p>
               </div>
             ) : loadingEmpDeductions ? (
-              <div className="text-center py-8">
-                <ArrowPathIcon className="w-6 h-6 animate-spin text-green-600 mx-auto mb-2" />
-                <p className="text-zinc-500 dark:text-zinc-400 text-sm">Cargando deducciones...</p>
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-4 animate-pulse">
+                    <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-lg flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : employeeDeductions.length === 0 ? (
               <div className="text-center py-12">

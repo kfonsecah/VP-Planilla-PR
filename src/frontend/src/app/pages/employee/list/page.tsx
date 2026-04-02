@@ -96,6 +96,18 @@ const EmployeeListPage: React.FC = () => {
           onToggleFiredEmployees={setShowFiredEmployees}
         />
 
+        {positionsLoading && (
+          <div className="mt-4 text-center text-sm text-zinc-400 dark:text-zinc-500 animate-pulse">
+            Cargando posiciones...
+          </div>
+        )}
+
+        {positionsLoading && (
+          <div className="mt-4 text-center text-sm text-zinc-400 dark:text-zinc-500 animate-pulse">
+            Cargando posiciones...
+          </div>
+        )}
+
       </div>
 
       {/* Modal para agregar empleado */}

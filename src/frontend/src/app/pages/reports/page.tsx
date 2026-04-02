@@ -389,9 +389,19 @@ export default function ReportsPage() {
 
             <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
               {loadingDataset ? (
-                <div className="flex items-center justify-center py-16 text-green-600">
-                  <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" />
-                  <span>Cargando información de la planilla...</span>
+                <div className="p-6 space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 px-4 py-3 animate-pulse">
+                      <div className="w-4 h-4 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                        <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      </div>
+                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="overflow-x-auto">
