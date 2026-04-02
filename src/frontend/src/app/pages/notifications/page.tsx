@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { BellIcon, CheckIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { BellIcon, CheckIcon, ArrowPathIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 /**
  * Notification type icon mapping.
@@ -105,32 +105,10 @@ export default function NotificationsPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="mb-4 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
+          <div className="mb-6 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
             <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
-              <svg className="w-10 h-10 mx-auto mb-3 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar notificaciones</p>
-              <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
-              <button
-                onClick={() => fetchNotifications(page, limit)}
-                className="flex items-center gap-2 mx-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <ArrowPathIcon className="w-4 h-4" />
-                Reintentar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Error Banner */}
-        {error && (
-          <div className="mb-4 overflow-auto rounded-lg border border-red-200 dark:border-red-800">
-            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
-              <svg className="w-10 h-10 mx-auto mb-3 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar notificaciones</p>
+              <ExclamationTriangleIcon className="w-10 h-10 mb-3 text-red-500 dark:text-red-400 mx-auto" />
+              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar datos</p>
               <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
               <button
                 onClick={() => fetchNotifications(page, limit)}
