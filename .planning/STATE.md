@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: — Calidad, UI Moderna y Cobertura de Tests
 status: verifying
-stopped_at: Completed 13-09-PLAN.md - Skeleton loading states for employee list
-last_updated: "2026-04-02T05:17:24.684Z"
+stopped_at: Completed 13-09-PLAN.md - Add skeleton loading states to employee list page
+last_updated: "2026-04-02T05:18:24.400Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 8
@@ -81,6 +81,8 @@ Key decisions from v1.0/v1.1:
 - [Phase 13-integracion-frontend-backend]: Dark mode: zinc-* palette exclusively for all dark: variants — no gray-*, no duplicate dark: classes on same element
 - [Phase 13-integracion-frontend-backend]: Dark mode: zinc-* palette exclusively for all dark: variants — no gray-*, no duplicate dark: classes on same element
 - [Phase 13-integracion-frontend-backend]: Skeleton loading: only shown during initial fetch (isLoading && employees.length === 0), not during CRUD mutations
+- [Phase 13-integracion-frontend-backend]: Skeleton loading: isLoading && employees.length === 0 condition prevents flash when data arrives during loading
+- [Phase 13-integracion-frontend-backend]: Skeleton loading: isLoading && employees.length === 0 condition prevents flash when data arrives during loading
 
 ### Tests
 
@@ -103,8 +105,8 @@ Key decisions from v1.0/v1.1:
 
 ## Session Continuity
 
-Last session: 2026-04-02T05:17:20.624Z
-Stopped at: Completed 13-09-PLAN.md - Skeleton loading states for employee list
+Last session: 2026-04-02T05:18:24.394Z
+Stopped at: Completed 13-09-PLAN.md - Add skeleton loading states to employee list page
 Resume: ejecutar `/gsd:plan-phase 14` para Phase 14
 
 ---
