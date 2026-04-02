@@ -64,7 +64,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
   return (
     <aside className="w-56 lg:w-60 bg-[#FCF1D5] dark:bg-zinc-900 text-white flex flex-col shadow-sm border-r border-[#E0D6B7] dark:border-zinc-800 h-screen overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 md:hidden">
-        <Image src="/images/Logo.png" alt="Verde Gestión Logo" width={35} height={35} className="mr-2 rounded-full" />
+        <Image src="/images/Logo.png" alt="Verde Gestión Logo" width={35} height={35} className="mr-2 rounded-full" loading="eager" />
         <button
           onClick={onClose}
           className="p-2 rounded-lg hover:bg-[#F0E6D2] dark:hover:bg-zinc-800 text-[#4A5D3A] dark:text-zinc-400"
@@ -75,7 +75,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       </div>
 
       <div className="hidden md:flex items-center justify-start px-6 py-4">
-        <Image src="/images/Logo.png" alt="Verde Gestión Logo" width={40} height={40} className="mr-3 rounded-full" />
+        <Image src="/images/Logo.png" alt="Verde Gestión Logo" width={40} height={40} className="mr-3 rounded-full" priority />
         <span className="text-xl text-[#4A5D3A] dark:text-zinc-100 font-titulo titulo-verde-gestion" style={{ fontFamily: 'VerdeFont, Inter, sans-serif' }}>VERDE GESTIÓN</span>
       </div>
 
@@ -111,7 +111,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
           className="flex items-center w-full p-2 rounded-lg transition-colors duration-200 text-[#4A5D3A] dark:text-zinc-400 hover:bg-[#E7DCC1] dark:hover:bg-zinc-800 disabled:opacity-50"
         >
           <div className="mr-3 text-lg">
-            <Image src="/images/layout/logOut.png" alt="Cerrar sesión" width={20} height={20} />
+            <Image src="/images/layout/logOut.png" alt="Cerrar sesión" width={20} height={20} loading="lazy" />
           </div>
           <span className="flex-1 text-sm font-medium text-left">{isLoggingOut ? 'Cerrando...' : 'Cerrar sesión'}</span>
         </button>

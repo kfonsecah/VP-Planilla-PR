@@ -36,6 +36,7 @@ const LoginScreen = () => {
           style={{ objectFit: "cover" }}
           className="opacity-15 mix-blend-overlay pointer-events-none"
           priority
+          quality={40}
         />
 
         {/* Content */}
@@ -48,6 +49,8 @@ const LoginScreen = () => {
               width={52}
               height={52}
               className="rounded-full shadow-md"
+              priority
+              quality={80}
             />
             <div>
               <h1 className="text-2xl font-bold text-[#3B4D36] dark:text-zinc-100 tracking-tight" style={{ fontFamily: 'VerdeFont, Inter, sans-serif' }}>

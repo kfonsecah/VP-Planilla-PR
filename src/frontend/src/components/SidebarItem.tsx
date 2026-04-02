@@ -34,7 +34,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon, text, subItems })
         } ${subItems ? 'cursor-pointer' : ''}`}
       >
         <div className="flex-shrink-0 w-5 h-5">
-          <Image src={icon} alt={text} width={20} height={20} />
+          <Image src={icon} alt={text} width={20} height={20} loading="eager" />
         </div>
         <span className="flex-1 text-sm font-medium">
           {text}
