@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { readCache, writeCache, invalidateCache } from '@/utils/sessionCache';
 import { Employee, EmployeeStats, EmployeeFormData } from '@/types';
 import { 
   calculateEmployeeStats, 
@@ -174,10 +175,16 @@ const useEmployeeList = () => {
   // Cargar empleados desde el backend
   useEffect(() => {
     const loadEmployees = async () => {
+      const cached = readCache<RawEmployee[]>('vp_employees_cache');
+      if (cached) {
+        setRawEmployees(cached);
+        return;
+      }
       setIsLoading(true);
       setError(null);
       try {
         const apiEmployees = await apiGetEmployees();
+        writeCache('vp_employees_cache', apiEmployees as RawEmployee[]);
         setRawEmployees(apiEmployees as RawEmployee[]);
       } catch (err) {
         console.error('Error loading employees from API', err);
@@ -279,11 +286,13 @@ const useEmployeeList = () => {
       };
 
       await updateEmployee(editingEmployeeId, updates);
-      
+
       // Recargar lista de empleados
+      invalidateCache('vp_employees_cache');
       const apiEmployees = await apiGetEmployees();
+      writeCache('vp_employees_cache', apiEmployees as RawEmployee[]);
       setRawEmployees(apiEmployees as RawEmployee[]);
-      
+
       toast.success('Empleado actualizado correctamente');
     } catch (error) {
       console.error('Error updating employee', error);
@@ -299,7 +308,9 @@ const useEmployeeList = () => {
     if (!dismissingEmployee) return;
     try {
       await fireEmployee(dismissingEmployee.id, exitDate);
+      invalidateCache('vp_employees_cache');
       const apiEmployees = await apiGetEmployees();
+      writeCache('vp_employees_cache', apiEmployees as RawEmployee[]);
       setRawEmployees(apiEmployees as RawEmployee[]);
       setShowDismissModal(false);
       setDismissingEmployee(null);
@@ -329,6 +340,7 @@ const useEmployeeList = () => {
       const created = await apiCreateEmployee(employeeData);
       const createdObj = created as RawEmployee;
       setRawEmployees((prev) => [...prev, createdObj]);
+      invalidateCache('vp_employees_cache'); // so next mount re-fetches
     } catch (error) {
       console.error('Error creating employee', error);
       toast.error('No se pudo guardar el empleado. Revisa la consola para más detalles.');
@@ -388,7 +400,9 @@ const useEmployeeList = () => {
     // Provide a refresh function so pages can re-fetch employees on demand
     refreshEmployees: async () => {
       try {
+        invalidateCache('vp_employees_cache');
         const apiEmployees = await apiGetEmployees();
+        writeCache('vp_employees_cache', apiEmployees as RawEmployee[]);
         setRawEmployees(apiEmployees as RawEmployee[]);
       } catch (error) {
         console.error('Error refreshing employees', error);
