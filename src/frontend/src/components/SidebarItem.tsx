@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 interface SidebarItemProps {
   href: string;
@@ -27,39 +28,58 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, icon, text, subItems })
       <Link
         href={subItems ? '#' : href}
         onClick={subItems ? toggleSubmenu : undefined}
-        className={`flex items-center gap-3 p-2 rounded-lg transition-colors duration-200 ${
-          isActive 
-            ? 'bg-[#E7DCC1] dark:bg-zinc-700/50 border-l-2 border-green-500 text-[#4A5D3A] dark:text-zinc-100 font-medium' 
-            : 'text-[#4A5D3A] dark:text-zinc-400 hover:bg-[#E7DCC1] dark:hover:bg-zinc-800'
+        className={`flex items-center gap-3 px-2 py-2 rounded-lg transition-all duration-200 group ${
+          isActive
+            ? 'bg-green-600 text-white shadow-sm shadow-green-900/20'
+            : 'text-[#4A5D3A] dark:text-zinc-400 hover:bg-[#E7DCC1] dark:hover:bg-zinc-800 hover:text-[#3A4D2A] dark:hover:text-zinc-100'
         } ${subItems ? 'cursor-pointer' : ''}`}
       >
-        <div className="flex-shrink-0 w-5 h-5">
-          <Image src={icon} alt={text} width={20} height={20} loading="eager" />
+        <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+          <Image
+            src={icon}
+            alt={text}
+            width={18}
+            height={18}
+            loading="eager"
+            className={isActive ? 'brightness-0 invert' : 'opacity-75 group-hover:opacity-100'}
+          />
         </div>
-        <span className="flex-1 text-sm font-medium">
+        <span className="flex-1 text-sm font-medium leading-none">
           {text}
         </span>
         {subItems && (
-          <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
-            {isOpen ? '▲' : '▼'}
-          </span>
+          <ChevronDownIcon
+            className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            } ${isActive ? 'text-white/70' : 'text-[#7A8F6A] dark:text-zinc-500'}`}
+          />
         )}
       </Link>
+
       {subItems && isOpen && (
-        <div className="pl-6 mt-1 space-y-0.5">
-          {subItems.map((subItem) => (
-            <Link
-              key={subItem.href}
-              href={subItem.href}
-              className={`flex items-center p-1.5 rounded-md transition-colors duration-200 text-xs ${
-                pathname === subItem.href 
-                  ? 'bg-[#E7DCC1] dark:bg-zinc-700/50 text-[#4A5D3A] dark:text-zinc-100 font-medium' 
-                  : 'text-[#6B7556] dark:text-zinc-500 hover:bg-[#E7DCC1] dark:hover:bg-zinc-800'
-              }`}
-            >
-              {subItem.text}
-            </Link>
-          ))}
+        <div className="pl-4 mt-0.5 space-y-0.5 relative">
+          {/* Línea guía vertical */}
+          <div className="absolute left-[18px] top-0 bottom-0 w-px bg-[#D0C8A8] dark:bg-zinc-700" />
+          {subItems.map((subItem) => {
+            const subActive = pathname === subItem.href;
+            return (
+              <Link
+                key={subItem.href}
+                href={subItem.href}
+                className={`flex items-center gap-2 pl-5 pr-2 py-1.5 rounded-md transition-all duration-200 text-xs relative ${
+                  subActive
+                    ? 'text-green-700 dark:text-green-400 font-semibold bg-green-50 dark:bg-green-900/20'
+                    : 'text-[#6B7556] dark:text-zinc-500 hover:text-[#3A4D2A] dark:hover:text-zinc-200 hover:bg-[#E7DCC1] dark:hover:bg-zinc-800'
+                }`}
+              >
+                {/* Dot conector */}
+                <span className={`absolute left-[14px] w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                  subActive ? 'bg-green-600' : 'bg-[#C0B898] dark:bg-zinc-600'
+                }`} />
+                {subItem.text}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
