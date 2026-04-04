@@ -61,12 +61,18 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - TESTS-05: Cobertura 33% (target 60% no alcanzable sin más inversión)
 - 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260404-o3p | Implementar sessionStorage cache en hooks de datos | 2026-04-04 | f7f6ecc | [260404-o3p-implementar-sessionstorage-cache-en-hook](.planning/quick/260404-o3p-implementar-sessionstorage-cache-en-hook/) |
+
 ## Session Continuity
 
-Last session: 2026-04-02T06:00:00.000Z
-Stopped at: Milestone v1.1 archived
-Resume: ejecutar `/gsd-new-milestone` para definir v1.2
+Last session: 2026-04-04
+Stopped at: Quick task 260404-o3p complete — sessionStorage cache en 4 hooks
+Resume: ejecutar `/gsd:new-milestone` para definir v1.2
 
 ---
 
-*Updated: 2026-04-02 — Milestone v1.1 complete*
+*Updated: 2026-04-04 — sessionStorage cache implementado*
