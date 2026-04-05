@@ -3,7 +3,7 @@ import { ClockLogsController } from "../controller/ClockLogsController";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middleware/AuthMiddleware";
 import { validateBody } from '../middleware/validateBody';
-import { bulkCreateClockLogSchema } from '../schemas/ClockLogSchema';
+import { bulkCreateClockLogSchema, resolveOrphanSchema } from '../schemas/ClockLogSchema';
 
 const router = Router();
 
@@ -213,5 +213,43 @@ router.post("/clock-logs/bulk", validateBody(bulkCreateClockLogSchema), asyncHan
  *         description: Internal server error
  */
 router.post("/clock-logs/import", asyncHandler((req, res) => controller.import(req, res)));
+
+/**
+ * @swagger
+ * /api/clock-logs/orphans/{id}/resolve:
+ *   post:
+ *     tags: [Clock Logs]
+ *     summary: Resolve an orphan clock log
+ *     description: Either assign a complementary manual clock log or discard the orphan with justification
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path, name: id, required: true, schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [action, justification]
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [assign_complement, discard]
+ *               justification:
+ *                 type: string
+ *                 maxLength: 500
+ *               complementTimestamp:
+ *                 type: string
+ *                 format: date-time
+ *               complementLogType:
+ *                 type: string
+ *                 enum: [IN, OUT]
+ *     responses:
+ *       '200': { description: Orphan resolved successfully }
+ *       '400': { description: Invalid request or log is not an orphan }
+ *       '404': { description: Clock log not found }
+ */
+router.post("/clock-logs/orphans/:id/resolve", validateBody(resolveOrphanSchema), asyncHandler((req, res) => controller.resolveOrphan(req, res)));
 
 export default router;

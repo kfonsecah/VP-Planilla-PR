@@ -448,4 +448,49 @@ export class ClockLogsController {
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
+
+    /**
+     * Resolve an orphan clock log
+     * POST /clock-logs/orphans/:id/resolve
+     * @param req - Express request with params and body
+     * @param res - Express response
+     * @returns Promise<Response>
+     */
+    async resolveOrphan(req: Request, res: Response): Promise<Response> {
+        try {
+            const idParam = req.params.id;
+            const orphanId = parseInt(Array.isArray(idParam) ? idParam[0] : idParam, 10);
+            
+            if (isNaN(orphanId) || orphanId <= 0) {
+                return res.status(400).json({ error: 'ID de marca inválido' });
+            }
+
+            const { action, justification, complementTimestamp, complementLogType } = req.body as any;
+
+            let complementData: { timestamp: Date; logType: 'IN' | 'OUT' } | undefined;
+            if (action === 'assign_complement') {
+                if (!complementTimestamp || !complementLogType) {
+                    return res.status(400).json({ error: 'complementTimestamp y complementLogType son requeridos para assign_complement' });
+                }
+                const ts = new Date(complementTimestamp);
+                if (isNaN(ts.getTime())) {
+                    return res.status(400).json({ error: 'Timestamp de complemento inválido' });
+                }
+                complementData = { timestamp: ts, logType: complementLogType };
+            }
+
+            const service = new ClockLogsService();
+            const result = await service.resolveOrphan(orphanId, action, justification, complementData);
+
+            return res.json({ success: true, message: result.message });
+        } catch (error: any) {
+            if (error.message === 'Marca no encontrada') {
+                return res.status(404).json({ error: 'Marca no encontrada' });
+            }
+            if (error.message === 'La marca no tiene status orphan') {
+                return res.status(400).json({ error: 'La marca no tiene status orphan' });
+            }
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
 }
