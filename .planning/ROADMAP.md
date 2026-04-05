@@ -101,7 +101,7 @@ Plans:
 | 18. Normalización y Trazabilidad | 2/2 | ✓ Complete | 2026-04-05 |
 | 19. Sesiones de Importación | 2/2 | ✓ Complete | 2026-04-05 |
 | 20. Huérfanas y Anomalías | 3/3 | ✓ Complete | 2026-04-05 |
-| 21. Corrección Manual | 2/2 | Complete   | 2026-04-05 |
+| 21. Corrección Manual | 2/2 | Complete    | 2026-04-05 |
 | 22. Dashboard UI de Marcas | 0/? | Not started | - |
 
 ---
