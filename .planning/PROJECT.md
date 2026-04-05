@@ -28,7 +28,18 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Tests:** 104 backend tests (8 suites), 0 failures
 - **Performance:** ~1.55MB JS diferido, imágenes comprimidas 99.7%, Next.js compress habilitado
 
-## Current Milestone: v1.3 (Planning)
+## Current Milestone: v1.3 — Sistema de Marcas de Reloj Robusto (Active)
+
+**Goal:** Transformar el pipeline de marcas de reloj en un sistema confiable con detección de anomalías, trazabilidad completa, corrección manual y sin pérdida de datos.
+
+**Target features:**
+- Normalización de tipos (ENTRADA/SALIDA ↔ IN/OUT → valor canónico único)
+- Campos `status` y `source` en `vpg_clock_logs` para trazabilidad
+- Tabla de sesiones de importación (`vpg_clock_import_sessions`) con historial
+- Cola de huérfanas — marcas sin par procesadas en flujo dedicado
+- Motor de detección de anomalías (doble entrada, doble salida, gaps > umbral)
+- API de corrección manual con registro de auditoría
+- Dashboard UI — visualización de marcas, anomalías y acciones de corrección
 
 **Previous:** v1.2 shipped 2026-04-04 — Phase 17 (287 tests, +183 nuevos), sessionStorage cache, Sidebar modernizado
 
