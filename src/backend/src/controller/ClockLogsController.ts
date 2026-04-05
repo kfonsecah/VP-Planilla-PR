@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ClockLogsService, ClockLogSource } from "../service/ClockLogsService";
+import { ClockLogAnalysisService } from "../service/ClockLogAnalysisService";
 import { ImportSessionService } from "../service/ImportSessionService";
 import { prisma } from "../lib/prisma";
 import { normalizeLogType } from "../utils/clockLogNormalization";
@@ -265,12 +266,15 @@ export class ClockLogsController {
             const service = new ClockLogsService();
             const result = await service.bulkCreate(resolved, source, sessionId);
 
+            // Run anomaly detection analysis
+            const analysis = await ClockLogAnalysisService.runPostImportAnalysis(sessionId);
+
             // Update session with final results
             await ImportSessionService.updateSession(sessionId, {
                 status: 'completed',
                 createdCount: result.created,
                 skippedCount: skipped.length,
-                anomalyCount: 0
+                anomalyCount: analysis.total
             });
 
             return res.status(201).json({
@@ -278,7 +282,7 @@ export class ClockLogsController {
                 status: skipped.length > 0 ? 'partial' : 'completed',
                 created: result.created,
                 skipped: skipped.length,
-                anomalies: 0,
+                anomalies: analysis.total,
                 errors: skipped
             });
         } catch (error) {
