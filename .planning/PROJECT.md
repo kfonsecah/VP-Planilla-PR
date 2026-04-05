@@ -8,9 +8,9 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.1 — 2026-04-02)
+## Current State (v1.2 — 2026-04-04)
 
-**v1.1 SHIPPED** — Calidad, UI Moderna y Cobertura de Tests:
+**v1.2 SHIPPED** — Cobertura de Tests y Mejoras UI:
 - ✅ 104 tests backend pasando (8 suites): EmployeeService, ClockLogService, DeductionService, AuthService + v1.0 suites
 - ✅ Design system dark mode: tokens CSS globales, paleta zinc-950, sidebar moderno con colapso mobile
 - ✅ UI consistente: tablas, formularios, modales en todos los módulos con estilo dark
@@ -28,9 +28,9 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Tests:** 104 backend tests (8 suites), 0 failures
 - **Performance:** ~1.55MB JS diferido, imágenes comprimidas 99.7%, Next.js compress habilitado
 
-## Current Milestone: v1.2 (Planning)
+## Current Milestone: v1.3 (Planning)
 
-**Previous:** v1.1 shipped 2026-04-02 — 8 phases, 22 plans, 30 tasks
+**Previous:** v1.2 shipped 2026-04-04 — Phase 17 (287 tests, +183 nuevos), sessionStorage cache, Sidebar modernizado
 
 **v1.1 accomplishments:**
 - 104 backend tests, design system dark mode, UI consistente en todos los módulos

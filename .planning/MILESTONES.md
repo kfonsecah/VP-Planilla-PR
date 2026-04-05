@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.2 — Cobertura de Tests y Mejoras UI (Shipped: 2026-04-04)
+
+**Phases completed:** 1 phase (17), 3 plans + 2 quick tasks
+**Timeline:** 2026-04-02 → 2026-04-04 (2 días)
+**Tests:** 104 → 287 (+183), 17 suites, 0 failures, cobertura 42.49%
+
+**Key accomplishments:**
+
+1. 9 nuevas suites de tests unitarios — VacationService, PayrollTypeService, PositionService, BonusesService, EmployeeDeductions, LaborEventsService, UserService, NotificationService, AuditLogsService
+2. payrollUtils.test.ts extendido a 103 casos (97% cobertura) — cubre validateClockLogPairs, getSundaysInPeriod, calculateOvertimeHoursBiweekly y más
+3. sessionStorage cache (TTL 5 min) implementado en 8 hooks — elimina re-fetch en navegación
+4. Sidebar modernizado — active state verde, chevron animado, dot status, sin viñetas en sub-ítems
+5. Fix ESLint y TypeScript: 0 errores de lint, 0 errores de compilación
+
+**Known gaps at close:**
+
+- Cobertura 42.49% (target 60% no alcanzado — NomineeService, PaymentReceiptService, ReportsService pendientes)
+- Sistema de marcas de reloj sin validación de anomalías — planificado en v1.3
+
+**Archive:** `.planning/milestones/v1.2-ROADMAP.md`
+
+---
+
 ## v1.1 Calidad, UI Moderna y Cobertura de Tests (Shipped: 2026-04-02)
 
 **Phases completed:** 8 phases, 22 plans, 30 tasks
