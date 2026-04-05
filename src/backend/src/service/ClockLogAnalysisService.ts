@@ -1,4 +1,7 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+
+type ClockLogRow = Prisma.vpg_clock_logsGetPayload<Record<string, never>>;
 
 /**
  * Service for analyzing clock logs to detect anomalies and orphan records.
@@ -13,70 +16,20 @@ export class ClockLogAnalysisService {
    * @throws Error if database query fails
    */
   static async detectOrphans(sessionId: number): Promise<number> {
-    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
-    const orphanIds: number[] = [];
-
-    // Fetch all pending logs for this session, ordered by timestamp
     const logs = await prisma.vpg_clock_logs.findMany({
-      where: {
-        clock_logs_import_session_id: sessionId,
-        clock_logs_status: 'pending'
-      },
-      orderBy: {
-        clock_logs_timestamp: 'asc'
-      }
+      where: { clock_logs_import_session_id: sessionId, clock_logs_status: 'pending' },
+      orderBy: { clock_logs_timestamp: 'asc' }
     });
+    if (logs.length === 0) return 0;
 
-    if (logs.length === 0) {
-      return 0;
-    }
-
-    // Group logs by employee
-    const logsByEmployee = new Map<number, typeof logs>();
-    for (const log of logs) {
-      const employeeId = log.clock_logs_employee_id;
-      if (!logsByEmployee.has(employeeId)) {
-        logsByEmployee.set(employeeId, []);
-      }
-      logsByEmployee.get(employeeId)!.push(log);
-    }
-
-    // Check each employee's logs
-    for (const [, employeeLogs] of logsByEmployee) {
-      // Already sorted by timestamp from query
-      for (let i = 0; i < employeeLogs.length; i++) {
-        const current = employeeLogs[i];
-        // Skip if not pending (defensive, though query should filter)
-        if (current.clock_logs_status !== 'pending') continue;
-
-        if (current.clock_logs_log_type === 'IN') {
-          // An IN is orphan if no OUT follows within 24h
-          const hasMatchingOut = employeeLogs.slice(i + 1).some(log =>
-            log.clock_logs_log_type === 'OUT' && (log.clock_logs_timestamp.getTime() - current.clock_logs_timestamp.getTime()) <= TWENTY_FOUR_HOURS_MS
-          );
-          if (!hasMatchingOut) {
-            orphanIds.push(current.clock_logs_id);
-          }
-        } else if (current.clock_logs_log_type === 'OUT') {
-          // An OUT is orphan if no IN precedes it within 24h
-          const hasMatchingIn = employeeLogs.slice(0, i).some(log =>
-            log.clock_logs_log_type === 'IN' && (current.clock_logs_timestamp.getTime() - log.clock_logs_timestamp.getTime()) <= TWENTY_FOUR_HOURS_MS
-          );
-          if (!hasMatchingIn) {
-            orphanIds.push(current.clock_logs_id);
-          }
-        }
-      }
-    }
-
-    if (orphanIds.length > 0) {
+    const ids = this.computeOrphanIds(logs);
+    if (ids.size > 0) {
       await prisma.vpg_clock_logs.updateMany({
-        where: { clock_logs_id: { in: orphanIds } },
+        where: { clock_logs_id: { in: Array.from(ids) } },
         data: { clock_logs_status: 'orphan' }
       });
     }
-
-    return orphanIds.length;
+    return ids.size;
   }
 
   /**
@@ -87,57 +40,19 @@ export class ClockLogAnalysisService {
    */
   static async detectDoubleEntry(sessionId: number): Promise<number> {
     const logs = await prisma.vpg_clock_logs.findMany({
-      where: {
-        clock_logs_import_session_id: sessionId,
-        clock_logs_status: 'pending'
-      },
-      orderBy: {
-        clock_logs_timestamp: 'asc'
-      }
+      where: { clock_logs_import_session_id: sessionId, clock_logs_status: 'pending' },
+      orderBy: { clock_logs_timestamp: 'asc' }
     });
+    if (logs.length === 0) return 0;
 
-    if (logs.length === 0) {
-      return 0;
-    }
-
-    // Group by employee
-    const logsByEmployee = new Map<number, typeof logs>();
-    for (const log of logs) {
-      const employeeId = log.clock_logs_employee_id;
-      if (!logsByEmployee.has(employeeId)) {
-        logsByEmployee.set(employeeId, []);
-      }
-      logsByEmployee.get(employeeId)!.push(log);
-    }
-
-    const anomalyIds = new Set<number>();
-
-    // Find consecutive IN/IN pairs
-    for (const [, employeeLogs] of logsByEmployee) {
-      employeeLogs.sort((a, b) => a.clock_logs_timestamp.getTime() - b.clock_logs_timestamp.getTime());
-
-      for (let i = 0; i < employeeLogs.length - 1; i++) {
-        const current = employeeLogs[i];
-        const next = employeeLogs[i + 1];
-        // Skip if not pending
-        if (current.clock_logs_status !== 'pending' || next.clock_logs_status !== 'pending') continue;
-
-        if (current.clock_logs_log_type === 'IN' && next.clock_logs_log_type === 'IN') {
-          anomalyIds.add(current.clock_logs_id);
-          anomalyIds.add(next.clock_logs_id);
-          // Do NOT increment i here — allow overlapping pairs to capture all consecutive INs
-        }
-      }
-    }
-
-    if (anomalyIds.size > 0) {
+    const ids = this.computeDoubleEntryIds(logs);
+    if (ids.size > 0) {
       await prisma.vpg_clock_logs.updateMany({
-        where: { clock_logs_id: { in: Array.from(anomalyIds) } },
+        where: { clock_logs_id: { in: Array.from(ids) } },
         data: { clock_logs_status: 'anomaly' }
       });
     }
-
-    return anomalyIds.size;
+    return ids.size;
   }
 
   /**
@@ -148,58 +63,20 @@ export class ClockLogAnalysisService {
    */
   static async detectDoubleExit(sessionId: number): Promise<number> {
     const logs = await prisma.vpg_clock_logs.findMany({
-      where: {
-        clock_logs_import_session_id: sessionId,
-        clock_logs_status: 'pending'
-      },
-      orderBy: {
-        clock_logs_timestamp: 'asc'
-      }
+      where: { clock_logs_import_session_id: sessionId, clock_logs_status: 'pending' },
+      orderBy: { clock_logs_timestamp: 'asc' }
     });
+    if (logs.length === 0) return 0;
 
-    if (logs.length === 0) {
-      return 0;
-    }
-
-    // Group by employee
-    const logsByEmployee = new Map<number, typeof logs>();
-    for (const log of logs) {
-      const employeeId = log.clock_logs_employee_id;
-      if (!logsByEmployee.has(employeeId)) {
-        logsByEmployee.set(employeeId, []);
-      }
-      logsByEmployee.get(employeeId)!.push(log);
-    }
-
-    const anomalyIds = new Set<number>();
-
-    // Find consecutive OUT/OUT pairs
-    for (const [, employeeLogs] of logsByEmployee) {
-      employeeLogs.sort((a, b) => a.clock_logs_timestamp.getTime() - b.clock_logs_timestamp.getTime());
-
-      for (let i = 0; i < employeeLogs.length - 1; i++) {
-        const current = employeeLogs[i];
-        const next = employeeLogs[i + 1];
-        // Skip if not pending
-        if (current.clock_logs_status !== 'pending' || next.clock_logs_status !== 'pending') continue;
-
-        if (current.clock_logs_log_type === 'OUT' && next.clock_logs_log_type === 'OUT') {
-          anomalyIds.add(current.clock_logs_id);
-          anomalyIds.add(next.clock_logs_id);
-          // Do NOT increment i here — allow overlapping pairs to capture all consecutive OUTs
-        }
-      }
-    }
-
-    if (anomalyIds.size > 0) {
+    const ids = this.computeDoubleExitIds(logs);
+    if (ids.size > 0) {
       await prisma.vpg_clock_logs.updateMany({
-        where: { clock_logs_id: { in: Array.from(anomalyIds) } },
+        where: { clock_logs_id: { in: Array.from(ids) } },
         data: { clock_logs_status: 'anomaly' }
       });
     }
-
-     return anomalyIds.size;
-   }
+    return ids.size;
+  }
 
    /**
     * Detect long session anomalies (IN->OUT pairs with duration > 16 hours)
@@ -239,9 +116,9 @@ export class ClockLogAnalysisService {
     * @param logs - Array of pending logs (already filtered)
     * @returns Set of orphan log IDs
     */
-   private static computeOrphanIds(logs: any[]): Set<number> {
+   private static computeOrphanIds(logs: ClockLogRow[]): Set<number> {
     const orphanIds = new Set<number>();
-    const logsByEmployee = new Map<number, any[]>();
+    const logsByEmployee = new Map<number, ClockLogRow[]>();
     for (const log of logs) {
       const employeeId = log.clock_logs_employee_id;
       if (!logsByEmployee.has(employeeId)) {
@@ -279,9 +156,9 @@ export class ClockLogAnalysisService {
    * @param logs - Array of pending logs
    * @returns Set of log IDs to mark as anomaly
    */
-  private static computeDoubleEntryIds(logs: any[]): Set<number> {
+  private static computeDoubleEntryIds(logs: ClockLogRow[]): Set<number> {
     const ids = new Set<number>();
-    const logsByEmployee = new Map<number, any[]>();
+    const logsByEmployee = new Map<number, ClockLogRow[]>();
     for (const log of logs) {
       const employeeId = log.clock_logs_employee_id;
       if (!logsByEmployee.has(employeeId)) {
@@ -308,9 +185,9 @@ export class ClockLogAnalysisService {
    * @param logs - Array of pending logs
    * @returns Set of log IDs to mark as anomaly
    */
-  private static computeDoubleExitIds(logs: any[]): Set<number> {
+  private static computeDoubleExitIds(logs: ClockLogRow[]): Set<number> {
     const ids = new Set<number>();
-    const logsByEmployee = new Map<number, any[]>();
+    const logsByEmployee = new Map<number, ClockLogRow[]>();
     for (const log of logs) {
       const employeeId = log.clock_logs_employee_id;
       if (!logsByEmployee.has(employeeId)) {
@@ -337,9 +214,9 @@ export class ClockLogAnalysisService {
    * @param logs - Array of pending logs
    * @returns Set of log IDs (both IN and OUT) to mark as anomaly
    */
-  private static computeLongSessionIds(logs: any[]): Set<number> {
+  private static computeLongSessionIds(logs: ClockLogRow[]): Set<number> {
     const ids = new Set<number>();
-    const logsByEmployee = new Map<number, any[]>();
+    const logsByEmployee = new Map<number, ClockLogRow[]>();
     for (const log of logs) {
       const employeeId = log.clock_logs_employee_id;
       if (!logsByEmployee.has(employeeId)) {

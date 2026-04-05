@@ -141,10 +141,10 @@ export class ClockLogsService {
       const skip = (page - 1) * pageSize;
 
       const where: any = { clock_logs_status: 'orphan' };
-      if (params.initDate && params.endDate) {
+      if (params.initDate || params.endDate) {
         where.clock_logs_timestamp = {
-          gte: params.initDate,
-          lte: params.endDate
+          ...(params.initDate ? { gte: params.initDate } : {}),
+          ...(params.endDate ? { lte: params.endDate } : {})
         };
       }
 
@@ -207,10 +207,10 @@ export class ClockLogsService {
       const skip = (page - 1) * pageSize;
 
       const where: any = { clock_logs_status: 'anomaly' };
-      if (params.initDate && params.endDate) {
+      if (params.initDate || params.endDate) {
         where.clock_logs_timestamp = {
-          gte: params.initDate,
-          lte: params.endDate
+          ...(params.initDate ? { gte: params.initDate } : {}),
+          ...(params.endDate ? { lte: params.endDate } : {})
         };
       }
       // Future: filter by anomaly type when stored in DB
