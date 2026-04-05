@@ -28,3 +28,24 @@ export const resolveOrphanSchema = z.object({
   },
   { message: 'complementTimestamp y complementLogType son requeridos para assign_complement', path: ['complementTimestamp'] }
 );
+
+/**
+ * Schema for creating manual clock log entries (Phase 21)
+ */
+export const createManualLogSchema = z.object({
+  employee_id: z.coerce.number().int().positive("Employee ID must be a positive integer"),
+  timestamp: z.string().datetime({ message: "Invalid date format" }),
+  log_type: z.enum(['IN', 'OUT']),
+  remarks: z.string().optional().nullable(),
+  justification: z.string().min(1, 'La justificación es requerida').max(500),
+});
+export type CreateManualLogInput = z.infer<typeof createManualLogSchema>;
+
+/**
+ * Schema for updating clock log status (Phase 21)
+ */
+export const updateClockLogStatusSchema = z.object({
+  status: z.enum(['corrected']), // Phase 21: only corrected required
+  justification: z.string().min(1, 'La justificación es requerida').max(500),
+});
+export type UpdateClockLogStatusInput = z.infer<typeof updateClockLogStatusSchema>;
