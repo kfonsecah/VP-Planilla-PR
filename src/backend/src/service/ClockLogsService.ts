@@ -297,6 +297,13 @@ export class ClockLogsService {
           throw new Error('Datos de complemento incompletos');
         }
 
+        // Validate complement log type is opposite of orphan log type
+        const orphanLogType = orphanLog.clock_logs_log_type as 'IN' | 'OUT';
+        const complementLogType = complementData.logType as 'IN' | 'OUT';
+        if (orphanLogType === complementLogType) {
+          throw new Error('El tipo de marca complementaria debe ser opuesto al tipo de la marca huérfana');
+        }
+
         // Create complementary manual log
         await prisma.vpg_clock_logs.create({
           data: {

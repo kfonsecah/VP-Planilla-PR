@@ -504,6 +504,67 @@ describe('ClockLogsService', () => {
       });
     });
 
+    it('should throw when complement log type matches orphan log type (IN orphan + IN complement)', async () => {
+      prisma.vpg_clock_logs.findUnique.mockResolvedValue(mockOrphan);
+
+      const complementData = {
+        timestamp: new Date('2026-02-10T17:00:00.000Z'),
+        logType: 'IN' as const  // Same as orphan log_type
+      };
+
+      await expect(
+        service.resolveOrphan(500, 'assign_complement', 'Test', complementData)
+      ).rejects.toThrow('El tipo de marca complementaria debe ser opuesto al tipo de la marca huérfana');
+    });
+
+    it('should throw when complement log type matches orphan log type (OUT orphan + OUT complement)', async () => {
+      const mockOrphanOUT = {
+        ...mockOrphan,
+        clock_logs_log_type: 'OUT' as const
+      };
+      prisma.vpg_clock_logs.findUnique.mockResolvedValue(mockOrphanOUT);
+
+      const complementData = {
+        timestamp: new Date('2026-02-10T08:00:00.000Z'),
+        logType: 'OUT' as const  // Same as orphan log_type
+      };
+
+      await expect(
+        service.resolveOrphan(500, 'assign_complement', 'Test', complementData)
+      ).rejects.toThrow('El tipo de marca complementaria debe ser opuesto al tipo de la marca huérfana');
+    });
+
+    it('should assign complement with opposite type (OUT orphan + IN complement)', async () => {
+      const mockOrphanOUT = {
+        ...mockOrphan,
+        clock_logs_log_type: 'OUT' as const
+      };
+      prisma.vpg_clock_logs.findUnique.mockResolvedValue(mockOrphanOUT);
+      prisma.vpg_clock_logs.create.mockResolvedValue({});
+      prisma.vpg_clock_logs.update.mockResolvedValue({});
+
+      const complementData = {
+        timestamp: new Date('2026-02-10T08:00:00.000Z'),
+        logType: 'IN' as const  // Opposite of orphan
+      };
+
+      const result = await service.resolveOrphan(
+        500,
+        'assign_complement',
+        'Missing clock-in',
+        complementData
+      );
+
+      expect(result.success).toBe(true);
+      expect(prisma.vpg_clock_logs.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            clock_logs_log_type: 'IN'
+          })
+        })
+      );
+    });
+
     it('should throw if complement data missing for assign_complement', async () => {
       prisma.vpg_clock_logs.findUnique.mockResolvedValue(mockOrphan);
 
