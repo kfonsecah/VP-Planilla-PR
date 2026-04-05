@@ -44,7 +44,7 @@ Progress: [████████████] 100% (v1.1 — 8/8 fases comple
 | 14 | Servicio de Notificaciones | ✅ Complete (2 plans) |
 | 15 | UI Polish - Skeletons y Error Banners | ✅ Complete (4 plans) |
 | 16 | Mejorar rendimiento web (LCP + CLS) | ✅ Complete (3 plans) |
-| 17 | Cobertura de Tests Unitarios ~60% | 🔄 In Progress (2/3 complete) |
+| 17 | Cobertura de Tests Unitarios ~60% | ✅ Complete (3/3 plans done) |
 
 ## Accumulated Context
 
@@ -59,7 +59,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Known Issues
 
-- TESTS-05: Cobertura 38.59% (target 60% — wave 2 complete, +39 tests added, 191 total)
+- TESTS-05: Cobertura 42.49% (target 60% — wave 3 complete, +96 tests added, 287 total; 60% target not yet met — NomineeService + PaymentReceiptService + ReportsService remain uncovered)
 - 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
 
 ### Quick Tasks Completed
@@ -71,8 +71,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-04-04
-Stopped at: Completed 17-02-PLAN.md — LaborEventsService, UserService, NotificationService, NomineeService fallback tests, 191 tests passing, coverage 38.59%
-Resume: Execute 17-03-PLAN.md (next wave of unit tests to reach 60%)
+Stopped at: Completed 17-03-PLAN.md — payrollUtils extension (80 tests) + AuditLogsService (17 tests), 287 tests passing, coverage 42.49%
+Resume: Phase 17 complete. Coverage 60% target not met — plan additional phase targeting NomineeService + PaymentReceiptService to cross 60%
 
 ---
 
