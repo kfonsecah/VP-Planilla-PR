@@ -44,7 +44,7 @@ Progress: [████████████] 100% (v1.1 — 8/8 fases comple
 | 14 | Servicio de Notificaciones | ✅ Complete (2 plans) |
 | 15 | UI Polish - Skeletons y Error Banners | ✅ Complete (4 plans) |
 | 16 | Mejorar rendimiento web (LCP + CLS) | ✅ Complete (3 plans) |
-| 17 | Cobertura de Tests Unitarios ~60% | 🔄 In Progress (1/3 complete) |
+| 17 | Cobertura de Tests Unitarios ~60% | 🔄 In Progress (2/3 complete) |
 
 ## Accumulated Context
 
@@ -59,7 +59,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Known Issues
 
-- TESTS-05: Cobertura 35.21% (target 60% — wave 1 complete, +48 tests added)
+- TESTS-05: Cobertura 38.59% (target 60% — wave 2 complete, +39 tests added, 191 total)
 - 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
 
 ### Quick Tasks Completed
@@ -71,8 +71,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-04-04
-Stopped at: Completed 17-01-PLAN.md — 5 CRUD service test files, 152 tests passing, coverage 35.21%
-Resume: Execute 17-02-PLAN.md (next wave of unit tests)
+Stopped at: Completed 17-02-PLAN.md — LaborEventsService, UserService, NotificationService, NomineeService fallback tests, 191 tests passing, coverage 38.59%
+Resume: Execute 17-03-PLAN.md (next wave of unit tests to reach 60%)
 
 ---
 
