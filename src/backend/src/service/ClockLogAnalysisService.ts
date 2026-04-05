@@ -250,7 +250,7 @@ export class ClockLogAnalysisService {
       logsByEmployee.get(employeeId)!.push(log);
     }
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
-    for (const [employeeId, employeeLogs] of logsByEmployee) {
+    for (const [, employeeLogs] of logsByEmployee) {
       employeeLogs.sort((a, b) => a.clock_logs_timestamp.getTime() - b.clock_logs_timestamp.getTime());
       for (let i = 0; i < employeeLogs.length; i++) {
         const current = employeeLogs[i];

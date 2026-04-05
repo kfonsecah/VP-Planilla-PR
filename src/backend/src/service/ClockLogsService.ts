@@ -304,7 +304,7 @@ export class ClockLogsService {
           throw new Error('El tipo de marca complementaria debe ser opuesto al tipo de la marca huérfana');
         }
 
-        // Create complementary manual log
+        // Create complementary manual log linked to same import session for trazabilidad
         await prisma.vpg_clock_logs.create({
           data: {
             clock_logs_employee_id: orphanLog.clock_logs_employee_id,
@@ -313,7 +313,8 @@ export class ClockLogsService {
             clock_logs_remarks: `Complemento asignado: ${justification}`,
             clock_logs_status: 'valid',
             clock_logs_source: 'manual',
-            clock_logs_version: 1
+            clock_logs_version: 1,
+            clock_logs_import_session_id: orphanLog.clock_logs_import_session_id
           }
         });
 
