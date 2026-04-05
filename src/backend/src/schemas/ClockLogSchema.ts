@@ -13,3 +13,18 @@ export const bulkCreateClockLogSchema = z.object({
 });
 
 export type BulkCreateClockLogInput = z.infer<typeof bulkCreateClockLogSchema>;
+
+export const resolveOrphanSchema = z.object({
+  action: z.enum(['assign_complement', 'discard']),
+  justification: z.string().min(1, 'La justificación es requerida').max(500),
+  complementTimestamp: z.string().datetime().optional(),
+  complementLogType: z.enum(['IN', 'OUT']).optional(),
+}).refine(
+  (data) => {
+    if (data.action === 'assign_complement') {
+      return !!data.complementTimestamp && !!data.complementLogType;
+    }
+    return true;
+  },
+  { message: 'complementTimestamp y complementLogType son requeridos para assign_complement', path: ['complementTimestamp'] }
+);

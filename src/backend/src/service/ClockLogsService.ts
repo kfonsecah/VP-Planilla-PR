@@ -250,4 +250,79 @@ export class ClockLogsService {
 
       return { data: mapped, total, page, pageSize };
     }
-  }
+
+    /**
+     * Resolve an orphan clock log by either assigning a complementary manual log or discarding with justification
+     * @param orphanId - The orphan clock log ID
+     * @param action - 'assign_complement' or 'discard'
+     * @param justification - Explanation for resolution
+     * @param complementData - Optional complement data (timestamp, logType) required for assign_complement
+     * @returns Promise with success flag and message
+     * @throws Error if log not found, not orphan, or database operation fails
+     */
+    async resolveOrphan(
+      orphanId: number,
+      action: 'assign_complement' | 'discard',
+      justification: string,
+      complementData?: { timestamp: Date; logType: 'IN' | 'OUT' }
+    ): Promise<{ success: boolean; message: string }> {
+      // Fetch the orphan log
+      const orphanLog = await prisma.vpg_clock_logs.findUnique({
+        where: { clock_logs_id: orphanId }
+      });
+
+      if (!orphanLog) {
+        throw new Error('Marca no encontrada');
+      }
+
+      if (orphanLog.clock_logs_status !== 'orphan') {
+        throw new Error('La marca no tiene status orphan');
+      }
+
+      if (action === 'discard') {
+        // Discard: mark as corrected with justification in remarks
+        await prisma.vpg_clock_logs.update({
+          where: { clock_logs_id: orphanId },
+          data: {
+            clock_logs_status: 'corrected',
+            clock_logs_remarks: justification
+          }
+        });
+
+        return { success: true, message: 'Huérfana descartada exitosamente' };
+      }
+
+      if (action === 'assign_complement') {
+        if (!complementData || !complementData.timestamp || !complementData.logType) {
+          throw new Error('Datos de complemento incompletos');
+        }
+
+        // Create complementary manual log
+        await prisma.vpg_clock_logs.create({
+          data: {
+            clock_logs_employee_id: orphanLog.clock_logs_employee_id,
+            clock_logs_timestamp: complementData.timestamp,
+            clock_logs_log_type: complementData.logType,
+            clock_logs_remarks: `Complemento asignado: ${justification}`,
+            clock_logs_status: 'valid',
+            clock_logs_source: 'manual',
+            clock_logs_version: 1
+          }
+        });
+
+        // Update original orphan to valid
+        await prisma.vpg_clock_logs.update({
+          where: { clock_logs_id: orphanId },
+          data: {
+            clock_logs_status: 'valid',
+            clock_logs_remarks: `Resuelto: ${justification}`
+          }
+        });
+
+        return { success: true, message: 'Huérfana resuelta con complemento exitosamente' };
+      }
+
+      // Should not reach here
+      throw new Error('Acción no válida');
+    }
+}
