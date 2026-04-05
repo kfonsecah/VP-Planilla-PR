@@ -300,7 +300,7 @@ router.post("/clock-logs/orphans/:id/resolve", validateBody(resolveOrphanSchema)
  *     tags:
  *       - Clock Logs
  *     summary: Create manual clock log
- *     description: Create a manual clock log entry (source: manual) with justification
+ *     description: Create a manual clock log entry with justification. Source is always manual.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
