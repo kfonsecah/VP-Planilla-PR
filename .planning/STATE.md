@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: milestone
-status: Executing Phase 21
+status: Phase complete — ready for verification
 stopped_at: Phase 21-01 complete — service methods and schemas implemented, tests passing
-last_updated: "2026-04-05T23:45:00.000Z"
-last_activity: 2026-04-05 -- Phase 21-01 complete
+last_updated: "2026-04-05T23:46:12.300Z"
+last_activity: 2026-04-05
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State — VP-Planilla
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 21 (Corrección Manual) — IN PROGRESS
-Plan: 1 of 2 complete (21-01: service layer methods & schemas done)
-Next: Phase 21 — Corrección Manual Plan 2 (controller/routes)
-Last activity: 2026-04-05 -- Phase 21-01 complete
+Phase: 21 (Corrección Manual) — COMPLETE
+Plans: 2/2 complete (21-01 service layer, 21-02 controller/routes/tests)
+Next: Phase 22 — Dashboard UI de Marcas
+Last activity: 2026-04-06
 
-Progress: [████████░░] 89% (8/9 plans complete)
+Progress: [██████████] 100% (9/9 plans complete)
 
 ## v1.3 Phase Map
 
@@ -39,7 +39,7 @@ Progress: [████████░░] 89% (8/9 plans complete)
 | 18 | Normalización y Trazabilidad | NORM-01..03, TRACK-01..03 | ✓ Complete |
 | 19 | Sesiones de Importación | IMPORT-01..03 | ✓ Complete |
 | 20 | Huérfanas y Anomalías | ORPHAN-01..03, ANOMALY-01..05 | ✓ Complete |
-| 21 | Corrección Manual | CORRECT-01..03 | Plan 1 ✓, Plan 2 ↻ |
+| 21 | Corrección Manual | CORRECT-01..03 | ✓ Complete |
 | 22 | Dashboard UI de Marcas | UI-01..05 | Not started |
 
 ## Milestone History
@@ -71,7 +71,9 @@ Progress: [████████░░] 89% (8/9 plans complete)
   - Query endpoints: `GET /api/clock-logs/orphans` and `GET /api/clock-logs/anomalies` return paginated results with employee info
   - Resolution endpoint: `POST /api/clock-logs/orphans/:id/resolve` supports `discard` (→ corrected) and `assign_complement` (→ valid + manual complement log)
 - `vpg_audit_logs` table already exists — audit trail used for all corrections
-- **Phase 21-01 (current):** Added `ClockLogsService.createManualLog` and `ClockLogsService.updateClockLogStatus` methods with audit integration; Zod schemas `createManualLogSchema` and `updateClockLogStatusSchema`
+- **Phase 21-01:** Added `ClockLogsService.createManualLog` and `ClockLogsService.updateClockLogStatus` methods with audit integration; Zod schemas `createManualLogSchema` and `updateClockLogStatusSchema`
+- **Phase 21-02:** Added controller endpoints (`createManualLog`, `updateClockLogStatus`), route registrations with admin auth and Swagger docs, and full controller unit tests
+- **Phase 21 complete:** Manual correction API fully operational with audit trail and admin protection
 - Thresholds: orphan window 24h, long session > 16h
 
 ### Known Issues
@@ -92,9 +94,9 @@ Progress: [████████░░] 89% (8/9 plans complete)
 
 ## Session Continuity
 
-Last session: 2026-04-05T23:45:00Z
-Stopped at: Phase 21-01 complete — service methods and schemas implemented, tests passing
-Resume: Run `/gsd:execute-phase 21` to continue with Plan 2 (controller/routes layer)
+Last session: 2026-04-06T00:00:00Z (approx)
+Stopped at: Phase 21 complete — manual correction endpoints implemented and tested
+Resume: Run `/gsd:execute-phase 22` to start Dashboard UI de Marcas
 
 ---
 

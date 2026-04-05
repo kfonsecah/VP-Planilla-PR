@@ -43,7 +43,7 @@
 ### Corrección Manual (CORRECT)
 
 - [x] **CORRECT-01**: El endpoint `POST /api/clock-logs/correct` permite a un administrador crear una marca manual con `source = 'manual'`, registrando quién la creó y la justificación
-- [ ] **CORRECT-02**: El endpoint `PATCH /api/clock-logs/:id/status` permite cambiar el status de una marca a `corrected` o descartar con justificación, registrando el cambio en `vpg_audit_logs`
+- [x] **CORRECT-02**: El endpoint `PATCH /api/clock-logs/:id/status` permite cambiar el status de una marca a `corrected` o descartar con justificación, registrando el cambio en `vpg_audit_logs`
 - [x] **CORRECT-03**: Toda corrección manual queda registrada en `vpg_audit_logs` con entidad `clock_log`, acción `manual_correction`, y detalle de cambio
 
 ### Dashboard UI de Marcas (UI)
@@ -103,7 +103,7 @@
 | ANOMALY-04 | Phase 20 | Pending |
 | ANOMALY-05 | Phase 20 | Pending |
 | CORRECT-01 | Phase 21 | Complete |
-| CORRECT-02 | Phase 21 | Pending |
+| CORRECT-02 | Phase 21 | Complete |
 | CORRECT-03 | Phase 21 | Complete |
 | UI-01 | Phase 22 | Pending |
 | UI-02 | Phase 22 | Pending |

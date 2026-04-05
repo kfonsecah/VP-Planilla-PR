@@ -12,7 +12,7 @@
 - [x] **Phase 18: Normalización y Trazabilidad** - Tipo canónico IN/OUT + campos status/source en vpg_clock_logs
 - [x] **Phase 19: Sesiones de Importación** - Tabla de sesiones con historial completo y vínculo a cada marca (completed 2026-04-05)
 - [x] **Phase 20: Huérfanas y Anomalías** - Cola de huérfanas + motor de detección de anomalías automático
-- [ ] **Phase 21: Corrección Manual** - API de corrección con registro de auditoría completo
+- [x] **Phase 21: Corrección Manual** - API de corrección con registro de auditoría completo (completed 2026-04-05)
 - [ ] **Phase 22: Dashboard UI de Marcas** - Visualización, filtros, badges de estado y acciones de corrección desde la UI
 
 ---
@@ -77,7 +77,7 @@ Plans:
 
 Plans:
 - [x] 21-01-PLAN.md — Service layer methods and Zod validation schemas for manual corrections
-- [ ] 21-02-PLAN.md — Controller endpoints, route registration with admin auth, and tests
+- [x] 21-02-PLAN.md — Controller endpoints, route registration with admin auth, and tests
 
 ### Phase 22: Dashboard UI de Marcas
 **Goal**: El administrador puede ver el estado de las marcas, identificar anomalías visualmente y ejecutar correcciones directamente desde la UI
@@ -101,7 +101,7 @@ Plans:
 | 18. Normalización y Trazabilidad | 2/2 | ✓ Complete | 2026-04-05 |
 | 19. Sesiones de Importación | 2/2 | ✓ Complete | 2026-04-05 |
 | 20. Huérfanas y Anomalías | 3/3 | ✓ Complete | 2026-04-05 |
-| 21. Corrección Manual | 1/2 | In Progress|  |
+| 21. Corrección Manual | 2/2 | Complete   | 2026-04-05 |
 | 22. Dashboard UI de Marcas | 0/? | Not started | - |
 
 ---
