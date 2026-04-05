@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 18: Normalización y Trazabilidad** - Tipo canónico IN/OUT + campos status/source en vpg_clock_logs
+- [x] **Phase 18: Normalización y Trazabilidad** - Tipo canónico IN/OUT + campos status/source en vpg_clock_logs
 - [ ] **Phase 19: Sesiones de Importación** - Tabla de sesiones con historial completo y vínculo a cada marca
 - [ ] **Phase 20: Huérfanas y Anomalías** - Cola de huérfanas + motor de detección de anomalías automático
 - [ ] **Phase 21: Corrección Manual** - API de corrección con registro de auditoría completo
@@ -42,7 +42,11 @@ Plans:
   1. Después de una importación existe un registro en vpg_clock_import_sessions con fecha, origen, conteos y status
   2. Cada marca creada por importación referencia el import_session_id de la sesión que la originó
   3. La respuesta del endpoint de importación incluye session_id, created, skipped y anomalies
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 19-01-PLAN.md — Prisma schema (vpg_clock_import_sessions model + clock_logs FK), migration, TypeScript interfaces
+- [ ] 19-02-PLAN.md — ImportSessionService, ClockLogsService refactor, import controller + route
 
 ### Phase 20: Huérfanas y Anomalías
 **Goal**: El sistema identifica automáticamente marcas sin par y secuencias inválidas, y expone endpoints para revisarlas
@@ -85,7 +89,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 18. Normalización y Trazabilidad | 0/2 | Planned | - |
+| 18. Normalización y Trazabilidad | 2/2 | ✓ Complete | 2026-04-05 |
 | 19. Sesiones de Importación | 0/? | Not started | - |
 | 20. Huérfanas y Anomalías | 0/? | Not started | - |
 | 21. Corrección Manual | 0/? | Not started | - |
