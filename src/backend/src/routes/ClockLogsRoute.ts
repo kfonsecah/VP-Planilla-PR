@@ -270,9 +270,10 @@ router.post("/clock-logs/import", asyncHandler((req, res) => controller.import(r
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - action
- *             properties:
+  *             required:
+  *               - action
+  *               - justification
+  *             properties:
  *               action:
  *                 type: string
  *                 enum: [assign_complement, discard]
