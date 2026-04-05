@@ -45,7 +45,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 19-01-PLAN.md — Prisma schema (vpg_clock_import_sessions model + clock_logs FK), migration, TypeScript interfaces
+- [x] 19-01-PLAN.md — Prisma schema (vpg_clock_import_sessions model + clock_logs FK), migration, TypeScript interfaces
 - [ ] 19-02-PLAN.md — ImportSessionService, ClockLogsService refactor, import controller + route
 
 ### Phase 20: Huérfanas y Anomalías
@@ -90,7 +90,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 18. Normalización y Trazabilidad | 2/2 | ✓ Complete | 2026-04-05 |
-| 19. Sesiones de Importación | 0/? | Not started | - |
+| 19. Sesiones de Importación | 1/2 | In Progress|  |
 | 20. Huérfanas y Anomalías | 0/? | Not started | - |
 | 21. Corrección Manual | 0/? | Not started | - |
 | 22. Dashboard UI de Marcas | 0/? | Not started | - |

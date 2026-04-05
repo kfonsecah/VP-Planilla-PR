@@ -22,8 +22,8 @@
 
 ### Sesiones de Importación (IMPORT)
 
-- [ ] **IMPORT-01**: Existe la tabla `vpg_clock_import_sessions` que registra cada importación con: fecha, origen del archivo, registros procesados, registros creados, duplicados saltados y status (`success` | `partial` | `failed`)
-- [ ] **IMPORT-02**: Cada `vpg_clock_logs` creado por importación tiene referencia al `import_session_id` que lo originó
+- [x] **IMPORT-01**: Existe la tabla `vpg_clock_import_sessions` que registra cada importación con: fecha, origen del archivo, registros procesados, registros creados, duplicados saltados y status (`success` | `partial` | `failed`)
+- [x] **IMPORT-02**: Cada `vpg_clock_logs` creado por importación tiene referencia al `import_session_id` que lo originó
 - [ ] **IMPORT-03**: El endpoint de importación retorna el resumen de sesión en la respuesta (`session_id`, `created`, `skipped`, `anomalies`)
 
 ### Cola de Huérfanas (ORPHAN)
@@ -91,8 +91,8 @@
 | TRACK-01 | Phase 18 | Pending |
 | TRACK-02 | Phase 18 | Pending |
 | TRACK-03 | Phase 18 | Pending |
-| IMPORT-01 | Phase 19 | Pending |
-| IMPORT-02 | Phase 19 | Pending |
+| IMPORT-01 | Phase 19 | Complete |
+| IMPORT-02 | Phase 19 | Complete |
 | IMPORT-03 | Phase 19 | Pending |
 | ORPHAN-01 | Phase 20 | Pending |
 | ORPHAN-02 | Phase 20 | Pending |
