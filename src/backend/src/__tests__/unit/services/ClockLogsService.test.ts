@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { mockDeep } from 'jest-mock-extended';
 import { ClockLogsService } from '../../../service/ClockLogsService';
+import { AuditLogsService } from '../../../service/AuditLogsService';
 
 jest.mock('../../../lib/prisma', () => {
   const mock = mockDeep<PrismaClient>();
@@ -579,6 +580,98 @@ describe('ClockLogsService', () => {
       await expect(
         service.resolveOrphan(500, 'invalid_action' as any, 'Test')
       ).rejects.toThrow('Acción no válida');
+    });
+   });
+
+  describe('createManualLog', () => {
+    it('should create manual log and audit entry', async () => {
+      const mockCreate = jest.spyOn(prisma.vpg_clock_logs, 'create').mockResolvedValue({ clock_logs_id: 123, clock_logs_employee_id: 1, clock_logs_timestamp: new Date(), clock_logs_log_type: 'IN', clock_logs_remarks: null, clock_logs_status: 'valid', clock_logs_source: 'manual', clock_logs_version: 1, clock_logs_import_session_id: null } as any);
+      const mockAudit = jest.spyOn(AuditLogsService, 'createAuditLog').mockResolvedValue(undefined as any);
+
+      const service = new ClockLogsService();
+      const result = await service.createManualLog({
+        employee_id: 1,
+        timestamp: new Date('2025-01-01T10:00:00Z'),
+        log_type: 'IN',
+        remarks: 'Test',
+        created_by: 2,
+        justification: 'Manual correction for testing',
+      });
+
+      expect(result).toEqual({ success: true, clockLogId: 123 });
+      expect(mockCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          clock_logs_employee_id: 1,
+          clock_logs_log_type: 'IN',
+          clock_logs_status: 'valid',
+          clock_logs_source: 'manual',
+          clock_logs_import_session_id: null,
+        }),
+      });
+      expect(mockAudit).toHaveBeenCalledWith({
+        userId: 2,
+        action: 'manual_correction',
+        entity: 'clock_log',
+        entityId: 123,
+        details: expect.stringContaining('Created manual IN'),
+      });
+    });
+
+    it('should throw if prisma create fails', async () => {
+      const mockCreate = jest.spyOn(prisma.vpg_clock_logs, 'create').mockRejectedValue(new Error('DB error'));
+      const service = new ClockLogsService();
+      await expect(
+        service.createManualLog({
+          employee_id: 1,
+          timestamp: new Date(),
+          log_type: 'IN',
+          created_by: 2,
+          justification: 'Test',
+        })
+      ).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('updateClockLogStatus', () => {
+    it('should update status and create audit log', async () => {
+      const existing = { clock_logs_id: 456, clock_logs_status: 'orphan' as const, clock_logs_employee_id: 1, clock_logs_timestamp: new Date(), clock_logs_log_type: 'IN', clock_logs_remarks: null, clock_logs_source: 'manual', clock_logs_version: 1, clock_logs_import_session_id: null };
+      const mockFind = jest.spyOn(prisma.vpg_clock_logs, 'findUnique').mockResolvedValue(existing as any);
+      const mockUpdate = jest.spyOn(prisma.vpg_clock_logs, 'update').mockResolvedValue({ ...existing, clock_logs_status: 'corrected', clock_logs_remarks: 'Justification' } as any);
+      const mockAudit = jest.spyOn(AuditLogsService, 'createAuditLog').mockResolvedValue(undefined as any);
+
+      const service = new ClockLogsService();
+      const result = await service.updateClockLogStatus({
+        clockLogId: 456,
+        newStatus: 'corrected',
+        justification: 'Resolved manually',
+        changed_by: 3,
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(mockUpdate).toHaveBeenCalledWith({
+        where: { clock_logs_id: 456 },
+        data: { clock_logs_status: 'corrected', clock_logs_remarks: 'Resolved manually' },
+      });
+      expect(mockAudit).toHaveBeenCalledWith({
+        userId: 3,
+        action: 'manual_correction',
+        entity: 'clock_log',
+        entityId: 456,
+        details: expect.stringContaining('Changed status from orphan to corrected'),
+      });
+    });
+
+    it('should throw if clock log not found', async () => {
+      const mockFind = jest.spyOn(prisma.vpg_clock_logs, 'findUnique').mockResolvedValue(null);
+      const service = new ClockLogsService();
+      await expect(
+        service.updateClockLogStatus({
+          clockLogId: 999,
+          newStatus: 'corrected',
+          justification: 'Test',
+          changed_by: 1,
+        })
+      ).rejects.toThrow('Marca no encontrada');
     });
   });
 });
