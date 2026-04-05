@@ -490,7 +490,7 @@ export class ClockLogsController {
         try {
             const idParam = req.params.id;
             const orphanId = parseInt(Array.isArray(idParam) ? idParam[0] : idParam, 10);
-            
+
             if (isNaN(orphanId) || orphanId <= 0) {
                 return res.status(400).json({ error: 'ID de marca inválido' });
             }
@@ -519,6 +519,83 @@ export class ClockLogsController {
             }
             if (error.message === 'La marca no tiene status orphan') {
                 return res.status(400).json({ error: 'La marca no tiene status orphan' });
+            }
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    /**
+     * Create a manual clock log entry
+     * POST /clock-logs/correct
+     * @param req - Express request with body containing manual log data
+     * @param res - Express response
+     * @returns Promise<Response> - HTTP 201 with { success: true, clockLogId }
+     * @throws Error if validation fails or database operation fails
+     */
+    async createManualLog(req: Request, res: Response): Promise<Response> {
+        const { employee_id, timestamp, log_type, remarks, justification } = req.body;
+
+        // Extract userId from JWT payload set by AuthMiddleware.verifyToken
+        const userId: number = (req as any).user?.id ?? (req as any).user?.user_id ?? 1;
+
+        // Validate timestamp
+        const ts = new Date(timestamp);
+        if (isNaN(ts.getTime())) {
+            return res.status(400).json({ error: 'Timestamp inválido' });
+        }
+
+        const service = new ClockLogsService();
+        try {
+            const result = await service.createManualLog({
+                employee_id,
+                timestamp: ts,
+                log_type,
+                remarks: remarks ?? null,
+                created_by: userId,
+                justification,
+            });
+
+            return res.status(201).json({ success: true, clockLogId: result.clockLogId });
+        } catch (error: any) {
+            if (error.message.includes('not found') || error.message.includes('no encontrado')) {
+                return res.status(404).json({ error: 'Marca no encontrada' });
+            }
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    /**
+     * Update a clock log's status with justification
+     * PATCH /clock-logs/:id/status
+     * @param req - Express request with params and body
+     * @param res - Express response
+     * @returns Promise<Response> - HTTP 200 with { success: true }
+     * @throws Error if validation fails or database operation fails
+     */
+    async updateClockLogStatus(req: Request, res: Response): Promise<Response> {
+        const idParam = req.params.id;
+        const clockLogId = parseInt(Array.isArray(idParam) ? idParam[0] : idParam, 10);
+
+        if (isNaN(clockLogId) || clockLogId <= 0) {
+            return res.status(400).json({ error: 'ID de marca inválido' });
+        }
+
+        const { status, justification } = req.body;
+        const userId: number = (req as any).user?.id ?? (req as any).user?.user_id ?? 1;
+
+        const service = new ClockLogsService();
+        try {
+            await service.updateClockLogStatus({
+                clockLogId,
+                newStatus: status,
+                justification,
+                changed_by: userId,
+            });
+
+            return res.json({ success: true });
+        } catch (error: any) {
+            if (error.message === 'Marca no encontrada') {
+                return res.status(404).json({ error: 'Marca no encontrada' });
             }
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
