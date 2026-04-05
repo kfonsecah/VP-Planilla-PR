@@ -650,4 +650,243 @@ describe('ClockLogsController', () => {
       expect(res.json).toHaveBeenCalledWith({ error: 'Error interno del servidor' });
     });
   });
+
+  describe('createManualLog', () => {
+    it('should create manual log and return 201 with clockLogId', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        createManualLog: jest.fn().mockResolvedValue({ clockLogId: 123 }),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        body: {
+          employee_id: 1,
+          timestamp: '2025-01-01T10:00:00Z',
+          log_type: 'IN',
+          remarks: null,
+          justification: 'Manual correction',
+        },
+        user: { id: 2 },
+      });
+      const res = createMockResponse();
+
+      await controller.createManualLog(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({ success: true, clockLogId: 123 });
+    });
+
+    it('should return 400 for invalid timestamp', async () => {
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        body: {
+          employee_id: 1,
+          timestamp: 'invalid-date',
+          log_type: 'IN',
+          justification: 'test',
+        },
+        user: { id: 2 },
+      });
+      const res = createMockResponse();
+
+      await controller.createManualLog(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Timestamp inválido' });
+    });
+
+    it('should return 404 when service throws not found error', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        createManualLog: jest.fn().mockRejectedValue(new Error('Employee not found')),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        body: {
+          employee_id: 999,
+          timestamp: '2025-01-01T10:00:00Z',
+          log_type: 'IN',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.createManualLog(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Marca no encontrada' });
+    });
+
+    it('should return 500 for other errors', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        createManualLog: jest.fn().mockRejectedValue(new Error('Database error')),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        body: {
+          employee_id: 1,
+          timestamp: '2025-01-01T10:00:00Z',
+          log_type: 'IN',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.createManualLog(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Error interno del servidor' });
+    });
+  });
+
+  describe('updateClockLogStatus', () => {
+    it('should update status and return success', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        updateClockLogStatus: jest.fn().mockResolvedValue({ success: true }),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+        createManualLog: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        params: { id: '456' },
+        body: {
+          status: 'corrected',
+          justification: 'Fix reason',
+        },
+        user: { user_id: 3 },
+      });
+      const res = createMockResponse();
+
+      await controller.updateClockLogStatus(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ success: true });
+    });
+
+    it('should return 400 for invalid clock log ID', async () => {
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        params: { id: 'abc' },
+        body: {
+          status: 'corrected',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.updateClockLogStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'ID de marca inválido' });
+    });
+
+    it('should return 400 for negative or zero ID', async () => {
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        params: { id: '0' },
+        body: {
+          status: 'corrected',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.updateClockLogStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'ID de marca inválido' });
+    });
+
+    it('should return 404 when log not found', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        updateClockLogStatus: jest.fn().mockRejectedValue(new Error('Marca no encontrada')),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+        createManualLog: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        params: { id: '999' },
+        body: {
+          status: 'corrected',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.updateClockLogStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Marca no encontrada' });
+    });
+
+    it('should return 500 for other errors', async () => {
+      const MockService = ClockLogsService as jest.Mock;
+      MockService.mockImplementation(() => ({
+        updateClockLogStatus: jest.fn().mockRejectedValue(new Error('Database error')),
+        bulkCreate: jest.fn(),
+        getStats: jest.fn(),
+        getClockLogs: jest.fn(),
+        getOrphans: jest.fn(),
+        getAnomalies: jest.fn(),
+        resolveOrphan: jest.fn(),
+        createManualLog: jest.fn(),
+      }));
+
+      const controller = new ClockLogsController();
+      const req = createMockRequest({
+        params: { id: '456' },
+        body: {
+          status: 'corrected',
+          justification: 'test',
+        },
+        user: { id: 1 },
+      });
+      const res = createMockResponse();
+
+      await controller.updateClockLogStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Error interno del servidor' });
+    });
+  });
 });
