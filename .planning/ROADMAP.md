@@ -11,7 +11,7 @@
 
 - [x] **Phase 18: Normalización y Trazabilidad** - Tipo canónico IN/OUT + campos status/source en vpg_clock_logs
 - [x] **Phase 19: Sesiones de Importación** - Tabla de sesiones con historial completo y vínculo a cada marca (completed 2026-04-05)
-- [ ] **Phase 20: Huérfanas y Anomalías** - Cola de huérfanas + motor de detección de anomalías automático
+- [x] **Phase 20: Huérfanas y Anomalías** - Cola de huérfanas + motor de detección de anomalías automático
 - [ ] **Phase 21: Corrección Manual** - API de corrección con registro de auditoría completo
 - [ ] **Phase 22: Dashboard UI de Marcas** - Visualización, filtros, badges de estado y acciones de corrección desde la UI
 
@@ -58,7 +58,12 @@ Plans:
   3. Una sesión de más de 16 horas continuas queda marcada como anomaly con tipo long_session
   4. La detección de anomalías y huérfanas se dispara automáticamente al completar una importación exitosa
   5. Los endpoints GET /api/clock-logs/orphans y GET /api/clock-logs/anomalies retornan registros paginados con información del empleado y tipo de anomalía
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 20-01-PLAN.md — ClockLogAnalysisService with detectors and automatic post-import analysis
+- [x] 20-02-PLAN.md — GET /clock-logs/orphans and GET /clock-logs/anomalies endpoints with pagination
+- [x] 20-03-PLAN.md — POST /clock-logs/orphans/:id/resolve endpoint for orphan resolution
 
 ### Phase 21: Corrección Manual
 **Goal**: Un administrador puede crear marcas manuales, cambiar el estado de una marca y toda acción queda en el log de auditoría
@@ -90,8 +95,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 18. Normalización y Trazabilidad | 2/2 | ✓ Complete | 2026-04-05 |
-| 19. Sesiones de Importación | 2/2 | Complete   | 2026-04-05 |
-| 20. Huérfanas y Anomalías | 0/? | Not started | - |
+| 19. Sesiones de Importación | 2/2 | ✓ Complete | 2026-04-05 |
+| 20. Huérfanas y Anomalías | 3/3 | ✓ Complete | 2026-04-05 |
 | 21. Corrección Manual | 0/? | Not started | - |
 | 22. Dashboard UI de Marcas | 0/? | Not started | - |
 

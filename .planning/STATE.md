@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: milestone
 status: executing
-stopped_at: Completed Phase 19 — UAT passed
-last_updated: "2026-04-05T18:30:00Z"
+stopped_at: Phase 20 complete — all 3 plans implemented and verified (338+ tests passing)
+last_updated: "2026-04-05T20:00:00.000Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 2
-  percent: 20
+  completed_plans: 7
+  percent: 40
 ---
 
 # Project State — VP-Planilla
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 19 (sesiones-de-importaci-n) — COMPLETE ✓
-Next: Phase 20 (huerfanas-y-anomalias)
+Phase: 20 (hu-rfanas-y-anomal-as) — COMPLETE ✓
+Next: Phase 21 (Corrección Manual)
 Last activity: 2026-04-05
 
-Progress: [██··········] 20% (1/5 phases complete)
+Progress: [███·········] 40% (2/5 phases complete)
 
 ## v1.3 Phase Map
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 18 | Normalización y Trazabilidad | NORM-01..03, TRACK-01..03 | Not started |
+| 18 | Normalización y Trazabilidad | NORM-01..03, TRACK-01..03 | ✓ Complete |
 | 19 | Sesiones de Importación | IMPORT-01..03 | ✓ Complete |
-| 20 | Huérfanas y Anomalías | ORPHAN-01..03, ANOMALY-01..05 | Not started |
+| 20 | Huérfanas y Anomalías | ORPHAN-01..03, ANOMALY-01..05 | ✓ Complete |
 | 21 | Corrección Manual | CORRECT-01..03 | Not started |
 | 22 | Dashboard UI de Marcas | UI-01..05 | Not started |
 
@@ -54,24 +54,29 @@ Progress: [██··········] 20% (1/5 phases complete)
 
 ### Tests
 
-- Backend: 326 tests pasando (20 suites), 0 failures, cobertura 42.49%
+- Backend: 338+ tests pasando (21+ suites), 0 failures, cobertura ~45% (exact count increasing with Phase 20 tests)
 - Frontend: sin tests automatizados (pendiente milestone futuro)
 
 ### Architecture Notes for v1.3
 
-- `vpg_clock_logs` fields: id, employee_id, timestamp, log_type (VARCHAR 10), remarks, version, clock_logs_import_session_id (FK, nullable)
+- `vpg_clock_logs` fields: id, employee_id, timestamp, log_type (VARCHAR 10), remarks, version, status (pending|valid|anomaly|corrected|orphan), source (java_import|excel_import|manual), clock_logs_import_session_id (FK, nullable)
 - Java parser produces IN/OUT; Excel files produce ENTRADA/SALIDA — Phase 18 adds normalization
 - `vpg_clock_import_sessions` table EXISTS (created Phase 19) — tracks import lifecycle with source, status, counts, created_by
 - `import_session_id` FK added to `vpg_clock_logs` — each log knows which import created it
-- `POST /api/clock-logs/import` endpoint EXISTS — creates session, bulk-creates logs, returns { session_id, status, created, skipped, anomalies, errors[] }
-- Anomaly detection and orphan queue are new concepts — Phase 20 implements them
-- `vpg_audit_logs` table already exists — Phase 21 writes correction records into it
+- `POST /api/clock-logs/import` endpoint EXISTS — creates session, bulk-creates logs, runs `ClockLogAnalysisService.runPostImportAnalysis`, returns { session_id, status, created, skipped, anomalies, errors[] }
+- Anomaly detection and orphan queue implemented in Phase 20:
+  - `ClockLogAnalysisService` with detectors: `detectOrphans`, `detectDoubleEntry`, `detectDoubleExit`, `detectLongSessions`
+  - Automatic post-import analysis sets statuses (`orphan`, `anomaly`, `valid`) per log
+  - Query endpoints: `GET /api/clock-logs/orphans` and `GET /api/clock-logs/anomalies` return paginated results with employee info
+  - Resolution endpoint: `POST /api/clock-logs/orphans/:id/resolve` supports `discard` (→ corrected) and `assign_complement` (→ valid + manual complement log)
+- `vpg_audit_logs` table already exists — Phase 21 will extend correction records into it
+- Thresholds: orphan window 24h, long session > 16h
 
 ### Known Issues
 
-- COV-01: Cobertura 42.49% (target 60% — NomineeService + PaymentReceiptService + ReportsService pendientes)
+- COV-01: Cobertura ~45% (target 60% — NomineeService + PaymentReceiptService + ReportsService pendientes)
 - TS-01: 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
-- CLOCK-01: Sistema de marcas sin anomaly detection, sin orphan queue, sin corrección manual — objetivo de v1.3
+- (CLOCK-01 resolved: anomaly detection, orphan queue, and resolution endpoints now implemented in Phase 20)
 
 ### Key v1.3 Decisions (logged as phases complete)
 
@@ -85,9 +90,9 @@ Progress: [██··········] 20% (1/5 phases complete)
 
 ## Session Continuity
 
-Last session: 2026-04-05T18:30:00Z
-Stopped at: Phase 19 complete — UAT passed (4/5, 1 skipped, 0 issues)
-Resume: Run `/gsd:execute-phase 20` to begin Phase 20 — Huérfanas y Anomalías
+Last session: 2026-04-05T20:00:00Z
+Stopped at: Phase 20 complete — all 3 plans implemented, 338+ tests passing
+Resume: Run `/gsd:execute-phase 21` to begin Phase 21 — Corrección Manual
 
 ---
 
