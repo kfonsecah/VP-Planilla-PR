@@ -83,15 +83,17 @@ enum ClockLogSource {
 }
 
 model vpg_clock_logs {
-  clock_logs_id          Int            @id @default(autoincrement())
-  clock_logs_employee_id Int
-  clock_logs_timestamp   DateTime       @db.Timestamp(6)
-  clock_logs_log_type    ClockLogType
-  clock_logs_remarks     String?
-  clock_logs_status      ClockLogStatus @default(pending)
-  clock_logs_source      ClockLogSource @default(manual)
-  clock_logs_version     Int            @default(1)
-  vpg_employees          vpg_employees  @relation(fields: [clock_logs_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_16")
+  clock_logs_id                Int                       @id @default(autoincrement())
+  clock_logs_employee_id       Int
+  clock_logs_timestamp         DateTime                  @db.Timestamp(6)
+  clock_logs_log_type          ClockLogType
+  clock_logs_remarks           String?
+  clock_logs_status            ClockLogStatus            @default(pending)
+  clock_logs_source            ClockLogSource            @default(manual)
+  clock_logs_version           Int                       @default(1)
+  clock_logs_import_session_id Int?
+  vpg_employees                vpg_employees             @relation(fields: [clock_logs_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_16")
+  vpg_clock_import_sessions    vpg_clock_import_sessions? @relation(fields: [clock_logs_import_session_id], references: [import_sessions_id], onDelete: SetNull, onUpdate: NoAction, map: "fk_vpg_clock_logs_import_sessions_26")
 
   @@unique([clock_logs_employee_id, clock_logs_timestamp, clock_logs_log_type], map: "uq_vpg_clock_logs_emp_ts_type")
   @@index([clock_logs_employee_id], map: "idx_vpg_clock_logs_employee_id")
@@ -100,6 +102,27 @@ model vpg_clock_logs {
   @@index([clock_logs_status], map: "idx_vpg_clock_logs_status")
   @@index([clock_logs_source], map: "idx_vpg_clock_logs_source")
   @@index([clock_logs_status, clock_logs_source], map: "idx_vpg_clock_logs_status_source")
+  @@index([clock_logs_import_session_id], map: "idx_vpg_clock_logs_import_session_id")
+}
+
+model vpg_clock_import_sessions {
+  import_sessions_id            Int              @id @default(autoincrement())
+  import_sessions_started_at    DateTime         @default(now()) @db.Timestamp(6)
+  import_sessions_completed_at  DateTime?        @db.Timestamp(6)
+  import_sessions_source        ClockLogSource
+  import_sessions_status        String           @default("pending") @db.VarChar(20)
+  import_sessions_total_records Int              @default(0)
+  import_sessions_created_count Int              @default(0)
+  import_sessions_skipped_count Int              @default(0)
+  import_sessions_anomaly_count Int              @default(0)
+  import_sessions_created_by    Int
+  vpg_clock_logs                vpg_clock_logs[]
+  vpg_users                     vpg_users        @relation(fields: [import_sessions_created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_import_sessions_users_25")
+
+  @@index([import_sessions_started_at], map: "idx_vpg_clock_import_sessions_started_at")
+  @@index([import_sessions_status], map: "idx_vpg_clock_import_sessions_status")
+  @@index([import_sessions_source], map: "idx_vpg_clock_import_sessions_source")
+  @@index([import_sessions_created_by], map: "idx_vpg_clock_import_sessions_created_by")
 }
 
 model vpg_deductions {
@@ -325,9 +348,10 @@ model vpg_users {
   user_role         String              @db.VarChar(20)
   user_version      Int                 @default(1)
   user_last_login   DateTime?           @db.Timestamp(6)
-  vpg_audit_logs    vpg_audit_logs[]
-  vpg_report_logs   vpg_report_logs[]
-  vpg_notifications vpg_notifications[]
+  vpg_audit_logs              vpg_audit_logs[]
+  vpg_report_logs             vpg_report_logs[]
+  vpg_notifications           vpg_notifications[]
+  vpg_clock_import_sessions   vpg_clock_import_sessions[]
 
   @@index([user_email], map: "idx_vpg_users_email")
   @@index([user_national_id], map: "idx_vpg_users_national_id")
