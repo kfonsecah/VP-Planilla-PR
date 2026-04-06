@@ -13,7 +13,7 @@
 - [x] **Phase 19: Sesiones de Importación** - Tabla de sesiones con historial completo y vínculo a cada marca (completed 2026-04-05)
 - [x] **Phase 20: Huérfanas y Anomalías** - Cola de huérfanas + motor de detección de anomalías automático
 - [x] **Phase 21: Corrección Manual** - API de corrección con registro de auditoría completo (completed 2026-04-05)
-- [ ] **Phase 22: Dashboard UI de Marcas** - Visualización, filtros, badges de estado y acciones de corrección desde la UI
+- [x] **Phase 22: Dashboard UI de Marcas** - Visualización, filtros, badges de estado y acciones de corrección desde la UI (completed 2026-04-06)
 
 ---
 
@@ -95,7 +95,7 @@ Plans:
 Plans:
 - [x] 22-01-PLAN.md — Backend pagination + frontend service + attendance import fix
 - [x] 22-02-PLAN.md — Clock-logs page with stats, filters, table, sessions panel
-- [ ] 22-03-PLAN.md — Correction modal with audit history and admin actions
+- [x] 22-03-PLAN.md — Correction modal with audit history and admin actions
 
 ---
 
@@ -107,7 +107,7 @@ Plans:
 | 19. Sesiones de Importación | 2/2 | ✓ Complete | 2026-04-05 |
 | 20. Huérfanas y Anomalías | 3/3 | ✓ Complete | 2026-04-05 |
 | 21. Corrección Manual | 2/2 | Complete    | 2026-04-05 |
-| 22. Dashboard UI de Marcas | 2/3 | In Progress|  |
+| 22. Dashboard UI de Marcas | 3/3 | Complete   | 2026-04-06 |
 
 ---
 
