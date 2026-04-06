@@ -660,17 +660,21 @@ export default function AttendancePage() {
         unmatchedEmployees: result.stats.unmatchedEmployees
       });
 
-      // Guardar marcas en la base de datos para que la planilla pueda usarlas
+      // Guardar marcas en la base de datos con seguimiento de sesión y detección de anomalías
       try {
-        const saveResult = await ClockLogsService.bulkSave(result.logs);
-        console.log('✅ Marcas guardadas en BD:', saveResult);
-        const skippedCount = saveResult.skipped?.length ?? 0;
+        const saveResult = await ClockLogsService.importLogs(result.logs, 'excel_import');
+        console.log('Marcas importadas con sesion:', saveResult);
+        const skippedCount = saveResult.skipped ?? 0;
+        const anomalyCount = saveResult.anomalies ?? 0;
         const skippedMsg = skippedCount > 0
-          ? ` ${skippedCount} marcas ignoradas por empleado no encontrado.`
+          ? ` ${skippedCount} marcas duplicadas ignoradas.`
           : '';
-        toast.success(`${saveResult.created} marcas guardadas en base de datos desde ${file.name}.${skippedMsg}`);
+        const anomalyMsg = anomalyCount > 0
+          ? ` ${anomalyCount} anomalias detectadas.`
+          : '';
+        toast.success(`${saveResult.created} marcas importadas desde ${file.name}.${skippedMsg}${anomalyMsg}`);
       } catch (saveErr: unknown) {
-        console.error('⚠️ Marcas cargadas en vista pero no guardadas en BD:', saveErr);
+        console.error('Marcas cargadas en vista pero no guardadas en BD:', saveErr);
         const saveErrMsg = saveErr instanceof Error ? saveErr.message : 'error desconocido';
         toast.success(`Se cargaron ${result.stats.validRows} marcas para visualización, pero no se pudieron guardar en BD: ${saveErrMsg}`);
       }

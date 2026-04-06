@@ -21,6 +21,54 @@ export interface AttendanceSummary {
   inconsistencies: string[];
 }
 
+export interface ClockLogPaginated {
+  id: number;
+  employee_id: number;
+  employee_name: string;
+  timestamp: string;
+  log_type: string;
+  status: 'pending' | 'valid' | 'anomaly' | 'corrected' | 'orphan';
+  source: 'java_import' | 'excel_import' | 'manual';
+  remarks?: string;
+  import_session_id?: number;
+}
+
+export interface ClockLogStats {
+  byStatus: Record<string, number>;
+  bySource: Record<string, number>;
+  total: number;
+}
+
+export interface ImportSession {
+  id: number;
+  started_at: string;
+  completed_at?: string;
+  source: 'java_import' | 'excel_import' | 'manual';
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  total_records: number;
+  created_count: number;
+  skipped_count: number;
+  anomaly_count: number;
+  created_by: number;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface ImportResult {
+  session_id: number;
+  status: string;
+  created: number;
+  skipped: number;
+  anomalies: number;
+  errors: string[];
+}
+
 export const ClockLogsService = {
   async getClockLogs(startDate: string, endDate: string): Promise<ClockLog[]> {
     if (!startDate || !endDate) return [];
@@ -71,5 +119,60 @@ export const ClockLogsService = {
       console.error('[ClockLogsService] Error al guardar marcas en BD:', error instanceof Error ? error.message : error);
       throw error;
     }
-  }
+  },
+
+  async getStats(initDate: string, endDate: string): Promise<ClockLogStats> {
+    const params = new URLSearchParams({ initDate, endDate });
+    // http.get unwraps { success, data } wrapper — returns data directly
+    const response = await http.get(`/clock-logs/stats?${params.toString()}`);
+    return response ?? { byStatus: {}, bySource: {}, total: 0 };
+  },
+
+  async getClockLogsPaginated(params: {
+    initDate: string;
+    endDate: string;
+    page?: number;
+    pageSize?: number;
+    status?: string[];
+    employee_id?: number;
+  }): Promise<PaginatedResponse<ClockLogPaginated>> {
+    const searchParams = new URLSearchParams({
+      initDate: params.initDate,
+      endDate: params.endDate,
+      page: String(params.page ?? 1),
+      pageSize: String(params.pageSize ?? 20),
+    });
+    if (params.status?.length) searchParams.set('status', params.status.join(','));
+    if (params.employee_id) searchParams.set('employee_id', String(params.employee_id));
+    // http.get unwraps { success, data } wrapper — but paginated response has data + pagination fields at root
+    // Backend returns { success, data: [...], total, page, pageSize } — requestJson unwraps 'data' only
+    // Use raw to preserve full response shape
+    const raw = await http.raw(`/clock-logs/paginated?${searchParams.toString()}`, { method: 'GET' });
+    if (!raw.ok) return { success: false, data: [], total: 0, page: 1, pageSize: 20 };
+    const json = await raw.json();
+    return json ?? { success: true, data: [], total: 0, page: 1, pageSize: 20 };
+  },
+
+  async getImportSessions(limit: number = 5): Promise<ImportSession[]> {
+    // http.get unwraps { success, data } wrapper — returns data array directly
+    const response = await http.get(`/clock-logs/import-sessions?limit=${limit}`);
+    return Array.isArray(response) ? response : [];
+  },
+
+  async importLogs(logs: ClockLog[], source: string = 'excel_import'): Promise<ImportResult> {
+    const response = await http.post('/clock-logs/import', { logs, source });
+    return response;
+  },
+
+  async updateClockLogStatus(id: number, status: string, justification: string): Promise<void> {
+    await http.patch(`/clock-logs/${id}/status`, { status, justification });
+  },
+
+  async getAuditLogsForClockLog(clockLogId: number): Promise<any[]> {
+    const params = new URLSearchParams({ entity: 'clock_log', limit: '50' });
+    const response = await http.get(`/audit-logs?${params.toString()}`);
+    const allLogs = response?.data ?? response ?? [];
+    // Filter client-side by entity_id since the endpoint may not support entity_id filter
+    return Array.isArray(allLogs) ? allLogs.filter((log: any) => String(log.entity_id) === String(clockLogId)) : [];
+  },
 };

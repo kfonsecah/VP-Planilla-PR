@@ -228,6 +228,7 @@ export const http = {
   get: (path: string) => requestJson(path, { method: 'GET' }),
   post: (path: string, body?: unknown) => requestJson(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body !== undefined ? JSON.stringify(body) : undefined }),
   put: (path: string, body?: unknown) => requestJson(path, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: body !== undefined ? JSON.stringify(body) : undefined }),
+  patch: (path: string, body?: unknown) => requestJson(path, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body !== undefined ? JSON.stringify(body) : undefined }),
   delete: (path: string, body?: unknown) => requestJson(path, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: body !== undefined ? JSON.stringify(body) : undefined }),
   raw: rawRequest,
   setTokens: setStoredTokens,
