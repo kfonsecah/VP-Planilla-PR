@@ -18,9 +18,17 @@ async function resolveEmployeeId(
     employee_id: unknown,
     employee_name: unknown
 ): Promise<number | null> {
+    // Si hay employee_id, verificar que exista en la DB antes de usarlo
     if (employee_id != null) {
         const n = Number(employee_id);
-        if (!isNaN(n)) return n;
+        if (!isNaN(n)) {
+            const existing = await prisma.vpg_employees.findFirst({
+                where: { employee_id: n, employee_fired: false },
+                select: { employee_id: true }
+            });
+            if (existing) return n;
+            // Si no existe, caer a búsqueda por nombre
+        }
     }
 
     if (!employee_name) return null;
