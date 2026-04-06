@@ -89,8 +89,13 @@ Plans:
   3. Las marcas con status anomaly u orphan tienen badges de color distintivos visibles en la tabla
   4. Un modal de detalle de marca permite al administrador ejecutar una corrección manual sin salir de la página
   5. La página muestra sesiones de importación recientes con acceso al detalle de cada una
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 22-01-PLAN.md — Backend pagination + frontend service + attendance import fix
+- [ ] 22-02-PLAN.md — Clock-logs page with stats, filters, table, sessions panel
+- [ ] 22-03-PLAN.md — Correction modal with audit history and admin actions
 
 ---
 
@@ -102,7 +107,7 @@ Plans:
 | 19. Sesiones de Importación | 2/2 | ✓ Complete | 2026-04-05 |
 | 20. Huérfanas y Anomalías | 3/3 | ✓ Complete | 2026-04-05 |
 | 21. Corrección Manual | 2/2 | Complete    | 2026-04-05 |
-| 22. Dashboard UI de Marcas | 0/? | Not started | - |
+| 22. Dashboard UI de Marcas | 0/3 | Not started | - |
 
 ---
 
