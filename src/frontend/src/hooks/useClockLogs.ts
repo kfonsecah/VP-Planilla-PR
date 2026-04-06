@@ -167,6 +167,13 @@ export function useClockLogs() {
   }, []);
 
   /**
+   * Refresh stats, logs, and sessions for the current filters and page.
+   */
+  const refresh = useCallback(() => {
+    fetchAll(filters, page);
+  }, [fetchAll, filters, page]);
+
+  /**
    * Apply a date preset shortcut.
    */
   const applyDatePreset = useCallback((preset: 'today' | 'last7days' | 'thisMonth') => {
@@ -204,5 +211,6 @@ export function useClockLogs() {
     setPage,
     setFilters,
     applyDatePreset,
+    refresh,
   };
 }

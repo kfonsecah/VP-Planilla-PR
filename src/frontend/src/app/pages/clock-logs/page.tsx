@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useClockLogs } from '@/hooks/useClockLogs';
 import ClockLogStatusBadge from '@/components/ClockLogStatusBadge';
 import ImportSessionsPanel from '@/components/ImportSessionsPanel';
+import ClockLogDetailModal from '@/components/ClockLogDetailModal';
 import { ClockLogPaginated } from '@/services/clockLogsService';
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -94,9 +95,9 @@ export default function ClockLogsDashboardPage() {
     setPage,
     setFilters,
     applyDatePreset,
+    refresh,
   } = useClockLogs();
 
-  // Prepare for Plan 03 modal integration
   const [selectedLog, setSelectedLog] = useState<ClockLogPaginated | null>(null);
   const [employeeSearch, setEmployeeSearch] = useState('');
 
@@ -350,9 +351,13 @@ export default function ClockLogsDashboardPage() {
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => setSelectedLog(log)}
-                          className="px-3 py-1 text-xs font-medium rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                          className={`px-3 py-1 text-xs font-medium rounded-lg border transition-colors ${
+                            log.status === 'anomaly' || log.status === 'orphan'
+                              ? 'border-orange-400 bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/50'
+                              : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                          }`}
                         >
-                          Ver
+                          {log.status === 'anomaly' || log.status === 'orphan' ? 'Corregir' : 'Ver'}
                         </button>
                       </td>
                     </tr>
@@ -391,10 +396,15 @@ export default function ClockLogsDashboardPage() {
           </div>
         )}
 
-        {/* ClockLogDetailModal will be added in Plan 03 */}
-        {selectedLog && (
-          <div className="hidden">{/* selectedLog state: {selectedLog.id} */}</div>
-        )}
+        <ClockLogDetailModal
+          isOpen={selectedLog !== null}
+          log={selectedLog}
+          onClose={() => setSelectedLog(null)}
+          onCorrected={() => {
+            setSelectedLog(null);
+            refresh();
+          }}
+        />
       </div>
     </div>
   );
