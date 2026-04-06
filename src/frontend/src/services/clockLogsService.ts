@@ -168,11 +168,13 @@ export const ClockLogsService = {
     await http.patch(`/clock-logs/${id}/status`, { status, justification });
   },
 
-  async getAuditLogsForClockLog(clockLogId: number): Promise<any[]> {
+  async getAuditLogsForClockLog(clockLogId: number): Promise<Record<string, unknown>[]> {
     const params = new URLSearchParams({ entity: 'clock_log', limit: '50' });
     const response = await http.get(`/audit-logs?${params.toString()}`);
-    const allLogs = response?.data ?? response ?? [];
+    const allLogs: unknown[] = response?.data ?? response ?? [];
     // Filter client-side by entity_id since the endpoint may not support entity_id filter
-    return Array.isArray(allLogs) ? allLogs.filter((log: any) => String(log.entity_id) === String(clockLogId)) : [];
+    return Array.isArray(allLogs)
+      ? (allLogs as Record<string, unknown>[]).filter((log) => String(log.entity_id) === String(clockLogId))
+      : [];
   },
 };
