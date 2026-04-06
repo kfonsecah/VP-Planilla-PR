@@ -176,7 +176,7 @@ export function useClockLogs() {
   /**
    * Apply a date preset shortcut.
    */
-  const applyDatePreset = useCallback((preset: 'today' | 'last7days' | 'thisMonth') => {
+  const applyDatePreset = useCallback((preset: 'today' | 'last7days' | 'thisMonth' | 'threeMonths') => {
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     const toDateStr = (d: Date) =>

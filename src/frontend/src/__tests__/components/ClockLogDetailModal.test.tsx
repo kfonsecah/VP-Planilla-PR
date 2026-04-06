@@ -16,7 +16,7 @@ const mockLog = {
   timestamp: '2026-02-02T08:00:00.000Z',
   log_type: 'IN',
   status: 'anomaly' as const,
-  source: 'java_import',
+  source: 'java_import' as const,
   remarks: 'Test remark',
   import_session_id: 5,
 };

@@ -8,7 +8,8 @@ export type CanonicalLogType = 'IN' | 'OUT';
  */
 const IN_TYPES = new Set([
   'in', 'entrada', 'entry', 'start', 'check_in', 'checkin',
-  'almuerzo_entrada', 'lunch_in', 'break_in', 'entrada almuerzo'
+  'almuerzo_entrada', 'lunch_in', 'break_in', 'entrada almuerzo',
+  'almuerzo in', 'almuerzo_in', 'regreso almuerzo', 'vuelta almuerzo'
 ]);
 
 /**
@@ -17,7 +18,8 @@ const IN_TYPES = new Set([
 const OUT_TYPES = new Set([
   'out', 'salida', 'exit', 'end', 'check_out', 'checkout',
   'salida final', 'fin turno',
-  'almuerzo', 'almuerzo_salida', 'lunch_out', 'break_out', 'salida almuerzo'
+  'almuerzo', 'almuerzo_salida', 'lunch_out', 'break_out', 'salida almuerzo',
+  'almuerzo out', 'almuerzo_out'
 ]);
 
 /**

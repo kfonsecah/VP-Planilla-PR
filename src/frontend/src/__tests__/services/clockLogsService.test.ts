@@ -1,5 +1,5 @@
 import { ClockLogsService } from '@/services/clockLogsService';
-import * as http from '@/services/http';
+import { http } from '@/services/http';
 
 jest.mock('@/services/http', () => ({
   http: {
