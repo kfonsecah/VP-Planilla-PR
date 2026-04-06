@@ -382,6 +382,90 @@ export class ClockLogsService {
     }
 
     /**
+     * Get clock logs with optional status and employee filters, paginated
+     * @param params - Pagination, date range, status array, and employee_id filters
+     * @returns Promise with data array, total count, page, and pageSize
+     * @throws Error if database query fails
+     */
+    async getClockLogsPaginated(params: {
+        page?: number;
+        pageSize?: number;
+        initDate?: Date;
+        endDate?: Date;
+        status?: string[];
+        employee_id?: number;
+    }): Promise<{
+        data: Array<{
+            id: number;
+            employee_id: number;
+            employee_name: string;
+            timestamp: Date;
+            log_type: string;
+            status: string;
+            source: string;
+            remarks?: string;
+            import_session_id?: number;
+        }>;
+        total: number;
+        page: number;
+        pageSize: number;
+    }> {
+        const page = params.page ?? 1;
+        const pageSize = params.pageSize ?? 20;
+        const skip = (page - 1) * pageSize;
+
+        const where: any = {};
+
+        if (params.initDate || params.endDate) {
+            where.clock_logs_timestamp = {
+                ...(params.initDate ? { gte: params.initDate } : {}),
+                ...(params.endDate ? { lte: params.endDate } : {})
+            };
+        }
+
+        if (params.status && params.status.length > 0) {
+            where.clock_logs_status = { in: params.status };
+        }
+
+        if (params.employee_id) {
+            where.clock_logs_employee_id = params.employee_id;
+        }
+
+        const [data, total] = await Promise.all([
+            prisma.vpg_clock_logs.findMany({
+                where,
+                include: {
+                    vpg_employees: {
+                        select: {
+                            employee_id: true,
+                            employee_first_name: true,
+                            employee_last_name: true
+                        }
+                    }
+                },
+                skip,
+                take: pageSize,
+                orderBy: { clock_logs_timestamp: 'desc' }
+            }),
+            prisma.vpg_clock_logs.count({ where })
+        ]);
+
+        const mapped = data.map(log => ({
+            id: log.clock_logs_id,
+            employee_id: log.clock_logs_employee_id,
+            employee_name: `${log.vpg_employees.employee_first_name} ${log.vpg_employees.employee_last_name}`.trim(),
+            timestamp: log.clock_logs_timestamp,
+            log_type: log.clock_logs_log_type,
+            status: log.clock_logs_status,
+            source: log.clock_logs_source,
+            remarks: log.clock_logs_remarks ?? undefined,
+            import_session_id: log.clock_logs_import_session_id ?? undefined
+        }));
+
+        return { data: mapped, total, page, pageSize };
+    }
+
+    /**
      * Update a clock log's status with justification and audit trail
      * @param params - Update parameters
      * @returns Promise with success flag

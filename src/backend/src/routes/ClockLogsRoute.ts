@@ -11,6 +11,112 @@ router.use(AuthMiddleware.verifyToken);
 const controller = new ClockLogsController();
 
 /**
+ * @swagger
+ * /api/clock-logs/import-sessions:
+ *   get:
+ *     tags:
+ *       - Clock Logs
+ *     summary: Get recent import sessions
+ *     description: Retrieve the most recent clock log import sessions ordered by most recent first
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Maximum number of sessions to return
+ *     responses:
+ *       '200':
+ *         description: Import sessions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       '500':
+ *         description: Internal server error
+ */
+router.get("/clock-logs/import-sessions", asyncHandler((req, res) => controller.getImportSessions(req, res)));
+
+/**
+ * @swagger
+ * /api/clock-logs/paginated:
+ *   get:
+ *     tags:
+ *       - Clock Logs
+ *     summary: Get paginated clock logs with filters
+ *     description: Retrieve paginated clock logs with optional status, employee_id, and date range filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: initDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date (YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date (YYYY-MM-DD)
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Comma-separated status values (e.g. orphan,anomaly)
+ *       - in: query
+ *         name: employee_id
+ *         schema:
+ *           type: integer
+ *         description: Filter by employee ID
+ *     responses:
+ *       '200':
+ *         description: Paginated clock logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 pageSize:
+ *                   type: integer
+ *       '400':
+ *         description: Invalid date format
+ *       '500':
+ *         description: Internal server error
+ */
+router.get("/clock-logs/paginated", asyncHandler((req, res) => controller.getClockLogsPaginated(req, res)));
+
+/**
  * @route   GET /clock-logs
  * @desc    Get clock logs with date range filter
  * @access  Private

@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { ClockLogSource } from './ClockLogsService';
+import { ImportSession } from '../model/ImportSession';
 
 export class ImportSessionService {
   /**
@@ -84,5 +85,31 @@ export class ImportSessionService {
     return await prisma.vpg_clock_import_sessions.findUnique({
       where: { import_sessions_id: sessionId },
     });
+  }
+
+  /**
+   * Get the most recent import sessions ordered by start date descending
+   * @param limit - Maximum number of sessions to return (default 5)
+   * @returns Array of ImportSession objects ordered by most recent
+   * @throws Error if database operation fails
+   */
+  static async getRecentSessions(limit: number = 5): Promise<ImportSession[]> {
+    const rows = await prisma.vpg_clock_import_sessions.findMany({
+      take: limit,
+      orderBy: { import_sessions_started_at: 'desc' }
+    });
+
+    return rows.map(row => ({
+      id: row.import_sessions_id,
+      started_at: row.import_sessions_started_at,
+      completed_at: row.import_sessions_completed_at ?? undefined,
+      source: row.import_sessions_source as ImportSession['source'],
+      status: row.import_sessions_status as ImportSession['status'],
+      total_records: row.import_sessions_total_records,
+      created_count: row.import_sessions_created_count,
+      skipped_count: row.import_sessions_skipped_count,
+      anomaly_count: row.import_sessions_anomaly_count,
+      created_by: row.import_sessions_created_by
+    }));
   }
 }

@@ -565,6 +565,64 @@ export class ClockLogsController {
     }
 
     /**
+     * Get clock logs with pagination, status filter, and employee filter
+     * GET /clock-logs/paginated?page=1&pageSize=20&initDate=YYYY-MM-DD&endDate=YYYY-MM-DD&status=orphan,anomaly&employee_id=1
+     * @param req - Express request with query parameters
+     * @param res - Express response
+     * @returns Promise<Response> - HTTP response with paginated clock logs
+     */
+    async getClockLogsPaginated(req: Request, res: Response): Promise<Response> {
+        try {
+            const rawPage = parseInt(req.query.page as string);
+            const rawPageSize = parseInt(req.query.pageSize as string);
+            const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+            const pageSize = isNaN(rawPageSize) || rawPageSize < 1 ? 20 : rawPageSize;
+
+            const initDate = req.query.initDate ? new Date(req.query.initDate as string) : undefined;
+            const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+            if (initDate && isNaN(initDate.getTime())) {
+                return res.status(400).json({ error: 'Invalid initDate format' });
+            }
+            if (endDate && isNaN(endDate.getTime())) {
+                return res.status(400).json({ error: 'Invalid endDate format' });
+            }
+
+            const statusRaw = req.query.status as string | undefined;
+            const status = statusRaw ? statusRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+
+            const rawEmployeeId = parseInt(req.query.employee_id as string);
+            const employee_id = isNaN(rawEmployeeId) ? undefined : rawEmployeeId;
+
+            const service = new ClockLogsService();
+            const result = await service.getClockLogsPaginated({ page, pageSize, initDate, endDate, status, employee_id });
+
+            return res.json({ success: true, ...result });
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    /**
+     * Get the most recent import sessions
+     * GET /clock-logs/import-sessions?limit=5
+     * @param req - Express request with optional limit query parameter
+     * @param res - Express response
+     * @returns Promise<Response> - HTTP response with array of recent import sessions
+     */
+    async getImportSessions(req: Request, res: Response): Promise<Response> {
+        try {
+            const rawLimit = parseInt(req.query.limit as string);
+            const limit = isNaN(rawLimit) || rawLimit < 1 ? 5 : rawLimit;
+
+            const sessions = await ImportSessionService.getRecentSessions(limit);
+            return res.json({ success: true, data: sessions });
+        } catch (error) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    /**
      * Update a clock log's status with justification
      * PATCH /clock-logs/:id/status
      * @param req - Express request with params and body
