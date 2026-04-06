@@ -131,9 +131,9 @@ const buildDateTimeFromParts = (dateValue: unknown, timeValue: unknown): Date | 
     const dateStr = dateValue.trim();
     
     // Formato ISO: 2025-01-06 o 2025/01/06
-    if (dateStr.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)) {
+    if (dateStr.match(/^\d{4}[-\/]\d{2}[-\/]\d{2}/)) {
       // Parsear manualmente para evitar problemas de timezone
-      const parts = dateStr.split(/[-/]/);
+      const parts = dateStr.split(/[-\/]/);
       const year = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const day = parseInt(parts[2], 10);
@@ -141,8 +141,8 @@ const buildDateTimeFromParts = (dateValue: unknown, timeValue: unknown): Date | 
       console.log('  -> Parseado como ISO:', datePart, 'válido:', !isNaN(datePart.getTime()));
     }
     // Formato dd/mm/yyyy o dd-mm-yyyy
-    else if (dateStr.match(/^\d{1,2}[-/]\d{1,2}[-/]\d{4}/)) {
-      const parts = dateStr.split(/[-/]/);
+    else if (dateStr.match(/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/)) {
+      const parts = dateStr.split(/[-\/]/);
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1; // Mes en JS es 0-indexed
       const year = parseInt(parts[2], 10);
@@ -242,10 +242,25 @@ const buildDateTimeFromParts = (dateValue: unknown, timeValue: unknown): Date | 
 
 const parseDateInput = (value: string, endOfDay = false) => {
   if (!value) return null;
-  const [year, month, day] = value.split('-').map((chunk) => parseInt(chunk, 10));
-  if (!year || !month || !day) return null;
-  if (endOfDay) return Date.UTC(year, month - 1, day, 23, 59, 59, 999);
-  return Date.UTC(year, month - 1, day, 0, 0, 0, 0);
+  
+  // Formato ISO: YYYY-MM-DD
+  if (value.match(/^\d{4}[-\/]\d{2}[-\/]\d{2}$/)) {
+    const [year, month, day] = value.split(/[-\/]/).map((chunk) => parseInt(chunk, 10));
+    if (!year || !month || !day) return null;
+    if (endOfDay) return Date.UTC(year, month - 1, day, 23, 59, 59, 999);
+    return Date.UTC(year, month - 1, day, 0, 0, 0, 0);
+  }
+  
+  // Formato display: DD/MM/YY (del DatePicker)
+  if (value.match(/^\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}$/)) {
+    const [day, month, year] = value.split(/[-\/]/).map((chunk) => parseInt(chunk, 10));
+    if (!day || !month || !year) return null;
+    const fullYear = year < 100 ? 2000 + year : year;
+    if (endOfDay) return Date.UTC(fullYear, month - 1, day, 23, 59, 59, 999);
+    return Date.UTC(fullYear, month - 1, day, 0, 0, 0, 0);
+  }
+  
+  return null;
 };
 
 interface Employee {
@@ -321,6 +336,24 @@ export default function AttendancePage() {
       setEndDate(today);
     }
   }, []);
+
+  // Conversión ISO (YYYY-MM-DD) ↔ display (DD/MM/YY) para DatePicker
+  const isoToDisplay = (iso: string): string => {
+    const d = new Date(iso);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+  };
+
+  const parseDisplayToISO = (display: string): string => {
+    if (!display || display.length < 8) return '';
+    const [day, month, year] = display.split('/');
+    const fullYear = year.length === 2 ? `20${year}` : year;
+    const d = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  };
 
   useEffect(() => {
     loadEmployees();
@@ -875,8 +908,11 @@ export default function AttendancePage() {
                 Fecha inicio
               </label>
               <DatePicker
-                value={startDate}
-                onChange={setStartDate}
+                value={isoToDisplay(startDate)}
+                onChange={(display) => {
+                  const iso = parseDisplayToISO(display);
+                  if (iso) setStartDate(iso);
+                }}
                 placeholder="dd/mm/yy"
                 className="w-full border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
               />
@@ -886,8 +922,11 @@ export default function AttendancePage() {
                 Fecha fin
               </label>
               <DatePicker
-                value={endDate}
-                onChange={setEndDate}
+                value={isoToDisplay(endDate)}
+                onChange={(display) => {
+                  const iso = parseDisplayToISO(display);
+                  if (iso) setEndDate(iso);
+                }}
                 placeholder="dd/mm/yy"
                 className="w-full border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
               />
@@ -973,7 +1012,6 @@ export default function AttendancePage() {
               <p>Marcas válidas: {uploadSummary.validRows}/{uploadSummary.totalRows} · Sin coincidencia: {uploadSummary.unmatchedEmployees}</p>
             </div>
           )}
-        </div>
 
         {/* Loading state - skeleton table */}
         {isLoading && (
