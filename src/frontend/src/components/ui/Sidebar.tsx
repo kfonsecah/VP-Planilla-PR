@@ -19,7 +19,15 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       icon: "/images/layout/employees.png",
       text: "Empleados"
     },
-    { href: "/pages/attendance", icon: "/images/layout/attendance.png", text: "Registro de asistencia" },
+    {
+      href: "/pages/attendance",
+      icon: "/images/layout/attendance.png",
+      text: "Registro de asistencia",
+      subItems: [
+        { href: '/pages/attendance', text: 'Validar marcas' },
+        { href: '/pages/clock-logs', text: 'Dashboard y corrección' },
+      ]
+    },
     {
       href: "/pages/payroll",
       icon: "/images/layout/payroll.png",

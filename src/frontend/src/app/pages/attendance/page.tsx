@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import { toast } from 'sonner';
 import { ClockLogsService, ClockLog } from '@/services/clockLogsService';
 import { getEmployees } from '@/services/employeeService';
+import DatePicker from '@/components/DatePicker';
 import {
   ClockIcon,
   ArrowPathIcon,
@@ -31,38 +32,57 @@ const LOG_LABELS: Record<NormalizedLogType, string> = {
   EXTRA: 'Extra'
 };
 
-const normalizeLogType = (value?: string): NormalizedLogType | null => {
-  if (!value) return null;
-  const normalized = value.toLowerCase().trim();
-  if (['in', 'entrada', 'entry', 'start'].includes(normalized)) return 'CHECK_IN';
-  if (['out', 'salida', 'exit', 'end', 'salida final', 'fin turno'].includes(normalized)) return 'CHECK_OUT';
-  if (
-    [
-      'almuerzo out',
-      'almuerzo',
-      'almuerzo_salida',
-      'break_out',
-      'lunch_out',
-      'lunch start',
-      'break start',
-      'salida almuerzo'
-    ].includes(normalized)
-  )
-    return 'LUNCH_OUT';
-  if (
-    [
-      'almuerzo in',
-      'break_in',
-      'lunch_in',
-      'lunch end',
-      'break end',
-      'almuerzo_entrada',
-      'entrada almuerzo'
-    ].includes(normalized)
-  )
-    return 'LUNCH_IN';
-  return null;
-};
+const normalizeLogType = (value?: string, timestamp?: string): NormalizedLogType | null => {
+   if (!value) return null;
+   const normalized = value.toLowerCase().trim();
+   
+   // Si tiene timestamp, intentar inferir por hora cuando el tipo es genérico
+   let hour: number | undefined;
+   if (timestamp) {
+     try { hour = new Date(timestamp).getHours(); } catch {}
+   }
+   
+   if (['in', 'entrada', 'entry', 'start'].includes(normalized)) {
+     // Inferir entrada de almuerzo si la hora está entre 11:30–14:30
+     if (hour !== undefined && hour >= 11 && hour < 14) return 'LUNCH_IN';
+     return 'CHECK_IN';
+   }
+   
+   if (['out', 'salida', 'exit', 'end', 'salida final', 'fin turno'].includes(normalized)) {
+     if (hour !== undefined) {
+       if (hour >= 11 && hour < 14) return 'LUNCH_OUT';   // 11:00–13:59
+       if (hour >= 16) return 'CHECK_OUT';                 // 16:00–23:59
+     }
+     return 'CHECK_OUT'; // default
+   }
+   
+   if (
+     [
+       'almuerzo out',
+       'almuerzo',
+       'almuerzo_salida',
+       'break_out',
+       'lunch_out',
+       'lunch start',
+       'break start',
+       'salida almuerzo'
+     ].includes(normalized)
+   )
+     return 'LUNCH_OUT';
+   if (
+     [
+       'almuerzo in',
+       'break_in',
+       'lunch_in',
+       'lunch end',
+       'break end',
+       'almuerzo_entrada',
+       'entrada almuerzo'
+     ].includes(normalized)
+   )
+     return 'LUNCH_IN';
+   return null;
+ };
 
 const normalizeName = (value?: string) =>
   (value || '')
@@ -266,6 +286,41 @@ export default function AttendancePage() {
   } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helpers para fechas en formato ISO (YYYY-MM-DD)
+  const toISODate = (date: Date): string => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const applyDatePreset = useCallback((preset: 'today' | 'last7days' | 'last15days' | 'last3months' | 'thisMonth') => {
+    const now = new Date();
+    const today = toISODate(now);
+    if (preset === 'today') {
+      setStartDate(today);
+      setEndDate(today);
+    } else if (preset === 'last7days') {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 6);
+      setStartDate(toISODate(start));
+      setEndDate(today);
+    } else if (preset === 'last15days') {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 14);
+      setStartDate(toISODate(start));
+      setEndDate(today);
+    } else if (preset === 'last3months') {
+      const start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      setStartDate(toISODate(start));
+      setEndDate(today);
+    } else if (preset === 'thisMonth') {
+      const firstDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+      setStartDate(firstDay);
+      setEndDate(today);
+    }
+  }, []);
 
   useEffect(() => {
     loadEmployees();
@@ -573,8 +628,8 @@ export default function AttendancePage() {
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
 
-      const normalizedLogs = sortedLogs.map((log, idx) => {
-        const normalized_type = normalizeLogType(log.log_type) ?? LOG_SEQUENCE[idx] ?? 'EXTRA';
+      const normalizedLogs = sortedLogs.map((log) => {
+        const normalized_type = normalizeLogType(log.log_type, log.timestamp) ?? 'EXTRA';
         return { ...log, normalized_type };
       });
 
@@ -819,10 +874,10 @@ export default function AttendancePage() {
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                 Fecha inicio
               </label>
-              <input
-                type="date"
+              <DatePicker
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={setStartDate}
+                placeholder="dd/mm/yy"
                 className="w-full border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
               />
             </div>
@@ -830,14 +885,49 @@ export default function AttendancePage() {
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                 Fecha fin
               </label>
-              <input
-                type="date"
+              <DatePicker
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={setEndDate}
+                placeholder="dd/mm/yy"
                 className="w-full border border-zinc-300 dark:border-zinc-700 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
               />
             </div>
-            <div className="flex gap-3 md:col-span-2">
+            <div className="flex gap-2 md:col-span-2 flex-wrap">
+              <button
+                onClick={() => applyDatePreset('today')}
+                className="px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+              >
+                Hoy
+              </button>
+              <button
+                onClick={() => applyDatePreset('last7days')}
+                className="px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+              >
+                Últimos 7 días
+              </button>
+              <button
+                onClick={() => applyDatePreset('last15days')}
+                className="px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+              >
+                Últimos 15 días
+              </button>
+              <button
+                onClick={() => applyDatePreset('last3months')}
+                className="px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+              >
+                Últimos 3 meses
+              </button>
+              <button
+                onClick={() => applyDatePreset('thisMonth')}
+                className="px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+              >
+                Este mes
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex gap-3">
               <button
                 onClick={handleFetch}
                 disabled={isLoading}
@@ -862,7 +952,20 @@ export default function AttendancePage() {
                 Limpiar
               </button>
             </div>
+
+            <label className="relative inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-medium cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm">
+              <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
+              {isImporting ? 'Procesando archivo...' : 'Importar marcas (.xlsx)'}
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleExcelUpload}
+                disabled={isImporting}
+              />
+            </label>
           </div>
+        </div>
 
           <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <label className="relative inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-medium cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm">

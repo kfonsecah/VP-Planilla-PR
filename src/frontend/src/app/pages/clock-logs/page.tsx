@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useClockLogs } from '@/hooks/useClockLogs';
 import ClockLogStatusBadge from '@/components/ClockLogStatusBadge';
 import ImportSessionsPanel from '@/components/ImportSessionsPanel';
 import ClockLogDetailModal from '@/components/ClockLogDetailModal';
 import { ClockLogPaginated } from '@/services/clockLogsService';
+import DatePicker from '@/components/DatePicker';
 
 const SOURCE_LABELS: Record<string, string> = {
   java_import: 'Java',
@@ -77,6 +78,24 @@ const STATUS_TOGGLE_COLORS: Record<string, { active: string; inactive: string }>
     active: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-400',
     inactive: 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700',
   },
+};
+
+// Helpers para conversión de fechas ISO (backend) <-> display dd/mm/yy (DatePicker)
+const isoToDisplay = (iso: string): string => {
+  const d = new Date(iso);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+};
+
+const parseDisplayToISO = (display: string): string => {
+  if (!display || display.length < 8) return '';
+  const [day, month, year] = display.split('/');
+  const fullYear = year.length === 2 ? `20${year}` : year;
+  const d = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
 export default function ClockLogsDashboardPage() {
@@ -165,21 +184,33 @@ export default function ClockLogsDashboardPage() {
           >
             Este mes
           </button>
+          <button
+            onClick={() => applyDatePreset('threeMonths')}
+            className="px-3 py-1.5 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors font-medium"
+          >
+            Ultimos 3 meses
+          </button>
 
           <div className="flex items-center gap-2 ml-2">
             <label className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Desde</label>
-            <input
-              type="date"
-              value={filters.initDate}
-              onChange={(e) => setFilters({ initDate: e.target.value })}
-              className="border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <DatePicker
+              value={isoToDisplay(filters.initDate)}
+              onChange={(display) => {
+                const iso = parseDisplayToISO(display);
+                if (iso) setFilters({ initDate: iso });
+              }}
+              placeholder="dd/mm/yy"
+              className="w-[120px] border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-600 disabled:opacity-50"
             />
             <label className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Hasta</label>
-            <input
-              type="date"
-              value={filters.endDate}
-              onChange={(e) => setFilters({ endDate: e.target.value })}
-              className="border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <DatePicker
+              value={isoToDisplay(filters.endDate)}
+              onChange={(display) => {
+                const iso = parseDisplayToISO(display);
+                if (iso) setFilters({ endDate: iso });
+              }}
+              placeholder="dd/mm/yy"
+              className="w-[120px] border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-600 disabled:opacity-50"
             />
           </div>
         </div>

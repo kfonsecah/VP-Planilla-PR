@@ -193,6 +193,10 @@ export function useClockLogs() {
     } else if (preset === 'thisMonth') {
       const firstDay = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
       setFilters({ initDate: firstDay, endDate: today });
+    } else if (preset === 'threeMonths') {
+      // Rango: primer día de hace 3 meses hasta hoy
+      const init = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      setFilters({ initDate: toDateStr(init), endDate: today });
     }
   }, [setFilters]);
 

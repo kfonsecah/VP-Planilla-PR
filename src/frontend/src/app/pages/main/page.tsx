@@ -112,12 +112,14 @@ const Home: React.FC = () => {
     { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll", color: "bg-green-600 hover:bg-green-500" },
     { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500" },
     { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: "/pages/attendance", color: "bg-blue-600 hover:bg-blue-500" },
+    { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500" },
   ];
 
   const actionItems = [
     { title: "Asistencias por revisar", value: stats?.incompleteAssistance ?? 0, description: "Registros con inconsistencias", href: "/pages/attendance", icon: ClipboardDocumentCheckIcon, accent: "text-amber-600" },
     { title: "Vacaciones activas", value: stats?.onVacation ?? 0, description: "Colaboradores fuera de oficina", href: "/pages/vacations", icon: ClockIcon, accent: "text-purple-600" },
     { title: "Eventos activos", value: activeEventsCount, description: "Actividades laborales en curso", href: "/pages/employee/events", icon: CalendarIcon, accent: "text-green-600" },
+    { title: "Marcas de control", description: "Revisar anomalías y corregir", href: "/pages/clock-logs", icon: ClockIcon, accent: "text-indigo-600" },
   ];
 
   const renderCalendarDays = () => {
