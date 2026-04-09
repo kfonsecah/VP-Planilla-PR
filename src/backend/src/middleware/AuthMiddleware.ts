@@ -46,7 +46,7 @@ export class AuthMiddleware {
       if (!authHeader) {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
       }
 
       const token = authHeader.split(' ')[1]; // Bearer TOKEN
@@ -54,7 +54,7 @@ export class AuthMiddleware {
       if (!token) {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
       }
 
       // Verificar token
@@ -65,7 +65,7 @@ export class AuthMiddleware {
       if (isBlocklisted) {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_REVOKED', 'Token ha sido invalidado'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_REVOKED', 'Token ha sido invalidado'));
       }
 
       // Obtener información completa del usuario
@@ -74,7 +74,7 @@ export class AuthMiddleware {
       if (!user) {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no encontrado'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no encontrado'));
       }
 
       // Agregar usuario al request
@@ -87,12 +87,12 @@ export class AuthMiddleware {
       if (error instanceof Error && error.name === 'TokenExpiredError') {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_EXPIRED', 'Token expirado'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_EXPIRED', 'Token expirado'));
       }
 
       return res
         .status(401)
-        .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Token inválido'));
+        .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Token inválido'));
     }
   }
 
@@ -104,14 +104,14 @@ export class AuthMiddleware {
       if (!req.user) {
         return res
           .status(401)
-          .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no autenticado'));
+          .json(AuthMiddleware.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no autenticado'));
       }
 
       if (!allowedRoles.includes(req.user.role)) {
         return res
           .status(403)
           .json(
-            this.buildAuthError(
+            AuthMiddleware.buildAuthError(
               403,
               'AUTH_INSUFFICIENT_SCOPE',
               'No tienes permisos para acceder a este recurso',

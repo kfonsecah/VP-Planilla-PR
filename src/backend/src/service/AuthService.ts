@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -93,7 +94,7 @@ export class AuthService {
       console.log('Generating token for user:', authenticatedUser.username);
 
       // Generar JWT token
-      const token = this.generateToken(authenticatedUser);
+      const token = this.issueAccessToken(authenticatedUser);
 
       return {
         success: true,
@@ -138,7 +139,7 @@ export class AuthService {
   /**
    * Genera un JWT token para el usuario
    */
-  private static generateToken(user: AuthenticatedUser): string {
+  static issueAccessToken(user: Pick<AuthenticatedUser, 'id' | 'username' | 'role'>): string {
     const payload = {
       id: user.id,
       username: user.username,
@@ -156,10 +157,10 @@ export class AuthService {
   /**
    * Verifica si un JWT token es válido
    */
-  static verifyToken(token: string): any {
+  static verifyToken(token: string): { id: number; username?: string; role?: string; exp: number; iat?: number } {
     try {
       const secret = process.env.JWT_SECRET || 'your-default-secret-key';
-      return jwt.verify(token, secret);
+      return jwt.verify(token, secret) as { id: number; username?: string; role?: string; exp: number; iat?: number };
     } catch (error) {
       if (error instanceof Error && error.name === 'TokenExpiredError') {
         const tokenExpiredError = new Error('Token expirado');
@@ -302,12 +303,23 @@ export class AuthService {
    * Agrega un token a la blocklist de logout
    */
   static async addTokenToBlocklist(token: string, expiresAt: Date): Promise<void> {
-    await prisma.vpg_token_blocklist.create({
-      data: {
-        blocklist_token: token,
-        blocklist_expires: expiresAt,
-      },
-    });
+    try {
+      await prisma.vpg_token_blocklist.create({
+        data: {
+          blocklist_token: token,
+          blocklist_expires: expiresAt,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        return;
+      }
+
+      throw error;
+    }
   }
 
   /**

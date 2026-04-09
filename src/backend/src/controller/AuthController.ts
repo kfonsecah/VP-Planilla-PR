@@ -2,6 +2,29 @@ import { Request, Response } from 'express';
 import { AuthService, LoginCredentials } from '../service/AuthService';
 
 export class AuthController {
+
+  private static buildAuthError(
+    status: 400 | 401 | 403,
+    code:
+      | 'AUTH_TOKEN_MISSING'
+      | 'AUTH_TOKEN_INVALID'
+      | 'AUTH_TOKEN_EXPIRED'
+      | 'AUTH_TOKEN_REVOKED',
+    message: string,
+  ): {
+    success: false;
+    error: { code: string; message: string; status: 400 | 401 | 403; retryable: boolean };
+  } {
+    return {
+      success: false,
+      error: {
+        code,
+        message,
+        status,
+        retryable: status === 401,
+      },
+    };
+  }
   
   /**
    * Login de usuario
@@ -129,18 +152,30 @@ export class AuthController {
   static async logout(req: Request, res: Response): Promise<Response> {
     try {
       const authHeader = req.headers.authorization;
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
 
-      if (authHeader) {
-        const token = authHeader.split(' ')[1];
+      if (!token) {
+        return res
+          .status(401)
+          .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
+      }
 
-        if (token) {
-          // Decode token to get expiration
-          const decoded = AuthService.verifyToken(token);
-          const expiresAt = new Date(decoded.exp * 1000);
+      try {
+        const decoded = AuthService.verifyToken(token);
+        const expiresAt = new Date(decoded.exp * 1000);
 
-          // Add token to blocklist
-          await AuthService.addTokenToBlocklist(token, expiresAt);
+        await AuthService.addTokenToBlocklist(token, expiresAt);
+      } catch (tokenError) {
+        if (tokenError instanceof Error && tokenError.name === 'TokenExpiredError') {
+          return res.status(200).json({
+            success: true,
+            message: 'Sesión cerrada exitosamente',
+          });
         }
+
+        return res
+          .status(401)
+          .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Token inválido'));
       }
 
       return res.status(200).json({
@@ -212,9 +247,47 @@ export class AuthController {
    */
   static async refreshToken(req: Request, res: Response): Promise<Response> {
     try {
+      const { refresh_token } = req.body as { refresh_token?: string };
+
+      if (!refresh_token || refresh_token.trim() === '') {
+        return res
+          .status(400)
+          .json(AuthController.buildAuthError(400, 'AUTH_TOKEN_MISSING', 'refresh_token es requerido'));
+      }
+
+      let decoded: { id: number; username?: string; role?: string; exp: number; iat?: number };
+
+      try {
+        decoded = AuthService.verifyToken(refresh_token);
+      } catch (tokenError) {
+        if (tokenError instanceof Error && tokenError.name === 'TokenExpiredError') {
+          return res
+            .status(401)
+            .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_EXPIRED', 'Refresh token expirado'));
+        }
+
+        return res
+          .status(401)
+          .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Refresh token inválido'));
+      }
+
+      const user = await AuthService.getUserById(decoded.id);
+
+      if (!user) {
+        return res
+          .status(401)
+          .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no encontrado'));
+      }
+
+      const token = AuthService.issueAccessToken({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      });
+
       return res.status(200).json({
         success: true,
-        message: 'Refresh token funcionando (pendiente implementar)'
+        token,
       });
     } catch (error) {
       console.error('Error en refresh token:', error);
