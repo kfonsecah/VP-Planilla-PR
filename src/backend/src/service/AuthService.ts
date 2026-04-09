@@ -161,6 +161,12 @@ export class AuthService {
       const secret = process.env.JWT_SECRET || 'your-default-secret-key';
       return jwt.verify(token, secret);
     } catch (error) {
+      if (error instanceof Error && error.name === 'TokenExpiredError') {
+        const tokenExpiredError = new Error('Token expirado');
+        tokenExpiredError.name = 'TokenExpiredError';
+        throw tokenExpiredError;
+      }
+
       throw new Error('Token inválido');
     }
   }

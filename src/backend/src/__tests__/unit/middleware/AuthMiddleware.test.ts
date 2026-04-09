@@ -120,5 +120,60 @@ describe('AuthMiddleware', () => {
       });
       expect(next).not.toHaveBeenCalled();
     });
+
+    it('returns AUTH_TOKEN_EXPIRED when verifyToken throws TokenExpiredError', async () => {
+      const req = {
+        headers: { authorization: 'Bearer expired-token' },
+      } as unknown as Request;
+      const res = createMockResponse() as unknown as Response;
+      const next = jest.fn() as NextFunction;
+
+      const expiredError = new Error('jwt expired');
+      expiredError.name = 'TokenExpiredError';
+
+      (AuthService.verifyToken as jest.Mock).mockImplementation(() => {
+        throw expiredError;
+      });
+
+      await AuthMiddleware.verifyToken(req, res, next);
+
+      expect((res as unknown as MockResponse).status).toHaveBeenCalledWith(401);
+      expect((res as unknown as MockResponse).json).toHaveBeenCalledWith({
+        success: false,
+        error: {
+          code: 'AUTH_TOKEN_EXPIRED',
+          status: 401,
+          retryable: true,
+          message: expect.any(String),
+        },
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns AUTH_TOKEN_INVALID for malformed token errors', async () => {
+      const req = {
+        headers: { authorization: 'Bearer invalid-token' },
+      } as unknown as Request;
+      const res = createMockResponse() as unknown as Response;
+      const next = jest.fn() as NextFunction;
+
+      (AuthService.verifyToken as jest.Mock).mockImplementation(() => {
+        throw new Error('invalid token');
+      });
+
+      await AuthMiddleware.verifyToken(req, res, next);
+
+      expect((res as unknown as MockResponse).status).toHaveBeenCalledWith(401);
+      expect((res as unknown as MockResponse).json).toHaveBeenCalledWith({
+        success: false,
+        error: {
+          code: 'AUTH_TOKEN_INVALID',
+          status: 401,
+          retryable: true,
+          message: expect.any(String),
+        },
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 });

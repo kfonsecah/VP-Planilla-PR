@@ -12,6 +12,29 @@ declare global {
 }
 
 export class AuthMiddleware {
+  /**
+   * Build canonical authentication/authorization error payload
+   */
+  private static buildAuthError(
+    status: 401 | 403,
+    code:
+      | 'AUTH_TOKEN_MISSING'
+      | 'AUTH_TOKEN_INVALID'
+      | 'AUTH_TOKEN_REVOKED'
+      | 'AUTH_TOKEN_EXPIRED'
+      | 'AUTH_INSUFFICIENT_SCOPE',
+    message: string,
+  ): { success: false; error: { code: string; message: string; status: 401 | 403; retryable: boolean } } {
+    return {
+      success: false,
+      error: {
+        code,
+        message,
+        status,
+        retryable: status === 401,
+      },
+    };
+  }
   
   /**
    * Middleware para verificar JWT token
@@ -21,19 +44,17 @@ export class AuthMiddleware {
       const authHeader = req.headers.authorization;
       
       if (!authHeader) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token de acceso requerido'
-        });
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
       }
 
       const token = authHeader.split(' ')[1]; // Bearer TOKEN
       
       if (!token) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token de acceso requerido'
-        });
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_MISSING', 'Token de acceso requerido'));
       }
 
       // Verificar token
@@ -42,20 +63,18 @@ export class AuthMiddleware {
       // Check if token is blocklisted
       const isBlocklisted = await AuthService.isTokenBlocklisted(token);
       if (isBlocklisted) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token ha sido invalidado'
-        });
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_REVOKED', 'Token ha sido invalidado'));
       }
 
       // Obtener información completa del usuario
       const user = await AuthService.getUserById(decoded.id);
       
       if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Usuario no encontrado'
-        });
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no encontrado'));
       }
 
       // Agregar usuario al request
@@ -64,10 +83,16 @@ export class AuthMiddleware {
 
     } catch (error) {
       console.error('Error en middleware de autenticación:', error);
-      return res.status(401).json({
-        success: false,
-        message: 'Token inválido'
-      });
+
+      if (error instanceof Error && error.name === 'TokenExpiredError') {
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_EXPIRED', 'Token expirado'));
+      }
+
+      return res
+        .status(401)
+        .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Token inválido'));
     }
   }
 
@@ -77,17 +102,21 @@ export class AuthMiddleware {
   static requireRole(allowedRoles: string[]) {
     return (req: Request, res: Response, next: NextFunction): Response | void => {
       if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Usuario no autenticado'
-        });
+        return res
+          .status(401)
+          .json(this.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no autenticado'));
       }
 
       if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: 'No tienes permisos para acceder a este recurso'
-        });
+        return res
+          .status(403)
+          .json(
+            this.buildAuthError(
+              403,
+              'AUTH_INSUFFICIENT_SCOPE',
+              'No tienes permisos para acceder a este recurso',
+            ),
+          );
       }
 
       next();

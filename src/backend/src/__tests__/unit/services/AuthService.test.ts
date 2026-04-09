@@ -136,6 +136,23 @@ describe('AuthService', () => {
 
       expect(() => AuthService.verifyToken('invalid-token')).toThrow('Token inválido');
     });
+
+    it('should throw token expired error preserving TokenExpiredError name', () => {
+      const expiredError = new Error('jwt expired');
+      expiredError.name = 'TokenExpiredError';
+
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw expiredError;
+      });
+
+      try {
+        AuthService.verifyToken('expired-token');
+        fail('Expected token verification to throw');
+      } catch (error) {
+        expect((error as Error).name).toBe('TokenExpiredError');
+        expect((error as Error).message).toBe('Token expirado');
+      }
+    });
   });
 
   describe('getUserById', () => {
