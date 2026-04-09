@@ -14,6 +14,20 @@ function normalizeName(value: string) {
         .trim();
 }
 
+function parseLocalDate(dateStr: string | undefined): Date | undefined {
+    if (!dateStr) return undefined;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
+    return new Date(year, month - 1, day);
+}
+
+function parseLocalDateEnd(dateStr: string | undefined): Date | undefined {
+    if (!dateStr) return undefined;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
+    return new Date(year, month - 1, day, 23, 59, 59, 999);
+}
+
 async function resolveEmployeeId(
     employee_id: unknown,
     employee_name: unknown
@@ -78,9 +92,14 @@ export class ClockLogsController {
 
         const service = new ClockLogsService();
         try {
+            const start = parseLocalDate(initDate as string);
+            const end = parseLocalDateEnd(endDate as string);
+            if (!start || !end) {
+                return res.status(400).json({ error: "Invalid date format" });
+            }
             const logs = await service.getClockLogs({
-                initDate: new Date(initDate as string),
-                endDate: new Date(endDate as string)
+                initDate: start,
+                endDate: end
             });
             return res.json(logs);
         } catch (error) {
@@ -104,10 +123,12 @@ export class ClockLogsController {
 
         const service = new ClockLogsService();
         try {
-            const stats = await service.getStats(
-                new Date(initDate as string),
-                new Date(endDate as string)
-            );
+            const statsStart = parseLocalDate(initDate as string);
+            const statsEnd = parseLocalDateEnd(endDate as string);
+            if (!statsStart || !statsEnd) {
+                return res.status(400).json({ error: "Invalid date format" });
+            }
+            const stats = await service.getStats(statsStart, statsEnd);
 
             const byStatus: Record<string, number> = {};
             const bySource: Record<string, number> = {};
@@ -410,8 +431,8 @@ export class ClockLogsController {
               return res.status(400).json({ error: `pageSize cannot exceed ${MAX_PAGE_SIZE}` });
             }
 
-            const initDate = req.query.initDate ? new Date(req.query.initDate as string) : undefined;
-            const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+            const initDate = parseLocalDate(req.query.initDate as string);
+            const endDate = parseLocalDateEnd(req.query.endDate as string);
 
             if (initDate && isNaN(initDate.getTime())) {
                 return res.status(400).json({ error: 'Invalid initDate format' });
@@ -461,8 +482,8 @@ export class ClockLogsController {
               return res.status(400).json({ error: `pageSize cannot exceed ${MAX_PAGE_SIZE}` });
             }
 
-            const initDate = req.query.initDate ? new Date(req.query.initDate as string) : undefined;
-            const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+            const initDate = parseLocalDate(req.query.initDate as string);
+            const endDate = parseLocalDateEnd(req.query.endDate as string);
             const type = req.query.type as string | undefined;
 
             if (initDate && isNaN(initDate.getTime())) {
@@ -586,8 +607,8 @@ export class ClockLogsController {
             const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
             const pageSize = isNaN(rawPageSize) || rawPageSize < 1 ? 20 : rawPageSize;
 
-            const initDate = req.query.initDate ? new Date(req.query.initDate as string) : undefined;
-            const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+            const initDate = parseLocalDate(req.query.initDate as string);
+            const endDate = parseLocalDateEnd(req.query.endDate as string);
 
             if (initDate && isNaN(initDate.getTime())) {
                 return res.status(400).json({ error: 'Invalid initDate format' });
