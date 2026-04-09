@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: — Stability and Integration Hardening
 status: Defining requirements
-stopped_at: Completed 24-02-PLAN.md
-last_updated: "2026-04-09T20:56:00Z"
+stopped_at: Completed 24-03-PLAN.md
+last_updated: "2026-04-09T21:18:14.652Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 41
-  completed_plans: 38
-  percent: 93
+  completed_plans: 39
+  percent: 95
 ---
 
 # Project State — VP-Planilla
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 24-auth-token-lifecycle-end-to-end
-Plan: 24-02 complete
-Plans: 2/10 milestone plans complete
-Next: Execute 24-03-PLAN.md
+Phase: 24-auth-token-lifecycle-end-to-end (complete)
+Plan: 24-03 complete
+Plans: 3/10 milestone plans complete
+Next: Execute 25-01-PLAN.md
 Last activity: 2026-04-09
 
-Progress: [██░░░░░░░░] 20% (2/10 plans complete)
+Progress: [███░░░░░░░] 30% (3/10 plans complete)
 
 ## v1.4 Phase Map
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 24 | Auth Token Lifecycle End-to-End | AUTH-05..08 | ◐ In Progress (2/3 plans) |
+| 24 | Auth Token Lifecycle End-to-End | AUTH-05..08 | ✅ Complete (3/3 plans) |
 | 25 | HTTP Client Layer Enforcement | HTTP-01..03 | ○ Pending |
 | 26 | Repository Hygiene and Build Cleanup | HYG-01..03 | ○ Pending |
 | 27 | Monolith Decomposition and Maintainability | MOD-01..03 | ○ Pending |
@@ -101,16 +101,16 @@ Progress: [██░░░░░░░░] 20% (2/10 plans complete)
 - `TokenExpiredError` is preserved in `AuthService.verifyToken` so middleware maps expired tokens to `AUTH_TOKEN_EXPIRED` instead of generic invalid token.
 - Refresh stays as a public endpoint but now validates `refresh_token`, resolves user identity, and issues a new access token via `AuthService.issueAccessToken`.
 - Logout revocation is treated as idempotent server behavior: duplicate/expired token paths are controlled (never 500) while revoked token reuse is denied.
+- Refresh orchestration is now centralized in `http.ts` with a single-flight lock, preventing concurrent refresh stampedes on parallel 401 responses.
+- Frontend auth error handling now prioritizes `error.code` for 401 flows while preserving fallback parsing for legacy payloads.
 
 ## Session Continuity
 
-Last session: 2026-04-09T20:54:34.437Z
-Stopped at: Completed 24-02-PLAN.md
-Resume: Run `/gsd-plan-phase 24` to start execution planning.
+Last session: 2026-04-09T21:18:14.641Z
+Stopped at: Completed 24-03-PLAN.md
+Resume: Run `/gsd-execute-phase 25` to continue with v1.4.
 Note: v1.3 artifacts archived under `.planning/milestones/`.
-
-Resume: Run `/gsd-execute-phase 24` to continue with 24-03.
 
 ---
 
-*Updated: 2026-04-09 — Completed plan 24-02 execution*
+*Updated: 2026-04-09 — Completed plan 24-03 execution*
