@@ -49,7 +49,7 @@ describe('useAuth logout', () => {
     expect(localStorage.getItem('vp_access_token')).toBeNull();
     expect(localStorage.getItem('vp_refresh_token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
-    expect(pushMock).toHaveBeenCalledWith('/auth');
+    expect(pushMock).toHaveBeenCalledWith('/pages/auth');
     expect(result.current.user).toBeNull();
     expect(result.current.isAuthenticated).toBe(false);
   });

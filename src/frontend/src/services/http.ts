@@ -154,6 +154,16 @@ function isAuthCodeRequiringRefresh(errorCode: string | null): boolean {
   return errorCode === 'AUTH_TOKEN_EXPIRED' || errorCode === 'AUTH_TOKEN_INVALID';
 }
 
+function shouldAttemptTokenRefresh(inputPath: string): boolean {
+  const normalizedPath = inputPath.startsWith('http')
+    ? new URL(inputPath).pathname
+    : inputPath;
+
+  return normalizedPath !== '/login'
+    && normalizedPath !== '/refresh'
+    && normalizedPath !== '/validate';
+}
+
 function notifyAuthFailureOnce() {
   clearStoredTokens();
   if (!authFailureNotified) {
@@ -216,7 +226,7 @@ async function rawRequest(inputPath: string, options: RequestInit = {}, retry = 
   try {
     const res = await fetch(url, { ...options, headers });
 
-    if (res.status === 401 && retry) {
+    if (res.status === 401 && retry && shouldAttemptTokenRefresh(inputPath)) {
       const { errorCode } = await parseErrorResponse(res.clone());
       if (!isAuthCodeRequiringRefresh(errorCode)) {
         return res;

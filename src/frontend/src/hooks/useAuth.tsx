@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         http.clearTokens();
         setUser(null);
         localStorage.removeItem('user');
-        router.push('/auth');
+        router.push('/pages/auth');
       });
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         http.clearTokens();
         setUser(null);
         localStorage.removeItem('user');
-        router.push('/auth');
+        router.push('/pages/auth');
       });
 
     } finally {
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       http.clearTokens();
       setUser(null);
       localStorage.removeItem('user');
-      router.push('/auth');
+      router.push('/pages/auth');
     }
   };
 

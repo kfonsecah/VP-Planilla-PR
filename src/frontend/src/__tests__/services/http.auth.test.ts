@@ -85,4 +85,18 @@ describe('http auth lifecycle', () => {
     expect(localStorage.getItem('vp_refresh_token')).toBeNull();
     expect(onAuthFailure).toHaveBeenCalledTimes(1);
   });
+
+  it('does not attempt refresh when login endpoint returns 401 credentials error', async () => {
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce(createMockResponse(401, { message: 'Usuario o contraseña incorrectos' }));
+
+    setFetchMock(fetchMock);
+
+    await expect(http.post('/login', { username: 'bad', password: 'bad' })).rejects.toBeInstanceOf(ApiError);
+
+    const refreshCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('/refresh'));
+    expect(refreshCalls).toHaveLength(0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
