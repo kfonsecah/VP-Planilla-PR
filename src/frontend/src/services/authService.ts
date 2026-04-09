@@ -1,7 +1,4 @@
-import { API_CONFIG } from '@/config';
-
-const BASE = `${API_CONFIG.baseUrl.replace(/\/$/, '')}/api`;
-const TIMEOUT_MS = API_CONFIG.timeout || 15000;
+import { ApiError, http } from './http';
 
 interface AuthUser {
   id: number;
@@ -18,74 +15,42 @@ export interface LoginResponse {
   user?: AuthUser;
 }
 
-function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
-}
-
 export const AuthService = {
   async login(username: string, password: string): Promise<LoginResponse> {
-    const res = await fetchWithTimeout(`${BASE}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.message || 'Credenciales inválidas');
-    }
-    return res.json();
+    return http.post('/login', { username, password }) as Promise<LoginResponse>;
   },
 
   async me(token: string): Promise<AuthUser> {
-    const res = await fetchWithTimeout(`${BASE}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Error al obtener información del usuario');
-    return res.json();
+    void token;
+    return http.get('/me') as Promise<AuthUser>;
   },
 
   async logout(token: string): Promise<void> {
-    const res = await fetchWithTimeout(`${BASE}/logout`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error('Error al cerrar sesión');
+    void token;
+    await http.post('/logout');
   },
 
   async validateToken(token: string): Promise<boolean> {
-    const res = await fetchWithTimeout(`${BASE}/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    });
-    if (!res.ok) return false;
-    return true;
-  },
-
-  async refreshToken(refreshToken: string): Promise<{ token: string }>{
-    const res = await fetchWithTimeout(`${BASE}/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.message || 'No se pudo refrescar token');
+    try {
+      await http.post('/validate', { token });
+      return true;
+    } catch {
+      return false;
     }
-    return res.json();
   },
 
-  async changePassword(token: string, current_password: string, new_password: string): Promise<void> {
-    const res = await fetchWithTimeout(`${BASE}/change-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ current_password, new_password }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.message || 'Error al cambiar contraseña');
+  async refreshToken(refreshToken: string): Promise<{ token: string; refresh_token?: string }>{
+    return http.post('/refresh', { refresh_token: refreshToken }) as Promise<{ token: string; refresh_token?: string }>;
+  },
+
+  async changePassword(_token: string, current_password: string, new_password: string): Promise<void> {
+    try {
+      await http.post('/change-password', { current_password, new_password });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(error.message || 'Error al cambiar contraseña');
+      }
+      throw error;
     }
   },
 };

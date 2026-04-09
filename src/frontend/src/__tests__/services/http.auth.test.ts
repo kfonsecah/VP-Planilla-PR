@@ -1,13 +1,4 @@
 import { ApiError, http, setOnAuthFailure } from '@/services/http';
-import { AuthService } from '@/services/authService';
-
-jest.mock('@/services/authService', () => ({
-  AuthService: {
-    refreshToken: jest.fn(),
-  },
-}));
-
-const mockAuthService = AuthService as jest.Mocked<typeof AuthService>;
 
 function createMockResponse(status: number, body: unknown) {
   return {
@@ -15,7 +6,15 @@ function createMockResponse(status: number, body: unknown) {
     ok: status >= 200 && status < 300,
     json: jest.fn().mockResolvedValue(body),
     text: jest.fn().mockResolvedValue(JSON.stringify(body)),
+    clone: jest.fn().mockImplementation(() => createMockResponse(status, body)),
   } as unknown as Response;
+}
+
+function setFetchMock(mock: jest.Mock) {
+  global.fetch = mock as unknown as typeof fetch;
+  if (typeof window !== 'undefined') {
+    window.fetch = mock as unknown as typeof fetch;
+  }
 }
 
 describe('http auth lifecycle', () => {
@@ -29,45 +28,41 @@ describe('http auth lifecycle', () => {
     localStorage.setItem('vp_access_token', 'old-access-token');
     localStorage.setItem('vp_refresh_token', 'refresh-token');
 
-    mockAuthService.refreshToken.mockResolvedValue({
-      token: 'new-access-token',
-      refresh_token: 'new-refresh-token',
-    });
-
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
+      .mockResolvedValueOnce(createMockResponse(200, { token: 'new-access-token', refresh_token: 'new-refresh-token' }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { id: 1 } }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { id: 2 } }));
 
-    global.fetch = fetchMock as unknown as typeof fetch;
+    setFetchMock(fetchMock);
 
     const [first, second] = await Promise.all([http.get('/secure-a'), http.get('/secure-b')]);
 
     expect(first).toEqual({ id: 1 });
     expect(second).toEqual({ id: 2 });
-    expect(mockAuthService.refreshToken).toHaveBeenCalledTimes(1);
+    const refreshCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('/refresh'));
+    expect(refreshCalls).toHaveLength(1);
   });
 
   it('retries original request once after successful refresh and returns data', async () => {
     localStorage.setItem('vp_access_token', 'old-access-token');
     localStorage.setItem('vp_refresh_token', 'refresh-token');
 
-    mockAuthService.refreshToken.mockResolvedValue({ token: 'new-access-token' });
-
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
+      .mockResolvedValueOnce(createMockResponse(200, { token: 'new-access-token' }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { ok: true } }));
 
-    global.fetch = fetchMock as unknown as typeof fetch;
+    setFetchMock(fetchMock);
 
     const result = await http.get('/secure-resource');
 
     expect(result).toEqual({ ok: true });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const retryHeaders = fetchMock.mock.calls[1][1]?.headers as Record<string, string>;
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const retryHeaders = fetchMock.mock.calls[2][1]?.headers as Record<string, string>;
     expect(retryHeaders.Authorization).toBe('Bearer new-access-token');
   });
 
@@ -78,11 +73,12 @@ describe('http auth lifecycle', () => {
     const onAuthFailure = jest.fn();
     setOnAuthFailure(onAuthFailure);
 
-    mockAuthService.refreshToken.mockRejectedValue(new Error('refresh failed'));
-
-    global.fetch = jest
+    const fetchMock = jest
       .fn()
-      .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } })) as unknown as typeof fetch;
+      .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
+      .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_INVALID' } }));
+
+    setFetchMock(fetchMock);
 
     await expect(http.get('/secure-resource')).rejects.toBeInstanceOf(ApiError);
     expect(localStorage.getItem('vp_access_token')).toBeNull();

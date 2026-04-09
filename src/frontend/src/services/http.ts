@@ -1,5 +1,4 @@
 import { API_CONFIG } from '@/config';
-import { AuthService } from './authService';
 
 // Build API_BASE defensively: if API_CONFIG.baseUrl already contains /api, keep it; otherwise append /api
 const rawBase = API_CONFIG.baseUrl.replace(/\/$/, '');
@@ -11,6 +10,8 @@ if (typeof window !== 'undefined') {
 }
 
 let onAuthFailureCallback: (() => void) | null = null;
+let refreshInFlightPromise: Promise<string> | null = null;
+let authFailureNotified = false;
 
 const STORAGE_KEYS = {
   ACCESS: 'vp_access_token',
@@ -76,26 +77,38 @@ export class ApiError extends Error {
  * - Validation errors: { validationErrors: { field: "message" } }
  * - Details: { details: "..." }
  */
-async function parseErrorResponse(res: Response): Promise<{ message: string; fieldErrors: Record<string, string> | null }> {
+async function parseErrorResponse(res: Response): Promise<{ message: string; fieldErrors: Record<string, string> | null; errorCode: string | null }> {
   let data: unknown;
   try {
     data = await res.json();
   } catch {
     try {
       const text = await res.text();
-      return { message: text || 'HTTP ' + res.status, fieldErrors: null };
+      return { message: text || 'HTTP ' + res.status, fieldErrors: null, errorCode: null };
     } catch {
-      return { message: 'HTTP ' + res.status, fieldErrors: null };
+      return { message: 'HTTP ' + res.status, fieldErrors: null, errorCode: null };
     }
   }
 
   if (!data || typeof data !== 'object') {
-    return { message: 'HTTP ' + res.status, fieldErrors: null };
+    return { message: 'HTTP ' + res.status, fieldErrors: null, errorCode: null };
   }
 
   const obj = data as Record<string, unknown>;
   let fieldErrors: Record<string, string> | null = null;
   let message = '';
+  let errorCode: string | null = null;
+
+  if (typeof obj.error === 'object' && obj.error !== null) {
+    const nestedError = obj.error as Record<string, unknown>;
+    if (typeof nestedError.code === 'string') {
+      errorCode = nestedError.code;
+    }
+  }
+
+  if (!errorCode && typeof obj.code === 'string') {
+    errorCode = obj.code;
+  }
 
   // Zod validation errors: { success: false, errors: [{ field, message }] }
   if (Array.isArray(obj.errors) && obj.errors.length > 0) {
@@ -133,23 +146,60 @@ async function parseErrorResponse(res: Response): Promise<{ message: string; fie
     message = String((obj.error as Record<string, unknown>).message);
   }
 
-  return { message: message || 'HTTP ' + res.status, fieldErrors };
+  return { message: message || 'HTTP ' + res.status, fieldErrors, errorCode };
 }
 
-async function tryRefreshToken(): Promise<string> {
+function isAuthCodeRequiringRefresh(errorCode: string | null): boolean {
+  if (!errorCode) return true;
+  return errorCode === 'AUTH_TOKEN_EXPIRED' || errorCode === 'AUTH_TOKEN_INVALID';
+}
+
+function notifyAuthFailureOnce() {
+  clearStoredTokens();
+  if (!authFailureNotified) {
+    authFailureNotified = true;
+    onAuthFailureCallback?.();
+    queueMicrotask(() => {
+      authFailureNotified = false;
+    });
+  }
+}
+
+async function requestTokenRefresh(): Promise<string> {
   const refresh = getStoredRefreshToken();
   if (!refresh) throw new ApiError('No refresh token available', 401);
 
-  // Use AuthService.refreshToken to call /api/refresh
-  const resp = await AuthService.refreshToken(refresh);
-  const refreshResp = resp as { token: string; refresh_token?: string };
-  const newToken = refreshResp.token;
+  const url = API_BASE + '/refresh';
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({ refresh_token: refresh }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError('Refresh failed', response.status || 401);
+  }
+
+  const payload = await response.json() as { token?: string; refresh_token?: string };
+  const newToken = payload?.token;
   if (!newToken) throw new ApiError('Refresh failed', 401);
 
-  // Optionally update refresh token if backend returned one
-  const newRefresh = refreshResp.refresh_token || refresh;
+  const newRefresh = payload.refresh_token ?? refresh;
   setStoredTokens(newToken, newRefresh);
   return newToken;
+}
+
+async function tryRefreshToken(): Promise<string> {
+  if (!refreshInFlightPromise) {
+    refreshInFlightPromise = requestTokenRefresh().finally(() => {
+      refreshInFlightPromise = null;
+    });
+  }
+
+  return refreshInFlightPromise;
 }
 
 async function rawRequest(inputPath: string, options: RequestInit = {}, retry = true): Promise<Response> {
@@ -167,6 +217,11 @@ async function rawRequest(inputPath: string, options: RequestInit = {}, retry = 
     const res = await fetch(url, { ...options, headers });
 
     if (res.status === 401 && retry) {
+      const { errorCode } = await parseErrorResponse(res.clone());
+      if (!isAuthCodeRequiringRefresh(errorCode)) {
+        return res;
+      }
+
       // Try refresh once
       try {
         const newToken = await tryRefreshToken();
@@ -174,15 +229,11 @@ async function rawRequest(inputPath: string, options: RequestInit = {}, retry = 
         const retryHeaders = { ...(options.headers as Record<string, string> || {}), 'Accept': 'application/json', 'Authorization': 'Bearer ' + newToken };
         const retryRes = await fetch(url, { ...options, headers: retryHeaders });
         if (retryRes.status === 401) {
-          // Force logout
-          clearStoredTokens();
-          if (onAuthFailureCallback) onAuthFailureCallback();
+          notifyAuthFailureOnce();
         }
         return retryRes;
       } catch {
-        // Refresh failed -> logout
-        clearStoredTokens();
-        if (onAuthFailureCallback) onAuthFailureCallback();
+        notifyAuthFailureOnce();
         throw new ApiError('Authentication required', 401);
       }
     }
