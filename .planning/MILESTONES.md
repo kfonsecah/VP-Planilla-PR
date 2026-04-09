@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.3 — Sistema de Marcas de Reloj Robusto (Shipped: 2026-04-09)
+
+**Phases completed:** 6 phases (18-23), 14 plans
+**Timeline:** 2026-04-05 → 2026-04-09 (4 dias)
+**Status:** User-confirmed milestone closure
+
+**Key accomplishments:**
+
+1. Pipeline robusto de marcas con normalizacion canonica IN/OUT y trazabilidad status/source
+2. Sesiones de importacion con vinculo a marcas y endpoints de consulta operativos
+3. Deteccion automatica de huerfanas/anomalias + endpoints de resolucion
+4. Correccion manual con auditoria y proteccion de rutas administrativas
+5. Dashboard UI de marcas con filtros, badges, modal de detalle y sesiones recientes
+6. Cierre de fase 23 para estabilizacion integral del flujo de marcas (confirmado por usuario)
+
+**Known gaps at close:**
+
+- REQUIREMENTS.md traceability remained partially unchecked at close (NORM-*, TRACK-*, ORPHAN-*, ANOMALY-* still marked Pending in file state)
+
+**Archive:** `.planning/milestones/v1.3-ROADMAP.md`
+
+---
+
 ## v1.2 — Cobertura de Tests y Mejoras UI (Shipped: 2026-04-04)
 
 **Phases completed:** 1 phase (17), 3 plans + 2 quick tasks

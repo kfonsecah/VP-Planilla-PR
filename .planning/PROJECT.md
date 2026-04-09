@@ -8,16 +8,15 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.2 — 2026-04-04)
+## Current State (v1.3 — 2026-04-09)
 
-**v1.2 SHIPPED** — Cobertura de Tests y Mejoras UI:
-- ✅ 104 tests backend pasando (8 suites): EmployeeService, ClockLogService, DeductionService, AuthService + v1.0 suites
-- ✅ Design system dark mode: tokens CSS globales, paleta zinc-950, sidebar moderno con colapso mobile
-- ✅ UI consistente: tablas, formularios, modales en todos los módulos con estilo dark
-- ✅ Integración frontend-backend auditada: 3 payload mismatches corregidos, errores concretos, skeletons + toasts
-- ✅ Servicio de notificaciones: backend API + Header panel + página dedicada + polling 30s
-- ✅ Skeleton loading + error banners con retry en 18 vistas del sistema
-- ✅ Rendimiento: ~1.55MB JS diferido, imágenes 11.5MB → 39KB (99.7% reducción)
+**v1.3 SHIPPED** — Sistema de Marcas de Reloj Robusto:
+- ✅ Normalizacion de tipos de marcas (IN/OUT) y trazabilidad por status/source
+- ✅ Sesiones de importacion con vinculo a marcas e historial operativo
+- ✅ Motor de deteccion de huerfanas y anomalias con endpoints de consulta/resolucion
+- ✅ Correccion manual con auditoria de cambios y rutas protegidas
+- ✅ Dashboard de marcas (filtros, badges, sesiones, modal de detalle/correccion)
+- ✅ Cierre de fase 23 con estabilizacion del flujo de marcas (confirmado por usuario)
 
 ## Context
 
@@ -28,9 +27,9 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Tests:** 104 backend tests (8 suites), 0 failures
 - **Performance:** ~1.55MB JS diferido, imágenes comprimidas 99.7%, Next.js compress habilitado
 
-## Current Milestone: v1.3 — Sistema de Marcas de Reloj Robusto (Active)
+## Current Milestone: v1.4 — TBD (Planning)
 
-**Goal:** Transformar el pipeline de marcas de reloj en un sistema confiable con detección de anomalías, trazabilidad completa, corrección manual y sin pérdida de datos.
+**Goal:** Definir siguiente iteracion del producto a partir de roadmap v1.4.
 
 **Target features:**
 - Normalización de tipos (ENTRADA/SALIDA ↔ IN/OUT → valor canónico único)
@@ -41,7 +40,7 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - API de corrección manual con registro de auditoría
 - Dashboard UI — visualización de marcas, anomalías y acciones de corrección
 
-**Previous:** v1.2 shipped 2026-04-04 — Phase 17 (287 tests, +183 nuevos), sessionStorage cache, Sidebar modernizado
+**Previous:** v1.3 shipped 2026-04-09 — phases 18-23 completadas.
 
 **v1.1 accomplishments:**
 - 104 backend tests, design system dark mode, UI consistente en todos los módulos
@@ -100,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 — v1.1 milestone complete*
+*Last updated: 2026-04-09 after v1.3 milestone completion*

@@ -2,6 +2,51 @@
 
 ---
 
+## Milestone: v1.3 — Sistema de Marcas de Reloj Robusto
+
+**Shipped:** 2026-04-09
+**Phases:** 6 | **Plans:** 14 | **Timeline:** 4 dias
+
+### What Was Built
+
+1. Normalizacion de marcas a tipo canonico IN/OUT con trazabilidad por status/source
+2. Sesiones de importacion vinculadas a cada marca y expuestas via endpoints
+3. Deteccion automatica de huerfanas/anomalias con resolucion operativa
+4. Correccion manual con registro de auditoria en backend
+5. Dashboard UI de marcas con filtros, badges, sesiones y modal de detalle
+6. Estabilizacion integral del flujo de marcas (fase 23) confirmada por usuario
+
+### What Worked
+
+- Ejecucion por fases con planes concretos permitio cerrar un dominio complejo (clock logs)
+- Flujo de research -> plan -> execute mantuvo trazabilidad de decisiones
+- Enfoque en backend + frontend en olas redujo riesgo de regresion por capas
+
+### What Was Inefficient
+
+- Inconsistencias de estado entre ROADMAP y STATE durante el cierre
+- Ruido operativo por muchos cambios locales no relacionados antes de limpieza
+- Algunos artefactos de requirements/traceability quedaron desactualizados respecto al estado real
+
+### Patterns Established
+
+- Parsing de fechas de consulta debe tratarse en hora local para evitar errores de rango
+- Las fases de estabilizacion requieren UAT explicita antes de declarar cierre
+- Mantener checkpoints de limpieza de workspace antes de cerrar milestone
+
+### Key Lessons
+
+- Cerrar milestone solo despues de alinear roadmap, state y uat
+- Priorizar limpieza de working tree para evitar falsos positivos de progreso
+- Consolidar artefactos de milestone inmediatamente tras confirmacion de usuario
+
+### Cost Observations
+
+- Milestone centrado en robustez del modulo de marcas (alto impacto funcional)
+- Trabajo incremental en 6 fases con 14 planes dentro de 4 dias
+
+---
+
 ## Milestone: v1.0 — Estabilización y Completitud
 
 **Shipped:** 2026-03-27
