@@ -34,7 +34,7 @@ const LoginScreen = () => {
           alt=""
           fill
           style={{ objectFit: "cover" }}
-          className="opacity-15 mix-blend-overlay pointer-events-none"
+          className="opacity-22 mix-blend-overlay pointer-events-none"
           priority
           quality={40}
         />
