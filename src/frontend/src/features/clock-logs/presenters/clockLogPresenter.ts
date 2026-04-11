@@ -78,7 +78,15 @@ export const STATUS_TOGGLE_COLORS: Record<string, { active: string; inactive: st
 // Helpers for date conversion ISO (backend) <-> display dd/mm/yy (DatePicker)
 export const isoToDisplay = (iso: string): string => {
   if (!iso) return '';
-  const d = new Date(iso);
+  
+  let d: Date;
+  if (iso.length === 10 && iso.includes('-') && !iso.includes('T')) {
+    const [y, m, d_part] = iso.split('-').map(Number);
+    d = new Date(y, m - 1, d_part);
+  } else {
+    d = new Date(iso);
+  }
+
   if (isNaN(d.getTime())) return '';
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -88,10 +96,18 @@ export const isoToDisplay = (iso: string): string => {
 
 export const parseDisplayToISO = (display: string): string => {
   if (!display || display.length < 8) return '';
-  const [day, month, year] = display.split('/');
-  const fullYear = year.length === 2 ? `20${year}` : year;
-  const d = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
-  if (isNaN(d.getTime())) return '';
+  const parts = display.split('/');
+  if (parts.length !== 3) return '';
+  
+  const [day, month, year] = parts.map(Number);
+  const fullYear = year < 100 ? 2000 + year : year;
+  const d = new Date(fullYear, month - 1, day);
+
+  // Validation: ensure JS didn't wrap around (e.g. 31/02 -> 03/03)
+  if (isNaN(d.getTime()) || d.getDate() !== day || d.getMonth() !== month - 1 || d.getFullYear() !== fullYear) {
+    return '';
+  }
+
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
