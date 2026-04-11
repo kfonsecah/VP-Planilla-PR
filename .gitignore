@@ -13,7 +13,7 @@ src/backend/*.tsbuildinfo
 src/backend/node_modules/
 
 # Package manager lock files (regenerable from package.json)
-package-lock.json
+**/package-lock.json
 
 # ===== FRONTEND (Next.js) =====
 # Next.js build output — regenerate with: cd src/frontend && npm run build
@@ -50,6 +50,11 @@ src/Java/clocklogs/dependency-reduced-pom.xml
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python artifacts
+**/__pycache__/
+*.py[cod]
+*$py.class
 
 # Log files
 *.log

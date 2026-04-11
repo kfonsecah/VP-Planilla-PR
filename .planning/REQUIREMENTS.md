@@ -17,15 +17,15 @@
 
 ### HTTP Integration Layer (HTTP)
 
-- [ ] **HTTP-01**: Todas las llamadas frontend a backend pasan por `src/frontend/src/services/http.ts` (sin bypass)
-- [ ] **HTTP-02**: Los servicios frontend normalizan manejo de errores y retries siguiendo un patron comun
-- [ ] **HTTP-03**: No existen llamadas `fetch` directas en hooks/components de negocio
+- [x] **HTTP-01**: Todas las llamadas frontend a backend pasan por `src/frontend/src/services/http.ts` (sin bypass)
+- [x] **HTTP-02**: Los servicios frontend normalizan manejo de errores y retries siguiendo un patron comun
+- [x] **HTTP-03**: No existen llamadas `fetch` directas en hooks/components de negocio
 
 ### Repository Hygiene (HYG)
 
-- [ ] **HYG-01**: Artefactos generados (`dist/`, `target/`, lock temporales, outputs de build) no se versionan
-- [ ] **HYG-02**: `.gitignore` cubre artefactos de backend, frontend y Java utility de forma consistente
-- [ ] **HYG-03**: Flujo de build local no depende de archivos generados ya presentes en git
+- [x] **HYG-01**: Artefactos generados (`dist/`, `target/`, lock temporales, outputs de build) no se versionan
+- [x] **HYG-02**: `.gitignore` cubre artefactos de backend, frontend y Java utility de forma consistente
+- [x] **HYG-03**: Flujo de build local no depende de archivos generados ya presentes en git
 
 ### Modularization and Maintainability (MOD)
 
@@ -62,12 +62,12 @@
 | AUTH-06 | Phase 24 | Complete |
 | AUTH-07 | Phase 24 | Complete |
 | AUTH-08 | Phase 24 | Complete |
-| HTTP-01 | Phase 25 | Pending |
-| HTTP-02 | Phase 25 | Pending |
-| HTTP-03 | Phase 25 | Pending |
-| HYG-01 | Phase 26 | Pending |
-| HYG-02 | Phase 26 | Pending |
-| HYG-03 | Phase 26 | Pending |
+| HTTP-01 | Phase 25 | Complete |
+| HTTP-02 | Phase 25 | Complete |
+| HTTP-03 | Phase 25 | Complete |
+| HYG-01 | Phase 26 | Complete |
+| HYG-02 | Phase 26 | Complete |
+| HYG-03 | Phase 26 | Complete |
 | MOD-01 | Phase 27 | Pending |
 | MOD-02 | Phase 27 | Pending |
 | MOD-03 | Phase 27 | Pending |
