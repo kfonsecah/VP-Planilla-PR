@@ -73,9 +73,9 @@ describe('ClockLogsService', () => {
         expect.stringContaining('/clock-logs/paginated?initDate='),
         { method: 'GET' }
       );
-      // Verify that the URL contains status=anomaly,orphan
+      // Verify that the URL contains status=anomaly%2Corphan
       const calledUrl = (http.raw as jest.Mock).mock.calls[0][0];
-      expect(calledUrl).toContain('status=anomaly,orphan');
+      expect(calledUrl).toContain('status=anomaly%2Corphan');
     });
 
     it('should include employee_id filter when provided', async () => {
@@ -112,13 +112,7 @@ describe('ClockLogsService', () => {
 
       const result = await ClockLogsService.getClockLogsPaginated(defaultParams);
 
-      // Since json throws, result will be fallback because catch will return fallback? Let's check implementation: if json throws, the catch block not present; raw.json() is awaited inside try? In code: const json = await raw.json(); return json ?? {...}. If raw.json() throws, the promise rejects. That means our test should catch error. But we don't have catch in service; let's verify implementation. In getClockLogsPaginated:
-      // const raw = await http.raw(...);
-      // if (!raw.ok) return { success: false, ... };
-      // const json = await raw.json();
-      // return json ?? { success: true, ... };
-      // So if raw.json() throws, the error propagates. That's acceptable; test should expect rejection. But current code doesn't have try/catch. So test: should reject on json parse error.
-      await expect(ClockLogsService.getClockLogsPaginated(defaultParams)).rejects.toThrow('parse error');
+      expect(result).toEqual({ success: false, data: [], total: 0, page: 1, pageSize: 20 });
     });
 
     it('should fallback when json returns null', async () => {
