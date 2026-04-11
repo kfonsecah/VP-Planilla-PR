@@ -23,8 +23,8 @@
 
 - [x] **Phase 24: Auth Token Lifecycle End-to-End** - Unificar refresh/revocation/logout y errores de autenticacion en toda la plataforma (completed 2026-04-09)
 - [x] **Phase 25: HTTP Client Layer Enforcement** - Eliminar bypasses a `http.ts` y estandarizar manejo de errores en servicios frontend (completed 2026-04-11)
-- [ ] **Phase 26: Repository Hygiene and Build Artifacts Cleanup** - Limpiar artefactos versionados y reforzar `.gitignore` multi-stack
-- [ ] **Phase 27: Monolith Decomposition and Maintainability** - Refactor de archivos monoliticos con pruebas de regresion
+- [x] **Phase 26: Repository Hygiene and Build Artifacts Cleanup** - Limpiar artefactos versionados y reforzar `.gitignore` multi-stack (completed 2026-04-11)
+- [x] **Phase 27: Monolith Decomposition and Maintainability** - Refactor de archivos monoliticos con pruebas de regresion (completed 2026-04-11)
 
 ### Phase 26: Repository Hygiene and Build Artifacts Cleanup
 
@@ -45,12 +45,12 @@ Plans:
 
 **Requirements:** MOD-01, MOD-02, MOD-03
 
-**Plans:** 2/3 plans executed
+**Plans:** 3 plans
 
 Plans:
 - [x] 27-01-PLAN.md — Auditoria de complejidad y seleccion de candidatos para descomposicion
 - [x] 27-02-PLAN.md — Refactor de logica de parsing e importacion de marcas (desacople de Page/Hook)
-- [ ] 27-03-PLAN.md — Cierre de fase y validacion de no regresion con suite de pruebas
+- [x] 27-03-PLAN.md — Cierre de fase y validacion de no regresion con suite de pruebas
 
 #### Phase 25 Planning Snapshot
 
@@ -77,7 +77,7 @@ Plans:
 | 24. Auth Token Lifecycle End-to-End | v1.4 | 3/3 | Complete   | 2026-04-09 |
 | 25. HTTP Client Layer Enforcement | v1.4 | 2/2 | Complete | 2026-04-11 |
 | 26. Repository Hygiene and Build Cleanup | v1.4 | 3/3 | Complete | 2026-04-11 |
-| 27. Monolith Decomposition and Maintainability | v1.4 | 2/3 | In Progress|  |
+| 27. Monolith Decomposition and Maintainability | v1.4 | 3/3 | Complete | 2026-04-11 |
 
 ## Archives
 
