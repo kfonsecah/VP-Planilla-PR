@@ -142,7 +142,7 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
-    expect(screen.getByText(/sesiones de importacion recientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/sesiones de importación recientes/i)).toBeInTheDocument();
     // Check some column headers exist, e.g., Fecha, Fuente, Estado, Creados, Omitidos
     // We can approximate based on text content
     expect(screen.getByText('Fecha')).toBeInTheDocument();
