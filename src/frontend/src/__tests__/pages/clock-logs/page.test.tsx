@@ -93,12 +93,12 @@ describe('/pages/clock-logs/page', () => {
     render(<ClockLogsPage />);
 
     // Check that cards for statuses with count > 0 are visible
-    expect(screen.getByText('pending')).toBeInTheDocument();
-    expect(screen.getByText('valid')).toBeInTheDocument();
-    expect(screen.getByText('anomaly')).toBeInTheDocument();
-    expect(screen.getByText('orphan')).toBeInTheDocument();
+    expect(screen.getByText('Pendiente')).toBeInTheDocument();
+    expect(screen.getByText('Valida')).toBeInTheDocument();
+    expect(screen.getByText('Anomalia')).toBeInTheDocument();
+    expect(screen.getByText('Huerfana')).toBeInTheDocument();
     // corrected count is 0 -> card should be absent
-    expect(screen.queryByText('corrected')).not.toBeInTheDocument();
+    expect(screen.queryByText('Corregida')).not.toBeInTheDocument();
   });
 
   it('renders status filter toggle buttons', () => {
@@ -106,11 +106,11 @@ describe('/pages/clock-logs/page', () => {
     render(<ClockLogsPage />);
 
     // Buttons should be present; they likely have text of statuses
-    const pendingBtn = screen.getByRole('button', { name: /pending/i });
-    const validBtn = screen.getByRole('button', { name: /valid/i });
-    const anomalyBtn = screen.getByRole('button', { name: /anomaly/i });
-    const orphanBtn = screen.getByRole('button', { name: /orphan/i });
-    const correctedBtn = screen.getByRole('button', { name: /corrected/i });
+    const pendingBtn = screen.getByRole('button', { name: /pendiente/i });
+    const validBtn = screen.getByRole('button', { name: /valida/i });
+    const anomalyBtn = screen.getByRole('button', { name: /anomalia/i });
+    const orphanBtn = screen.getByRole('button', { name: /huerfana/i });
+    const correctedBtn = screen.getByRole('button', { name: /corregida/i });
 
     expect(pendingBtn).toBeInTheDocument();
     expect(validBtn).toBeInTheDocument();
@@ -123,11 +123,9 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
-    const input = screen.getByRole('textbox'); // there may be only one
+    const input = screen.getByPlaceholderText(/buscar empleado/i);
     expect(input).toHaveAttribute('list', 'employees-datalist');
 
-    const datalist = screen.getByRole('listbox'); // not standard but could be by text 'employees-datalist'
-    // Actually <datalist> is not a listbox ARIA role. We can query by test id? not set. Let's just check existence:
     const datalistElement = document.getElementById('employees-datalist');
     expect(datalistElement).toBeInTheDocument();
     // Check options: the datalist should have options for employees
@@ -140,7 +138,7 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
-    expect(screen.getByText(/sesiones de importación recientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/sesiones de importacion recientes/i)).toBeInTheDocument();
     // Check some column headers exist, e.g., Fecha, Fuente, Estado, Creados, Omitidos
     // We can approximate based on text content
     expect(screen.getByText('Fecha')).toBeInTheDocument();
@@ -163,7 +161,6 @@ describe('/pages/clock-logs/page', () => {
     // Row data
     expect(screen.getByText('Ana García')).toBeInTheDocument();
     expect(screen.getByText('IN')).toBeInTheDocument();
-    expect(screen.getByRole('img', { hidden: true })); // not needed
     // Buttons: Ver or Corregir depending on status. For anomaly, should be Corregir.
     expect(screen.getByRole('button', { name: /corregir/i })).toBeInTheDocument();
   });
@@ -172,7 +169,7 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
-    expect(screen.getByText(/mostrando 1-1 de 18 marcas/i)).toBeInTheDocument();
+    expect(screen.getByText(/mostrando 1–1 de 18 marcas/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /anterior/i })).toBeDisabled(); // page 1, previous disabled
     expect(screen.getByRole('button', { name: /siguiente/i })).not.toBeDisabled();
   });
@@ -192,7 +189,7 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn({ setFilters }));
     render(<ClockLogsPage />);
 
-    const input = screen.getByRole('textbox');
+    const input = screen.getByPlaceholderText(/buscar empleado/i);
     fireEvent.change(input, { target: { value: 'Ana' } });
     fireEvent.change(input, { target: { value: 'Ana García' } }); // selection from datalist would set value
 
