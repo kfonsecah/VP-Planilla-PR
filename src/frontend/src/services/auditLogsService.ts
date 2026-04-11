@@ -12,13 +12,13 @@ export const AuditLogsService = {
     const queryParams = new URLSearchParams();
     
     if (filters) {
-      if (filters.userId) queryParams.append('userId', filters.userId.toString());
+      if (filters.userId !== undefined) queryParams.append('userId', filters.userId.toString());
       if (filters.action) queryParams.append('action', filters.action);
       if (filters.entity) queryParams.append('entity', filters.entity);
       if (filters.startDate) queryParams.append('startDate', filters.startDate);
       if (filters.endDate) queryParams.append('endDate', filters.endDate);
-      if (filters.limit) queryParams.append('limit', filters.limit.toString());
-      if (filters.offset) queryParams.append('offset', filters.offset.toString());
+      if (filters.limit !== undefined) queryParams.append('limit', filters.limit.toString());
+      if (filters.offset !== undefined) queryParams.append('offset', filters.offset.toString());
     }
 
     const query = queryParams.toString();
