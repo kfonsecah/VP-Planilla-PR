@@ -433,17 +433,19 @@ echo "✅ Phase 26 verification complete: Repository clean, builds work locally.
 - [ ] Run `git status` again — should show no new untracked files for dist/ or target/
 - [ ] If rebuilds generate new files and git wants to track them, .gitignore is incomplete
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Package-lock.json handling in .gitignore**
+1. **Package-lock.json handling in .gitignore (RESOLVED)**
    - What we know: Currently ignored via global `*.json`. Modern practice is to exclude lock files so builds use latest compatible versions.
    - What's unclear: Does this project want lock files tracked (for reproducible builds) or ignored (for flexibility)?
    - Recommendation: Based on standard practice and current global rule, keep `package-lock.json` ignored. If reproducible builds become a requirement (Phase 27+), this can be revisited.
+   - **RESOLUTION:** The plan (26-03) explicitly uses `**/package-lock.json` to ensure recursive ignore coverage, following the established project pattern of ignoring lock files.
 
-2. **IDE configuration directories (.vscode, .idea)**
+2. **IDE configuration directories (.vscode, .idea) (RESOLVED)**
    - What we know: Currently in .gitignore (lines 18-19). Phase 26 is not removing these.
    - What's unclear: Any IDE-specific rules that should be added?
    - Recommendation: Leave as-is. Phase 26 focuses on build artifacts only; IDE config is orthogonal.
+   - **RESOLUTION:** Confirmed that existing IDE rules are sufficient for the current toolchain. No additional rules required for Phase 26.
 
 ## Sources
 
