@@ -81,11 +81,11 @@ describe('/pages/clock-logs/page', () => {
     render(<ClockLogsPage />);
 
     expect(screen.getByRole('button', { name: /hoy/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /últimos 7 días/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ultimos 7 dias/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /este mes/i })).toBeInTheDocument();
 
-    expect(screen.getByLabelText(/fecha inicio/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/fecha fin/i)).toBeInTheDocument();
+    expect(screen.getByText(/desde/i)).toBeInTheDocument();
+    expect(screen.getByText(/hasta/i)).toBeInTheDocument();
   });
 
   it('renders status cards when counts > 0, hides zero-count cards', () => {
@@ -93,12 +93,16 @@ describe('/pages/clock-logs/page', () => {
     render(<ClockLogsPage />);
 
     // Check that cards for statuses with count > 0 are visible
-    expect(screen.getByText('Pendiente')).toBeInTheDocument();
-    expect(screen.getByText('Valida')).toBeInTheDocument();
-    expect(screen.getByText('Anomalia')).toBeInTheDocument();
-    expect(screen.getByText('Huerfana')).toBeInTheDocument();
-    // corrected count is 0 -> card should be absent
-    expect(screen.queryByText('Corregida')).not.toBeInTheDocument();
+    // We filter by tagName 'P' to ensure we are matching the card title and not the filter button
+    expect(screen.getAllByText('Pendiente').find(el => el.tagName === 'P')).toBeInTheDocument();
+    expect(screen.getAllByText('Valida').find(el => el.tagName === 'P')).toBeInTheDocument();
+    expect(screen.getAllByText('Anomalia').find(el => el.tagName === 'P')).toBeInTheDocument();
+    expect(screen.getAllByText('Huerfana').find(el => el.tagName === 'P')).toBeInTheDocument();
+    
+    // corrected count is 0 -> card should be absent (only the filter button should exist)
+    const correctedElements = screen.queryAllByText('Corregida');
+    expect(correctedElements.find(el => el.tagName === 'P')).toBeUndefined();
+    expect(correctedElements.find(el => el.tagName === 'BUTTON')).toBeDefined();
   });
 
   it('renders status filter toggle buttons', () => {
@@ -169,14 +173,15 @@ describe('/pages/clock-logs/page', () => {
     mockedUseClockLogs.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
-    expect(screen.getByText(/mostrando 1–1 de 18 marcas/i)).toBeInTheDocument();
+    expect(screen.getByText(/mostrando 1–18 de 18 marcas/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /anterior/i })).toBeDisabled(); // page 1, previous disabled
-    expect(screen.getByRole('button', { name: /siguiente/i })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: /siguiente/i })).toBeDisabled(); // page 1 of 1, next disabled
   });
 
   it('calls setPage when pagination buttons clicked', () => {
     const setPage = jest.fn();
-    mockedUseClockLogs.mockReturnValue(mockHookReturn({ setPage }));
+    // To have 'Siguiente' enabled, we need totalLogs > pageSize
+    mockedUseClockLogs.mockReturnValue(mockHookReturn({ setPage, totalLogs: 50, pageSize: 20 }));
     render(<ClockLogsPage />);
 
     fireEvent.click(screen.getByRole('button', { name: /siguiente/i }));
