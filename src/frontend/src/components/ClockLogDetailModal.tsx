@@ -90,7 +90,7 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
   const handleCorrection = async () => {
     if (!log) return;
     if (justification.trim().length < 5) {
-      toast.error('La justificacion debe tener al menos 5 caracteres');
+      toast.error('La justificación debe tener al menos 5 caracteres');
       return;
     }
     setIsSubmitting(true);
@@ -224,7 +224,7 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
                   {/* Section 2: Audit History */}
                   <div>
                     <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-                      Historial de Auditoria
+                      Historial de Auditoría
                     </h3>
                     {isLoadingAudit ? (
                       <p className="text-sm text-zinc-500 dark:text-zinc-400">Cargando historial...</p>
@@ -258,7 +258,7 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
                   {log.status !== 'corrected' && (
                     <div>
                       <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-                        Acciones de Correccion
+                        Acciones de Corrección
                       </h3>
 
                       {!showCorrectionForm ? (
@@ -294,17 +294,17 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
                               htmlFor="justification"
                               className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1"
                             >
-                              Justificacion <span className="text-red-500">*</span>
+                              Justificación <span className="text-red-500">*</span>
                             </label>
                             <textarea
                               id="justification"
                               value={justification}
                               onChange={(e) => setJustification(e.target.value)}
-                              placeholder="Justificacion de la correccion..."
+                              placeholder="Justificación de la corrección..."
                               rows={3}
                               className="w-full px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                             />
-                            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Minimo 5 caracteres</p>
+                            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Mínimo 5 caracteres</p>
                           </div>
                           <div className="flex gap-3">
                             <button

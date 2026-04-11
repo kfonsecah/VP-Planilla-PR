@@ -37,14 +37,14 @@ describe('ImportSessionsPanel', () => {
 
   it('renders empty state when no sessions and not loading', () => {
     render(<ImportSessionsPanel sessions={[]} isLoading={false} />);
-    expect(screen.getByText(/no hay sesiones de importacion recientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/no hay sesiones de importación recientes/i)).toBeInTheDocument();
   });
 
   it('renders sessions with formatted columns', () => {
     render(<ImportSessionsPanel sessions={mockSessions} isLoading={false} />);
 
     // Check dates formatted (locale es-CR) — we just check that the date strings are present in some form
-    expect(screen.getByText(/05\/04\/2026/)).toBeInTheDocument();
+    expect(screen.getByText(/5\/4\/2026/)).toBeInTheDocument();
 
     // Check source labels
     expect(screen.getByText('Java')).toBeInTheDocument();

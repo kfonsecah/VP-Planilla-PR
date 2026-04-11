@@ -30,7 +30,7 @@ const ImportSessionsPanel: React.FC<ImportSessionsPanelProps> = ({ sessions, isL
   return (
     <div className="rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 mb-4 bg-white dark:bg-zinc-900">
       <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
-        Sesiones de Importacion Recientes
+        Sesiones de Importación Recientes
       </h3>
 
       {isLoading && (
@@ -39,7 +39,7 @@ const ImportSessionsPanel: React.FC<ImportSessionsPanelProps> = ({ sessions, isL
 
       {!isLoading && sessions.length === 0 && (
         <p className="text-sm text-zinc-400 dark:text-zinc-500">
-          No hay sesiones de importacion recientes
+          No hay sesiones de importación recientes
         </p>
       )}
 

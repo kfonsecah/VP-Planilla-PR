@@ -15,8 +15,8 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   valid: 'Valida',
   pending: 'Pendiente',
-  anomaly: 'Anomalia',
-  orphan: 'Huerfana',
+  anomaly: 'Anomalía',
+  orphan: 'Huérfana',
   corrected: 'Corregida',
 };
 

@@ -7,6 +7,18 @@ import { toast } from 'sonner';
 jest.mock('@/services/clockLogsService');
 jest.mock('sonner');
 
+// Mock next/dynamic to render components immediately
+jest.mock('next/dynamic', () => ({
+  __esModule: true,
+  default: (loader: any) => {
+    const React = require('react');
+    return (props: any) => {
+      const { children, ...rest } = props;
+      return <div {...rest}>{children}</div>;
+    };
+  },
+}));
+
 const mockedClockLogsService = ClockLogsService as jest.MockedObject<typeof ClockLogsService>;
 
 const mockLog = {
@@ -49,9 +61,9 @@ describe('ClockLogDetailModal', () => {
     expect(screen.getByText('Java')).toBeInTheDocument();
     expect(screen.getByText('Test remark')).toBeInTheDocument();
     // Status badge
-    expect(screen.getByText('Anomalia')).toBeInTheDocument();
+    expect(screen.getByText('Anomalía')).toBeInTheDocument();
     // Audit history section
-    expect(screen.getByText('Historial de Auditoria')).toBeInTheDocument();
+    expect(screen.getByText('Historial de Auditoría')).toBeInTheDocument();
   });
 
   it('hides correction form for corrected logs', () => {
@@ -95,7 +107,7 @@ describe('ClockLogDetailModal', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /marcar como corregido/i }));
 
-    expect(screen.getByLabelText(/justificacion/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/justificación/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /confirmar/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument();
   });
@@ -111,12 +123,12 @@ describe('ClockLogDetailModal', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /marcar como corregido/i }));
-    const textarea = screen.getByLabelText(/justificacion/i);
+    const textarea = screen.getByLabelText(/justificación/i);
     fireEvent.change(textarea, { target: { value: 'abc' } }); // less than 5
     fireEvent.click(screen.getByRole('button', { name: /confirmar/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('La justificacion debe tener al menos 5 caracteres');
+      expect(toast.error).toHaveBeenCalledWith('La justificación debe tener al menos 5 caracteres');
     });
     expect(mockedClockLogsService.updateClockLogStatus).not.toHaveBeenCalled();
   });
@@ -132,7 +144,7 @@ describe('ClockLogDetailModal', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /marcar como corregido/i }));
-    const textarea = screen.getByLabelText(/justificacion/i);
+    const textarea = screen.getByLabelText(/justificación/i);
     fireEvent.change(textarea, { target: { value: 'Valid justification text' } });
     fireEvent.click(screen.getByRole('button', { name: /confirmar/i }));
 
