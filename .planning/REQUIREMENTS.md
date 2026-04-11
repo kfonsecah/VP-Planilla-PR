@@ -14,6 +14,7 @@
 - [x] **AUTH-06**: El backend invalida tokens revocados/expirados en todos los endpoints protegidos
 - [x] **AUTH-07**: Logout invalida la sesion de forma completa (cliente + servidor) y evita reutilizacion de tokens previos
 - [x] **AUTH-08**: Los errores de autenticacion son uniformes y manejables por el frontend (401/403 con payload consistente)
+- [ ] **AUTH-09**: El usuario puede cambiar su contraseña de forma segura.
 
 ### HTTP Integration Layer (HTTP)
 
@@ -23,8 +24,8 @@
 
 ### Repository Hygiene (HYG)
 
-- [x] **HYG-01**: Artefactos generados (`dist/`, `target/`, lock temporales, outputs de build) no se versionan
-- [x] **HYG-02**: `.gitignore` cubre artefactos de backend, frontend y Java utility de forma consistente
+- [ ] **HYG-01**: Artefactos generados (`dist/`, `target/`, lock temporales, outputs de build) no se versionan
+- [ ] **HYG-02**: `.gitignore` cubre artefactos de backend, frontend y Java utility de forma consistente
 - [x] **HYG-03**: Flujo de build local no depende de archivos generados ya presentes en git
 
 ### Modularization and Maintainability (MOD)
@@ -62,21 +63,22 @@
 | AUTH-06 | Phase 24 | Complete |
 | AUTH-07 | Phase 24 | Complete |
 | AUTH-08 | Phase 24 | Complete |
+| AUTH-09 | Phase 28 | Pending |
 | HTTP-01 | Phase 25 | Complete |
 | HTTP-02 | Phase 25 | Complete |
 | HTTP-03 | Phase 25 | Complete |
-| HYG-01 | Phase 26 | Complete |
-| HYG-02 | Phase 26 | Complete |
+| HYG-01 | Phase 29 | Pending |
+| HYG-02 | Phase 29 | Pending |
 | HYG-03 | Phase 26 | Complete |
 | MOD-01 | Phase 27 | Complete |
 | MOD-02 | Phase 27 | Complete |
 | MOD-03 | Phase 27 | Complete |
 
 **Coverage:**
-- v1.4 requirements: 13 total
-- Mapped to phases: 13
+- v1.4 requirements: 14 total
+- Mapped to phases: 14
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after v1.4 initialization*
+*Last updated: 2026-04-11 after v1.4 gap analysis*
