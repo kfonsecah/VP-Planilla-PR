@@ -37,7 +37,7 @@ describe('ImportSessionsPanel', () => {
 
   it('renders empty state when no sessions and not loading', () => {
     render(<ImportSessionsPanel sessions={[]} isLoading={false} />);
-    expect(screen.getByText(/no hay sesiones de importación recientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/no hay sesiones de importacion recientes/i)).toBeInTheDocument();
   });
 
   it('renders sessions with formatted columns', () => {
@@ -51,8 +51,8 @@ describe('ImportSessionsPanel', () => {
     expect(screen.getByText('Excel')).toBeInTheDocument();
 
     // Check status badges
-    expect(screen.getByText('completed')).toBeInTheDocument();
-    expect(screen.getByText('failed')).toBeInTheDocument();
+    expect(screen.getByText('Completada')).toBeInTheDocument();
+    expect(screen.getByText('Fallida')).toBeInTheDocument();
 
     // Check counts
     expect(screen.getByText('95')).toBeInTheDocument(); // created_count first session
