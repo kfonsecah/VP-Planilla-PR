@@ -42,12 +42,19 @@ export function useWeather() {
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`;
         const data = await externalHttp.get(url);
 
-        setWeather({
-          description: data.weather[0].description,
-          temperature: Math.round(data.main.temp),
-          icon: data.weather[0].icon,
-          city: data.name || forcedCityName || FALLBACK_LOCATION.label,
-        });
+        const weatherObj = data.weather?.[0];
+        const mainObj = data.main;
+
+        if (weatherObj && mainObj) {
+          setWeather({
+            description: weatherObj.description,
+            temperature: Math.round(mainObj.temp),
+            icon: weatherObj.icon,
+            city: data.name || forcedCityName || FALLBACK_LOCATION.label,
+          });
+        } else {
+          throw new Error('Malformed weather data');
+        }
         setIsLoadingWeather(false);
         setWeatherError(null);
       } catch (error) {
