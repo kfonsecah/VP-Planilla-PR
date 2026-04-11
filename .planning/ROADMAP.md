@@ -32,11 +32,12 @@
 
 **Requirements:** HYG-01, HYG-02, HYG-03
 
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] 26-01-PLAN.md — Auditoría y limpieza de artefactos versionados del repo
-- [ ] 26-02-PLAN.md — Refuerzo de .gitignore multi-stack (backend, frontend, Java)
+- [x] 26-01-PLAN.md — Auditoría y limpieza de artefactos versionados del repo
+- [x] 26-02-PLAN.md — Refuerzo de .gitignore multi-stack (backend, frontend, Java)
+- [ ] 26-03-PLAN.md — Cierre de brechas: artefactos Python y lock files recursivos
 
 #### Phase 25 Planning Snapshot
 
@@ -62,7 +63,7 @@ Plans:
 | 23. Debug y Corrección de Marcas | v1.3 | 2/2 | Complete | 2026-04-09 |
 | 24. Auth Token Lifecycle End-to-End | v1.4 | 3/3 | Complete   | 2026-04-09 |
 | 25. HTTP Client Layer Enforcement | v1.4 | 2/2 | Complete | 2026-04-11 |
-| 26. Repository Hygiene and Build Cleanup | v1.4 | 0/2 | Pending | — |
+| 26. Repository Hygiene and Build Cleanup | v1.4 | 2/3 | In Progress | — |
 | 27. Monolith Decomposition and Maintainability | v1.4 | 0/3 | Pending | — |
 
 ## Archives
