@@ -8,10 +8,15 @@ export const externalHttp = {
    * Does NOT attach any internal Authorization headers.
    */
   async get<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+    const headers = new Headers(options.headers);
+    // Security: ensure no internal tokens are passed to external APIs
+    headers.delete('Authorization');
+
     try {
       const response = await fetch(url, {
         ...options,
         method: 'GET',
+        headers,
       });
 
       if (!response.ok) {
@@ -30,14 +35,19 @@ export const externalHttp = {
    * Perform a POST request to an external URL.
    */
   async post<T = any>(url: string, body?: any, options: RequestInit = {}): Promise<T> {
+    const headers = new Headers(options.headers);
+    // Security: ensure no internal tokens are passed to external APIs
+    headers.delete('Authorization');
+    
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+
     try {
       const response = await fetch(url, {
         ...options,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(options.headers as Record<string, string> || {}),
-        },
+        headers,
         body: body ? JSON.stringify(body) : undefined,
       });
 
