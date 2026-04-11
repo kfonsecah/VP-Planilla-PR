@@ -1,5 +1,6 @@
 // src/hooks/useWeather.ts
 import { useState, useEffect } from 'react';
+import { externalHttp } from '../services/externalHttp';
 
 interface WeatherData {
   description: string;
@@ -38,13 +39,8 @@ export function useWeather() {
       }
 
       try {
-        const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`;
+        const data = await externalHttp.get(url);
 
         setWeather({
           description: data.weather[0].description,
