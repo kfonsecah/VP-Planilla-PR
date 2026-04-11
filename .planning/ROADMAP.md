@@ -39,6 +39,19 @@ Plans:
 - [x] 26-02-PLAN.md — Refuerzo de .gitignore multi-stack (backend, frontend, Java)
 - [x] 26-03-PLAN.md — Cierre de brechas: artefactos Python y lock files recursivos
 
+### Phase 27: Monolith Decomposition and Maintainability
+
+**Goal:** Refactor de archivos monoliticos de alta complejidad separando responsabilidades y desacoplando logica de negocio de UI.
+
+**Requirements:** MOD-01, MOD-02, MOD-03
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 27-01-PLAN.md — Auditoria de complejidad y seleccion de candidatos para descomposicion
+- [ ] 27-02-PLAN.md — Refactor de logica de parsing e importacion de marcas (desacople de Page/Hook)
+- [ ] 27-03-PLAN.md — Cierre de fase y validacion de no regresion con suite de pruebas
+
 #### Phase 25 Planning Snapshot
 
 **Goal:** Eliminar bypasses a `http.ts` y estandarizar el manejo de errores y llamadas a APIs externas.
