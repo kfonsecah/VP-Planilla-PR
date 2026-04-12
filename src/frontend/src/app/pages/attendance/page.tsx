@@ -338,7 +338,10 @@ export default function AttendancePage() {
 
   // Conversión ISO (YYYY-MM-DD) ↔ display (DD/MM/YY) para DatePicker
   const isoToDisplay = (iso: string): string => {
+    if (!iso) return '';
     const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    
     const day = String(d.getUTCDate()).padStart(2, '0');
     const month = String(d.getUTCMonth() + 1).padStart(2, '0');
     const year = String(d.getUTCFullYear()).slice(-2);
@@ -346,10 +349,16 @@ export default function AttendancePage() {
   };
 
   const parseDisplayToISO = (display: string): string => {
-    if (!display || display.length < 8) return '';
-    const [day, month, year] = display.split('/');
+    if (!display || display.length < 5) return '';
+    const parts = display.split('/');
+    if (parts.length !== 3) return '';
+    
+    const [day, month, year] = parts;
     const fullYear = year.length === 2 ? `20${year}` : year;
     const d = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
+    
+    if (isNaN(d.getTime())) return '';
+    
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   };
@@ -786,8 +795,16 @@ const timeStr = typeof horaRaw === 'number'
   };
 
   const formatDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day).toLocaleDateString('es-CR', {
+    if (!dateString) return '—';
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    
+    const [year, month, day] = parts.map(Number);
+    const date = new Date(year, month - 1, day);
+    
+    if (isNaN(date.getTime())) return dateString;
+
+    return date.toLocaleDateString('es-CR', {
       weekday: 'short',
       day: '2-digit',
       month: 'short',

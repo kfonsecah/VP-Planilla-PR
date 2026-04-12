@@ -31,26 +31,26 @@ interface SelectLabelProps {
 const Select: React.FC<SelectProps> = ({ value, onValueChange, placeholder, disabled, className, children }) => (
   <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
     <SelectPrimitive.Trigger
-      className={`inline-flex items-center justify-between w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-100 text-sm hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className || ''}`}
+      className={`inline-flex items-center justify-between w-full px-3 py-2.5 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-100 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className || ''}`}
     >
       <SelectPrimitive.Value placeholder={placeholder} />
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="w-4 h-4 text-zinc-400 flex-shrink-0 ml-2" />
+        <ChevronDownIcon className="w-4 h-4 text-zinc-400 dark:text-zinc-500 flex-shrink-0 ml-2" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
-        className="overflow-hidden bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50"
+        className="overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-50 min-w-[var(--radix-select-trigger-width)]"
         position="popper"
         sideOffset={4}
       >
-        <SelectPrimitive.ScrollUpButton className="flex items-center justify-center h-6 bg-zinc-900 text-zinc-400 cursor-default">
+        <SelectPrimitive.ScrollUpButton className="flex items-center justify-center h-6 bg-white dark:bg-zinc-900 text-zinc-400 cursor-default">
           <ChevronUpIcon className="w-4 h-4" />
         </SelectPrimitive.ScrollUpButton>
         <SelectPrimitive.Viewport className="p-1">
           {children}
         </SelectPrimitive.Viewport>
-        <SelectPrimitive.ScrollDownButton className="flex items-center justify-center h-6 bg-zinc-900 text-zinc-400 cursor-default">
+        <SelectPrimitive.ScrollDownButton className="flex items-center justify-center h-6 bg-white dark:bg-zinc-900 text-zinc-400 cursor-default">
           <ChevronDownIcon className="w-4 h-4" />
         </SelectPrimitive.ScrollDownButton>
       </SelectPrimitive.Content>
@@ -61,7 +61,7 @@ const Select: React.FC<SelectProps> = ({ value, onValueChange, placeholder, disa
 const SelectItem: React.FC<SelectItemProps> = ({ value, children, className }) => (
   <SelectPrimitive.Item
     value={value}
-    className={`relative flex items-center gap-2 px-3 py-2 text-sm text-zinc-100 rounded-md cursor-pointer select-none outline-none hover:bg-zinc-700 focus:bg-zinc-700 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed ${className || ''}`}
+    className={`relative flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 rounded-md cursor-pointer select-none outline-none hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed ${className || ''}`}
   >
     <SelectPrimitive.ItemIndicator>
       <CheckIcon className="w-4 h-4 text-green-500 flex-shrink-0" />
