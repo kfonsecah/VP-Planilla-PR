@@ -200,38 +200,81 @@ const Home: React.FC = () => {
 
         {/* Main grid */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-          {/* Calendar */}
-          <div className="xl:col-span-2 self-start bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-              <div>
-                <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
-                  {monthNames[currentMonth]} {currentYear}
-                </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">{monthlyEvents.length} eventos este mes</p>
+          
+          {/* Calendar and Quick actions - left side */}
+          <div className="xl:col-span-2 space-y-6">
+            {/* Calendar */}
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
+                <div>
+                  <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
+                    {monthNames[currentMonth]} {currentYear}
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-0.5">{monthlyEvents.length} eventos este mes</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth - 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+                    <ChevronLeftIcon className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth + 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+                    <ChevronRightIcon className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth - 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
-                  <ChevronLeftIcon className="w-5 h-5" />
-                </button>
-                <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth + 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
-                  <ChevronRightIcon className="w-5 h-5" />
-                </button>
+              <div className="p-5">
+                <div className="grid grid-cols-7 text-center text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+                  {dayNames.map((d) => <span key={d}>{d}</span>)}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {renderCalendarDays()}
+                </div>
               </div>
             </div>
-            <div className="p-5">
-              <div className="grid grid-cols-7 text-center text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-3">
-                {dayNames.map((d) => <span key={d}>{d}</span>)}
-              </div>
-              <div className="grid grid-cols-7 gap-1">
-                {renderCalendarDays()}
-              </div>
+
+            {/* Quick actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {quickActions.slice(0, 2).map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => router.push(action.href)}
+                  className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group"
+                >
+                  <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
+                    <action.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{action.label}</p>
+                    <p className="text-xs text-zinc-400">{action.description}</p>
+                  </div>
+                  <ArrowRightIcon className="w-4 h-4 text-zinc-300 dark:text-zinc-600 ml-auto group-hover:text-zinc-500 transition-colors flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+
+            {/* Quick actions - second row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {quickActions.slice(2).map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => router.push(action.href)}
+                  className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group"
+                >
+                  <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
+                    <action.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{action.label}</p>
+                    <p className="text-xs text-zinc-400">{action.description}</p>
+                  </div>
+                  <ArrowRightIcon className="w-4 h-4 text-zinc-300 dark:text-zinc-600 ml-auto group-hover:text-zinc-500 transition-colors flex-shrink-0" />
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - right side */}
           <div className="space-y-6">
-            {/* Upcoming events */}
+            {/* Centro de tareas */}
             <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
               <div className="px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800">
                 <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Próximos eventos</h3>
@@ -297,26 +340,6 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Quick actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quickActions.map((action) => (
-            <button
-              key={action.label}
-              onClick={() => router.push(action.href)}
-              className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group"
-            >
-              <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
-                <action.icon className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{action.label}</p>
-                <p className="text-xs text-zinc-400">{action.description}</p>
-              </div>
-              <ArrowRightIcon className="w-4 h-4 text-zinc-300 dark:text-zinc-600 ml-auto group-hover:text-zinc-500 transition-colors flex-shrink-0" />
-            </button>
-          ))}
         </div>
 
         {/* Employees table */}
