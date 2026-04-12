@@ -426,7 +426,19 @@ model vpg_token_blocklist {
   blocklist_id      Int      @id @default(autoincrement())
   blocklist_token   String   @db.VarChar(500)
   blocklist_expires DateTime @db.Timestamp(6)
-  blocklist_created DateTime @default(now()) @db.Timestamp(6)
+  blocklist_created  DateTime @default(now()) @db.Timestamp(6)
 
   @@index([blocklist_token], map: "idx_token_blocklist_token")
+}
+
+model vpg_password_change_request {
+  pcr_id        Int       @id @default(autoincrement())
+  pcr_user_id   Int
+  pcr_code      String    @db.VarChar(255)  // Hashed 6-digit code
+  pcr_expires   DateTime  @db.Timestamp(6)   // 15 minutes from creation
+  pcr_used      Boolean   @default(false)
+  pcr_created   DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([pcr_user_id], map: "idx_password_change_request_user_id")
+  @@index([pcr_expires], map: "idx_password_change_request_expires")
 }
