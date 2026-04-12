@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: — Stability and Integration Hardening
-status: In Progress
-stopped_at: Completed 30-01-PLAN.md
-last_updated: "2026-04-12T05:36:25.325Z"
+status: Archived
+stopped_at: v1.4 Complete
+last_updated: "2026-04-12T06:45:00.000Z"
 last_activity: 2026-04-12
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 11
-  completed_plans: 10
-  percent: 91
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 14
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State — VP-Planilla
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** Phase 29 — Implement changePassword Feature (COMPLETED)
+**Current focus:** Phase 31 — Improve Code Quality & Automation (COMPLETED)
 
 ## Current Position
 
-Phase: 30
-Plan: 01
-Plans: 10/11 milestone plans complete
-Next: Phase 31 - Improve Code Quality & Automation
+Phase: 31
+Plan: Completed
+Plans: 14/14 milestone plans complete
+Next: Milestone v1.4 Final Review / Audit
 Last activity: 2026-04-12
 
-Progress: [██████████] 91% (10/11 plans complete)
+Progress: [██████████] 100% (14/14 plans complete)
 
 ## v1.4 Phase Map
 
@@ -44,6 +44,7 @@ Progress: [██████████] 91% (10/11 plans complete)
 | 28 | Email Notification Module | EMAIL-01..02 | ✅ Complete (2/2 plans) |
 | 29 | Implement changePassword Feature | PASS-01..02 | ✅ Complete (2/2 plans) |
 | 30 | Fix Repository Hygiene | HYG-01..02 | ✅ Complete (1/1 plans) |
+| 31 | Improve Code Quality & Automation | QUAL-01..02 | ✅ Complete (2/2 plans) |
 
 ## Milestone History
 
