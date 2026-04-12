@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/user';
+import { EmailService } from './EmailService';
 
 export interface LoginCredentials {
   username: string;
@@ -348,5 +349,100 @@ export class AuthService {
         },
       },
     });
+  }
+
+  /**
+   * Request password change - generates 6-digit code and sends via email
+   */
+  static async requestPasswordChange(email: string): Promise<{ success: boolean; message: string }> {
+    // Find user by email (using findFirst since email is not unique)
+    const user = await prisma.vpg_users.findFirst({
+      where: { user_email: email }
+    });
+
+    if (!user) {
+      // Return success even if user not found (prevent email enumeration)
+      return { success: true, message: 'If the email exists, a code has been sent' };
+    }
+
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash code with bcrypt (cost 3 for speed since codes are short-lived)
+    const hashedCode = await bcrypt.hash(code, 3);
+
+    // Set expiration to 15 minutes from now
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+    // Store in DB
+    await prisma.vpg_password_change_request.create({
+      data: {
+        pcr_user_id: user.user_id,
+        pcr_code: hashedCode,
+        pcr_expires: expires
+      }
+    });
+
+    // Send email with code using EmailService
+    const emailService = new EmailService();
+    await emailService.sendEmail({
+      to: user.user_email,
+      subject: 'Codigo de verificacion para cambio de contrasena',
+      html: `<p>Su codigo de verificacion es: <strong>${code}</strong></p>
+             <p>Este codigo expira en 15 minutos.</p>
+             <p>Si no solicito este cambio, ignore este correo.</p>`
+    });
+
+    return { success: true, message: 'Code sent to email' };
+  }
+
+  /**
+   * Confirm password change with verification code
+   */
+  static async confirmPasswordChange(code: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    // Validate inputs
+    if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+      return { success: false, message: 'Invalid code format' };
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return { success: false, message: 'Password must be at least 8 characters' };
+    }
+
+    // Find valid (not used, not expired) request
+    const request = await prisma.vpg_password_change_request.findFirst({
+      where: {
+        pcr_used: false,
+        pcr_expires: { gt: new Date() }
+      },
+      orderBy: { pcr_created: 'desc' }
+    });
+
+    if (!request) {
+      return { success: false, message: 'Invalid or expired code' };
+    }
+
+    // Verify code
+    const isValid = await bcrypt.compare(code, request.pcr_code);
+    if (!isValid) {
+      return { success: false, message: 'Invalid code' };
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password
+    await prisma.vpg_users.update({
+      where: { user_id: request.pcr_user_id },
+      data: { user_password: hashedPassword }
+    });
+
+    // Mark code as used
+    await prisma.vpg_password_change_request.update({
+      where: { pcr_id: request.pcr_id },
+      data: { pcr_used: true }
+    });
+
+    return { success: true, message: 'Password changed successfully' };
   }
 }
