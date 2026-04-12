@@ -27,7 +27,11 @@ public class fileReader {
     private final QueryManager queryManager;
 
     public fileReader() {
-        this.queryManager = new QueryManager();
+        this(new QueryManager());
+    }
+
+    public fileReader(QueryManager queryManager) {
+        this.queryManager = queryManager;
     }
 
     /**

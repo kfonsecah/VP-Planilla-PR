@@ -18,8 +18,11 @@ public class ClockLogProcessor {
     private final fileReader reader;
 
     public ClockLogProcessor() {
-        this.reader = new fileReader();
-        new QueryManager();
+        this(new fileReader());
+    }
+
+    public ClockLogProcessor(fileReader reader) {
+        this.reader = reader;
     }
 
     /**
