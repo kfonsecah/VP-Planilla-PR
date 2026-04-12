@@ -53,4 +53,20 @@ export const AuthService = {
       throw error;
     }
   },
+
+  async requestPasswordChange(email: string): Promise<{ success: boolean; message: string }> {
+    return http.post('/password-request', { email }) as Promise<{ success: boolean; message: string }>;
+  },
+
+  async confirmPasswordChange(
+    code: string,
+    new_password: string,
+    confirm_password: string
+  ): Promise<{ success: boolean; message: string }> {
+    return http.post('/password-confirm', { 
+      code, 
+      new_password, 
+      confirm_password 
+    }) as Promise<{ success: boolean; message: string }>;
+  },
 };

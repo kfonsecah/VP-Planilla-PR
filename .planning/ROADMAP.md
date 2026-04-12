@@ -26,7 +26,7 @@
 - [x] **Phase 26: Repository Hygiene and Build Artifacts Cleanup** - Limpiar artefactos versionados y reforzar `.gitignore` multi-stack (completed 2026-04-11)
 - [x] **Phase 27: Monolith Decomposition and Maintainability** - Refactor de archivos monoliticos con pruebas de regresion (completed 2026-04-11)
 - [x] **Phase 28: Email Notification Module** - Módulo de notificaciones por email con Resend (completed 2026-04-11)
-- [ ] **Phase 29: Implement `changePassword` Feature**
+- [x] **Phase 29: Implement `changePassword` Feature** (completed 2026-04-12)
 - [ ] **Phase 30: Fix Repository Hygiene**
 - [ ] **Phase 31: Improve Code Quality & Automation**
 
@@ -79,7 +79,7 @@ Plans:
 **Requirements:** AUTH-09 (TBD)
 **Gap Closure:** Closes gap from v1.4 audit: `changePassword` stub.
 
-**Plans:** 1 plan
+**Plans:** 0/0 plans complete
 
 Plans:
 - [ ] 29-01-PLAN.md — Secure password change with email verification code (6-digit, 15-min expiry)

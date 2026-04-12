@@ -14,7 +14,7 @@
 - [x] **AUTH-06**: El backend invalida tokens revocados/expirados en todos los endpoints protegidos
 - [x] **AUTH-07**: Logout invalida la sesion de forma completa (cliente + servidor) y evita reutilizacion de tokens previos
 - [x] **AUTH-08**: Los errores de autenticacion son uniformes y manejables por el frontend (401/403 con payload consistente)
-- [ ] **AUTH-09**: El usuario puede cambiar su contraseña de forma segura.
+- [x] **AUTH-09**: El usuario puede cambiar su contraseña de forma segura.
 
 ### HTTP Integration Layer (HTTP)
 
@@ -69,7 +69,7 @@
 | AUTH-06 | Phase 24 | Complete |
 | AUTH-07 | Phase 24 | Complete |
 | AUTH-08 | Phase 24 | Complete |
-| AUTH-09 | Phase 29 | Pending |
+| AUTH-09 | Phase 29 | Complete |
 | HTTP-01 | Phase 25 | Complete |
 | HTTP-02 | Phase 25 | Complete |
 | HTTP-03 | Phase 25 | Complete |
