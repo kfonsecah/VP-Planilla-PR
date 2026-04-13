@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: — Stability and Integration Hardening
-status: Archived
-stopped_at: v1.4 Complete
-last_updated: "2026-04-12T07:10:00.000Z"
-last_activity: 2026-04-12
+milestone: v1.5
+milestone_name: milestone
+status: Ready to execute
+last_updated: "2026-04-13T17:08:34.744Z"
+last_activity: 2026-04-13
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_phases: 24
+  completed_phases: 20
+  total_plans: 57
+  completed_plans: 53
+  percent: 93
 ---
 
 # Project State — VP-Planilla
@@ -21,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** Milestone v1.4 Shipped — Stability and Integration Hardening (COMPLETED)
+**Current focus:** Phase 32 — schema-ajustes-aprobacion
 
 ## Current Position
 
-Phase: 31
-Plan: Completed
+Phase: 32 (schema-ajustes-aprobacion) — EXECUTING
+Plan: 2 of 2
 Plans: 15/15 milestone plans complete
 Next: Milestone v1.5 Initialization
-Last activity: 2026-04-12
+Last activity: 2026-04-13
 
 Progress: [██████████] 100% (15/15 plans complete)
 
@@ -56,9 +55,26 @@ Progress: [██████████] 100% (15/15 plans complete)
 | v1.3 | Sistema de Marcas de Reloj Robusto | Archived | 326+ tests |
 | v1.4 | Stability and Integration Hardening | Archived | 441+ tests |
 
+## Phase 32 - Schema Ajustes y Aprobacion (Plan 01 COMPLETED 2026-04-13)
+
+### Decisions
+
+- Used `prisma migrate resolve --applied` to bypass shadow DB limitation from `0_init` column reference DEFAULT expression; applied SQL directly against the database.
+- Mapped existing payroll statuses: `CALCULADO` → `BORRADOR`, `PAGADO` → `PAGADA` before enum conversion.
+- `PayrollStatus` enum uses Spanish values (BORRADOR/APROBADA/PAGADA) matching Costa Rican business domain.
+
+### Summary
+
+- Schema: Added `vpg_clock_log_adjustments` (ADD/EDIT/VOID adjustment types, optimistic locking, nullable FK for ADD case) and `vpg_payroll_recalculations` tables.
+- Schema: Extended `vpg_payrolls` with `PayrollStatus` enum and approval/reopen audit fields.
+- Schema: Added `device` to `ClockLogSource` enum.
+- Models: Updated `ClockLogs` and `Payroll` TypeScript interfaces to match new enum types (auto-fixed TypeScript errors).
+- Migration: 20260413_phase_32_schema_refinement applied — 10/10 payrolls migrated with no data loss.
+
 ## Phase 31 - Improve Code Quality & Automation (COMPLETED 2026-04-12)
 
 ### Summary
+
 - Backend: Centralized environment variables using Zod validation in `src/backend/src/config/env.ts`.
 - Java: Implemented JUnit 5 + Mockito testing baseline for `ClockLogProcessor`.
 - Code Quality: Refactored 34+ direct `process.env` calls to use the new type-safe `env` object.
@@ -67,11 +83,13 @@ Progress: [██████████] 100% (15/15 plans complete)
 ## Accumulated Context
 
 ### Tests
+
 - Backend: 338+ tests (Jest).
 - Java: 5 tests (JUnit 5).
 - Total: 343+ tests passing, 0 failures.
 
 ### Architecture Notes for v1.4
+
 - **Auth Hardening:** Unified token refresh/revocation logic. Error payloads consistent via `buildAuthError`.
 - **HTTP Layer:** All frontend calls must use `http.ts`. Raw `fetch`/`axios` calls are forbidden.
 - **Repository Hygiene:** Git index purged of `.DS_Store`, `.vscode`, and `dependency-reduced-pom.xml`. `package-lock.json` is now tracked in app directories.
