@@ -18,8 +18,8 @@
 - [ ] Phase 32: Schema — Capa de Ajustes + Campos Aprobación Planilla
   **Goal:** Estructurar la base de datos para soportar ajustes no destructivos de marcas y el ciclo de vida de aprobación de planilla.
   **Plans:** 2 plans
-  - [ ] 32-01-PLAN.md — Define models and enums in Prisma schema and apply migration.
-  - [ ] 32-02-PLAN.md — Create Zod schemas for the new models and update existing ones.
+  - [x] 32-01-PLAN.md — Define models and enums in Prisma schema and apply migration.
+  - [x] 32-02-PLAN.md — Create Zod schemas for the new models and update existing ones.
 - [ ] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes
 - [ ] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada)
 - [ ] Phase 35: Frontend — Corrección de Marcas (Agregar/Editar/Anular)

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-status: Ready to execute
-last_updated: "2026-04-13T17:08:34.744Z"
+status: Phase complete — ready for verification
+last_updated: "2026-04-13T17:11:46.899Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 24
-  completed_phases: 20
+  completed_phases: 21
   total_plans: 57
-  completed_plans: 53
-  percent: 93
+  completed_plans: 54
+  percent: 95
 ---
 
 # Project State — VP-Planilla
@@ -62,6 +62,8 @@ Progress: [██████████] 100% (15/15 plans complete)
 - Used `prisma migrate resolve --applied` to bypass shadow DB limitation from `0_init` column reference DEFAULT expression; applied SQL directly against the database.
 - Mapped existing payroll statuses: `CALCULADO` → `BORRADOR`, `PAGADO` → `PAGADA` before enum conversion.
 - `PayrollStatus` enum uses Spanish values (BORRADOR/APROBADA/PAGADA) matching Costa Rican business domain.
+- [Phase 32]: AdjustmentSchema uses z.discriminatedUnion on type so clock_log_id is structurally absent for ADD and required for EDIT/VOID
+- [Phase 32]: PayrollSchema binds status to z.nativeEnum(PayrollStatus) with BORRADOR as default — rejects legacy PENDIENTE values at API boundary
 
 ### Summary
 
