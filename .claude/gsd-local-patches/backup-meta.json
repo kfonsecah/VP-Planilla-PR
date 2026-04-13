@@ -1,0 +1,11 @@
+{
+  "backed_up_at": "2026-04-13T05:46:07.161Z",
+  "from_version": "1.28.0",
+  "from_manifest_timestamp": "2026-03-25T18:31:29.678Z",
+  "files": [
+    "get-shit-done/templates/config.json"
+  ],
+  "pristine_hashes": {
+    "get-shit-done/templates/config.json": "e4a7143cb480c9865819133999632840780e49ec0e0eaaa99fa178d3710585bf"
+  }
+}
