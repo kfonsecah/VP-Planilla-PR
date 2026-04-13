@@ -2,8 +2,9 @@
 
 ## Milestones
 
-- ✅ **v1.3 — Sistema de Marcas de Reloj Robusto** (shipped 2026-04-09)
+- 🔄 **v1.5 — Gestión de Marcas y Planilla para Producción** (in progress)
 - ✅ **v1.4 — Stability and Integration Hardening** (shipped 2026-04-12)
+- ✅ **v1.3 — Sistema de Marcas de Reloj Robusto** (shipped 2026-04-09)
 
 ## Milestone History
 
@@ -12,7 +13,15 @@
   - Auth/HTTP/Hygiene/Modularization requirements fulfilled.
   - 441+ tests total across stacks.
 
-## Phases
+## Phases — v1.5 (Phases 32-38)
+
+- [ ] Phase 32: Schema — Capa de Ajustes + Campos Aprobación Planilla
+- [ ] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes
+- [ ] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada)
+- [ ] Phase 35: Frontend — Corrección de Marcas (Agregar/Editar/Anular)
+- [ ] Phase 36: Backend — State Machine de Planilla + Aguinaldo
+- [ ] Phase 37: Frontend — Wizard de Planilla Quincenal
+- [ ] Phase 38: Tests Unitarios + Verificación de Integración
 
 <details>
 <summary>✅ v1.4 (Phases 24-31) — SHIPPED 2026-04-12</summary>
@@ -40,13 +49,11 @@
 
 </details>
 
-## Next Milestone (v1.5) — TBD
-
-*Phases for v1.5 will be defined during /gsd-new-milestone*
-
 ---
 ## Archives
 
+- **v1.5** requirements: `.planning/milestones/v1.5-REQUIREMENTS.md`
+- **v1.5** roadmap: `.planning/milestones/v1.5-ROADMAP.md`
 - Milestone roadmap archive: `.planning/milestones/v1.4-ROADMAP.md`
 - Milestone roadmap archive: `.planning/milestones/v1.3-ROADMAP.md`
 - Milestone requirements archive: `.planning/milestones/v1.4-REQUIREMENTS.md`
