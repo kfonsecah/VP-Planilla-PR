@@ -44,18 +44,20 @@ export class ClockLogAdjustmentService {
         throw new Error('Marca original no encontrada');
       }
       originalTimestamp = originalLog.clock_logs_timestamp;
-
-      // Check lock for the original timestamp
-      await this.checkPayrollLock(data.employee_id, originalTimestamp);
     }
 
-    // If it's ADD or EDIT, also check lock for the new timestamp
-    if (targetTimestamp) {
-      await this.checkPayrollLock(data.employee_id, targetTimestamp);
-    }
-
-    // 3. Perform atomic operation: Create Adjustment + Create Audit Log
+    // 3. Perform atomic operation: Check Lock + Create Adjustment + Create Audit Log
     return await prisma.$transaction(async (tx) => {
+      // Check lock for the original timestamp (if EDIT/VOID)
+      if (originalTimestamp) {
+        await this.checkPayrollLock(data.employee_id, originalTimestamp, tx);
+      }
+
+      // Check lock for the new timestamp (if ADD/EDIT)
+      if (targetTimestamp) {
+        await this.checkPayrollLock(data.employee_id, targetTimestamp, tx);
+      }
+
       const adjustment = await tx.vpg_clock_log_adjustments.create({
         data: {
           adjustment_clock_log_id: clockLogId,
@@ -83,16 +85,20 @@ export class ClockLogAdjustmentService {
   }
 
   /**
-   * Checks if an employee has a payroll with status 'PAGADA' for a given timestamp.
+   * Checks if an employee has a payroll with status 'PAGADA' or 'APROBADA' for a given timestamp.
    * 
    * @param employeeId - The employee ID
    * @param timestamp - The timestamp to check
+   * @param tx - Optional transaction client
    * @throws Error if a locked payroll is found
    */
-  private static async checkPayrollLock(employeeId: number, timestamp: Date): Promise<void> {
-    const lockedPayroll = await prisma.vpg_payrolls.findFirst({
+  private static async checkPayrollLock(employeeId: number, timestamp: Date, tx?: any): Promise<void> {
+    const prismaClient = tx || prisma;
+    const lockedPayroll = await prismaClient.vpg_payrolls.findFirst({
       where: {
-        payrolls_status: PayrollStatus.PAGADA,
+        payrolls_status: {
+          in: [PayrollStatus.PAGADA, PayrollStatus.APROBADA]
+        },
         payrolls_period_start: { lte: timestamp },
         payrolls_period_end: { gte: timestamp },
         vpg_payroll_employee: {
@@ -104,7 +110,7 @@ export class ClockLogAdjustmentService {
     });
 
     if (lockedPayroll) {
-      throw new Error('No se pueden realizar ajustes a marcas de periodos de planilla con estado PAGADA');
+      throw new Error(`No se pueden realizar ajustes a marcas de periodos de planilla con estado ${lockedPayroll.payrolls_status}`);
     }
   }
 }

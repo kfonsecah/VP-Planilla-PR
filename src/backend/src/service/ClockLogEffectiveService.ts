@@ -111,10 +111,12 @@ export class ClockLogEffectiveService {
       }
     }
 
-    // Group by date
+    // Group by date (using local timezone)
     const groupedByDate = new Map<string, PairedMark[]>();
     for (const pair of pairs) {
-      const dateKey = (pair.in?.effectiveTimestamp || pair.out?.effectiveTimestamp || new Date()).toISOString().split('T')[0];
+      const timestamp = (pair.in?.effectiveTimestamp || pair.out?.effectiveTimestamp || new Date());
+      // 'en-CA' locale returns YYYY-MM-DD which is safe for local dates
+      const dateKey = timestamp.toLocaleDateString('en-CA');
       const existing = groupedByDate.get(dateKey) || [];
       existing.push(pair);
       groupedByDate.set(dateKey, existing);
