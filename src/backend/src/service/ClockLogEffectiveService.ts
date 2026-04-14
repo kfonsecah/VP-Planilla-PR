@@ -16,11 +16,122 @@ export interface EffectiveMark {
   source: ClockLogSource;
 }
 
+export interface PairedMark {
+  in?: EffectiveMark;
+  out?: EffectiveMark;
+  durationHours: number;
+  status: 'valid' | 'orphan' | 'anomaly';
+}
+
+export interface DailyPairedMarks {
+  date: string; // YYYY-MM-DD
+  employeeId: number;
+  pairs: PairedMark[];
+}
+
 /**
  * Service to calculate "Effective Marks" by applying active adjustments to original clock logs.
  * Provides the system's "current state of truth" for attendance.
  */
 export class ClockLogEffectiveService {
+  /**
+   * Fetches effective logs for a specific employee within a date range and pairs them.
+   * 
+   * @param employeeId - The ID of the employee
+   * @param startDate - Start of the range
+   * @param endDate - End of the range
+   * @returns Array of daily paired marks
+   */
+  static async getPairedEffectiveMarks(employeeId: number, startDate: Date, endDate: Date): Promise<DailyPairedMarks[]> {
+    const effectiveLogs = await this.getEffectiveLogs(employeeId, startDate, endDate);
+    
+    // 1. Sort by effectiveTimestamp ASC
+    effectiveLogs.sort((a, b) => a.effectiveTimestamp.getTime() - b.effectiveTimestamp.getTime());
+
+    const pairs: PairedMark[] = [];
+    const usedIds = new Set<number>();
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
+    for (let i = 0; i < effectiveLogs.length; i++) {
+      const current = effectiveLogs[i];
+      if (usedIds.has(current.id)) continue;
+
+      if (current.logType === ClockLogType.IN) {
+        // Look for the next OUT log for the same employee within 24 hours
+        let foundOut = false;
+        for (let j = i + 1; j < effectiveLogs.length; j++) {
+          const next = effectiveLogs[j];
+          
+          if (next.logType === ClockLogType.OUT) {
+            const durationMs = next.effectiveTimestamp.getTime() - current.effectiveTimestamp.getTime();
+            
+            if (durationMs >= 0 && durationMs <= TWENTY_FOUR_HOURS_MS) {
+              // Pair found
+              pairs.push({
+                in: current,
+                out: next,
+                durationHours: durationMs / (1000 * 60 * 60),
+                status: 'valid'
+              });
+              usedIds.add(current.id);
+              usedIds.add(next.id);
+              foundOut = true;
+              break;
+            }
+          } else if (next.logType === ClockLogType.IN) {
+            // Found another IN before an OUT -> Anomaly
+            pairs.push({
+              in: current,
+              durationHours: 0,
+              status: 'anomaly'
+            });
+            usedIds.add(current.id);
+            foundOut = true; // Not really found OUT, but processed
+            break;
+          }
+        }
+
+        if (!foundOut) {
+          // No OUT found within 24 hours -> Orphan
+          pairs.push({
+            in: current,
+            durationHours: 0,
+            status: 'orphan'
+          });
+          usedIds.add(current.id);
+        }
+      } else {
+        // Current is an OUT but not used by any previous IN -> Orphan
+        pairs.push({
+          out: current,
+          durationHours: 0,
+          status: 'orphan'
+        });
+        usedIds.add(current.id);
+      }
+    }
+
+    // Group by date
+    const groupedByDate = new Map<string, PairedMark[]>();
+    for (const pair of pairs) {
+      const dateKey = (pair.in?.effectiveTimestamp || pair.out?.effectiveTimestamp || new Date()).toISOString().split('T')[0];
+      const existing = groupedByDate.get(dateKey) || [];
+      existing.push(pair);
+      groupedByDate.set(dateKey, existing);
+    }
+
+    const result: DailyPairedMarks[] = [];
+    groupedByDate.forEach((dayPairs, date) => {
+      result.push({
+        date,
+        employeeId,
+        pairs: dayPairs
+      });
+    });
+
+    return result.sort((a, b) => a.date.localeCompare(b.date));
+  }
+
   /**
    * Fetches effective logs for a specific employee within a date range.
    * 

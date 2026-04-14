@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ClockLogsService } from "../service/ClockLogsService";
+import { ClockLogEffectiveService } from "./ClockLogEffectiveService";
 import { prisma } from "../lib/prisma";
 import { DeductionsService } from "./DeductionsService";
 import { EmployeeService } from "./EmployeeService";
@@ -891,23 +892,24 @@ export class NomineeService {
     startDate: Date,
     endDate: Date
   ): Promise<Map<number, any[]>> {
-    const logs = await prisma.vpg_clock_logs.findMany({
-      where: {
-        clock_logs_timestamp: {
-          gte: startDate,
-          lte: endDate
-        }
-      }
+    // Use effective marks so EDIT/VOID adjustments are reflected in payroll
+    const effectiveMarksMap = await ClockLogEffectiveService.getEffectiveMarksForAllEmployees(startDate, endDate);
+    
+    const result = new Map<number, any[]>();
+    
+    effectiveMarksMap.forEach((marks, employeeId) => {
+      // Map EffectiveMark fields: effectiveTimestamp → timestamp, logType → log_type
+      const mapped = marks.map(m => ({
+        id: m.id,
+        employee_id: m.employeeId,
+        timestamp: m.effectiveTimestamp,
+        log_type: m.logType,
+        remarks: null,
+      }));
+      result.set(employeeId, mapped);
     });
-    // Map DB field names to the shape expected by processDailyWork and payrollUtils
-    const mapped = logs.map(l => ({
-      id: l.clock_logs_id,
-      employee_id: l.clock_logs_employee_id,
-      timestamp: l.clock_logs_timestamp,
-      log_type: l.clock_logs_log_type,
-      remarks: l.clock_logs_remarks,
-    }));
-    return NomineeService.groupByEmployee(mapped, (item) => item.employee_id);
+    
+    return result;
   }
 
   private static async preloadVacations(): Promise<Map<number, any[]>> {

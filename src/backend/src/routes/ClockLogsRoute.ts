@@ -1,14 +1,21 @@
 import { Router } from "express";
 import { ClockLogsController } from "../controller/ClockLogsController";
+import { ClockLogAdjustmentController } from "../controller/ClockLogAdjustmentController";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AuthMiddleware } from "../middleware/AuthMiddleware";
 import { validateBody } from '../middleware/validateBody';
 import { bulkCreateClockLogSchema, resolveOrphanSchema, createManualLogSchema, updateClockLogStatusSchema } from '../schemas/ClockLogSchema';
+import { createAdjustmentSchema } from '../schemas/AdjustmentSchema';
 
 const router = Router();
 
 router.use(AuthMiddleware.verifyToken);
 const controller = new ClockLogsController();
+const adjustmentController = new ClockLogAdjustmentController();
+
+/**
+ * @swagger
+ * /api/clock-logs/import-sessions:
 
 /**
  * @swagger
@@ -513,5 +520,71 @@ router.post("/clock-logs/correct", AuthMiddleware.requireRole(['admin']), valida
  *         description: Internal server error
  */
 router.patch("/clock-logs/:id/status", AuthMiddleware.requireRole(['admin']), validateBody(updateClockLogStatusSchema), asyncHandler((req, res) => controller.updateClockLogStatus(req, res)));
+
+/**
+ * @swagger
+ * /api/clock-logs/adjust:
+ *   post:
+ *     tags:
+ *       - Clock Logs
+ *     summary: Create clock log adjustment
+ *     description: Create a new adjustment (ADD, EDIT, VOID) for a clock log. Checks for payroll lock.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAdjustmentInput'
+ *     responses:
+ *       '201':
+ *         description: Adjustment created successfully
+ *       '400':
+ *         description: Invalid input
+ *       '403':
+ *         description: Payroll is locked (PAGADA)
+ *       '500':
+ *         description: Internal server error
+ */
+router.post("/clock-logs/adjust", validateBody(createAdjustmentSchema), asyncHandler((req, res) => adjustmentController.createAdjustment(req, res)));
+
+/**
+ * @swagger
+ * /api/clock-logs/effective:
+ *   get:
+ *     tags:
+ *       - Clock Logs
+ *     summary: Get paired effective marks
+ *     description: Retrieve effective marks (original + adjustments) paired into IN/OUT sessions
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: employee_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: initDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: endDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       '200':
+ *         description: Paired marks retrieved successfully
+ *       '400':
+ *         description: Missing or invalid parameters
+ *       '500':
+ *         description: Internal server error
+ */
+router.get("/clock-logs/effective", asyncHandler((req, res) => adjustmentController.getEffectiveMarks(req, res)));
 
 export default router;
