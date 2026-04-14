@@ -176,20 +176,44 @@ describe('AuditLogsService', () => {
     it('sets audit_logs_details to null when details is not provided', async () => {
       await AuditLogsService.createAuditLog({
         userId: 1,
-        action: 'DELETE',
-        entity: 'vpg_employees',
-        entityId: 5,
+        action: 'test',
+        entity: 'test',
+        entityId: 1
       });
 
       expect(prisma.vpg_audit_logs.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            audit_logs_details: null,
-          }),
-        }),
+            audit_logs_details: null
+          })
+        })
       );
     });
-  });
+
+    it('uses the provided transaction client when tx is passed', async () => {
+      const mockTx = {
+        vpg_audit_logs: {
+          create: jest.fn().mockResolvedValue({})
+        }
+      };
+
+      await AuditLogsService.createAuditLog({
+        userId: 1,
+        action: 'tx_test',
+        entity: 'tx_entity',
+        entityId: 100
+      }, mockTx);
+
+      expect(mockTx.vpg_audit_logs.create).toHaveBeenCalled();
+      expect(prisma.vpg_audit_logs.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            audit_logs_action: 'tx_test'
+          })
+        })
+      );
+    });
+    });
 
   describe('getAuditLogById', () => {
     it('returns the mapped audit log when found', async () => {
