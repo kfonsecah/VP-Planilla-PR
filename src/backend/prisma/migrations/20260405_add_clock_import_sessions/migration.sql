@@ -1,3 +1,9 @@
+-- CreateEnum: ClockLogSource (needed by vpg_clock_import_sessions; guard handles duplicate if enum migration already ran)
+DO $$ BEGIN
+  CREATE TYPE "ClockLogSource" AS ENUM ('java_import', 'excel_import', 'manual');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 -- CreateTable: vpg_clock_import_sessions
 CREATE TABLE "vpg_clock_import_sessions" (
     "import_sessions_id" SERIAL NOT NULL,
