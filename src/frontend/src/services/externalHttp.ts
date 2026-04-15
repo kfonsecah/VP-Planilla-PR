@@ -7,7 +7,7 @@ export const externalHttp = {
    * Perform a GET request to an external URL.
    * Does NOT attach any internal Authorization headers.
    */
-  async get<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+  async get<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
     const headers = new Headers(options.headers);
     // Security: ensure no internal tokens are passed to external APIs
     headers.delete('Authorization');
@@ -34,7 +34,7 @@ export const externalHttp = {
   /**
    * Perform a POST request to an external URL.
    */
-  async post<T = any>(url: string, body?: any, options: RequestInit = {}): Promise<T> {
+  async post<T = unknown, B = unknown>(url: string, body?: B, options: RequestInit = {}): Promise<T> {
     const headers = new Headers(options.headers);
     // Security: ensure no internal tokens are passed to external APIs
     headers.delete('Authorization');

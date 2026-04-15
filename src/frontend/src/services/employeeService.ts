@@ -9,6 +9,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
   }
 };
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const createEmployee = async (employeeData: EmployeeFormData): Promise<Employee> => {
   // Normalize fields to match backend schema (uses employee_ prefix)
   const normalizedNationalId = (employeeData.employee_national_id || '').replace(/\D/g, '');
@@ -64,6 +65,7 @@ export interface EmployeeUpdateData {
   exit_date?: string;
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const updateEmployee = async (id: string | number, employeeData: Partial<EmployeeFormData> & { status?: string }): Promise<Employee> => {
   // Backend schema expects employee_ prefix, and only sends fields with actual values
   const payload: Record<string, unknown> = {};

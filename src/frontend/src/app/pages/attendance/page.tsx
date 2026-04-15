@@ -18,6 +18,9 @@ import {
 
 const CR_TIMEZONE = 'America/Costa_Rica';
 
+const normalizeName = (value?: string) =>
+  typeof value === 'string' ? value.trim().toLowerCase() : '';
+
 type NormalizedLogType = 'CHECK_IN' | 'LUNCH_OUT' | 'LUNCH_IN' | 'CHECK_OUT' | 'EXTRA';
 
 interface NormalizedClockLog extends ClockLog {

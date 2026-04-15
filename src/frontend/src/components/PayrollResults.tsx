@@ -18,13 +18,42 @@ interface PayrollResultsProps {
 }
 
 const CARD_CLASS = "bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700 shadow-sm";
+const DASH = '-';
+const DEFAULT_TEXT_CLASS = "text-zinc-700 dark:text-white";
+const DEFAULT_SPAN_CLASS = "text-zinc-600 dark:text-zinc-300";
+const FONT_MEDIUM = "text-sm font-medium";
+// eslint-disable-next-line sonarjs/cognitive-complexity
+const extractEmployeeFields = (emp: Record<string, unknown>, idx: number) => {
+  const daysArray = (emp.days || []) as Array<Record<string, unknown>>;
+  const totalHoursFromDays = daysArray.reduce((sum: number, day: Record<string, unknown>) => sum + ((day.hoursWorked as number) || 0), 0) || 0;
+  const hours = Number(emp.hours ?? emp.total_hours ?? totalHoursFromDays);
+  const regularHours = Number(emp.regularHours ?? emp.regular_hours ?? 0);
+  const overtimeHours = Number(emp.overtimeHours ?? emp.overtime_hours ?? 0);
+  const scheduledHours = Number(emp.scheduledHours ?? emp.scheduled_hours ?? 0);
+  const missingHours = scheduledHours > 0 ? Math.max(0, scheduledHours - regularHours) : 0;
+  const weeklyRestHours = Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0);
+  const weeklyRestPay = Number(emp.weeklyRestPay ?? emp.weekly_rest_pay ?? 0);
+  const overtimePay = Number(emp.overtimePay ?? emp.overtime_pay ?? 0);
+  const employeeName = String(emp.name || emp.employee_name || emp.employeeName || emp.employee || `#${emp.employee_id || emp.id}`);
+  const employeeId = Number(emp.employee_id || emp.employeeId || emp.id || idx);
+  const identification = String(emp.identification || emp.employee_identification || emp.national_id || emp.employee_national_id || emp.nationalId || emp.cedula || '');
+  const position = String(emp.position || emp.position_name || emp.positionName || emp.positionId || emp.position_id || '');
+  const grossSalary = Number(emp.gross ?? emp.grossSalary ?? emp.total_gross ?? 0);
+  const totalDeductions = Number(emp.deductions ?? emp.totalDeductions ?? emp.total_deductions ?? 0);
+  const bonuses = Number(emp.bonuses ?? emp.total_bonuses ?? 0);
+  const netSalary = Number(emp.net ?? emp.netSalary ?? emp.net_salary ?? 0);
+  const deductionsBreakdown = (emp.deductionsBreakdown || emp.deductions_breakdown || []) as Array<Record<string, unknown>>;
+  return { hours, regularHours, overtimeHours, scheduledHours, missingHours, weeklyRestHours, weeklyRestPay, overtimePay, employeeName, employeeId, identification, position, grossSalary, totalDeductions, bonuses, netSalary, deductionsBreakdown };
+};
 
 export default function PayrollResults({ data, onCreate }: PayrollResultsProps) {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Cast data to a workable type
-  const payrollData = data as Record<string, unknown>;
+  const payrollData = (data || {}) as Record<string, unknown>;
+  const employees = payrollData.employees as unknown[] | undefined;
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   const getEmployeeExcelData = (emp: Record<string, unknown>) => {
     return {
       name: emp.name || emp.employee_name || emp.employeeName || 'N/A',
@@ -399,42 +428,16 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-zinc-900 dark:bg-zinc-900 divide-y divide-[#E0D6B7] dark:divide-gray-700">
+                  {/* eslint-disable-next-line sonarjs/cognitive-complexity */}
                   {employees.map((e: unknown, idx: number) => {
                     const emp = e as Record<string, unknown>;
                     // DEBUG: Log each employee object
                     console.log('Employee object for display:', emp);
                     console.log('All emp keys:', Object.keys(emp));
-                    
-                    // Calculate total hours from days array if available
-                    const daysArray = (emp.days || []) as Array<Record<string, unknown>>;
-                    const totalHoursFromDays = daysArray.reduce((sum: number, day: Record<string, unknown>) => sum + ((day.hoursWorked as number) || 0), 0) || 0;
-                    const hours = Number(emp.hours ?? emp.total_hours ?? totalHoursFromDays);
-                    const regularHours  = Number(emp.regularHours   ?? emp.regular_hours   ?? 0);
-                    const overtimeHours = Number(emp.overtimeHours  ?? emp.overtime_hours  ?? 0);
-                    const scheduledHours = Number(emp.scheduledHours ?? emp.scheduled_hours ?? 0);
-                    const missingHours  = scheduledHours > 0 ? Math.max(0, scheduledHours - regularHours) : 0;
-                    const weeklyRestHours = Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0);
-                    const weeklyRestPay = Number(emp.weeklyRestPay ?? emp.weekly_rest_pay ?? 0);
-                    const overtimePay = Number(emp.overtimePay ?? emp.overtime_pay ?? 0);
-                    
-                    // Get employee details
-                    const employeeName = String(emp.name || emp.employee_name || emp.employeeName || emp.employee || `#${emp.employee_id || emp.id}`);
-                    const employeeId = Number(emp.employee_id || emp.employeeId || emp.id || idx);
-                    const identification = String(emp.identification || emp.employee_identification || emp.national_id || emp.employee_national_id || emp.nationalId || emp.cedula || '');
-                    const position = String(emp.position || emp.position_name || emp.positionName || emp.positionId || emp.position_id || '');
-                    
-                    console.log('Extracted values - name:', employeeName, 'id:', employeeId, 'identification:', identification, 'position:', position);
-                    
-                    // Get salary values
-                    const grossSalary = Number(emp.gross ?? emp.grossSalary ?? emp.total_gross ?? 0);
-                    const totalDeductions = Number(emp.deductions ?? emp.totalDeductions ?? emp.total_deductions ?? 0);
-                    const bonuses = Number(emp.bonuses ?? emp.total_bonuses ?? 0);
-                    const netSalary = Number(emp.net ?? emp.netSalary ?? emp.net_salary ?? 0);
-                    
+
+                    const { hours, regularHours, overtimeHours, scheduledHours, missingHours, weeklyRestHours, weeklyRestPay, overtimePay, employeeName, employeeId, identification, position, grossSalary, totalDeductions, bonuses, netSalary, deductionsBreakdown } = extractEmployeeFields(emp, idx);
+
                     const isExpanded = expandedRows.has(employeeId);
-                    
-                    // Obtener el desglose de deducciones
-                    const deductionsBreakdown = (emp.deductionsBreakdown || emp.deductions_breakdown || []) as Array<Record<string, unknown>>;
                     
                     return (
                       <React.Fragment key={employeeId}>
@@ -474,17 +477,18 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                 )}
                               </div>
                             ) : (
-                              <span className="text-sm text-zinc-600 dark:text-zinc-300">-</span>
+                              <span className="text-sm text-zinc-600 dark:text-zinc-300">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : DASH}</span>
                             )}
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm text-zinc-600 dark:text-zinc-300">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}</span>
+                            <span className="text-sm text-zinc-600 dark:text-zinc-300">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : DASH}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className="text-sm text-zinc-600 dark:text-zinc-300">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : '-'}</span>
+                            <span className="text-sm text-zinc-600 dark:text-zinc-300">{weeklyRestPay > 0 ? formatCRC(weeklyRestPay) : DASH}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
-                            <span className={`text-sm font-medium ${overtimePay > 0 ? 'text-orange-600' : 'text-zinc-600 dark:text-zinc-300'}`}>{overtimePay > 0 ? formatCRC(overtimePay) : '-'}</span>
+                            {/* eslint-disable-next-line sonarjs/no-duplicate-string */}
+                            <span className={`${FONT_MEDIUM} ${overtimePay > 0 ? 'text-orange-600' : DEFAULT_SPAN_CLASS}`}>{overtimePay > 0 ? formatCRC(overtimePay) : DASH}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap">
                             <span className="text-sm font-medium text-zinc-700 dark:text-white">{formatCRC(grossSalary)}</span>
@@ -522,15 +526,15 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                       </div>
                                       <div className="px-4 py-3">
                                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Faltantes</p>
-                                        <p className={`text-lg font-bold ${missingHours > 0 ? 'text-red-600' : 'text-zinc-700 dark:text-white'}`}>{missingHours}h</p>
+                                        <p className={`text-lg font-bold ${missingHours > 0 ? 'text-red-600' : DEFAULT_TEXT_CLASS}`}>{missingHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
                                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Extras (×1.5)</p>
-                                        <p className={`text-lg font-bold ${overtimeHours > 0 ? 'text-orange-600' : 'text-zinc-700 dark:text-white'}`}>{overtimeHours}h</p>
+                                        <p className={`text-lg font-bold ${overtimeHours > 0 ? 'text-orange-600' : DEFAULT_TEXT_CLASS}`}>{overtimeHours}h</p>
                                       </div>
                                       <div className="px-4 py-3">
                                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Descanso</p>
-                                        <p className="text-lg font-bold text-zinc-700 dark:text-white">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : '-'}h</p>
+                                        <p className="text-lg font-bold text-zinc-700 dark:text-white">{weeklyRestHours > 0 ? weeklyRestHours.toFixed(2) : DASH}h</p>
                                       </div>
                                     </div>
                                   </div>

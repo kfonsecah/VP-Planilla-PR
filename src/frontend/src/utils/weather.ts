@@ -15,6 +15,12 @@ const FALLBACK_LOCATION = {
   label: process.env.NEXT_PUBLIC_DEFAULT_CITY || 'San José',
 };
 
+interface OpenWeatherResponse {
+  weather: Array<{ description: string; icon: string }>;
+  main: { temp: number };
+  name: string;
+}
+
 export function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
@@ -40,7 +46,7 @@ export function useWeather() {
 
       try {
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`;
-        const data = await externalHttp.get(url);
+        const data = await externalHttp.get<OpenWeatherResponse>(url);
 
         const weatherObj = data.weather?.[0];
         const mainObj = data.main;

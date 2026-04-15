@@ -77,6 +77,7 @@ export class ApiError extends Error {
  * - Validation errors: { validationErrors: { field: "message" } }
  * - Details: { details: "..." }
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 async function parseErrorResponse(res: Response): Promise<{ message: string; fieldErrors: Record<string, string> | null; errorCode: string | null }> {
   let data: unknown;
   try {
@@ -212,6 +213,7 @@ async function tryRefreshToken(): Promise<string> {
   return refreshInFlightPromise;
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 async function rawRequest(inputPath: string, options: RequestInit = {}, retry = true): Promise<Response> {
   const url = inputPath.startsWith('http') ? inputPath : API_BASE + (inputPath.startsWith('/') ? '' : '/') + inputPath;
 

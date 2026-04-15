@@ -126,9 +126,9 @@ export const getClockLogViewModel = (log: Record<string, unknown>) => {
   
   return {
     ...log,
-    displaySource: SOURCE_LABELS[log.source] ?? log.source,
-    displayTimestamp: new Date(log.timestamp).toLocaleString('es-CR'),
-    statusText: STATUS_NAMES[log.status] ?? log.status,
+    displaySource: SOURCE_LABELS[String(log.source)] ?? log.source,
+    displayTimestamp: new Date(String(log.timestamp)).toLocaleString('es-CR'),
+    statusText: STATUS_NAMES[String(log.status)] ?? log.status,
     isProblematic,
     actionButtonLabel: isProblematic ? 'Corregir' : 'Ver',
     typeBadgeClasses: `inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${

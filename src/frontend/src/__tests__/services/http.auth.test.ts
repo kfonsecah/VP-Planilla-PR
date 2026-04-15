@@ -2,6 +2,9 @@ import { ApiError, http, setOnAuthFailure } from '@/services/http';
 
 const VP_ACCESS_TOKEN = 'vp_access_token';
 const VP_REFRESH_TOKEN = 'vp_refresh_token';
+const OLD_ACCESS_TOKEN = 'old-access-token';
+const REFRESH_TOKEN = 'refresh-token';
+const NEW_ACCESS_TOKEN = 'new-access-token';
 
 function createMockResponse(status: number, body: unknown) {
   return {
@@ -28,14 +31,14 @@ describe('http auth lifecycle', () => {
   });
 
   it('single-flight: concurrent 401 responses trigger only one refresh request', async () => {
-    localStorage.setItem(VP_ACCESS_TOKEN, 'old-access-token');
-    localStorage.setItem(VP_REFRESH_TOKEN, 'refresh-token');
+    localStorage.setItem(VP_ACCESS_TOKEN, OLD_ACCESS_TOKEN);
+    localStorage.setItem(VP_REFRESH_TOKEN, REFRESH_TOKEN);
 
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
-      .mockResolvedValueOnce(createMockResponse(200, { token: 'new-access-token', refresh_token: 'new-refresh-token' }))
+      .mockResolvedValueOnce(createMockResponse(200, { token: NEW_ACCESS_TOKEN, refresh_token: 'new-refresh-token' }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { id: 1 } }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { id: 2 } }));
 
@@ -50,13 +53,13 @@ describe('http auth lifecycle', () => {
   });
 
   it('retries original request once after successful refresh and returns data', async () => {
-    localStorage.setItem(VP_ACCESS_TOKEN, 'old-access-token');
-    localStorage.setItem(VP_REFRESH_TOKEN, 'refresh-token');
+    localStorage.setItem(VP_ACCESS_TOKEN, OLD_ACCESS_TOKEN);
+    localStorage.setItem(VP_REFRESH_TOKEN, REFRESH_TOKEN);
 
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(createMockResponse(401, { error: { code: 'AUTH_TOKEN_EXPIRED' } }))
-      .mockResolvedValueOnce(createMockResponse(200, { token: 'new-access-token' }))
+      .mockResolvedValueOnce(createMockResponse(200, { token: NEW_ACCESS_TOKEN }))
       .mockResolvedValueOnce(createMockResponse(200, { data: { ok: true } }));
 
     setFetchMock(fetchMock);

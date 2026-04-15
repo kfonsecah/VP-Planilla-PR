@@ -249,7 +249,7 @@ const LaborEventsCalendar: React.FC<Props> = ({
     }
   };
 
-  const handleDatesSet = (arg: { start: Date; end: Date; view: any }) => {
+  const handleDatesSet = (arg: { start: Date; end: Date; view: unknown }) => {
     try {
       if (!onVisibleRangeChange) return;
 
