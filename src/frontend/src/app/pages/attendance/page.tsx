@@ -33,217 +33,127 @@ const LOG_LABELS: Record<NormalizedLogType, string> = {
   EXTRA: 'Extra'
 };
 
+const IN_KEYWORDS = ['in', 'entrada', 'entry', 'start'];
+const OUT_KEYWORDS = ['out', 'salida', 'exit', 'end', 'salida final', 'fin turno'];
+const LUNCH_OUT_KEYWORDS = [
+  'almuerzo out', 'almuerzo', 'almuerzo_salida', 'break_out',
+  'lunch_out', 'lunch start', 'break start', 'salida almuerzo'
+];
+const LUNCH_IN_KEYWORDS = [
+  'almuerzo in', 'break_in', 'lunch_in', 'lunch end',
+  'break end', 'almuerzo_entrada', 'entrada almuerzo'
+];
+
+/**
+ * Extracts the hour from a timestamp string in the Costa Rica timezone.
+ */
+const getHourFromTimestamp = (timestamp?: string): number | undefined => {
+  if (!timestamp) return undefined;
+  try {
+    return parseInt(
+      new Intl.DateTimeFormat('en-US', { timeZone: CR_TIMEZONE, hour: 'numeric', hour12: false }).format(new Date(timestamp)),
+      10
+    );
+  } catch {
+    return undefined;
+  }
+};
+
 const normalizeLogType = (value?: string, timestamp?: string): NormalizedLogType | null => {
-   if (!value) return null;
-   const normalized = value.toLowerCase().trim();
-   
-   // Si tiene timestamp, intentar inferir por hora cuando el tipo es genérico
-   let hour: number | undefined;
-   if (timestamp) {
-     try {
-       hour = parseInt(
-         new Intl.DateTimeFormat('en-US', { timeZone: CR_TIMEZONE, hour: 'numeric', hour12: false }).format(new Date(timestamp)),
-         10
-       );
-     } catch {}
-   }
-   
-   if (['in', 'entrada', 'entry', 'start'].includes(normalized)) {
-     // Inferir entrada de almuerzo si la hora está entre 11:30–14:30
-     if (hour !== undefined && hour >= 11 && hour < 14) return 'LUNCH_IN';
-     return 'CHECK_IN';
-   }
-   
-   if (['out', 'salida', 'exit', 'end', 'salida final', 'fin turno'].includes(normalized)) {
-     if (hour !== undefined) {
-       if (hour >= 11 && hour < 14) return 'LUNCH_OUT';   // 11:00–13:59
-       if (hour >= 16) return 'CHECK_OUT';                 // 16:00–23:59
-     }
-     return 'CHECK_OUT'; // default
-   }
-   
-   if (
-     [
-       'almuerzo out',
-       'almuerzo',
-       'almuerzo_salida',
-       'break_out',
-       'lunch_out',
-       'lunch start',
-       'break start',
-       'salida almuerzo'
-     ].includes(normalized)
-   )
-     return 'LUNCH_OUT';
-   if (
-     [
-       'almuerzo in',
-       'break_in',
-       'lunch_in',
-       'lunch end',
-       'break end',
-       'almuerzo_entrada',
-       'entrada almuerzo'
-     ].includes(normalized)
-   )
-     return 'LUNCH_IN';
-   return null;
- };
+  if (!value) return null;
+  const normalized = value.toLowerCase().trim();
+  const hour = getHourFromTimestamp(timestamp);
 
-const normalizeName = (value?: string) =>
-  (value || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  if (LUNCH_OUT_KEYWORDS.includes(normalized)) return 'LUNCH_OUT';
+  if (LUNCH_IN_KEYWORDS.includes(normalized)) return 'LUNCH_IN';
 
-const excelDateToJsDate = (value: unknown): Date | null => {
-  if (value == null || value === '') return null;
-
-  if (value instanceof Date) {
-    return new Date(value.getTime());
+  if (IN_KEYWORDS.includes(normalized)) {
+    const isLunchIn = hour !== undefined && hour >= 11 && hour < 14;
+    return isLunchIn ? 'LUNCH_IN' : 'CHECK_IN';
   }
 
-  if (typeof value === 'number') {
-    // Excel stores dates as number of days since 1900-01-01 (with 1900-01-01 = 1)
-    const excelEpoch = new Date(1900, 0, 1);
-    const daysOffset = value - 1; // Excel counts from 1, not 0
-    const msPerDay = 86400000;
-    const date = new Date(excelEpoch.getTime() + daysOffset * msPerDay);
-    return date;
+  if (OUT_KEYWORDS.includes(normalized)) {
+    if (hour !== undefined && hour >= 11 && hour < 14) return 'LUNCH_OUT';
+    if (hour !== undefined && hour >= 16) return 'CHECK_OUT';
+    return 'CHECK_OUT';
   }
-
-  const asString = String(value).trim();
-  if (!asString) return null;
-
-  const timestamp = Date.parse(asString);
-  if (!Number.isNaN(timestamp)) return new Date(timestamp);
 
   return null;
 };
 
-const buildDateTimeFromParts = (dateValue: unknown, timeValue: unknown): Date | null => {
-  console.log('buildDateTimeFromParts - dateValue:', dateValue, 'tipo:', typeof dateValue);
-  console.log('buildDateTimeFromParts - timeValue:', timeValue, 'tipo:', typeof timeValue);
-  
-  let datePart: Date | null = null;
+/**
+ * Converts an Excel serial date number to a JavaScript Date object.
+ * Excel dates are the number of days since Dec 30, 1899.
+ */
+const excelDateToJsDate = (serial: number): Date => {
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400;
+  const date_info = new Date(utc_value * 1000);
 
-  // Intentar parsear la fecha según su tipo
-  if (typeof dateValue === 'number') {
-    // Número de Excel
-    datePart = excelDateToJsDate(dateValue);
-  } else if (typeof dateValue === 'string') {
-    const dateStr = dateValue.trim();
-    
-    // Formato ISO: 2025-01-06 o 2025/01/06
-    if (dateStr.match(/^\d{4}[-\/]\d{2}[-\/]\d{2}/)) {
-      // Parsear manualmente para evitar problemas de timezone
-      const parts = dateStr.split(/[-\/]/);
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      datePart = new Date(year, month, day, 0, 0, 0, 0);
-      console.log('  -> Parseado como ISO:', datePart, 'válido:', !isNaN(datePart.getTime()));
-    }
-    // Formato dd/mm/yyyy o dd-mm-yyyy
-    else if (dateStr.match(/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/)) {
-      const parts = dateStr.split(/[-\/]/);
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1; // Mes en JS es 0-indexed
-      const year = parseInt(parts[2], 10);
-      datePart = new Date(year, month, day, 0, 0, 0, 0);
-      console.log('  -> Parseado como dd/mm/yyyy:', datePart, 'válido:', !isNaN(datePart.getTime()));
-    }
-    // Intentar parseo directo
-    else {
-      datePart = new Date(dateStr);
-      console.log('  -> Parseo directo:', datePart, 'válido:', !isNaN(datePart.getTime()));
-    }
-  } else if (dateValue instanceof Date) {
-    datePart = dateValue;
+  const fractional_day = serial - Math.floor(serial) + 0.0000001;
+  let total_seconds = Math.floor(86400 * fractional_day);
+
+  const seconds = total_seconds % 60;
+  total_seconds -= seconds;
+
+  const hours = Math.floor(total_seconds / (60 * 60));
+  const minutes = Math.floor(total_seconds / 60) % 60;
+
+  return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+};
+
+const parseDateValue = (dateValue: unknown): Date | null => {
+  if (typeof dateValue === 'number') return excelDateToJsDate(dateValue);
+  if (dateValue instanceof Date) return dateValue;
+  if (typeof dateValue !== 'string') return null;
+
+  const dateStr = dateValue.trim();
+  const isoMatch = dateStr.match(/^\d{4}[-\/]\d{2}[-\/]\d{2}/);
+  if (isoMatch) {
+    const parts = dateStr.split(/[-\/]/);
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
   }
 
-  if (!datePart || isNaN(datePart.getTime())) {
-    console.log('  ❌ Fecha inválida - datePart:', datePart);
-    return null;
+  const dmyMatch = dateStr.match(/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/);
+  if (dmyMatch) {
+    const parts = dateStr.split(/[-\/]/);
+    return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10), 0, 0, 0, 0);
   }
 
-  console.log('  ✅ Fecha base válida:', datePart.toString());
-  
-  if (timeValue == null || timeValue === '') {
-    console.log('  ⏰ Sin hora, retornando fecha base');
-    return datePart;
-  }
+  return new Date(dateStr);
+};
+
+const applyTimeToDate = (datePart: Date, timeValue: unknown): Date | null => {
+  if (timeValue == null || timeValue === '') return datePart;
 
   if (timeValue instanceof Date) {
-    try {
-      datePart.setHours(timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
-      if (isNaN(datePart.getTime())) {
-        console.log('  ❌ Fecha inválida después de setHours (Date)');
-        return null;
-      }
-      console.log('  ✅ Con hora (Date):', datePart.toString());
-      return datePart;
-    } catch (e) {
-      console.log('  ❌ Error aplicando hora (Date):', e);
-      return datePart;
-    }
+    datePart.setHours(timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
+    return isNaN(datePart.getTime()) ? null : datePart;
   }
 
   if (typeof timeValue === 'number') {
-    try {
-      // Excel time is fraction of a day (0.5 = 12:00)
-      const totalSeconds = Math.round(timeValue * 86400);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      
-      datePart.setHours(hours, minutes, seconds, 0);
-      if (isNaN(datePart.getTime())) {
-        console.log('  ❌ Fecha inválida después de setHours (number)');
-        return null;
-      }
-      console.log('  ✅ Con hora (number):', datePart.toString());
-      return datePart;
-    } catch (e) {
-      console.log('  ❌ Error aplicando hora (number):', e);
-      return datePart;
-    }
+    const totalSeconds = Math.round(timeValue * 86400);
+    datePart.setHours(Math.floor(totalSeconds / 3600), Math.floor((totalSeconds % 3600) / 60), totalSeconds % 60, 0);
+    return isNaN(datePart.getTime()) ? null : datePart;
   }
 
-  const timeString = String(timeValue).trim();
-  if (!timeString) {
-    console.log('  ⚠️ timeString vacío, retornando fecha base');
-    return datePart;
-  }
-  
-  try {
-    const timeParts = timeString.split(':');
-    const hours = parseInt(timeParts[0], 10);
-    const minutes = timeParts[1] ? parseInt(timeParts[1], 10) : 0;
-    const seconds = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
-    
-    console.log('  ⏰ Parseando hora string:', { hours, minutes, seconds });
-    
-    if (Number.isNaN(hours) || hours < 0 || hours > 23) {
-      console.log('  ❌ Horas inválidas:', hours);
-      return datePart;
-    }
-    
-    datePart.setHours(hours, Number.isNaN(minutes) ? 0 : minutes, Number.isNaN(seconds) ? 0 : seconds, 0);
-    
-    if (isNaN(datePart.getTime())) {
-      console.log('  ❌ Fecha inválida después de setHours (string)');
-      return null;
-    }
-    
-    console.log('  ✅ Con hora (string):', datePart.toString());
-    return datePart;
-  } catch (e) {
-    console.log('  ❌ Error aplicando hora (string):', e);
-    return datePart;
-  }
+  const timeParts = String(timeValue).trim().split(':');
+  const hours = parseInt(timeParts[0], 10);
+  if (isNaN(hours) || hours < 0 || hours > 23) return datePart;
+
+  datePart.setHours(
+    hours,
+    timeParts[1] ? parseInt(timeParts[1], 10) : 0,
+    timeParts[2] ? parseInt(timeParts[2], 10) : 0,
+    0
+  );
+  return isNaN(datePart.getTime()) ? null : datePart;
+};
+
+const buildDateTimeFromParts = (dateValue: unknown, timeValue: unknown): Date | null => {
+  const datePart = parseDateValue(dateValue);
+  if (!datePart || isNaN(datePart.getTime())) return null;
+  return applyTimeToDate(datePart, timeValue);
 };
 
 const parseDateInput = (value: string, endOfDay = false) => {
@@ -401,141 +311,131 @@ export default function AttendancePage() {
     );
   };
 
-   const parseExcelMarks = async (file: File) => {
-     try {
-       const { Workbook } = await import('exceljs');
-       const buffer = await file.arrayBuffer();
-       const workbook = new Workbook();
-       await workbook.xlsx.load(buffer);
-       const ws = workbook.worksheets[0];
-       if (!ws) throw new Error('No hay hojas');
+const detectExcelColumns = (headers: string[]) => {
+  const colEmployeeId = headers.findIndex(h => /empleado|employee|id/.test(h));
+  const colFecha = headers.findIndex(h => /^fecha$|^date$/.test(h));
+  const colHora = headers.findIndex(h => /^hora$|^time$/.test(h));
+  const colTimestamp = colFecha === -1 ? headers.findIndex(h => /timestamp|fecha|hora|date|time/.test(h)) : colFecha;
+  const colLogType = headers.findIndex(h => /tipo|log_type|marca|log type/.test(h));
 
-       const allData: unknown[][] = [];
-       ws.eachRow({ includeEmpty: true }, (row) => {
-         const rowData: unknown[] = [];
-         row.eachCell({ includeEmpty: true }, (cell) => {
-           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-           let value: any = cell.value;
-           if (cell.formula) value = cell.result ?? cell.value;
-           rowData.push(value);
-         });
-         allData.push(rowData);
-       });
+  return {
+    emp: colEmployeeId !== -1 ? colEmployeeId : 0,
+    ts: colTimestamp !== -1 ? colTimestamp : 1,
+    hora: (colFecha !== -1 && colHora !== -1) ? colHora : -1,
+    type: colLogType !== -1 ? colLogType : 2
+  };
+};
 
-       const rows = allData.filter(r => Array.isArray(r) && r.some(c => c != null && String(c).trim() !== ''));
-       if (rows.length === 0) return { logs: [], stats: { totalRows: 0, validRows: 0, matchedRows: 0, unmatchedEmployees: 0 } };
+const formatExcelTime = (horaRaw: number): string => {
+  const totalMinutes = Math.round(horaRaw * 24 * 60);
+  return `${String(Math.floor(totalMinutes / 60)).padStart(2, '0')}:${String(totalMinutes % 60).padStart(2, '0')}`;
+};
 
-       let headerRowIndex = 0;
-       const rawHeaders = rows[0].map(c => String(c || '').trim());
-       const looksLikeHeaders = rawHeaders.some(h => /empleado|fecha|hora|nombre|date|time|timestamp|tipo|log_type|marca/i.test(h));
-       if (!looksLikeHeaders) headerRowIndex = -1;
+const getExcelDateStr = (tsRaw: unknown): string | null => {
+  if (typeof tsRaw === 'number') {
+    return excelDateToJsDate(tsRaw).toISOString().split('T')[0];
+  }
+  const raw = String(tsRaw).split('T')[0];
+  const dmyMatch = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (dmyMatch) {
+    const year = dmyMatch[3].length === 2 ? `20${dmyMatch[3]}` : dmyMatch[3];
+    return `${year}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+  }
+  return raw;
+};
 
-       const headers = rows[headerRowIndex].map(h => String(h || '').toLowerCase());
-       const colEmployeeId = headers.findIndex(h => /empleado|employee|id/.test(h));
-       // Detect separate date + time columns (e.g. "Fecha" and "Hora")
-       const colFecha = headers.findIndex(h => /^fecha$|^date$/.test(h));
-       const colHora = headers.findIndex(h => /^hora$|^time$/.test(h));
-       const colTimestamp = colFecha === -1
-         ? headers.findIndex(h => /timestamp|fecha|hora|date|time/.test(h))
-         : colFecha;
-       const hasSeparateTime = colFecha !== -1 && colHora !== -1;
-       const colLogType = headers.findIndex(h => /tipo|log_type|marca|log type/.test(h));
+const parseExcelTimestamp = (tsRaw: unknown, horaRaw: unknown): Date | null => {
+  if (typeof tsRaw === 'string' && tsRaw.includes(' ') && !horaRaw) {
+    return new Date(tsRaw.replace(' ', 'T'));
+  }
 
-       const useCols = {
-         emp: colEmployeeId !== -1 ? colEmployeeId : 0,
-         ts: colTimestamp !== -1 ? colTimestamp : 1,
-         hora: hasSeparateTime ? colHora : -1,
-         type: colLogType !== -1 ? colLogType : 2
-       };
+  if (horaRaw !== null) {
+    const dateStr = getExcelDateStr(tsRaw);
+    const timeStr = typeof horaRaw === 'number' ? formatExcelTime(horaRaw) : String(horaRaw).trim();
+    return dateStr ? new Date(`${dateStr}T${timeStr}:00`) : null;
+  }
 
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-       const logs: any[] = [];
-       const unmatched = new Set<string>();
-       let matchedRows = 0;
-       const dataRows = rows.slice(headerRowIndex + 1);
+  if (typeof tsRaw === 'string' && /^\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(tsRaw)) {
+    return buildDateTimeFromParts(tsRaw, '');
+  }
 
-       dataRows.forEach((row, idx) => {
-         const empRaw = row[useCols.emp];
-         const empIdNum = empRaw != null ? Number(empRaw) : NaN;
-         const empId = !isNaN(empIdNum) ? empIdNum : null;
-         // Pass raw value as employee_name so backend can resolve by name when ID doesn't match
-         const empName = empId === null && empRaw != null ? String(empRaw).trim() : '';
-         const tsRaw = row[useCols.ts];
-         // Combine separate date + time columns when present
-         const horaRaw = useCols.hora !== -1 ? row[useCols.hora] : null;
-         const logType = row[useCols.type] ? String(row[useCols.type]).trim() : null;
+  return typeof tsRaw === 'number' ? excelDateToJsDate(tsRaw) : new Date(String(tsRaw));
+};
 
-         if (!tsRaw || !logType) {
-           unmatched.add(`Fila ${idx}: datos faltantes`);
-           return;
-         }
+const parseExcelMarks = async (file: File) => {
+  try {
+    const { Workbook } = await import('exceljs');
+    const buffer = await file.arrayBuffer();
+    const workbook = new Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.worksheets[0];
+    if (!ws) throw new Error('No hay hojas');
 
-         let ts: Date | null = null;
-         if (typeof tsRaw === 'string' && tsRaw.includes(' ') && !horaRaw) {
-           ts = new Date(tsRaw.replace(' ', 'T'));
-         } else if (horaRaw !== null) {
-           // Separate date + time columns: combine them
-           let dateStr: string | null = null;
-           if (typeof tsRaw === 'number') {
-             dateStr = excelDateToJsDate(tsRaw)?.toISOString().split('T')[0] ?? null;
-           } else {
-             const raw = String(tsRaw).split('T')[0];
-             // Convert DD/MM/YYYY or DD-MM-YYYY → YYYY-MM-DD
-             const dmyMatch = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-             if (dmyMatch) {
-               const [, d, m, y] = dmyMatch;
-               const year = y.length === 2 ? `20${y}` : y;
-               dateStr = `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-             } else {
-               dateStr = raw; // assume already ISO
-             }
-           }
-const timeStr = typeof horaRaw === 'number'
-              ? (() => {
-                  const totalMinutes = Math.round(horaRaw * 24 * 60);
-                  const hours = Math.floor(totalMinutes / 60);
-                  const minutes = totalMinutes % 60;
-                  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                })()
-              : String(horaRaw).trim();
-           ts = dateStr ? new Date(`${dateStr}T${timeStr}:00`) : null;
-         } else if (typeof tsRaw === 'string' && /^\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(tsRaw)) {
-           ts = buildDateTimeFromParts(tsRaw, '');
-         } else if (typeof tsRaw === 'number') {
-           ts = excelDateToJsDate(tsRaw);
-         } else {
-           ts = new Date(String(tsRaw));
-         }
+    const allData: unknown[][] = [];
+    ws.eachRow({ includeEmpty: true }, (row) => {
+      const rowData: unknown[] = [];
+      row.eachCell({ includeEmpty: true }, (cell) => {
+        let value: unknown = cell.value;
+        if (cell.formula) value = cell.result ?? cell.value;
+        rowData.push(value);
+      });
+      allData.push(rowData);
+    });
 
-         if (!ts || isNaN(ts.getTime())) {
-           unmatched.add(`Fila ${idx}: timestamp inválido`);
-           return;
-         }
+    const rows = allData.filter(r => Array.isArray(r) && r.some(c => c != null && String(c).trim() !== ''));
+    if (rows.length === 0) return { logs: [], stats: { totalRows: 0, validRows: 0, matchedRows: 0, unmatchedEmployees: 0 } };
 
-         logs.push({
-           id: logs.length + 1,
-           employee_id: empId,
-           employee_name: empName,
-           timestamp: ts.toISOString(),
-           log_type: logType,
-           remarks: undefined,
-           version: 1
-         });
-         matchedRows++;
-       });
+    let headerRowIndex = 0;
+    const rawHeaders = rows[0].map(c => String(c || '').trim());
+    if (!rawHeaders.some(h => /empleado|fecha|hora|nombre|date|time|timestamp|tipo|log_type|marca/i.test(h))) {
+      headerRowIndex = -1;
+    }
 
-       return {
-         logs,
-         stats: { totalRows: dataRows.length, validRows: logs.length, matchedRows, unmatchedEmployees: unmatched.size }
-       };
-       
-     } catch (err) {
-       console.error('Error parseExcel:', err);
-       throw err;
-     } finally {
-       setIsImporting(false);
-     }
-   };
+    const headers = rows[headerRowIndex === -1 ? 0 : headerRowIndex].map(h => String(h || '').toLowerCase());
+    const useCols = detectExcelColumns(headers);
+
+    const logs: ClockLog[] = [];
+    const unmatched = new Set<string>();
+    const dataRows = rows.slice(headerRowIndex + 1);
+
+    dataRows.forEach((row, idx) => {
+      const empRaw = row[useCols.emp];
+      const empIdNum = empRaw != null ? Number(empRaw) : NaN;
+      const empId = !isNaN(empIdNum) ? empIdNum : null;
+      const tsRaw = row[useCols.ts];
+      const logType = row[useCols.type] ? String(row[useCols.type]).trim() : null;
+
+      if (!tsRaw || !logType) {
+        unmatched.add(`Fila ${idx}: datos faltantes`);
+        return;
+      }
+
+      const ts = parseExcelTimestamp(tsRaw, useCols.hora !== -1 ? row[useCols.hora] : null);
+      if (!ts || isNaN(ts.getTime())) {
+        unmatched.add(`Fila ${idx}: timestamp inválido`);
+        return;
+      }
+
+      logs.push({
+        id: logs.length + 1,
+        employee_id: empId,
+        employee_name: empId === null && empRaw != null ? String(empRaw).trim() : '',
+        timestamp: ts.toISOString(),
+        log_type: logType,
+        version: 1
+      });
+    });
+
+    return {
+      logs,
+      stats: { totalRows: dataRows.length, validRows: logs.length, matchedRows: logs.length, unmatchedEmployees: unmatched.size }
+    };
+  } catch (err) {
+    console.error('Error parseExcel:', err);
+    throw err;
+  }
+};
+
 
   const formatEmployeeName = (emp: Pick<Employee, 'name'>) => emp.name;
 
@@ -733,6 +633,36 @@ const timeStr = typeof horaRaw === 'number'
      }
    };
 
+  const getLogsForRange = async (): Promise<{ logs: ClockLog[]; source: 'excel' | 'api' }> => {
+    if (uploadedLogs.length > 0) {
+      const rangeStart = parseDateInput(startDate);
+      const rangeEnd = parseDateInput(endDate, true);
+      if (rangeStart === null || rangeEnd === null) {
+        throw new Error('No se pudo interpretar el rango seleccionado');
+      }
+
+      const logs = uploadedLogs.filter((log) => {
+        const timestamp = new Date(log.timestamp).getTime();
+        return timestamp >= rangeStart && timestamp <= rangeEnd;
+      });
+      return { logs, source: 'excel' };
+    }
+
+    const logs = await ClockLogsService.getClockLogs(startDate, endDate);
+    return { logs, source: 'api' };
+  };
+
+  const ensureEmployees = async (): Promise<Employee[]> => {
+    if (employees.length > 0) return employees;
+    try {
+      const emps = (await getEmployees()) as unknown as Employee[];
+      setEmployees(emps);
+      return emps;
+    } catch {
+      return [];
+    }
+  };
+
   const handleFetch = async () => {
     if (!startDate || !endDate) {
       toast.error('Selecciona fecha de inicio y fin');
@@ -742,25 +672,7 @@ const timeStr = typeof horaRaw === 'number'
     setIsLoading(true);
     setError(null);
     try {
-      let logs: ClockLog[] = [];
-      let source: 'excel' | 'api' = 'api';
-
-      if (uploadedLogs.length > 0) {
-        const rangeStart = parseDateInput(startDate);
-        const rangeEnd = parseDateInput(endDate, true);
-        if (rangeStart === null || rangeEnd === null) {
-          toast.error('No se pudo interpretar el rango seleccionado');
-          return;
-        }
-
-        logs = uploadedLogs.filter((log) => {
-          const timestamp = new Date(log.timestamp).getTime();
-          return timestamp >= rangeStart && timestamp <= rangeEnd;
-        });
-        source = 'excel';
-      } else {
-        logs = await ClockLogsService.getClockLogs(startDate, endDate);
-      }
+      const { logs, source } = await getLogsForRange();
 
       if (!logs.length) {
         setData([]);
@@ -768,13 +680,7 @@ const timeStr = typeof horaRaw === 'number'
         return;
       }
 
-      let currentEmployees = employees;
-      if (currentEmployees.length === 0) {
-        try {
-          currentEmployees = (await getEmployees()) as unknown as Employee[];
-          setEmployees(currentEmployees);
-        } catch { /* proceed with empty list */ }
-      }
+      const currentEmployees = await ensureEmployees();
       const processed = processAttendanceData(logs, source, currentEmployees);
       setData(processed);
       toast.success(

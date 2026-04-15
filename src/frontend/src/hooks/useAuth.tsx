@@ -6,6 +6,10 @@ import { AuthService } from '@/services/authService';
 import { http } from '@/services/http';
 import { useUser, User } from '@/hooks/user';
 
+const STORAGE_KEY_ACCESS = 'vp_access_token';
+const STORAGE_KEY_USER = 'vp_user';
+const AUTH_PAGE_PATH = '/pages/auth';
+
 interface AuthLoginResponse {
   token?: string;
   refresh_token?: string | null;
@@ -30,8 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Initialize from stored tokens/user
     try {
-      const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const access = typeof window !== 'undefined' ? localStorage.getItem('vp_access_token') : null;
+      const storedUser = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_USER) : null;
+      const access = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_ACCESS) : null;
       const refresh = typeof window !== 'undefined' ? localStorage.getItem('vp_refresh_token') : null;
 
       if (access) {
@@ -52,8 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // clear local state and redirect to auth
         http.clearTokens();
         setUser(null);
-        localStorage.removeItem('user');
-        router.push('/pages/auth');
+        localStorage.removeItem(STORAGE_KEY_USER);
+        router.push(AUTH_PAGE_PATH);
       });
     } finally {
       setLoading(false);
@@ -73,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       http.setTokens(token, refresh);
       if (userData) {
         try {
-          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userData));
         } catch {}
         setUser(userData);
       }
@@ -82,8 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       http.setOnAuthFailure(() => {
         http.clearTokens();
         setUser(null);
-        localStorage.removeItem('user');
-        router.push('/pages/auth');
+        localStorage.removeItem(STORAGE_KEY_USER);
+        router.push(AUTH_PAGE_PATH);
       });
 
     } finally {
@@ -93,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('vp_access_token') : null;
+      const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_ACCESS) : null;
       if (token) {
         try {
           await AuthService.logout(token);
@@ -104,8 +108,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       http.clearTokens();
       setUser(null);
-      localStorage.removeItem('user');
-      router.push('/pages/auth');
+      localStorage.removeItem(STORAGE_KEY_USER);
+      router.push(AUTH_PAGE_PATH);
     }
   };
 

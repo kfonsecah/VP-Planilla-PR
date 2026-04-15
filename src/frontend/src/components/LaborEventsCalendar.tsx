@@ -27,6 +27,64 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 
+// Helper: parse backend date strings into local Date objects
+function parseBackendDateToLocal(dateStr?: string | null): Date | undefined {
+  if (!dateStr) return undefined;
+  try {
+    const utcMidnightRegex = /^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.000)?Z$/;
+    const m = String(dateStr).match(utcMidnightRegex);
+    if (m) {
+      const [y, mo, d] = m[1].split('-').map(Number);
+      return new Date(y, mo - 1, d, 0, 0, 0);
+    }
+    const parsed = new Date(dateStr);
+    if (isNaN(parsed.getTime())) return undefined;
+    return parsed;
+  } catch {
+    return undefined;
+  }
+}
+
+function getStatusClass(status?: string): string {
+  if (status === 'completed') return 'status-completed';
+  if (status === 'cancelled') return 'status-inactive';
+  return 'status-active';
+}
+
+function resolveEventDate(dateValue: string | Date | null | undefined): Date | undefined {
+  if (!dateValue) return undefined;
+  return dateValue instanceof Date
+    ? parseBackendDateToLocal(dateValue.toISOString())
+    : parseBackendDateToLocal(dateValue);
+}
+
+function toCalendarEvent(event: EmployeeLaborEvent, employees: Employee[]): EventInput {
+  const emp = employees.find(e => String(e.id) === String(event.employee_id));
+  const employeeName = emp ? emp.name : 'Empleado';
+  const titleName = event.labor_event_name || `Evento #${event.labor_event_id}`;
+
+  const startDate = resolveEventDate(event.start_date);
+  let endDate = resolveEventDate(event.end_date ?? undefined);
+
+  const isAllDay = typeof event.start_date === 'string' && /T00:00:00(?:\.000)?Z$/.test(String(event.start_date));
+  if (isAllDay && startDate && (!endDate || endDate.getTime() <= startDate.getTime())) {
+    const nd = new Date(startDate);
+    nd.setDate(nd.getDate() + 1);
+    endDate = nd;
+  }
+
+  return {
+    id: String(event.id),
+    title: `${titleName} - ${employeeName}`,
+    start: startDate,
+    end: endDate || undefined,
+    allDay: isAllDay,
+    textColor: '#FFFFFF',
+    classNames: [getStatusClass(event.status)],
+    extendedProps: { ...event },
+  };
+}
+
 interface Props {
   onEventClick?: (event: EmployeeLaborEvent) => void;
   onDateSelect?: (start: Date, end: Date) => void;
@@ -64,88 +122,35 @@ const LaborEventsCalendar: React.FC<Props> = ({
     setCalendarKey(prev => prev + 1);
   }, [events.length, employees.length]); // Only trigger when the count changes, not the full arrays
 
-  // Helper: parse backend date strings into local Date objects
-  function parseBackendDateToLocal(dateStr?: string | null) {
-    if (!dateStr) return undefined;
-    try {
-      const utcMidnightRegex = /^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.000)?Z$/;
-      const m = String(dateStr).match(utcMidnightRegex);
-      if (m) {
-        const [y, mo, d] = m[1].split('-').map(Number);
-        return new Date(y, mo - 1, d, 0, 0, 0);
-      }
-
-      const parsed = new Date(dateStr);
-      if (isNaN(parsed.getTime())) return undefined;
-      return parsed;
-    } catch {
-      return undefined;
-    }
-  }
-
-  // Convert events to FullCalendar format
-  const calendarEvents: EventInput[] = events.map(event => {
-    const emp = employees.find(e => String(e.id) === String(event.employee_id));
-    const employeeName = emp ? emp.name : 'Empleado';
-    const titleName = event.labor_event_name || `Evento #${event.labor_event_id}`;
-
-    const startDate = parseBackendDateToLocal(event.start_date instanceof Date ? event.start_date.toISOString() : event.start_date);
-    let endDate = parseBackendDateToLocal(event.end_date instanceof Date ? event.end_date.toISOString() : (event.end_date ?? undefined));
-
-    const isAllDay = typeof event.start_date === 'string' && /T00:00:00(?:\.000)?Z$/.test(String(event.start_date));
-    if (isAllDay) {
-      if (!endDate || (startDate && endDate && endDate.getTime() <= (startDate.getTime()))) {
-        if (startDate) {
-          const nd = new Date(startDate);
-          nd.setDate(nd.getDate() + 1);
-          endDate = nd;
-        }
-      }
-    }
-
-    // Assign a semantic class name based on status so CSS can control the pill colors
-    const statusClass = event.status === 'completed'
-      ? 'status-completed'
-      : event.status === 'cancelled'
-        ? 'status-inactive'
-        : 'status-active';
-
-    return {
-      id: String(event.id),
-      title: `${titleName} - ${employeeName}`,
-      start: startDate,
-      end: endDate || undefined,
-      allDay: isAllDay,
-      // keep text color consistent; let CSS handle background/border via the status class
-      textColor: '#FFFFFF',
-      classNames: [statusClass],
-      extendedProps: { ...event }
-    };
-  });
-
-  // Add preview event if provided
-  if (preview) {
+  const getPreviewEvent = (): EventInput | null => {
+    if (!preview) return null;
     const emp = employees.find(e => String(e.id) === String(preview.employee_id));
     const empName = emp ? emp.name : 'Empleado';
     const title = preview.labor_event_name || 'Evento (previsualización)';
     const start = preview.start_date ? (preview.start_date instanceof Date ? preview.start_date : parseBackendDateToLocal(String(preview.start_date))) : undefined;
     const end = preview.end_date ? (preview.end_date instanceof Date ? preview.end_date : parseBackendDateToLocal(String(preview.end_date))) : undefined;
 
-    if (start) {
-      // cast to any so we can include backgroundColor/borderColor for preview without TS errors
-      calendarEvents.push(({
-        id: 'preview',
-        title: `${title} - ${empName}`,
-        start,
-        end: end || undefined,
-        allDay: false,
-        backgroundColor: '#F59E0B',
-        borderColor: '#D97706',
-        textColor: '#FFFFFF',
-        classNames: ['status-preview'],
-        extendedProps: { ...preview, __isPreview: true }
-      } as EventInput));
-    }
+    if (!start) return null;
+
+    return {
+      id: 'preview',
+      title: `${title} - ${empName}`,
+      start,
+      end: end || undefined,
+      allDay: false,
+      backgroundColor: '#F59E0B',
+      borderColor: '#D97706',
+      textColor: '#FFFFFF',
+      classNames: ['status-preview'],
+      extendedProps: { ...preview, __isPreview: true }
+    } as EventInput;
+  };
+
+  // Convert events to FullCalendar format
+  const calendarEvents: EventInput[] = events.map(event => toCalendarEvent(event, employees));
+  const previewEvent = getPreviewEvent();
+  if (previewEvent) {
+    calendarEvents.push(previewEvent);
   }
 
   const openMenuForEvent = (ev: { id: string | number }, clientX: number, clientY: number) => {
@@ -244,6 +249,27 @@ const LaborEventsCalendar: React.FC<Props> = ({
     }
   };
 
+  const handleDatesSet = (arg: { start: Date; end: Date; view: any }) => {
+    try {
+      if (!onVisibleRangeChange) return;
+
+      // Use view.currentStart/currentEnd to get the logical visible range of the current view
+      const view = arg.view as typeof arg.view & { currentStart?: Date; currentEnd?: Date };
+      const rawStart = view?.currentStart ?? arg.start;
+      const rawEnd = view?.currentEnd ?? arg.end;
+
+      if (rawStart && rawEnd) {
+        // Normalize to day boundaries to avoid off-by-one month issues
+        const start = new Date(rawStart);
+        start.setHours(0,0,0,0);
+        const end = new Date(rawEnd);
+        // FullCalendar's currentEnd is typically exclusive; subtract 1ms to make it inclusive
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        onVisibleRangeChange(start, end);
+      }
+    } catch {}
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-96 text-[#8B8B8B] dark:text-zinc-500">Cargando eventos...</div>;
   }
@@ -282,24 +308,7 @@ const LaborEventsCalendar: React.FC<Props> = ({
           eventClick={handleEventClick}
           select={handleDateSelect}
           selectable={true}
-          datesSet={(arg) => {
-            try {
-              // Use view.currentStart/currentEnd to get the logical visible range of the current view
-              const view = arg.view as typeof arg.view & { currentStart?: Date; currentEnd?: Date };
-              const rawStart = view?.currentStart ?? arg.start;
-              const rawEnd = view?.currentEnd ?? arg.end;
-
-              if (rawStart && rawEnd && onVisibleRangeChange) {
-                // Normalize to day boundaries to avoid off-by-one month issues
-                const start = new Date(rawStart);
-                start.setHours(0,0,0,0);
-                const end = new Date(rawEnd);
-                // FullCalendar's currentEnd is typically exclusive; subtract 1ms to make it inclusive
-                end.setMilliseconds(end.getMilliseconds() - 1);
-                onVisibleRangeChange(start, end);
-              }
-            } catch {}
-          }}
+          datesSet={handleDatesSet}
           locale="es"
           height="100%"
           aspectRatio={1.5}

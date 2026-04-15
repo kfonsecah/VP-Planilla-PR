@@ -5,7 +5,6 @@ import ClockLogStatusBadge from '@/components/ClockLogStatusBadge';
 interface DailyRowProps {
   log: EffectiveClockLog;
   onAddMissing?: (type: 'in' | 'out') => void;  // stub — no-op in Phase 34
-  onCorrect?: () => void;  // stub — no-op in Phase 34
 }
 
 const SourceTraceabilityIcon: React.FC<{ source: string; status: string }> = ({ source, status }) => {

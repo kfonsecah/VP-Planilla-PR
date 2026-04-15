@@ -17,6 +17,8 @@ interface EditEmployeePageProps {
   }>;
 }
 
+const EMPLOYEE_LIST_PATH = '/pages/employee/list';
+
 /**
  * Página de edición de empleado individual
  * Permite actualizar todos los datos de un empleado existente
@@ -73,7 +75,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
       await update(updates);
       toast.success('Empleado actualizado correctamente');
       setTimeout(() => {
-        router.push('/pages/employee/list');
+        router.push(EMPLOYEE_LIST_PATH);
       }, 1500);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error al actualizar empleado');
@@ -171,7 +173,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push('/pages/employee/list')}
+                onClick={() => router.push(EMPLOYEE_LIST_PATH)}
                 className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white rounded-lg hover:bg-[#F5F1E8] dark:hover:bg-[#333333] transition-colors border border-zinc-300 dark:border-zinc-700"
               >
                 <ArrowLeftIcon className="w-5 h-5" />
@@ -188,7 +190,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
               <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
               <div className="flex items-center justify-center gap-3">
                 <button
-                  onClick={() => router.push('/pages/employee/list')}
+                  onClick={() => router.push(EMPLOYEE_LIST_PATH)}
                   className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm font-medium"
                 >
                   Volver a la lista
@@ -208,7 +210,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/pages/employee/list')}
+              onClick={() => router.push(EMPLOYEE_LIST_PATH)}
               className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white rounded-lg hover:bg-[#F5F1E8] dark:hover:bg-[#333333] transition-colors border border-zinc-300 dark:border-zinc-700"
             >
               <ArrowLeftIcon className="w-5 h-5" />
@@ -461,7 +463,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
-                    onClick={() => router.push('/pages/employee/list')}
+                    onClick={() => router.push(EMPLOYEE_LIST_PATH)}
                     disabled={isSubmitting}
                     className="flex-1 px-4 py-3 text-zinc-700 dark:text-white border border-[#3B4D36] dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 font-medium"
                   >

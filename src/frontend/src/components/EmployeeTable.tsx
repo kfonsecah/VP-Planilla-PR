@@ -1,4 +1,8 @@
 import React, { useState, useMemo } from 'react';
+
+const EMPLOYEE_TABLE_CELL_CLASS = 'px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none';
+const EMPLOYEE_TD_FIRED_CLASS = 'text-red-400 line-through';
+const EMPLOYEE_TD_NORMAL_CLASS = 'text-zinc-700 dark:text-zinc-100';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -61,7 +65,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   };
 
   const sortedEmployees = useMemo(() => {
-    const sorted = [...employees].sort((a, b) => {
+    return [...employees].sort((a, b) => {
       let aValue: string | number;
       let bValue: string | number;
 
@@ -99,8 +103,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       }
       return 0;
     });
-
-    return sorted;
   }, [employees, sortColumn, sortDirection]);
 
   const renderSortIcon = (column: SortColumn) => {
@@ -182,31 +184,31 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               <tr>
                 <th 
                   onClick={() => handleSort('name')}
-                  className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none"
+                  className={EMPLOYEE_TABLE_CELL_CLASS}
                 >
                   Nombre{renderSortIcon('name')}
                 </th>
                 <th 
                   onClick={() => handleSort('position')}
-                  className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none"
+                  className={EMPLOYEE_TABLE_CELL_CLASS}
                 >
                   Posición{renderSortIcon('position')}
                 </th>
                 <th 
                   onClick={() => handleSort('salary')}
-                  className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none"
+                  className={EMPLOYEE_TABLE_CELL_CLASS}
                 >
                   Salario <span className="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 normal-case">x Hora</span>{renderSortIcon('salary')}
                 </th>
                 <th 
                   onClick={() => handleSort('extraHours')}
-                  className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none"
+                  className={EMPLOYEE_TABLE_CELL_CLASS}
                 >
                   Hora Extra <span className="text-[10px] font-normal text-zinc-400 dark:text-zinc-500 normal-case">(x1.5)</span>{renderSortIcon('extraHours')}
                 </th>
                 <th 
                   onClick={() => handleSort('status')}
-                  className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors select-none"
+                  className={EMPLOYEE_TABLE_CELL_CLASS}
                 >
                   Estado{renderSortIcon('status')}
                 </th>
@@ -227,16 +229,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                       : 'bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
                   }`}
                 >
-                  <td className={`px-6 py-3.5 text-sm font-semibold ${isFired ? 'text-red-400 line-through' : 'text-zinc-700 dark:text-zinc-100'}`}>
+                  <td className={`px-6 py-3.5 text-sm font-semibold ${isFired ? EMPLOYEE_TD_FIRED_CLASS : EMPLOYEE_TD_NORMAL_CLASS}`}>
                     {employee.name}
                   </td>
-                  <td className={`px-6 py-3.5 text-sm ${isFired ? 'text-red-300' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                  <td className={`px-6 py-3.5 text-sm ${isFired ? EMPLOYEE_TD_FIRED_CLASS : 'text-zinc-500 dark:text-zinc-400'}`}>
                     {employee.position}
                   </td>
-                  <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? 'text-red-300' : 'text-zinc-700 dark:text-zinc-100'}`}>
+                  <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? EMPLOYEE_TD_FIRED_CLASS : EMPLOYEE_TD_NORMAL_CLASS}`}>
                     {formatSalary(employee.salary)}
                   </td>
-                  <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? 'text-red-300' : 'text-zinc-700 dark:text-zinc-100'}`}>
+                  <td className={`px-6 py-3.5 text-sm font-medium ${isFired ? EMPLOYEE_TD_FIRED_CLASS : EMPLOYEE_TD_NORMAL_CLASS}`}>
                     {formatSalary(employee.salary * 1.5)}
                   </td>
                   <td className="px-6 py-3.5">

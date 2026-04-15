@@ -21,6 +21,16 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
+const ATTENDANCE_PATH = "/pages/attendance";
+const CARD_CONTAINER_CLASSES = "bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800";
+const ICON_BUTTON_CLASSES = "p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors";
+const EVENT_STATUS_ACTIVE = "active";
+const EVENT_STATUS_COMPLETED = "completed";
+const ACTIVE_BADGE_CLASSES = "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+const COMPLETED_BADGE_CLASSES = "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+const TEXT_ZINC_400_10PX = "text-[10px] text-zinc-400";
+const NOT_ASSIGNED = "Sin asignar";
+
 interface CalendarEvent {
   date: number;
   type: "highlighted" | "today";
@@ -72,7 +82,7 @@ const Home: React.FC = () => {
   const today = new Date();
   const safeEvents = events ?? [];
   const employeeList = employees ?? [];
-  const activeEventsCount = safeEvents.filter((e) => e.status === "active").length;
+  const activeEventsCount = safeEvents.filter((e) => e.status === EVENT_STATUS_ACTIVE).length;
 
   const monthlyEvents = visibleRangeStart && visibleRangeEnd
     ? safeEvents.filter((ev) => {
@@ -103,7 +113,7 @@ const Home: React.FC = () => {
 
   const statCards = [
     { label: "Empleados activos", value: employeeList.length, icon: UserGroupIcon, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20", action: () => router.push("/pages/employee/list") },
-    { label: "Asistencias pendientes", value: stats?.incompleteAssistance ?? 0, icon: ClipboardDocumentCheckIcon, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", action: () => router.push("/pages/attendance") },
+    { label: "Asistencias pendientes", value: stats?.incompleteAssistance ?? 0, icon: ClipboardDocumentCheckIcon, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", action: () => router.push(ATTENDANCE_PATH) },
     { label: "Eventos activos", value: activeEventsCount, icon: CalendarIcon, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20", action: () => router.push("/pages/employee/events") },
     { label: "En vacaciones", value: stats?.onVacation ?? 0, icon: ClockIcon, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20", action: () => router.push("/pages/vacations") },
   ];
@@ -111,12 +121,12 @@ const Home: React.FC = () => {
   const quickActions = [
     { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll", color: "bg-green-600 hover:bg-green-500" },
     { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500" },
-    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: "/pages/attendance", color: "bg-blue-600 hover:bg-blue-500" },
+    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500" },
     { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500" },
   ];
 
   const actionItems = [
-    { title: "Asistencias por revisar", value: stats?.incompleteAssistance ?? 0, description: "Registros con inconsistencias", href: "/pages/attendance", icon: ClipboardDocumentCheckIcon, accent: "text-amber-600" },
+    { title: "Asistencias por revisar", value: stats?.incompleteAssistance ?? 0, description: "Registros con inconsistencias", href: ATTENDANCE_PATH, icon: ClipboardDocumentCheckIcon, accent: "text-amber-600" },
     { title: "Vacaciones activas", value: stats?.onVacation ?? 0, description: "Colaboradores fuera de oficina", href: "/pages/vacations", icon: ClockIcon, accent: "text-purple-600" },
     { title: "Eventos activos", value: activeEventsCount, description: "Actividades laborales en curso", href: "/pages/employee/events", icon: CalendarIcon, accent: "text-green-600" },
     { title: "Marcas de control", description: "Revisar anomalías y corregir", href: "/pages/clock-logs", icon: ClockIcon, accent: "text-indigo-600" },
@@ -184,7 +194,7 @@ const Home: React.FC = () => {
             <button
               key={stat.label}
               onClick={stat.action}
-              className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 text-left hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all cursor-pointer group"
+              className={`${CARD_CONTAINER_CLASSES} p-4 text-left hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all cursor-pointer group`}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className={`w-9 h-9 rounded-lg ${stat.bg} flex items-center justify-center`}>
@@ -204,7 +214,7 @@ const Home: React.FC = () => {
           {/* Calendar and Quick actions - left side */}
           <div className="xl:col-span-2 space-y-6">
             {/* Calendar */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className={`${CARD_CONTAINER_CLASSES} overflow-hidden`}>
               <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
                 <div>
                   <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">
@@ -213,10 +223,10 @@ const Home: React.FC = () => {
                   <p className="text-xs text-zinc-400 mt-0.5">{monthlyEvents.length} eventos este mes</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth - 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth - 1, 1))} className={ICON_BUTTON_CLASSES}>
                     <ChevronLeftIcon className="w-5 h-5" />
                   </button>
-                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth + 1, 1))} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+                  <button onClick={() => setCurrentDate(new Date(currentYear, currentMonth + 1, 1))} className={ICON_BUTTON_CLASSES}>
                     <ChevronRightIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -237,7 +247,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
-                  className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group"
+                  className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
                     <action.icon className="w-5 h-5" />
@@ -257,7 +267,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
-                  className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group"
+                  className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
                     <action.icon className="w-5 h-5" />
@@ -275,7 +285,7 @@ const Home: React.FC = () => {
           {/* Sidebar - right side */}
           <div className="space-y-6">
             {/* Centro de tareas */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className={`${CARD_CONTAINER_CLASSES} overflow-hidden`}>
               <div className="px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800">
                 <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Próximos eventos</h3>
               </div>
@@ -295,15 +305,15 @@ const Home: React.FC = () => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200 truncate">{event.labor_event_name || "Evento"}</p>
-                          <p className="text-[10px] text-zinc-400 truncate">{employee?.name ?? "Sin asignar"}</p>
-                          {start && <p className="text-[10px] text-zinc-400 mt-0.5">{start.toLocaleDateString("es-CR", { day: "numeric", month: "short" })}</p>}
+                          <p className={`${TEXT_ZINC_400_10PX} truncate`}>{employee?.name ?? NOT_ASSIGNED}</p>
+                          {start && <p className={`${TEXT_ZINC_400_10PX} mt-0.5`}>{start.toLocaleDateString("es-CR", { day: "numeric", month: "short" })}</p>}
                         </div>
                         <span className={`flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          event.status === "active" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" :
-                          event.status === "completed" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400" :
+                          event.status === EVENT_STATUS_ACTIVE ? ACTIVE_BADGE_CLASSES :
+                          event.status === EVENT_STATUS_COMPLETED ? COMPLETED_BADGE_CLASSES :
                           "bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
                         }`}>
-                          {event.status === "active" ? "Activo" : event.status === "completed" ? "Completado" : "Pendiente"}
+                          {event.status === EVENT_STATUS_ACTIVE ? "Activo" : event.status === EVENT_STATUS_COMPLETED ? "Completado" : "Pendiente"}
                         </span>
                       </div>
                     );
@@ -313,7 +323,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* Task center */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className={`${CARD_CONTAINER_CLASSES} overflow-hidden`}>
               <div className="px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800">
                 <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Centro de tareas</h3>
               </div>
@@ -328,7 +338,7 @@ const Home: React.FC = () => {
                       <item.icon className={`w-4 h-4 ${item.accent}`} />
                       <div>
                         <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{item.title}</p>
-                        <p className="text-[10px] text-zinc-400">{item.description}</p>
+                        <p className={TEXT_ZINC_400_10PX}>{item.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -343,7 +353,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Employees table */}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className={`${CARD_CONTAINER_CLASSES} overflow-hidden`}>
           <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
             <div>
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Empleados recientes</h3>
@@ -370,7 +380,7 @@ const Home: React.FC = () => {
                   return (
                     <tr key={employee.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                       <td className="px-5 py-3 font-medium text-zinc-800 dark:text-zinc-100">{employee.name}</td>
-                      <td className="px-5 py-3 text-zinc-500 dark:text-zinc-400">{employee.position || "Sin asignar"}</td>
+                      <td className="px-5 py-3 text-zinc-500 dark:text-zinc-400">{employee.position || NOT_ASSIGNED}</td>
                       <td className="px-5 py-3 font-medium text-zinc-800 dark:text-zinc-100">{salaryDisplay}</td>
                       <td className="px-5 py-3 text-center"><span className={badge.className}>{badge.text}</span></td>
                     </tr>
@@ -393,7 +403,7 @@ const Home: React.FC = () => {
                   {attentionEmployees.map((emp) => (
                     <div key={emp.id} className="flex items-center justify-between text-xs bg-white dark:bg-zinc-900 rounded-lg px-3 py-2 border border-amber-200/50 dark:border-amber-800/50">
                       <span className="font-medium text-zinc-700 dark:text-zinc-200">{emp.name}</span>
-                      <button onClick={() => router.push("/pages/attendance")} className="text-amber-600 dark:text-amber-400 hover:text-amber-500 font-medium">Revisar →</button>
+                      <button onClick={() => router.push(ATTENDANCE_PATH)} className="text-amber-600 dark:text-amber-400 hover:text-amber-500 font-medium">Revisar →</button>
                     </div>
                   ))}
                 </div>
@@ -428,7 +438,7 @@ const Home: React.FC = () => {
                       <div>
                         <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{ev.labor_event_name || "Evento"}</p>
                         <p className="text-xs text-zinc-400 mt-0.5">
-                          {employeeList.find((em: Employee) => String(em.id) === String(ev.employee_id))?.name || "Sin asignar"}
+                          {employeeList.find((em: Employee) => String(em.id) === String(ev.employee_id))?.name || NOT_ASSIGNED}
                         </p>
                       </div>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 uppercase font-medium">
