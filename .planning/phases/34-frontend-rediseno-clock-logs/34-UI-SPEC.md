@@ -53,14 +53,16 @@ Declared values (all multiples of 4):
 | Role | Size | Weight | Line Height | Font Family |
 |------|------|--------|-------------|-------------|
 | Body text | 14px (text-sm) | 400 (regular) | 1.5 | PraderaFont / Inter fallback |
-| Label | 12px (text-xs) | 500 (medium) | 1.4 | PraderaFont / Inter fallback |
+| Label | 12px (text-xs) | 600 (semibold) | 1.4 | PraderaFont / Inter fallback |
 | Heading (section) | 18px (text-lg) | 600 (semibold) | 1.3 | VerdeFont / Inter fallback |
-| Display (page title) | 24px (text-2xl) | 700 (bold) | 1.2 | VerdeFont / Inter fallback |
+| Display (page title) | 24px (text-2xl) | 600 (semibold) | 1.2 | VerdeFont / Inter fallback |
 
-**Rationale:** Existing page.tsx uses these sizes consistently:
-- Page title: `text-2xl font-bold` (24px, weight 700)
-- Section headers: `text-lg` implied
-- Body: `text-sm` throughout
+**Font weights:** 2 declared only — 400 (regular) for body text, 600 (semibold) for all emphasis (labels, headings, display).
+
+**Rationale:** Existing page.tsx uses:
+- Page title: `text-2xl font-semibold` (24px, weight 600)
+- Section headers: `text-lg` with semibold emphasis
+- Body: `text-sm` at regular weight throughout
 - Labels/uppercase: `text-xs` with `font-semibold`
 
 **Font behavior:** VerdeFont for customer-facing titles (page heading, branch names, employee names). PraderaFont for operational text (timestamps, status labels, help text).
@@ -516,7 +518,7 @@ export function useEffectiveMarks(...): UseEffectiveMarksReturn { ... }
 - [ ] Dimension 1 Copywriting: All copy in Spanish (es-CR), zero technicisms, business language
 - [ ] Dimension 2 Visuals: Hierarchical layout (Branch > Employee > Day > Pair), collapsible cards, status indicators
 - [ ] Dimension 3 Color: Verde system (dominant/secondary/accent) + semantic colors (green/amber/red/blue) reused from presenter
-- [ ] Dimension 4 Typography: 4 roles (body 14px/400, label 12px/500, heading 18px/600, display 24px/700)
+- [ ] Dimension 4 Typography: 2 weights only (400 regular for body, 600 semibold for emphasis — labels, headings, display)
 - [ ] Dimension 5 Spacing: All multiples of 4px, consistent with existing page (xs=4, sm=8, md=16, lg=24, xl=32, 2xl=48, 3xl=64)
 - [ ] Dimension 6 Registry Safety: No third-party registries, custom Tailwind only
 
