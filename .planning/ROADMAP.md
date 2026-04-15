@@ -35,6 +35,13 @@
   - [x] 34-04-PLAN.md — Backend pagination and branch metadata for effective marks.
   - [x] 34-05-PLAN.md — Update ClockLogAdjustmentController with pagination.
 - [ ] Phase 35: Frontend — Corrección de Marcas (Agregar/Editar/Anular)
+  **Goal:** Implementar los modales de corrección de marcas (agregar/editar/anular) con justificación obligatoria y vista de auditoría.
+  **Plans:** 5 plans
+  - [x] 35-01-PLAN.md — Add Clock Log Modal with service layer.
+  - [x] 35-02-PLAN.md — Edit Clock Log Modal.
+  - [x] 35-03-PLAN.md — Void Clock Log Modal with confirmation.
+  - [x] 35-04-PLAN.md — Audit Timeline component.
+  - [x] 35-05-PLAN.md — Integration into attendance page.
 - [ ] Phase 36: Backend — State Machine de Planilla + Aguinaldo
 - [ ] Phase 37: Frontend — Wizard de Planilla Quincenal
 - [ ] Phase 38: Tests Unitarios + Verificación de Integración
