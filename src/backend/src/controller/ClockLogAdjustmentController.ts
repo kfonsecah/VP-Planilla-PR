@@ -86,8 +86,8 @@ export class ClockLogAdjustmentController {
       const { data, total } = await ClockLogEffectiveService.getPaginatedEffectiveMarks({
         initDate: start,
         endDate: end,
-        employeeId: isNaN(employeeId as any) ? undefined : employeeId,
-        branchId: isNaN(branchId as any) ? undefined : branchId,
+        employeeId: employeeId !== undefined && !isNaN(employeeId) ? employeeId : undefined,
+        branchId: branchId !== undefined && !isNaN(branchId) ? branchId : undefined,
         page: isNaN(pageNum) ? 1 : pageNum,
         pageSize: isNaN(pageSizeNum) ? 20 : pageSizeNum,
       });

@@ -21,7 +21,6 @@ import { notificationRouter } from "./routes/NotificationRoute";
 import emailRoutes from "./routes/EmailRoute";
 import { swaggerSpec } from "./utils/docs";
 import { env } from "./config/env";
-import { prisma } from "./lib/prisma";
 
 const app = express();
 const PORT = env.PORT;

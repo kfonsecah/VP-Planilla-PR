@@ -51,6 +51,31 @@ export interface EffectiveClockLog {
   calculated_hours: number | null;
 }
 
+// Internal query result types — used to avoid `any` in raw SQL and Prisma Map results
+interface EmployeeRow {
+  employee_id: number;
+  employee_first_name: string;
+  employee_last_name: string;
+  employee_middle_name: string | null;
+  branch_name: string;
+}
+
+interface BranchRow {
+  employee_id: number;
+  branch_name: string;
+}
+
+interface CountRow {
+  count: string;
+}
+
+type AdjustmentRecord = NonNullable<Awaited<ReturnType<typeof prisma.vpg_clock_log_adjustments.findFirst>>>;
+type ClockLogRecord = NonNullable<Awaited<ReturnType<typeof prisma.vpg_clock_logs.findFirst>>>;
+
+interface EffectiveMarkWithAdj extends EffectiveMark {
+  _adjustment?: AdjustmentRecord;
+}
+
 /**
  * Service to calculate "Effective Marks" by applying active adjustments to original clock logs.
  * Provides the system's "current state of truth" for attendance.
@@ -185,13 +210,13 @@ export class ClockLogEffectiveService {
     const offset = (page - 1) * pageSize;
 
     // 1. Get employees with pagination and branch info
-    let employees: any[] = [];
+    let employees: EmployeeRow[] = [];
     let totalCount = 0;
 
     try {
       if (branchId) {
         // If branchId is filtered, we need the join. Use raw SQL but with better parameter handling.
-        const countRes = await prisma.$queryRaw<any[]>(Prisma.sql`
+        const countRes = await prisma.$queryRaw<CountRow[]>(Prisma.sql`
           SELECT COUNT(DISTINCT e.employee_id)::text as count
           FROM verdepradera.vpg_employees e
           JOIN verdepradera.vpg_branch_employee be ON e.employee_id = be.employee_branch_employee_id
@@ -201,7 +226,7 @@ export class ClockLogEffectiveService {
         totalCount = parseInt(countRes[0]?.count || "0", 10);
 
         if (totalCount > 0) {
-          employees = await prisma.$queryRaw<any[]>(Prisma.sql`
+          employees = await prisma.$queryRaw<EmployeeRow[]>(Prisma.sql`
             SELECT DISTINCT
               e.employee_id, 
               e.employee_first_name, 
@@ -233,7 +258,7 @@ export class ClockLogEffectiveService {
 
           // Fetch branch names for these employees
           const employeeIds = prismaEmployees.map(e => e.employee_id);
-          const branchData = await prisma.$queryRaw<any[]>(Prisma.sql`
+          const branchData = await prisma.$queryRaw<BranchRow[]>(Prisma.sql`
             SELECT be.employee_branch_employee_id as employee_id, b.branch_name
             FROM verdepradera.vpg_branch_employee be
             JOIN verdepradera.vpg_branches b ON be.employee_branch_branch_id = b.branch_id
@@ -288,7 +313,7 @@ export class ClockLogEffectiveService {
         },
       });
 
-      const latestAdjustmentsMap = new Map<number, any>();
+      const latestAdjustmentsMap = new Map<number, AdjustmentRecord>();
       for (const adj of adjustments) {
         if (adj.adjustment_clock_log_id && !latestAdjustmentsMap.has(adj.adjustment_clock_log_id)) {
           latestAdjustmentsMap.set(adj.adjustment_clock_log_id, adj);
@@ -296,12 +321,12 @@ export class ClockLogEffectiveService {
       }
 
       // 5. Group logs by employee and apply pairing
-      const employeesMap = new Map<number, any>();
+      const employeesMap = new Map<number, EmployeeRow>();
       for (const emp of employees) {
         employeesMap.set(emp.employee_id, emp);
       }
 
-      const logsByEmployee = new Map<number, any[]>();
+      const logsByEmployee = new Map<number, ClockLogRecord[]>();
       for (const log of logs) {
         const empLogs = logsByEmployee.get(log.clock_logs_employee_id) || [];
         empLogs.push(log);
@@ -315,7 +340,7 @@ export class ClockLogEffectiveService {
         if (!empInfo) continue;
 
         // Map to EffectiveMark
-        const effectiveMarks: (EffectiveMark & { _adjustment?: any })[] = [];
+        const effectiveMarks: EffectiveMarkWithAdj[] = [];
         for (const log of empLogs) {
           const adj = latestAdjustmentsMap.get(log.clock_logs_id);
           if (adj) {
@@ -350,13 +375,13 @@ export class ClockLogEffectiveService {
 
         // Map to EffectiveClockLog (frontend shape)
         for (const pair of pairs) {
-          const inMark = pair.in as (EffectiveMark & { _adjustment?: any }) | undefined;
-          const outMark = pair.out as (EffectiveMark & { _adjustment?: any }) | undefined;
+          const inMark = pair.in as EffectiveMarkWithAdj | undefined;
+          const outMark = pair.out as EffectiveMarkWithAdj | undefined;
           
           const timestamp = (inMark?.effectiveTimestamp || outMark?.effectiveTimestamp || new Date());
           const dateKey = timestamp.toLocaleDateString('en-CA');
 
-          let status: any = pair.status;
+          let status: EffectiveClockLog['original']['status'] = pair.status;
           if (pair.status === 'valid' && (inMark?.adjustmentType === 'EDIT' || outMark?.adjustmentType === 'EDIT')) {
             status = 'corrected';
           }
@@ -446,7 +471,7 @@ export class ClockLogEffectiveService {
     });
 
     // 3. Reduce adjustments to the latest one per log_id
-    const latestAdjustmentsMap = new Map<number, any>();
+    const latestAdjustmentsMap = new Map<number, AdjustmentRecord>();
     for (const adj of adjustments) {
       if (adj.adjustment_clock_log_id && !latestAdjustmentsMap.has(adj.adjustment_clock_log_id)) {
         latestAdjustmentsMap.set(adj.adjustment_clock_log_id, adj);
@@ -534,7 +559,7 @@ export class ClockLogEffectiveService {
     });
 
     // 3. Reduce adjustments to the latest one per log_id
-    const latestAdjustmentsMap = new Map<number, any>();
+    const latestAdjustmentsMap = new Map<number, AdjustmentRecord>();
     for (const adj of adjustments) {
       if (adj.adjustment_clock_log_id && !latestAdjustmentsMap.has(adj.adjustment_clock_log_id)) {
         latestAdjustmentsMap.set(adj.adjustment_clock_log_id, adj);
