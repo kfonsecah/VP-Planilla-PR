@@ -8,6 +8,10 @@ import BranchGroup from '@/components/BranchGroup';
 import EmployeeCard from '@/components/EmployeeCard';
 import DatePicker from '@/components/DatePicker';
 import type { EffectiveClockLog } from '@/services/effectiveMarksService';
+import AddClockLogModal from '@/components/AddClockLogModal';
+import EditClockLogModal from '@/components/EditClockLogModal';
+import VoidClockLogModal from '@/components/VoidClockLogModal';
+import { ClockLog } from '@/services/clockLogsService';
 import {
   STATUS_OPTIONS,
   STATUS_CARD_COLORS,
@@ -91,6 +95,12 @@ export default function ClockLogsDashboardPage() {
 
   const [showImportPanel, setShowImportPanel] = useState(false);  // D-12: collapsed by default
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Correction modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedEmployeeForAdd, setSelectedEmployeeForAdd] = useState<{id: string; name: string} | null>(null);
+  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState<ClockLog | null>(null);
+  const [selectedEntryForVoid, setSelectedEntryForVoid] = useState<ClockLog | null>(null);
 
   // IntersectionObserver for infinite scroll (D-05)
   useEffect(() => {
@@ -265,6 +275,36 @@ export default function ClockLogsDashboardPage() {
                     total_hours={emp.total_hours}
                     worked_days={emp.worked_days}
                     anomaly_count={emp.anomaly_count}
+                    onAddMark={(id, name) => {
+                      setSelectedEmployeeForAdd({ id, name });
+                      setIsAddModalOpen(true);
+                    }}
+                    onEditEntry={(entry) => {
+                      // Convert EffectiveClockLog to ClockLog
+                      const clockLog: ClockLog = {
+                        id: String(entry.original.id),
+                        employeeId: entry.employee_id,
+                        timestamp: entry.original.timestamp || entry.log_date + 'T00:00:00',
+                        type: entry.original.type as 'IN' | 'OUT',
+                        source: entry.original.source as 'DEVICE' | 'MANUAL',
+                        createdAt: entry.original.created_at || '',
+                        createdBy: '',
+                      };
+                      setSelectedEntryForEdit(clockLog);
+                    }}
+                    onVoidEntry={(entry) => {
+                      // Convert EffectiveClockLog to ClockLog
+                      const clockLog: ClockLog = {
+                        id: String(entry.original.id),
+                        employeeId: entry.employee_id,
+                        timestamp: entry.original.timestamp || entry.log_date + 'T00:00:00',
+                        type: entry.original.type as 'IN' | 'OUT',
+                        source: entry.original.source as 'DEVICE' | 'MANUAL',
+                        createdAt: entry.original.created_at || '',
+                        createdBy: '',
+                      };
+                      setSelectedEntryForVoid(clockLog);
+                    }}
                   />
                 ))}
               </BranchGroup>
@@ -289,6 +329,32 @@ export default function ClockLogsDashboardPage() {
         )}
 
       </div>
+
+      {/* Correction Modals */}
+      <AddClockLogModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setSelectedEmployeeForAdd(null);
+        }}
+        employeeId={selectedEmployeeForAdd?.id}
+        employeeName={selectedEmployeeForAdd?.name}
+        onSuccess={() => refresh()}
+      />
+
+      <EditClockLogModal
+        isOpen={!!selectedEntryForEdit}
+        onClose={() => setSelectedEntryForEdit(null)}
+        clockLog={selectedEntryForEdit}
+        onSuccess={() => refresh()}
+      />
+
+      <VoidClockLogModal
+        isOpen={!!selectedEntryForVoid}
+        onClose={() => setSelectedEntryForVoid(null)}
+        clockLog={selectedEntryForVoid}
+        onConfirm={() => refresh()}
+      />
     </div>
   );
 }

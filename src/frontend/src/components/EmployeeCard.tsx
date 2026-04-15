@@ -12,14 +12,21 @@ interface EmployeeCardProps {
   total_hours: number;
   worked_days: number;
   anomaly_count: number;
+  onAddMark?: (employeeId: string, employeeName: string) => void;
+  onEditEntry?: (entry: EffectiveClockLog) => void;
+  onVoidEntry?: (entry: EffectiveClockLog) => void;
 }
 
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
+  employee_id,
   employee_name,
   daily_logs,
   total_hours,
   worked_days,
   anomaly_count,
+  onAddMark,
+  onEditEntry,
+  onVoidEntry,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -47,7 +54,18 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Agregar marca button - triggers add modal with employee pre-filled */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddMark?.(employee_id, employee_name);
+            }}
+            className="px-2 py-1 text-xs font-medium rounded border border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+            aria-label={`Agregar marca para ${employee_name}`}
+          >
+            + Agregar marca
+          </button>
           {anomaly_count > 0 && (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 shrink-0">
               {anomaly_count} {anomaly_count === 1 ? 'problema' : 'problemas'}
@@ -79,7 +97,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 </p>
               ) : (
                 daily_logs.map((log) => (
-                  <DailyRow key={log.id} log={log} />
+                  <DailyRow 
+                    key={log.id} 
+                    log={log}
+                    onEdit={onEditEntry}
+                    onVoid={onVoidEntry}
+                  />
                 ))
               )}
             </div>
