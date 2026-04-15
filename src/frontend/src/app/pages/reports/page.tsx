@@ -59,22 +59,46 @@ const getLogBadgeClasses = (status?: string) => {
   return 'bg-zinc-100 text-zinc-700 border-zinc-200';
 };
 
+const matchesTerm = (employee: PayrollEmployeeReportRow, normalizedTerm: string): boolean => {
+  const searchableFields = [
+    employee.fullName,
+    employee.email,
+    employee.nationalId,
+    employee.socialSecurityCode,
+  ];
+  
+  return searchableFields
+    .filter(Boolean)
+    .some((value) => value!.toLowerCase().includes(normalizedTerm));
+};
+
 const filterEmployees = (
   employees: PayrollEmployeeReportRow[],
   term: string
 ) => {
   if (!term) return employees;
   const normalized = term.toLowerCase();
-  return employees.filter((employee) =>
-    [
-      employee.fullName,
-      employee.email,
-      employee.nationalId,
-      employee.socialSecurityCode,
-    ]
-      .filter(Boolean)
-      .some((value) => value!.toLowerCase().includes(normalized))
-  );
+  return employees.filter((employee) => matchesTerm(employee, normalized));
+};
+
+const buildToggledSelection = (
+  allSelected: boolean,
+  currentSelection: number[],
+  filtered: { employeeId: number }[]
+): number[] => {
+  if (allSelected) {
+    return currentSelection.filter((id) => !filtered.some((e) => e.employeeId === id));
+  }
+  const idsToAdd = filtered.map((e) => e.employeeId).filter((id) => !currentSelection.includes(id));
+  return [...currentSelection, ...idsToAdd];
+};
+
+const applyReportTypeToggle = (prev: OfficialReportType[], type: OfficialReportType): OfficialReportType[] => {
+  if (prev.includes(type)) {
+    if (prev.length === 1) return prev;
+    return prev.filter((value) => value !== type);
+  }
+  return [...prev, type];
 };
 
 export default function ReportsPage() {
@@ -161,26 +185,11 @@ export default function ReportsPage() {
 
   const toggleSelectAll = () => {
     if (!dataset) return;
-    if (allSelected) {
-      setSelectedEmployees((prev) =>
-        prev.filter((id) => !filteredEmployees.some((employee) => employee.employeeId === id))
-      );
-    } else {
-      const idsToAdd = filteredEmployees
-        .map((employee) => employee.employeeId)
-        .filter((id) => !selectedEmployees.includes(id));
-      setSelectedEmployees([...selectedEmployees, ...idsToAdd]);
-    }
+    setSelectedEmployees(buildToggledSelection(allSelected, selectedEmployees, filteredEmployees));
   };
 
   const toggleReportType = (type: OfficialReportType) => {
-    setReportTypes((prev) => {
-      if (prev.includes(type)) {
-        if (prev.length === 1) return prev;
-        return prev.filter((value) => value !== type);
-      }
-      return [...prev, type];
-    });
+    setReportTypes((prev) => applyReportTypeToggle(prev, type));
   };
 
   const handleSendReports = async () => {
@@ -266,6 +275,69 @@ export default function ReportsPage() {
       setDownloadingPdf(false);
     }
   };
+
+  const renderEmployeeRow = (employee: PayrollEmployeeReportRow) => {
+    const isSelected = selectedEmployees.includes(employee.employeeId);
+    return (
+      <tr key={employee.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+        <td className="px-4 py-3">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => toggleEmployeeSelection(employee.employeeId)}
+          />
+        </td>
+        <td className="px-4 py-3">
+          <p className="font-semibold">{employee.fullName}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{employee.position || 'Sin puesto'}</p>
+        </td>
+        <td className="px-4 py-3">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{employee.email || 'Sin correo'}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-500">CCSS: {employee.socialSecurityCode || 'N/A'}</p>
+        </td>
+        <td className="px-4 py-3 text-right">{formatCurrency(employee.grossSalary)}</td>
+        <td className="px-4 py-3 text-right">{formatCurrency(employee.totalDeductions)}</td>
+        <td className="px-4 py-3 text-right font-semibold text-zinc-800 dark:text-zinc-100">
+          {formatCurrency(employee.netSalary)}
+        </td>
+        <td className="px-4 py-3">
+          {employee.lastDispatch ? (
+            <div className="text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="font-semibold text-zinc-800 dark:text-zinc-100">{employee.lastDispatch.type}</p>
+              <p>{formatDate(employee.lastDispatch.generated_at)}</p>
+              <span
+                className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
+                  employee.lastDispatch.status
+                )}`}
+              >
+                {employee.lastDispatch.status}
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">Sin registros</span>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+  const renderDispatchResult = (result: { employeeId: number; employeeName: string; status: string; detail: string }) => (
+    <div key={`${result.employeeId}-${result.status}-${result.detail}`} className="border-b border-zinc-200 dark:border-zinc-700 py-2 last:border-0">
+      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{result.employeeName}</p>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">{result.detail}</p>
+      <span
+        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+          result.status === 'sent'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            : result.status === 'failed'
+            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+            : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
+        }`}
+      >
+        {result.status.toUpperCase()}
+      </span>
+    </div>
+  );
 
   const renderReportTarget = (target: ReportTargetSummary) => (
     <div
@@ -437,47 +509,7 @@ export default function ReportsPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-                      {filteredEmployees.map((employee) => (
-                        <tr key={employee.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={selectedEmployees.includes(employee.employeeId)}
-                              onChange={() => toggleEmployeeSelection(employee.employeeId)}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-semibold">{employee.fullName}</p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">{employee.position || 'Sin puesto'}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">{employee.email || 'Sin correo'}</p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-500">CCSS: {employee.socialSecurityCode || 'N/A'}</p>
-                          </td>
-                          <td className="px-4 py-3 text-right">{formatCurrency(employee.grossSalary)}</td>
-                          <td className="px-4 py-3 text-right">{formatCurrency(employee.totalDeductions)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-zinc-800 dark:text-zinc-100">
-                            {formatCurrency(employee.netSalary)}
-                          </td>
-                          <td className="px-4 py-3">
-                            {employee.lastDispatch ? (
-                              <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                                <p className="font-semibold text-zinc-800 dark:text-zinc-100">{employee.lastDispatch.type}</p>
-                                <p>{formatDate(employee.lastDispatch.generated_at)}</p>
-                                <span
-                                  className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
-                                    employee.lastDispatch.status
-                                  )}`}
-                                >
-                                  {employee.lastDispatch.status}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-zinc-400 dark:text-zinc-500">Sin registros</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {filteredEmployees.map(renderEmployeeRow)}
                       {filteredEmployees.length === 0 && (
                         <tr>
                           <td colSpan={7} className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
@@ -578,7 +610,7 @@ export default function ReportsPage() {
               </div>
               <div className="flex flex-col gap-3">
                 {dashboard?.targets.length
-                  ? dashboard.targets.map((target) => renderReportTarget(target))
+                  ? dashboard.targets.map(renderReportTarget)
                   : (
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                       Configure los entes receptores en la base de datos para mostrar sus contactos aquí.
@@ -629,23 +661,7 @@ export default function ReportsPage() {
                   {dispatchSummary.sent} enviados · {dispatchSummary.failed} fallidos
                 </p>
                 <div className="mt-3 max-h-32 overflow-y-auto pr-1">
-                  {dispatchSummary.results.map((result) => (
-                    <div key={`${result.employeeId}-${result.status}-${result.detail}`} className="border-b border-zinc-200 dark:border-zinc-700 py-2 last:border-0">
-                      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{result.employeeName}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{result.detail}</p>
-                      <span
-                        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                          result.status === 'sent'
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                            : result.status === 'failed'
-                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                            : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
-                        }`}
-                      >
-                        {result.status.toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
+                  {dispatchSummary.results.map(renderDispatchResult)}
                 </div>
               </div>
             )}
