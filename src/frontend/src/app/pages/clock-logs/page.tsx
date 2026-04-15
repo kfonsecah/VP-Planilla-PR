@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useEffectiveMarks } from '@/hooks/useEffectiveMarks';
 import ImportSessionsPanel from '@/components/ImportSessionsPanel';
 import BranchGroup from '@/components/BranchGroup';
@@ -215,7 +216,7 @@ export default function ClockLogsDashboardPage() {
             className="flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors mb-2"
             aria-expanded={showImportPanel}
           >
-            <span>{showImportPanel ? '▲' : '▼'}</span>
+            <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${showImportPanel ? 'rotate-180' : ''}`} />
             Sesiones de Importación
           </button>
           {showImportPanel && (
