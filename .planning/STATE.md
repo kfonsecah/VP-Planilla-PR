@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: Milestone complete
-last_updated: "2026-04-14T10:00:00.000Z"
+last_updated: "2026-04-15T00:37:55.910Z"
 last_activity: 2026-04-14
 progress:
-  total_phases: 38
-  completed_phases: 33
-  total_plans: 63
-  completed_plans: 60
-  percent: 86
+  total_phases: 26
+  completed_phases: 22
+  total_plans: 60
+  completed_plans: 57
+  percent: 95
 ---
 
 # Project State — VP-Planilla
@@ -57,6 +57,7 @@ Progress: [████████░░] 86%
 ## Phase 33 - Backend: Motor de Marcas Efectivas + API de Ajustes (COMPLETED 2026-04-14)
 
 ### Summary
+
 - **Logic**: Implemented `ClockLogAdjustmentService` for non-destructive EDIT/VOID operations.
 - **Engine**: Developed `ClockLogEffectiveService` to provide paired IN/OUT entries with calculated durations.
 - **API**: Exposed `GET /api/clock-logs/effective` and `POST /api/clock-logs/adjust`.
