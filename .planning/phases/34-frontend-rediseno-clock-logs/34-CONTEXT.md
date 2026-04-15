@@ -28,6 +28,9 @@ Redesign the Clock Logs dashboard from a flat table to a hierarchical, grouped v
 - **D-08: Actionable Alerts**: For days with anomalies (e.g., missing OUT), display a clear message with a suggested action (e.g., "Falta marca de salida. Haga clic aquí para agregarla.").
 - **D-09: Source Traceability**: Use visual icons to distinguish between original clock device marks and manual/adjusted entries.
 
+### 4. Import Sessions Panel
+- **D-12: Preserve ImportSessionsPanel**: The existing `ImportSessionsPanel` component MUST be preserved in the redesigned page. Place it below the filters section, collapsed by default. This lets the boss check the last import date without leaving the page. Do NOT delete this component.
+
 ### Claude's Discretion
 - **D-10: Color Palette**: Claude chooses specific hex values for the status indicators (Green/Yellow/Red/Blue/Grey) following the existing Tailwind zinc-950 theme.
 - **D-11: Empty State Design**: Claude designs the "guide the boss" empty state message and illustration.
