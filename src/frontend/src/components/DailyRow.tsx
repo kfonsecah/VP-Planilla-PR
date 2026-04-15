@@ -1,10 +1,15 @@
 import React from 'react';
 import type { EffectiveClockLog } from '@/services/effectiveMarksService';
 import ClockLogStatusBadge from '@/components/ClockLogStatusBadge';
+import AuditTimeline from '@/components/AuditTimeline';
+import { ClockLogsService } from '@/services/clockLogsService';
+import { useState, useEffect } from 'react';
 
 interface DailyRowProps {
   log: EffectiveClockLog;
   onAddMissing?: (type: 'in' | 'out') => void;  // stub — no-op in Phase 34
+  onEdit?: (entry: EffectiveClockLog) => void;  // Trigger edit modal
+  onVoid?: (entry: EffectiveClockLog) => void; // Trigger void modal
 }
 
 const SourceTraceabilityIcon: React.FC<{ source: string; status: string }> = ({ source, status }) => {
@@ -44,7 +49,36 @@ const formatCRTime = (iso: string | null): string | null => {
   });
 };
 
-const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing }) => {
+const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing, onEdit, onVoid }) => {
+  const [auditCount, setAuditCount] = useState<number>(0);
+  const [showAuditTimeline, setShowAuditTimeline] = useState(false);
+  const [isLoadingAudit, setIsLoadingAudit] = useState(false);
+
+  // Fetch audit count on mount
+  useEffect(() => {
+    const inId = log.original?.id;
+    const outId = log.adjusted?.id || log.original?.id;
+
+    if (!inId && !outId) return;
+
+    setIsLoadingAudit(true);
+    const idsToCheck = [inId, outId].filter(Boolean);
+    
+    Promise.all(
+      idsToCheck.map((id) => 
+        ClockLogsService.getAuditLogsForClockLog(id as number).catch(() => [])
+      )
+    )
+      .then((results) => {
+        const totalCount = results.reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+        setAuditCount(totalCount);
+      })
+      .catch(() => {
+        setAuditCount(0);
+      })
+      .finally(() => setIsLoadingAudit(false));
+  }, [log.original?.id, log.adjusted?.id]);
+
   const dateLabel = new Date(log.log_date + 'T00:00:00').toLocaleDateString('es-CR', {
     weekday: 'long',
     year: 'numeric',
@@ -60,8 +94,20 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing }) => {
 
   return (
     <div className="border border-zinc-100 dark:border-zinc-800 rounded-lg p-3 bg-zinc-50 dark:bg-zinc-800/30">
-      <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">
+      <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
         {dateLabel}
+        {/* Audit indicator badge */}
+        {!isLoadingAudit && auditCount > 0 && (
+          <button
+            onClick={() => setShowAuditTimeline(!showAuditTimeline)}
+            className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {auditCount} {auditCount === 1 ? 'cambio' : 'cambios'}
+          </button>
+        )}
       </h4>
 
       <div className="space-y-2">
@@ -129,25 +175,33 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing }) => {
           </div>
         )}
 
-        <div className="mt-3 pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50">
-          {status !== 'valid' ? (
-            <button
-              disabled
-              aria-label="Corregir marca (disponible en próxima actualización)"
-              className="px-3 py-1 text-xs font-medium rounded-lg border border-orange-400 bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 opacity-60 cursor-not-allowed"
-            >
-              Corregir
-            </button>
-          ) : (
-            <button
-              disabled
-              aria-label="Ver detalles (disponible en próxima actualización)"
-              className="px-3 py-1 text-xs font-medium rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 opacity-60 cursor-not-allowed"
-            >
-              Ver detalles
-            </button>
-          )}
+        <div className="mt-3 pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50 flex items-center gap-2">
+          {/* Edit button - triggers edit modal */}
+          <button
+            onClick={() => onEdit?.(log)}
+            className="px-3 py-1 text-xs font-medium rounded-lg border border-orange-400 bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
+          >
+            Editar
+          </button>
+          
+          {/* Void button - triggers void modal */}
+          <button
+            onClick={() => onVoid?.(log)}
+            className="px-3 py-1 text-xs font-medium rounded-lg border border-red-400 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+          >
+            Anular
+          </button>
         </div>
+
+        {/* Expandable Audit Timeline */}
+        {showAuditTimeline && auditCount > 0 && (
+          <div className="mt-3 pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50">
+            <AuditTimeline 
+              clockLogId={String(log.original?.id || log.adjusted?.id)} 
+              compact={false}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
