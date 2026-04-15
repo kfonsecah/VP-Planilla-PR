@@ -263,10 +263,10 @@ const parseDateInput = (value: string, endOfDay = false) => {
 };
 
 interface Employee {
-  employee_id: number | string;
-  employee_first_name: string;
-  employee_middle_name: string;
-  employee_last_name: string;
+  id: number | string;
+  name: string;
+  last_name?: string;
+  middle_name?: string;
 }
 
 interface AttendanceData {
@@ -376,11 +376,11 @@ export default function AttendancePage() {
     }
   };
 
-  const findEmployeeByName = (rawName?: string): Record<string, unknown> | null => {
+  const findEmployeeByName = (rawName?: string, empList?: Employee[]): Record<string, unknown> | null => {
     if (!rawName) return null;
     const normalized = normalizeName(rawName);
     if (!normalized) return null;
-    const list = employees as unknown as Array<Record<string, unknown>>;
+    const list = (empList ?? employees) as unknown as Array<Record<string, unknown>>;
     return (
       // Exact full-name match (e.g. "Test B Dos" → "test b dos")
       list.find((emp) => normalizeName(String(emp.name || '')) === normalized) ||
@@ -530,26 +530,26 @@ const timeStr = typeof horaRaw === 'number'
      }
    };
 
-  const formatEmployeeName = (emp: Pick<Employee, 'employee_first_name' | 'employee_middle_name' | 'employee_last_name'>) =>
-    `${emp.employee_first_name} ${emp.employee_middle_name} ${emp.employee_last_name}`.replace(/\s+/g, ' ').trim();
+  const formatEmployeeName = (emp: Pick<Employee, 'name'>) => emp.name;
 
-  const findEmployeeById = (employeeId?: number | string | null): Employee | null => {
+  const findEmployeeById = (employeeId?: number | string | null, empList?: Employee[]): Employee | null => {
     if (employeeId === null || employeeId === undefined) return null;
     const employeeIdStr = String(employeeId);
-    return employees.find((e) => String(e.employee_id) === employeeIdStr) || null;
+    const list = empList ?? employees;
+    return list.find((e) => String(e.id) === employeeIdStr) || null;
   };
 
-  const resolveEmployeeForLog = (log: ClockLog): { id: string | number; name: string } => {
-    const byId = findEmployeeById(log.employee_id);
+  const resolveEmployeeForLog = (log: ClockLog, empList?: Employee[]): { id: string | number; name: string } => {
+    const byId = findEmployeeById(log.employee_id, empList);
     if (byId) {
       return {
-        id: byId.employee_id,
+        id: byId.id,
         name: formatEmployeeName(byId)
       };
     }
 
     if (log.employee_name) {
-      const byName = findEmployeeByName(log.employee_name);
+      const byName = findEmployeeByName(log.employee_name, empList);
       if (byName) {
         return {
           id: (byName.id ?? byName.employee_id) as string | number,
@@ -569,9 +569,9 @@ const timeStr = typeof horaRaw === 'number'
     };
   };
 
-  const processAttendanceData = (logs: ClockLog[], source: 'excel' | 'api'): AttendanceData[] => {
+  const processAttendanceData = (logs: ClockLog[], source: 'excel' | 'api', empList?: Employee[]): AttendanceData[] => {
     const grouped = logs.reduce((acc: Record<string, AttendanceData>, log) => {
-      const resolvedEmployee = resolveEmployeeForLog(log);
+      const resolvedEmployee = resolveEmployeeForLog(log, empList);
       const employeeId = resolvedEmployee.id;
       const date = new Date(log.timestamp).toISOString().split('T')[0];
       const key = `${employeeId}_${date}`;
@@ -761,7 +761,14 @@ const timeStr = typeof horaRaw === 'number'
         return;
       }
 
-      const processed = processAttendanceData(logs, source);
+      let currentEmployees = employees;
+      if (currentEmployees.length === 0) {
+        try {
+          currentEmployees = (await getEmployees()) as unknown as Employee[];
+          setEmployees(currentEmployees);
+        } catch { /* proceed with empty list */ }
+      }
+      const processed = processAttendanceData(logs, source, currentEmployees);
       setData(processed);
       toast.success(
         source === 'excel'
