@@ -473,12 +473,8 @@ export default function PayrollListPage() {
                     {(p.status === 'PENDIENTE' || p.status === 'CALCULADO') && (
                       <button
                         onClick={(e) => markAsPaid(p.id, e)}
-                        disabled={updatingId === p.id || p.status === 'PAGADO'}
-                        className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg transition-colors font-semibold disabled:cursor-not-allowed text-sm ${
-                          p.status === 'PAGADO'
-                            ? 'bg-zinc-400 dark:bg-zinc-600 text-white'
-                            : 'bg-green-600 hover:bg-green-500 text-white disabled:opacity-50'
-                        }`}
+                        disabled={updatingId === p.id}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
                       >
                         {updatingId === p.id ? (
                           <>
@@ -488,7 +484,7 @@ export default function PayrollListPage() {
                         ) : (
                           <>
                             <CheckCircleIcon className="w-5 h-5" />
-                            <span>{p.status === 'PAGADO' ? 'Ya Pagada' : 'Marcar como Pagada'}</span>
+                            <span>Marcar como Pagada</span>
                           </>
                         )}
                       </button>
