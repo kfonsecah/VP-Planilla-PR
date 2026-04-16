@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VP-Planilla — Reporte de Avance del Proyecto</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2b6cb0 100%);
+      color: white;
+      padding: 48px 40px 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .header .subtitle { font-size: 1.1rem; opacity: 0.85; margin-top: 8px; }
+    .header .meta {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .header .meta-item { font-size: 0.9rem; opacity: 0.8; }
+    .header .meta-item strong { opacity: 1; font-size: 1rem; display: block; }
+
+    /* ── Main Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Section titles ── */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      border-left: 4px solid #2b6cb0;
+      padding-left: 12px;
+      margin: 40px 0 20px;
+    }
+
+    /* ── Test Summary Cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      border-top: 4px solid #2b6cb0;
+    }
+    .stat-card.green  { border-top-color: #38a169; }
+    .stat-card.red    { border-top-color: #e53e3e; }
+    .stat-card.yellow { border-top-color: #d69e2e; }
+    .stat-card.blue   { border-top-color: #3182ce; }
+    .stat-card.purple { border-top-color: #805ad5; }
+    .stat-number { font-size: 2.4rem; font-weight: 800; color: #1e3a5f; }
+    .stat-card.green  .stat-number { color: #276749; }
+    .stat-card.red    .stat-number { color: #c53030; }
+    .stat-card.yellow .stat-number { color: #975a16; }
+    .stat-card.purple .stat-number { color: #553c9a; }
+    .stat-label { font-size: 0.85rem; color: #718096; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Progress Bar ── */
+    .progress-wrap { background: white; border-radius: 10px; padding: 24px 28px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); margin-bottom: 24px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; color: #4a5568; margin-bottom: 10px; }
+    .progress-bar-bg { background: #edf2f7; border-radius: 999px; height: 20px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #38a169, #48bb78); transition: width 1s; }
+    .progress-bar-fill.partial { background: linear-gradient(90deg, #d69e2e, #f6ad55); }
+
+    /* ── Test Results Table ── */
+    .card { background: white; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead { background: #edf2f7; }
+    th { padding: 12px 16px; text-align: left; font-weight: 700; color: #4a5568; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    td { padding: 11px 16px; border-top: 1px solid #f0f0f0; vertical-align: top; }
+    tr:hover td { background: #fafbff; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-pass  { background: #c6f6d5; color: #22543d; }
+    .badge-fail  { background: #fed7d7; color: #742a2a; }
+    .badge-unit  { background: #e9d8fd; color: #44337a; }
+    .badge-int   { background: #bee3f8; color: #2a4365; }
+    .suite-name { font-family: 'Consolas', monospace; font-size: 0.82rem; color: #2d3748; }
+    .suite-path { font-size: 0.75rem; color: #a0aec0; }
+
+    /* ── Phase Timeline ── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 12px; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(180deg, #2b6cb0, #805ad5);
+    }
+    .timeline-item { position: relative; margin-bottom: 28px; }
+    .timeline-dot {
+      position: absolute; left: -26px; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid white;
+      box-shadow: 0 0 0 2px #2b6cb0;
+      background: #2b6cb0;
+    }
+    .timeline-dot.done  { background: #38a169; box-shadow: 0 0 0 2px #38a169; }
+    .timeline-dot.current { background: #d69e2e; box-shadow: 0 0 0 2px #d69e2e; }
+    .timeline-card { background: white; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+    .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+    .timeline-title { font-weight: 700; font-size: 0.95rem; color: #1a202c; }
+    .timeline-milestone { font-size: 0.75rem; font-weight: 700; color: #718096; background: #edf2f7; padding: 2px 8px; border-radius: 999px; }
+    .timeline-goal { font-size: 0.85rem; color: #4a5568; margin-bottom: 10px; }
+    .plans-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .plan-chip {
+      font-size: 0.75rem; padding: 3px 9px; border-radius: 5px;
+      background: #ebf8ff; color: #2c5282; font-family: 'Consolas', monospace;
+      border: 1px solid #bee3f8;
+    }
+
+    /* ── Tech Stack ── */
+    .stack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .stack-card { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); display: flex; align-items: flex-start; gap: 12px; }
+    .stack-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .stack-icon.node  { background: #f0fff4; }
+    .stack-icon.ts    { background: #ebf8ff; }
+    .stack-icon.react { background: #e6fffa; }
+    .stack-icon.db    { background: #faf5ff; }
+    .stack-icon.test  { background: #fff5f5; }
+    .stack-name { font-weight: 700; font-size: 0.9rem; color: #1a202c; }
+    .stack-ver  { font-size: 0.78rem; color: #718096; }
+
+    /* ── Footer ── */
+    .footer { text-align: center; color: #a0aec0; font-size: 0.82rem; padding-top: 32px; border-top: 1px solid #e2e8f0; margin-top: 48px; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.7rem; }
+      .container { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ HEADER -->
+<div class="header">
+  <h1>VP-Planilla</h1>
+  <div class="subtitle">Sistema de Gestión de Planilla — Reporte de Avance Académico</div>
+  <div class="meta">
+    <div class="meta-item"><strong>16 de abril, 2026</strong>Fecha del reporte</div>
+    <div class="meta-item"><strong>v1.5</strong>Versión en desarrollo</div>
+    <div class="meta-item"><strong>37 Fases</strong>Completadas en total</div>
+    <div class="meta-item"><strong>Costa Rica</strong>Ley Laboral aplicable</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════ TEST RESULTS SUMMARY -->
+  <div class="section-title">Resultados de Pruebas Unitarias (Jest)</div>
+
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-number">27</div>
+      <div class="stat-label">Suites ejecutadas</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-number">24</div>
+      <div class="stat-label">Suites aprobadas</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-number">3</div>
+      <div class="stat-label">Suites con fallos</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-number">468</div>
+      <div class="stat-label">Pruebas totales</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-number">452</div>
+      <div class="stat-label">Pruebas aprobadas</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-number">16</div>
+      <div class="stat-label">Pruebas fallidas</div>
+    </div>
+  </div>
+
+  <!-- Pass Rate Bar -->
+  <div class="progress-wrap" style="margin-top:16px;">
+    <div class="progress-label">
+      <span>Tasa de aprobación global</span>
+      <span style="color:#276749; font-size:1.05rem;">96.6% (452 / 468)</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width:96.6%"></div>
+    </div>
+  </div>
+
+  <!-- Suite Results Table -->
+  <div class="section-title">Detalle por Suite de Pruebas</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Suite / Archivo</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Qué se prueba</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="suite-name">payrollUtils.test.ts</div><div class="suite-path">unit/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Cálculo de horas regulares, horas extra (1.5×, 2×), descanso semanal — Ley Laboral CR</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">NomineeService.test.ts</div><div class="suite-path">unit/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Cálculo de planilla quincenal por empleado, deducciones CCSS, bonificaciones</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">PayrollService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Gestión de planillas: creación, aprobación, marcado como pagada, reapertura</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">EmployeeService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>CRUD de empleados, validación de estado (activo/inactivo/suspendido)</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">AuthService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Login, generación y validación de JWT, refresh tokens</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">AuthMiddleware.test.ts</div><div class="suite-path">unit/middleware/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Verificación de token en cada request, rechazo de requests no autorizados</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogsService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Registro de marcas de entrada/salida de empleados</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogAnalysisService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Detección de anomalías: marcas huérfanas, dobles entradas, duplicados</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogAdjustmentService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Creación de ajustes no-destructivos: EDIT y VOID sobre marcas existentes</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogEffectiveService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Motor de marcas efectivas: selección de la marca más reciente por ajustes</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogEffectiveService.Paginated.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-fail">FAIL</span></td>
+          <td>Paginación de marcas efectivas — 3 casos de borde pendientes de ajuste</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogsController.test.ts</div><div class="suite-path">unit/controller/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-fail">FAIL</span></td>
+          <td>Controlador HTTP de marcas — 12 casos de validación de request/response</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">clockLogNormalization.test.ts</div><div class="suite-path">unit/utils/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Normalización de timestamps importados desde el reloj biométrico</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ClockLogsImportService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Importación masiva de marcas desde archivo, detección de sesiones</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">ImportSessionService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Gestión del ciclo de vida de sesiones de importación</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">VacationService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Gestión de vacaciones y días de descanso de empleados</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">BonusesService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Cálculo de bonificaciones por empleado y período</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">DeductionsService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Tipos de deducciones disponibles en el sistema</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">EmployeeDeductionsService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Deducciones aplicadas a cada empleado: CCSS, IR, préstamos</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">LaborEventsService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Registro de incapacidades, suspensiones y licencias</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">NotificationService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Envío de correos de notificación al aprobar / pagar planilla</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">AuditLogsService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Registro de auditoría de cambios críticos en el sistema</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">PayrollTypeService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Tipos de planilla configurables (quincenal, semanal, mensual)</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">PositionService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>CRUD de puestos de trabajo y salarios base</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">PasswordChange.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Flujo seguro de cambio de contraseña con hash bcrypt</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">UserService.test.ts</div><div class="suite-path">unit/services/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Gestión de usuarios administrativos del sistema</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">env.test.ts</div><div class="suite-path">unit/config/</div></td>
+          <td><span class="badge badge-unit">Unit</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Validación de variables de entorno requeridas al iniciar el servidor</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">payroll.integration.test.ts</div><div class="suite-path">integration/</div></td>
+          <td><span class="badge badge-int">Integration</span></td>
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td>Flujo completo: crear empleado → registrar marcas → calcular planilla</td>
+        </tr>
+        <tr>
+          <td><div class="suite-name">auth.lifecycle.test.ts</div><div class="suite-path">integration/</div></td>
+          <td><span class="badge badge-int">Integration</span></td>
+          <td><span class="badge badge-fail">FAIL</span></td>
+          <td>Ciclo de vida de autenticación: login → token refresh → logout</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════ MILESTONE PROGRESS -->
+  <div class="section-title">Progreso por Milestone</div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>v1.3 — Sistema de Marcas de Reloj Robusto</span>
+      <span style="color:#276749;">COMPLETADO ✓ (6/6 fases)</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>v1.4 — Stability and Integration Hardening</span>
+      <span style="color:#276749;">COMPLETADO ✓ (8/8 fases)</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>v1.5 — Gestión de Marcas y Planilla para Producción</span>
+      <span style="color:#975a16;">EN PROGRESO — 6/7 fases (86%)</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill partial" style="width:86%"></div></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ PHASE TIMELINE -->
+  <div class="section-title">Fases Implementadas — v1.5</div>
+
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 32 — Schema: Capa de Ajustes + Aprobación de Planilla</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Nuevos modelos Prisma para ajustes no-destructivos de marcas (EDIT/VOID) y el ciclo de vida de aprobación de planilla (BORRADOR → APROBADA → PAGADA). Se corrieron migraciones de base de datos y se crearon los Zod schemas de validación.</div>
+        <div class="plans-list">
+          <span class="plan-chip">32-01: Prisma models + migration</span>
+          <span class="plan-chip">32-02: Zod validation schemas</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 33 — Backend: Motor de Marcas Efectivas + API de Ajustes</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Servicio de ajustes con validación de planilla bloqueada y auditoría. Motor de marcas efectivas que aplica ajustes EDIT/VOID. Motor de emparejamiento IN/OUT con fallback y endpoints REST completos.</div>
+        <div class="plans-list">
+          <span class="plan-chip">33-01: Adjustment Service & Auditing</span>
+          <span class="plan-chip">33-02: Effective Marks Engine</span>
+          <span class="plan-chip">33-03: Pairing Engine & API Endpoints</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 34 — Frontend: Rediseño Clock Logs (Vista Agrupada)</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Reemplazo de la tabla plana de marcas con una vista jerárquica agrupada por Sucursal → Empleado → Día → Par de marcas IN/OUT. Infinite scroll, paginación en backend, metadatos de sucursal.</div>
+        <div class="plans-list">
+          <span class="plan-chip">34-01: Service + Hook</span>
+          <span class="plan-chip">34-02: BranchGroup, EmployeeCard, DailyRow</span>
+          <span class="plan-chip">34-03: Page reconstruction + ImportPanel</span>
+          <span class="plan-chip">34-04: Backend pagination</span>
+          <span class="plan-chip">34-05: Controller pagination update</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 35 — Frontend: Corrección de Marcas (Agregar / Editar / Anular)</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Modales de corrección con justificación obligatoria (react-hook-form + Zod), timeline de auditoría visual, botones contextuales en filas de marcas, integración completa en la página de asistencia.</div>
+        <div class="plans-list">
+          <span class="plan-chip">35-01: Add Clock Log Modal</span>
+          <span class="plan-chip">35-02: Edit Clock Log Modal</span>
+          <span class="plan-chip">35-03: Void Confirmation Modal</span>
+          <span class="plan-chip">35-04: AuditTimeline Component</span>
+          <span class="plan-chip">35-05: Page Integration</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 36 — Backend: State Machine de Planilla + Aguinaldo</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Máquina de estados para el ciclo de vida de planilla: aprobarPlanilla, marcarComoPagada, reabrirPlanilla, recalcularPlanilla. Cálculo de aguinaldo según Código de Trabajo costarricense. Endpoints REST + pruebas unitarias.</div>
+        <div class="plans-list">
+          <span class="plan-chip">36-01: State machine + aguinaldo + tests</span>
+          <span class="plan-chip">36-02: REST API endpoints</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot done"></div>
+      <div class="timeline-card">
+        <div class="timeline-header">
+          <div class="timeline-title">Fase 37 — Frontend: Wizard de Planilla Quincenal</div>
+          <span class="timeline-milestone">v1.5</span>
+        </div>
+        <div class="timeline-goal">Wizard guiado de 3 pasos: (1) Selección de período, (2) Revisión de resultados por empleado, (3) Resumen ejecutivo y aprobación. Integra la máquina de estados de la fase 36. Badges de estado (BORRADOR, APROBADA, PAGADA), modo Aguinaldo y acciones contextuales.</div>
+        <div class="plans-list">
+          <span class="plan-chip">37-01: Wizard + Hook + PeriodCard</span>
+          <span class="plan-chip">37-02: Step 2 Results</span>
+          <span class="plan-chip">37-03: Step 3 Executive Summary</span>
+          <span class="plan-chip">37-04: Payroll List + Status Badges</span>
+          <span class="plan-chip">37-05: Gap closure + integration</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot current"></div>
+      <div class="timeline-card" style="border: 2px dashed #d69e2e;">
+        <div class="timeline-header">
+          <div class="timeline-title" style="color:#975a16;">Fase 38 — Pruebas Unitarias + Verificación de Integración</div>
+          <span class="timeline-milestone" style="background:#fefcbf; color:#975a16;">EN PROGRESO</span>
+        </div>
+        <div class="timeline-goal">Cobertura de pruebas para todo lo implementado en v1.5. Verificación de integración E2E del flujo completo de planilla.</div>
+        <div class="plans-list">
+          <span class="plan-chip" style="background:#fefcbf; border-color:#d69e2e; color:#975a16;">Pendiente</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════ TECH STACK -->
+  <div class="section-title">Stack Tecnológico</div>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-icon node">🟢</div>
+      <div><div class="stack-name">Node.js + Express 5</div><div class="stack-ver">Node 22.14 · Express 5.1</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon ts">🔷</div>
+      <div><div class="stack-name">TypeScript</div><div class="stack-ver">Backend 5.8.3 · Frontend 5.9.3</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon react">⚛️</div>
+      <div><div class="stack-name">Next.js 15 + React 19</div><div class="stack-ver">App Router · Turbopack</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon db">🗄️</div>
+      <div><div class="stack-name">PostgreSQL + Prisma 6</div><div class="stack-ver">ORM con migraciones tipadas</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon ts">🎨</div>
+      <div><div class="stack-name">Tailwind CSS 4</div><div class="stack-ver">Framer Motion animations</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon test">🧪</div>
+      <div><div class="stack-name">Jest + ts-jest</div><div class="stack-ver">29.7 · 468 pruebas totales</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon node">📋</div>
+      <div><div class="stack-name">react-hook-form + Zod 4</div><div class="stack-ver">Validación tipada end-to-end</div></div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon db">📄</div>
+      <div><div class="stack-name">Puppeteer + pdf-lib</div><div class="stack-ver">Generación de reportes PDF</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ FOOTER -->
+  <div class="footer">
+    <p>VP-Planilla — Sistema de Planilla para Costa Rica &nbsp;·&nbsp; Generado el 16 de abril, 2026</p>
+    <p style="margin-top:4px;">Rama: <code>version/v1.5</code> &nbsp;·&nbsp; Último commit: <code>fcfa909b</code> — Add Aguinaldo results view and date picker</p>
+  </div>
+
+</div>
+</body>
+</html>
