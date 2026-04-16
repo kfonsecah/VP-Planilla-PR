@@ -15,6 +15,11 @@ jest.mock('@prisma/client', () => ({
   },
 }));
 
+// Mock the lib/prisma module
+jest.mock('../../../lib/prisma', () => ({
+  prisma: prismaMock,
+}));
+
 // Import PayrollService after mocking
 import { PayrollService } from '../../../service/PayrollService';
 
@@ -339,6 +344,207 @@ describe('PayrollService', () => {
 
       // Assert
       expect(result.period_start).toEqual(result.period_end);
+    });
+  });
+
+  describe('approvePayroll', () => {
+    it('should throw error when payroll not found', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(null as any);
+      await expect(PayrollService.approvePayroll(999, 1)).rejects.toThrow('Payroll not found');
+    });
+
+    it('should throw error when status is not BORRADOR', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue({
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.APROBADA,
+        payrolls_version: 1,
+        ...nullablePayrollFields,
+      } as any);
+      await expect(PayrollService.approvePayroll(1, 1)).rejects.toThrow('Solo las planillas en estado BORRADOR pueden ser aprobadas');
+    });
+
+    it('should successfully approve BORRADOR payroll', async () => {
+      const existingPayroll = {
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.BORRADOR,
+        payrolls_version: 1,
+        payrolls_payroll_type_id: 1,
+        payrolls_period_start: new Date('2026-02-01'),
+        payrolls_period_end: new Date('2026-02-28'),
+        payrolls_payment_date: new Date('2026-03-05'),
+        ...nullablePayrollFields,
+      };
+      
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(existingPayroll as any);
+      prismaMock.vpg_payrolls.update.mockResolvedValue({
+        ...existingPayroll,
+        payrolls_status: PayrollStatus.APROBADA,
+        payrolls_approved_by: 1,
+        payrolls_approved_at: new Date(),
+        payrolls_version: 2,
+      } as any);
+
+      const result = await PayrollService.approvePayroll(1, 1);
+      
+      expect(result.status).toBe(PayrollStatus.APROBADA);
+      expect(result.approved_by).toBe(1);
+      expect(result.version).toBe(2);
+    });
+  });
+
+  describe('markAsPaid', () => {
+    it('should throw error when payroll not found', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(null as any);
+      await expect(PayrollService.markAsPaid(999)).rejects.toThrow('Payroll not found');
+    });
+
+    it('should throw error when status is not APROBADA', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue({
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.BORRADOR,
+        payrolls_version: 1,
+        payrolls_period_start: new Date('2026-02-01'),
+        payrolls_period_end: new Date('2026-02-28'),
+        ...nullablePayrollFields,
+      } as any);
+      await expect(PayrollService.markAsPaid(1)).rejects.toThrow('Solo las planillas en estado APROBADA pueden ser marcadas como pagadas');
+    });
+
+    it('should successfully mark APROBADA payroll as paid', async () => {
+      const existingPayroll = {
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.APROBADA,
+        payrolls_version: 1,
+        payrolls_payroll_type_id: 1,
+        payrolls_period_start: new Date('2026-02-01'),
+        payrolls_period_end: new Date('2026-02-28'),
+        payrolls_payment_date: new Date('2026-03-05'),
+        ...nullablePayrollFields,
+      };
+      
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(existingPayroll as any);
+      prismaMock.vpg_payrolls.update.mockResolvedValue({
+        ...existingPayroll,
+        payrolls_status: PayrollStatus.PAGADA,
+        payrolls_version: 2,
+      } as any);
+
+      const result = await PayrollService.markAsPaid(1);
+      
+      expect(result.status).toBe(PayrollStatus.PAGADA);
+      expect(result.version).toBe(2);
+    });
+  });
+
+  describe('reopenPayroll', () => {
+    it('should throw error when payroll not found', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(null as any);
+      await expect(PayrollService.reopenPayroll(999, 1, 'Reason for reopening')).rejects.toThrow('Payroll not found');
+    });
+
+    it('should throw error when status is not APROBADA', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue({
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.BORRADOR,
+        payrolls_version: 1,
+        ...nullablePayrollFields,
+      } as any);
+      await expect(PayrollService.reopenPayroll(1, 1, 'Reason for reopening')).rejects.toThrow('Solo las planillas en estado APROBADA pueden ser reopenidas');
+    });
+
+    it('should throw error when reason is less than 10 characters', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue({
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.APROBADA,
+        payrolls_version: 1,
+        ...nullablePayrollFields,
+      } as any);
+      await expect(PayrollService.reopenPayroll(1, 1, 'short')).rejects.toThrow('El motivo de reapertura debe tener al menos 10 caracteres');
+    });
+  });
+
+  describe('recalculatePayroll', () => {
+    it('should throw error when payroll not found', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue(null as any);
+      await expect(PayrollService.recalculatePayroll(999, 1, 'Reason for recalc')).rejects.toThrow('Payroll not found');
+    });
+
+    it('should throw error when status is not BORRADOR', async () => {
+      prismaMock.vpg_payrolls.findUnique.mockResolvedValue({
+        payrolls_id: 1,
+        payrolls_status: PayrollStatus.APROBADA,
+        payrolls_version: 1,
+        vpg_payroll_employee: [],
+        ...nullablePayrollFields,
+      } as any);
+      await expect(PayrollService.recalculatePayroll(1, 1, 'Reason for recalc')).rejects.toThrow('Solo las planillas en estado BORRADOR pueden ser recalculadas');
+    });
+  });
+
+  describe('calculateAguinaldo', () => {
+    it('should calculate correct total for full year', async () => {
+      const mockPayrolls = [
+        {
+          payrolls_id: 1,
+          payrolls_payroll_type_id: 1,
+          payrolls_period_start: new Date('2025-12-01'),
+          payrolls_period_end: new Date('2025-12-31'),
+          payrolls_payment_date: new Date('2026-01-05'),
+          payrolls_status: PayrollStatus.APROBADA,
+          payrolls_version: 1,
+          vpg_payroll_employee: [
+            { payroll_employee_employee_id: 1, payroll_employee_gross_salary: 100000 },
+          ],
+          ...nullablePayrollFields,
+        },
+        {
+          payrolls_id: 2,
+          payrolls_payroll_type_id: 1,
+          payrolls_period_start: new Date('2026-01-01'),
+          payrolls_period_end: new Date('2026-01-31'),
+          payrolls_payment_date: new Date('2026-02-05'),
+          payrolls_status: PayrollStatus.APROBADA,
+          payrolls_version: 1,
+          vpg_payroll_employee: [
+            { payroll_employee_employee_id: 1, payroll_employee_gross_salary: 100000 },
+          ],
+          ...nullablePayrollFields,
+        },
+      ];
+      
+      prismaMock.vpg_payrolls.findMany.mockResolvedValue(mockPayrolls as any);
+      
+      const result = await PayrollService.calculateAguinaldo(1, 2026);
+      
+      // 2 months * 100000 / 12 = 16666.67
+      expect(result.total).toBeCloseTo(16666.67, 0);
+      expect(result.months).toBe(2);
+    });
+
+    it('should calculate proportional for partial year', async () => {
+      const mockPayrolls = [
+        {
+          payrolls_id: 1,
+          payrolls_payroll_type_id: 1,
+          payrolls_period_start: new Date('2026-01-01'),
+          payrolls_period_end: new Date('2026-01-31'),
+          payrolls_payment_date: new Date('2026-02-05'),
+          payrolls_status: PayrollStatus.APROBADA,
+          payrolls_version: 1,
+          vpg_payroll_employee: [
+            { payroll_employee_employee_id: 1, payroll_employee_gross_salary: 100000 },
+          ],
+          ...nullablePayrollFields,
+        },
+      ];
+      
+      prismaMock.vpg_payrolls.findMany.mockResolvedValue(mockPayrolls as any);
+      
+      const result = await PayrollService.calculateAguinaldo(1, 2026);
+      
+      // 1 month * 100000 / 12 = 8333.33
+      expect(result.total).toBeCloseTo(8333.33, 0);
+      expect(result.months).toBe(1);
     });
   });
 });
