@@ -83,4 +83,29 @@ export const PayrollService = {
       throw new Error(err instanceof Error ? err.message : 'Error al obtener empleados de la planilla');
     }
   },
+
+  // State machine transitions (Phase 36)
+  async approvePayroll(payrollId: number): Promise<Payroll> {
+    try {
+      return await http.post(`/payroll/${payrollId}/approve`, {});
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al aprobar la planilla');
+    }
+  },
+
+  async markAsPaid(payrollId: number): Promise<Payroll> {
+    try {
+      return await http.post(`/payroll/${payrollId}/pay`, {});
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al marcar como pagada');
+    }
+  },
+
+  async reopenPayroll(payrollId: number, reason: string): Promise<Payroll> {
+    try {
+      return await http.post(`/payroll/${payrollId}/reopen`, { reason });
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al reopen la planilla');
+    }
+  },
 };
