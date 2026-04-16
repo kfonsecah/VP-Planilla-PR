@@ -64,11 +64,16 @@ export const clockLogAdjustmentService = {
 
   /**
    * Void/annul a clock log (soft delete)
+   * @param id - The clock log ID to void
+   * @param employeeId - The employee who owns this clock log (required by backend schema)
+   * @param type - Whether this is an IN or OUT mark
+   * @param justification - Mandatory justification (minimum 10 characters)
    */
-  async voidClockLog(id: string, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
+  async voidClockLog(id: string, employeeId: string, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
     const response = await http.post('/clock-logs/adjust', {
       type: 'VOID',
       clock_log_id: Number(id),
+      employee_id: Number(employeeId),
       log_type: type,
       justification,
     });

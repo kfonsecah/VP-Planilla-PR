@@ -54,18 +54,18 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing, onEdit, onVoid }
   const [showAuditTimeline, setShowAuditTimeline] = useState(false);
   const [isLoadingAudit, setIsLoadingAudit] = useState(false);
 
-  // Fetch audit count on mount
+  // Fetch audit count on mount — use in_log_id and out_log_id (correct EffectiveClockLog.original fields)
   useEffect(() => {
-    const inId = log.original?.id;
-    const outId = log.adjusted?.id || log.original?.id;
+    const inId = log.original?.in_log_id;
+    const outId = log.original?.out_log_id;
 
     if (!inId && !outId) return;
 
     setIsLoadingAudit(true);
     const idsToCheck = [inId, outId].filter(Boolean);
-    
+
     Promise.all(
-      idsToCheck.map((id) => 
+      idsToCheck.map((id) =>
         ClockLogsService.getAuditLogsForClockLog(id as number).catch(() => [])
       )
     )
@@ -77,7 +77,7 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing, onEdit, onVoid }
         setAuditCount(0);
       })
       .finally(() => setIsLoadingAudit(false));
-  }, [log.original?.id, log.adjusted?.id]);
+  }, [log.original?.in_log_id, log.original?.out_log_id]);
 
   const dateLabel = new Date(log.log_date + 'T00:00:00').toLocaleDateString('es-CR', {
     weekday: 'long',
@@ -183,7 +183,7 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing, onEdit, onVoid }
           >
             Editar
           </button>
-          
+
           {/* Void button - triggers void modal */}
           <button
             onClick={() => onVoid?.(log)}
@@ -193,11 +193,11 @@ const DailyRow: React.FC<DailyRowProps> = ({ log, onAddMissing, onEdit, onVoid }
           </button>
         </div>
 
-        {/* Expandable Audit Timeline */}
+        {/* Expandable Audit Timeline — use in_log_id or out_log_id (correct EffectiveClockLog.original fields) */}
         {showAuditTimeline && auditCount > 0 && (
           <div className="mt-3 pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50">
-            <AuditTimeline 
-              clockLogId={String(log.original?.id || log.adjusted?.id)} 
+            <AuditTimeline
+              clockLogId={String(log.original?.in_log_id || log.original?.out_log_id)}
               compact={false}
             />
           </div>

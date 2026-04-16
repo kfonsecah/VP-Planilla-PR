@@ -37,7 +37,7 @@ const VoidClockLogModal: React.FC<VoidClockLogModalProps> = ({
   // Form state
   const [justification, setJustification] = useState<string>('');
   const [confirmationText, setConfirmationText] = useState<string>('');
-  
+
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,15 +67,16 @@ const VoidClockLogModal: React.FC<VoidClockLogModalProps> = ({
     try {
       const result = await clockLogAdjustmentService.voidClockLog(
         clockLog.id,
+        clockLog.employeeId,
         clockLog.type,
         justificationTrimmed
       );
       toast.success('Marca anulada correctamente');
-      
+
       if (onConfirm) {
         onConfirm(result);
       }
-      
+
       onClose();
     } catch (error) {
       console.error('[VoidClockLogModal] Error voiding clock log:', error);

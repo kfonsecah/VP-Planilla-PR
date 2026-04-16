@@ -11,7 +11,7 @@ import type { EffectiveClockLog } from '@/services/effectiveMarksService';
 import AddClockLogModal from '@/components/AddClockLogModal';
 import EditClockLogModal from '@/components/EditClockLogModal';
 import VoidClockLogModal from '@/components/VoidClockLogModal';
-import { ClockLog } from '@/services/clockLogsService';
+import { ClockLog as AdjustmentClockLog } from '@/services/clockLogAdjustmentService';
 import {
   STATUS_OPTIONS,
   STATUS_CARD_COLORS,
@@ -77,6 +77,28 @@ function groupDataByBranch(logs: EffectiveClockLog[]): BranchData[] {
   return branches;
 }
 
+/**
+ * Build an AdjustmentClockLog from an EffectiveClockLog entry.
+ * Uses in_log_id/in_time for IN marks; falls back to out_log_id/out_time for OUT-only orphans.
+ */
+function toAdjustmentClockLog(entry: EffectiveClockLog): AdjustmentClockLog {
+  const hasIn = entry.original.in_log_id != null;
+  const logId = hasIn ? entry.original.in_log_id! : (entry.original.out_log_id ?? 0);
+  const logType: 'IN' | 'OUT' = hasIn ? 'IN' : 'OUT';
+  const logTimestamp = (hasIn ? entry.original.in_time : entry.original.out_time)
+    ?? (entry.log_date + 'T00:00:00');
+
+  return {
+    id: String(logId),
+    employeeId: entry.employee_id,
+    timestamp: logTimestamp,
+    type: logType,
+    source: entry.original.source as 'DEVICE' | 'MANUAL',
+    createdAt: '',
+    createdBy: '',
+  };
+}
+
 export default function ClockLogsDashboardPage() {
   const {
     data,
@@ -99,8 +121,8 @@ export default function ClockLogsDashboardPage() {
   // Correction modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedEmployeeForAdd, setSelectedEmployeeForAdd] = useState<{id: string; name: string} | null>(null);
-  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState<ClockLog | null>(null);
-  const [selectedEntryForVoid, setSelectedEntryForVoid] = useState<ClockLog | null>(null);
+  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState<AdjustmentClockLog | null>(null);
+  const [selectedEntryForVoid, setSelectedEntryForVoid] = useState<AdjustmentClockLog | null>(null);
 
   // IntersectionObserver for infinite scroll (D-05)
   useEffect(() => {
@@ -143,7 +165,7 @@ export default function ClockLogsDashboardPage() {
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
       <div className="p-6 max-w-7xl mx-auto">
-        
+
         {/* B. Page header (UX-03 — contextual guide subtitle) */}
         <div className="mb-6">
           <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">Marcas / Dashboard</p>
@@ -280,30 +302,10 @@ export default function ClockLogsDashboardPage() {
                       setIsAddModalOpen(true);
                     }}
                     onEditEntry={(entry) => {
-                      // Convert EffectiveClockLog to ClockLog
-                      const clockLog: ClockLog = {
-                        id: String(entry.original.id),
-                        employeeId: entry.employee_id,
-                        timestamp: entry.original.timestamp || entry.log_date + 'T00:00:00',
-                        type: entry.original.type as 'IN' | 'OUT',
-                        source: entry.original.source as 'DEVICE' | 'MANUAL',
-                        createdAt: entry.original.created_at || '',
-                        createdBy: '',
-                      };
-                      setSelectedEntryForEdit(clockLog);
+                      setSelectedEntryForEdit(toAdjustmentClockLog(entry));
                     }}
                     onVoidEntry={(entry) => {
-                      // Convert EffectiveClockLog to ClockLog
-                      const clockLog: ClockLog = {
-                        id: String(entry.original.id),
-                        employeeId: entry.employee_id,
-                        timestamp: entry.original.timestamp || entry.log_date + 'T00:00:00',
-                        type: entry.original.type as 'IN' | 'OUT',
-                        source: entry.original.source as 'DEVICE' | 'MANUAL',
-                        createdAt: entry.original.created_at || '',
-                        createdBy: '',
-                      };
-                      setSelectedEntryForVoid(clockLog);
+                      setSelectedEntryForVoid(toAdjustmentClockLog(entry));
                     }}
                   />
                 ))}

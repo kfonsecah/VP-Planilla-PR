@@ -1,7 +1,7 @@
 import { prisma } from '../lib/prisma';
-import { 
-  ClockLogAdjustmentType, 
-  ClockLogAdjustmentStatus, 
+import {
+  ClockLogAdjustmentType,
+  ClockLogAdjustmentStatus,
   ClockLogType,
   ClockLogSource,
   Prisma
@@ -39,6 +39,10 @@ export interface EffectiveClockLog {
   original: {
     in_time: string | null;
     out_time: string | null;
+    /** Database ID of the IN clock log record — used by VOID/EDIT actions */
+    in_log_id: number | null;
+    /** Database ID of the OUT clock log record — used by VOID/EDIT actions */
+    out_log_id: number | null;
     status: 'valid' | 'anomaly' | 'orphan' | 'pending' | 'corrected';
     source: ClockLogSource;
   };
@@ -101,13 +105,13 @@ export class ClockLogEffectiveService {
         let foundOut = false;
         for (let j = i + 1; j < sortedLogs.length; j++) {
           const next = sortedLogs[j];
-          
+
           // Safety: ensure we only pair logs for the same employee
           if (next.employeeId !== current.employeeId) continue;
 
           if (next.logType === ClockLogType.OUT) {
             const durationMs = next.effectiveTimestamp.getTime() - current.effectiveTimestamp.getTime();
-            
+
             if (durationMs >= 0 && durationMs <= TWENTY_FOUR_HOURS_MS) {
               // Pair found
               pairs.push({
@@ -159,7 +163,7 @@ export class ClockLogEffectiveService {
 
   /**
    * Fetches effective logs for a specific employee within a date range and pairs them.
-   * 
+   *
    * @param employeeId - The ID of the employee
    * @param startDate - Start of the range
    * @param endDate - End of the range
@@ -205,7 +209,7 @@ export class ClockLogEffectiveService {
     status?: string[];
   }): Promise<{ data: EffectiveClockLog[]; total: number }> {
     let { initDate, endDate, page, pageSize, branchId, employeeId, status: statusFilter } = params;
-    
+
     // Mitigate DoS: Enforce maximum pageSize
     if (pageSize > 100) pageSize = 100;
     const offset = (page - 1) * pageSize;
@@ -229,9 +233,9 @@ export class ClockLogEffectiveService {
         if (totalCount > 0) {
           employees = await prisma.$queryRaw<EmployeeRow[]>(Prisma.sql`
             SELECT DISTINCT
-              e.employee_id, 
-              e.employee_first_name, 
-              e.employee_last_name, 
+              e.employee_id,
+              e.employee_first_name,
+              e.employee_last_name,
               e.employee_middle_name,
               b.branch_name
             FROM verdepradera.vpg_employees e
@@ -378,7 +382,7 @@ export class ClockLogEffectiveService {
         for (const pair of pairs) {
           const inMark = pair.in as EffectiveMarkWithAdj | undefined;
           const outMark = pair.out as EffectiveMarkWithAdj | undefined;
-          
+
           const timestamp = (inMark?.effectiveTimestamp || outMark?.effectiveTimestamp || new Date());
           const dateKey = timestamp.toLocaleDateString('en-CA');
 
@@ -393,12 +397,15 @@ export class ClockLogEffectiveService {
 
           const effectiveLog: EffectiveClockLog = {
             id: `${empId}-${dateKey}-${inMark?.id || 'null'}-${outMark?.id || 'null'}`,
-            employee_id: String(empId),            employee_name: fullName || `Empleado ${empId}`,
+            employee_id: String(empId),
+            employee_name: fullName || `Empleado ${empId}`,
             branch_name: empInfo.branch_name || 'Sin Sucursal',
             log_date: dateKey,
             original: {
               in_time: inMark ? inMark.originalTimestamp.toISOString() : null,
               out_time: outMark ? outMark.originalTimestamp.toISOString() : null,
+              in_log_id: inMark?.id ?? null,
+              out_log_id: outMark?.id ?? null,
               status,
               source: inMark?.source || outMark?.source || ClockLogSource.manual,
             },
@@ -408,7 +415,7 @@ export class ClockLogEffectiveService {
           const anyAdj = inMark?._adjustment || outMark?._adjustment;
           if (anyAdj) {
             effectiveLog.adjusted = {
-              in_time: inMark?.adjustmentType === 'EDIT' ? inMark.effectiveTimestamp.toISOString() : 
+              in_time: inMark?.adjustmentType === 'EDIT' ? inMark.effectiveTimestamp.toISOString() :
                       (inMark ? inMark.effectiveTimestamp.toISOString() : null),
               out_time: outMark?.adjustmentType === 'EDIT' ? outMark.effectiveTimestamp.toISOString() :
                        (outMark ? outMark.effectiveTimestamp.toISOString() : null),
@@ -438,7 +445,7 @@ export class ClockLogEffectiveService {
 
   /**
    * Fetches effective logs for a specific employee within a date range.
-   * 
+   *
    * @param employeeId - The ID of the employee
    * @param startDate - Start of the range
    * @param endDate - End of the range
@@ -526,9 +533,9 @@ export class ClockLogEffectiveService {
   }
 
   /**
-   * Batch version for payroll: fetches all logs in range, all active adjustments in one query, 
+   * Batch version for payroll: fetches all logs in range, all active adjustments in one query,
    * and groups the results by employeeId.
-   * 
+   *
    * @param startDate - Start of the range
    * @param endDate - End of the range
    * @returns Map keyed by employeeId with arrays of effective marks

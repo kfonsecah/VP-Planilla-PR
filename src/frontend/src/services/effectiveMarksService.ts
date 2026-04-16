@@ -9,6 +9,10 @@ export interface EffectiveClockLog {
   original: {
     in_time: string | null;
     out_time: string | null;
+    /** Database ID of the IN clock log record — used by VOID/EDIT actions */
+    in_log_id: number | null;
+    /** Database ID of the OUT clock log record — used by VOID/EDIT actions */
+    out_log_id: number | null;
     status: 'valid' | 'anomaly' | 'orphan' | 'pending' | 'corrected';
     source: 'java_import' | 'excel_import' | 'manual' | 'device';
   };
@@ -60,7 +64,7 @@ export const EffectiveMarksService = {
       // ALWAYS use http.raw() to preserve pagination metadata
       const queryString = searchParams.toString();
       const raw = await http.raw(`/clock-logs/effective${queryString ? '?' + queryString : ''}`, { method: 'GET' });
-      
+
       if (!raw.ok) {
         console.warn('[EffectiveMarksService] Request failed:', raw.status, raw.statusText);
         return { success: false, data: [], total: 0, page: 1, pageSize: 20 };
