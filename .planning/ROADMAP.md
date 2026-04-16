@@ -49,11 +49,12 @@
   - [x] 36-02-PLAN.md — REST API endpoints for state transitions and aguinaldo.
 - [ ] Phase 37: Frontend — Wizard de Planilla Quincenal
   **Goal:** Reemplazar la página actual de cálculo con un wizard guiado de 3 pasos que lleve al jefe desde la selección de período hasta la aprobación.
-  **Plans:** 4 plans
+  **Plans:** 5 plans
   - [x] 37-01-PLAN.md — Core wizard infrastructure (PayrollWizard, usePayrollWizard hook, PayrollPeriodCard)
   - [x] 37-02-PLAN.md — Step 2 wrapper with PayrollResults integration
   - [x] 37-03-PLAN.md — Step 3 executive summary + Phase 36 state machine integration
   - [x] 37-04-PLAN.md — Payroll list with status badges and contextual actions
+  - [x] 37-05-PLAN.md — Gap closure: fix status badges, contextual buttons, wizard data integration
 - [ ] Phase 38: Tests Unitarios + Verificación de Integración
 
 <details>
