@@ -64,7 +64,7 @@ export default function PayrollListPage() {
       );
     }
 
-    if (status === 'PAGADO' || status === 'paid' || status === 'completed') {
+    if (status === 'PAGADA' || status === 'PAGADO' || status === 'paid' || status === 'completed') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white border border-blue-700">
           <CheckCircleIcon className="w-4 h-4" />
@@ -310,7 +310,7 @@ export default function PayrollListPage() {
                   <div>
                     <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Pagadas</p>
                     <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">
-                      {payrolls.filter(p => p.status === 'PAGADO').length}
+                      {payrolls.filter(p => p.status === 'PAGADA' || p.status === 'PAGADO').length}
                     </p>
                   </div>
                 </div>
@@ -449,7 +449,7 @@ export default function PayrollListPage() {
                       </>
                     )}
 
-                    {p.status === 'PAGADO' && (
+                    {(p.status === 'PAGADA' || p.status === 'PAGADO') && (
                       <button
                         onClick={(e) => reopenPayroll(p.id, e)}
                         disabled={updatingId === p.id}

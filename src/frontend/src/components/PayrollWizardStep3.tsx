@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { PayrollService } from '@/services/payrollService';
-import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { formatCRC } from '@/utils/number';
 
 interface CalculationEmployee {
@@ -43,12 +43,18 @@ export default function PayrollWizardStep3({
   const [isLoading, setIsLoading] = useState(false);
 
   const totalNet = calculationData?.employees?.reduce(
-    (sum, emp) => sum + (emp.net || 0),
+    (sum, emp) => {
+      const raw = emp as unknown as Record<string, unknown>;
+      return sum + Number(raw.net ?? raw.netSalary ?? raw.net_salary ?? 0);
+    },
     0
   ) || 0;
 
   const totalGross = calculationData?.employees?.reduce(
-    (sum, emp) => sum + (emp.gross || 0),
+    (sum, emp) => {
+      const raw = emp as unknown as Record<string, unknown>;
+      return sum + Number(raw.gross ?? raw.grossSalary ?? raw.total_gross ?? 0);
+    },
     0
   ) || 0;
 
@@ -122,34 +128,58 @@ export default function PayrollWizardStep3({
         </div>
       </div>
 
-      {/* Confirmation Dialog with "APROBAR" requirement */}
-      <ConfirmDialog
-        open={showConfirm}
-        title="¿Aprobar Planilla?"
-        description="Esta acción aprobará la planilla y no podrá modificarse sin reopen. Escriba 'APROBAR' para confirmar."
-        onCancel={handleCancel}
-        onConfirm={handleApprove}
-      >
-        {/* Custom confirmation input - user must type APROBAR */}
-        <div className="mt-4">
-          <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-2">
-            Escriba &quot;APROBAR&quot; para confirmar
-          </label>
-          <input
-            type="text"
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
-            placeholder="APROBAR"
-            disabled={isLoading}
-          />
-          {confirmText !== 'APROBAR' && confirmText.length > 0 && (
-            <p className="text-xs text-red-600 mt-1">
-              Debe escribir exactamente &quot;APROBAR&quot;
+      {/* Inline confirmation modal with "APROBAR" requirement */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                <ExclamationTriangleIcon className="w-7 h-7 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">¿Aprobar Planilla?</h3>
+            </div>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
+              Esta acción aprobará la planilla y no podrá modificarse sin reabrir.
             </p>
-          )}
+            <div className="mb-6">
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-2">
+                Escriba <span className="font-bold text-zinc-800 dark:text-zinc-100">&quot;APROBAR&quot;</span> para confirmar
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+                placeholder="APROBAR"
+                disabled={isLoading}
+                autoFocus
+              />
+              {confirmText.length > 0 && confirmText !== 'APROBAR' && (
+                <p className="text-xs text-red-600 mt-1">
+                  Debe escribir exactamente &quot;APROBAR&quot;
+                </p>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-semibold transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleApprove}
+                disabled={confirmText !== 'APROBAR' || isLoading}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                {isLoading ? 'Aprobando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
         </div>
-      </ConfirmDialog>
+      )}
     </>
   );
 }
