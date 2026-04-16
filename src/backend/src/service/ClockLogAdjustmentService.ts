@@ -3,6 +3,7 @@ import {
   ClockLogAdjustmentType, 
   ClockLogAdjustmentStatus, 
   ClockLogType,
+  ClockLogSource,
   PayrollStatus
 } from '@prisma/client';
 import { CreateAdjustmentInput } from '../schemas/AdjustmentSchema';
@@ -71,6 +72,18 @@ export class ClockLogAdjustmentService {
           adjustment_created_by: userId,
         }
       });
+
+      // For ADD: also create the actual clock log entry
+      if (data.type === 'ADD' && targetTimestamp) {
+        await tx.vpg_clock_logs.create({
+          data: {
+            clock_logs_employee_id: data.employee_id,
+            clock_logs_timestamp: targetTimestamp,
+            clock_logs_log_type: data.log_type as ClockLogType,
+            clock_logs_source: ClockLogSource.manual,
+          }
+        });
+      }
 
       await AuditLogsService.createAuditLog({
         userId,

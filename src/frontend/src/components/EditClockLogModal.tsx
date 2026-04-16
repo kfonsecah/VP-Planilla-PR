@@ -63,13 +63,14 @@ const EditClockLogModal: React.FC<EditClockLogModalProps> = ({
       return;
     }
 
-    const newTimestamp = `${date}T${time}:00`;
+    const newTimestamp = `${date}T${time}:00.000Z`;
 
     setIsSubmitting(true);
     try {
       const result = await clockLogAdjustmentService.editClockLog(
         clockLog.id,
         newTimestamp,
+        clockLog.type,
         justificationTrimmed
       );
       toast.success('Marca actualizada correctamente');

@@ -39,8 +39,11 @@ export const clockLogAdjustmentService = {
    */
   async addClockLog(payload: AddClockLogPayload): Promise<ClockLog> {
     const response = await http.post('/clock-logs/adjust', {
-      action: 'ADD',
-      ...payload,
+      type: 'ADD',
+      employee_id: Number(payload.employeeId),
+      new_timestamp: payload.timestamp,
+      log_type: payload.type,
+      justification: payload.justification,
     });
     return response as ClockLog;
   },
@@ -48,11 +51,12 @@ export const clockLogAdjustmentService = {
   /**
    * Edit an existing clock log timestamp (non-destructive)
    */
-  async editClockLog(id: string, timestamp: string, justification: string): Promise<ClockLog> {
+  async editClockLog(id: string, timestamp: string, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
     const response = await http.post('/clock-logs/adjust', {
-      action: 'EDIT',
-      clockLogId: id,
-      timestamp,
+      type: 'EDIT',
+      clock_log_id: Number(id),
+      new_timestamp: timestamp,
+      log_type: type,
       justification,
     });
     return response as ClockLog;
@@ -61,10 +65,11 @@ export const clockLogAdjustmentService = {
   /**
    * Void/annul a clock log (soft delete)
    */
-  async voidClockLog(id: string, justification: string): Promise<ClockLog> {
+  async voidClockLog(id: string, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
     const response = await http.post('/clock-logs/adjust', {
-      action: 'VOID',
-      clockLogId: id,
+      type: 'VOID',
+      clock_log_id: Number(id),
+      log_type: type,
       justification,
     });
     return response as ClockLog;

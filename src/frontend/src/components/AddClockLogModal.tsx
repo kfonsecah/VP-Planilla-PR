@@ -107,7 +107,7 @@ const AddClockLogModal: React.FC<AddClockLogModalProps> = ({
       return;
     }
 
-    const timestamp = `${date}T${time}:00`;
+    const timestamp = `${date}T${time}:00.000Z`;
 
     setIsSubmitting(true);
     try {

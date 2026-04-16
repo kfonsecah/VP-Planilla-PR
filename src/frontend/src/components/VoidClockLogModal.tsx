@@ -67,6 +67,7 @@ const VoidClockLogModal: React.FC<VoidClockLogModalProps> = ({
     try {
       const result = await clockLogAdjustmentService.voidClockLog(
         clockLog.id,
+        clockLog.type,
         justificationTrimmed
       );
       toast.success('Marca anulada correctamente');
