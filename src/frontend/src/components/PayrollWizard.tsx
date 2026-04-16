@@ -9,15 +9,29 @@ import { getEmployees } from '@/services/employeeService';
 import PayrollPeriodCard from '@/components/PayrollPeriodCard';
 import PayrollWizardStep2 from '@/components/PayrollWizardStep2';
 import PayrollWizardStep3 from '@/components/PayrollWizardStep3';
+import DatePicker from '@/components/DatePicker';
+import AguinaldoResults from '@/components/AguinaldoResults';
+import type { Employee } from '@/types/employee';
 
 type WizardType = 'quincenal' | 'aguinaldo';
 
+function isoToDisplay(iso: string): string {
+  const [year, month, day] = iso.split('-');
+  return `${day}/${month}/${year.slice(-2)}`;
+}
+
+function displayToIso(display: string): string {
+  const [day, month, year] = display.split('/');
+  const fullYear = year.length === 2 ? `20${year}` : year;
+  return `${fullYear}-${month}-${day}`;
+}
+
 function getDefaultAguinaldoDates() {
   const today = new Date();
-  const end = today.toISOString().split('T')[0];
-  const start = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate())
+  const endIso = today.toISOString().split('T')[0];
+  const startIso = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate())
     .toISOString().split('T')[0];
-  return { start, end };
+  return { start: isoToDisplay(startIso), end: isoToDisplay(endIso) };
 }
 
 export default function PayrollWizard() {
@@ -37,6 +51,7 @@ export default function PayrollWizard() {
   const [wizardType, setWizardType] = useState<WizardType>('quincenal');
   const [isCalculating, setIsCalculating] = useState(false);
   const [calcError, setCalcError] = useState<string | null>(null);
+  const [aguinaldoEmployees, setAguinaldoEmployees] = useState<Employee[]>([]);
 
   const defaults = getDefaultAguinaldoDates();
   const [aguinaldoStart, setAguinaldoStart] = useState(defaults.start);
@@ -97,7 +112,8 @@ export default function PayrollWizard() {
         throw new Error('No hay empleados activos para calcular aguinaldo');
       }
 
-      const result = await NomineeService.calculateAguinaldo(activeIds, aguinaldoStart, aguinaldoEnd);
+      const result = await NomineeService.calculateAguinaldo(activeIds, displayToIso(aguinaldoStart), displayToIso(aguinaldoEnd));
+      setAguinaldoEmployees(employees);
       setCalculationData(result as Parameters<typeof setCalculationData>[0]);
       goToStep(2);
     } catch (err) {
@@ -201,19 +217,21 @@ export default function PayrollWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg">
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Fecha inicio</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={aguinaldoStart}
-                    onChange={(e) => setAguinaldoStart(e.target.value)}
+                    onChange={setAguinaldoStart}
+                    rangeStart={aguinaldoStart}
+                    rangeEnd={aguinaldoEnd}
                     className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Fecha fin</label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={aguinaldoEnd}
-                    onChange={(e) => setAguinaldoEnd(e.target.value)}
+                    onChange={setAguinaldoEnd}
+                    rangeStart={aguinaldoStart}
+                    rangeEnd={aguinaldoEnd}
                     className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm"
                   />
                 </div>
@@ -243,13 +261,21 @@ export default function PayrollWizard() {
       )}
 
       {/* Step 2: Review */}
-      {currentStep === 2 && calculationData && (
+      {currentStep === 2 && calculationData && isAguinaldo && (
+        <AguinaldoResults
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          results={calculationData as any}
+          employees={aguinaldoEmployees}
+          onBack={() => { reset(); goToStep(1); }}
+        />
+      )}
+      {currentStep === 2 && calculationData && !isAguinaldo && (
         <PayrollWizardStep2
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data={calculationData as any}
           onBack={() => { reset(); goToStep(1); }}
-          onNext={() => isAguinaldo ? (reset(), goToStep(1)) : goToStep(3)}
-          onConfirm={() => isAguinaldo ? (reset(), goToStep(1)) : goToStep(3)}
+          onNext={() => goToStep(3)}
+          onConfirm={() => goToStep(3)}
         />
       )}
 
