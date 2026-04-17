@@ -1,8 +1,8 @@
 import { ClockLogsService } from '@/services/clockLogsService';
 import { http } from '@/services/http';
 
-const TEST_INIT_DATE = TEST_INIT_DATE;
-const TEST_END_DATE = TEST_END_DATE;
+const TEST_INIT_DATE = '2026-02-01';
+const TEST_END_DATE = '2026-02-28';
 
 jest.mock('@/services/http', () => ({
   http: {

@@ -3,8 +3,28 @@ import { mockDeep } from 'jest-mock-extended';
 import { ClockLogEffectiveService } from '../../../service/ClockLogEffectiveService';
 
 jest.mock('../../../lib/prisma', () => {
-  const mock = mockDeep<PrismaClient>();
-  return { prisma: mock };
+  const mockPrisma = mockDeep<PrismaClient>();
+  // Mock count() for non-branch-filter path
+  mockPrisma.vpg_employees.count.mockResolvedValue(2);
+  // Mock findMany for employees - provide all required fields
+  mockPrisma.vpg_employees.findMany.mockResolvedValue([
+    { 
+      employee_id: 1, 
+      employee_first_name: 'John', 
+      employee_last_name: 'Doe', 
+      employee_middle_name: '',
+      employee_national_id: '123456789',
+      employee_social_code: '111111111',
+      employee_email: 'john@test.com',
+      employee_position_id: 1,
+      employee_is_active: true,
+      employee_hire_date: new Date(),
+      employee_created_at: new Date(),
+      employee_updated_at: new Date(),
+      employee_version: 1
+    }
+  ]);
+  return { prisma: mockPrisma };
 });
 
 const { prisma } = require('../../../lib/prisma');
