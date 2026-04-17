@@ -157,17 +157,18 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
                     <div>
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Posición *</label>
-                      <Controller
-                        name="employee_position_id"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value || ''}
-                            onValueChange={field.onChange}
-                            disabled={positionsLoading}
-                            placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
-                            className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
-                          >
+<Controller
+                          name="employee_position_id"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              value={field.value || ''}
+                              selectedLabel={positionOptions.find(p => String(p.id) === String(field.value))?.name}
+                              onValueChange={field.onChange}
+                              disabled={positionsLoading}
+                              placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
+                              className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+                            >
                             {positionOptions.map((position) => (
                               <SelectItem key={position.id} value={position.id}>
                                 {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
