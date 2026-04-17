@@ -6,7 +6,7 @@ status: Milestone complete
 last_updated: "2026-04-16T05:39:59.713Z"
 last_activity: 2026-04-16
 progress:
-  total_phases: 29
+  total_phases: 30
   completed_phases: 25
   total_plans: 74
   completed_plans: 67
@@ -40,6 +40,10 @@ Progress: [..........] 0% (of Phase 35)
 | 33 | Motor de Marcas Efectivas + API | MARCAS-01..05 | ✅ Complete (3/3 plans) |
 | 34 | Rediseño Clock Logs (Vista Agrupada) | MARCAS-06..10 | ✅ Complete (5/5 plans) |
 | 35 | Frontend Clock Log Corrections | MARCAS-02..05, UX-02 | 🚧 In Progress |
+| 36 | Backend: State Machine de Planilla + Aguinaldo | PAY-01..04 | [ ] Planned |
+| 37 | Frontend: Wizard de Planilla Quincenal | PAY-05..10 | [ ] Planned |
+| 38 | Tests Unitarios + Verificación de Integración | QUAL-03 | [ ] Planned |
+| 39 | Frontend: Corregir Selector de Posición en Edición de Empleado | UX-03 | 🚧 In Progress (0/2 plans) |
 
 ## Milestone History
 

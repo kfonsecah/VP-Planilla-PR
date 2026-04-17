@@ -13,7 +13,7 @@
   - Auth/HTTP/Hygiene/Modularization requirements fulfilled.
   - 441+ tests total across stacks.
 
-## Phases — v1.5 (Phases 32-38)
+## Phases — v1.5 (Phases 32-39)
 
 - [ ] Phase 32: Schema — Capa de Ajustes + Campos Aprobación Planilla
   **Goal:** Estructurar la base de datos para soportar ajustes no destructivos de marcas y el ciclo de vida de aprobación de planilla.
@@ -56,6 +56,13 @@
   - [x] 37-04-PLAN.md — Payroll list with status badges and contextual actions
   - [x] 37-05-PLAN.md — Gap closure: fix status badges, contextual buttons, wizard data integration
 - [ ] Phase 38: Tests Unitarios + Verificación de Integración
+  **Goal:** Ejecutar y verificar la suite de pruebas unitarias y de integración para asegurar la estabilidad de las nuevas funcionalidades de la v1.5.
+  **Plans:** 0 plans
+- [ ] Phase 39: Frontend — Corregir Selector de Posición en Edición de Empleado
+  **Goal:** Corregir el selector de posiciones en el formulario de edición de empleados para que muestre las posiciones correctamente, sincronizado con la tabla de empleados.
+  **Plans:** 2 plans
+  - [ ] 39-01-PLAN.md — Fix Selector display and consistency
+  - [ ] 39-02-PLAN.md — Ensure Data Synchronization
 
 <details>
 <summary>✅ v1.4 (Phases 24-31) — SHIPPED 2026-04-12</summary>
