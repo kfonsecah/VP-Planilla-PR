@@ -80,7 +80,7 @@
 - [ ] Phase 42: Frontend — Gestión de Aliases de Marcas
   **Goal:** Agregar en la ficha de cada empleado una sección para administrar sus aliases de reloj (crear, ver, eliminar), con validación de duplicados y feedback visual claro.
   **Plans:** 2 plans
-  - [ ] 42-01-PLAN.md — clockAliasService + useClockAliases hook
+  - [x] 42-01-PLAN.md — clockAliasService + useClockAliases hook
   - [ ] 42-02-PLAN.md — EditEmployeeModal alias section integration
 
 <details>

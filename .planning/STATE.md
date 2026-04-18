@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-status: completed
-last_updated: "2026-04-18T05:13:43.807Z"
-last_activity: 2026-04-18
+status: executing
+last_updated: "2026-04-18T08:12:13Z"
+last_activity: 2026-04-18 -- Phase 42 Plan 01 completed
 progress:
   total_phases: 34
   completed_phases: 29
-  total_plans: 85
+  total_plans: 87
   completed_plans: 78
   percent: 100
 ---
@@ -20,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** Phase 41 — Aliases de Marcas e Inferencia IN/OUT
+**Current focus:** Phase 42 — frontend-gestion-aliases-marcas
 
 ## Current Position
 
 Milestone: v1.5 IN PROGRESS (Phase 41)
-Phase: 42
-Plan: Not started
-Status: Executed - All Phase 41 plans complete
-Last activity: 2026-04-18
+Phase: 42 (frontend-gestion-aliases-marcas) — EXECUTING
+Plan: 2 of 2
+Status: Executing Phase 42
+Last activity: 2026-04-18 -- Plan 42-01 complete (clockAliasService + useClockAliases)
 
 Progress: [██████████████████] 100% (40/40 phases)
 
