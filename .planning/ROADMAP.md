@@ -70,12 +70,12 @@
   **Plans:** 2 plans
   - [x] 40-01-PLAN.md — Fix backend test failures (TypeScript error + NomineeService)
   - [x] 40-02-PLAN.md — Fix frontend test failures (clock-logs page UI elements)
-- [ ] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT
+- [x] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT
   **Goal:** Implementar la tabla `vpg_clock_aliases` para que cada empleado tenga pseudónimos de reloj, y adaptar el proceso de importación para inferir el tipo IN/OUT por secuencia (impar=IN, par=OUT por empleado+día) cuando el archivo no trae tipo de marca.
   **Plans:** 4 plans
   - [x] 41-01-PLAN.md — Prisma schema migration (vpg_clock_aliases) + ClockAlias model interface + Zod schemas
   - [x] 41-02-PLAN.md — ClockAliasService (CRUD + resolveEmployeeByAlias) + Controller + Route
-  - [ ] 41-03-PLAN.md — ClockLogsImportService updates (alias lookup + type inference) + route registration
+  - [x] 41-03-PLAN.md — ClockLogsImportService updates (alias lookup + type inference) + route registration
   - [ ] 41-04-PLAN.md — Unit tests: ClockAliasService + ClockLogsImportService alias/inference coverage
 - [ ] Phase 42: Frontend — Gestión de Aliases de Marcas
   **Goal:** Agregar en la ficha de cada empleado una sección para administrar sus aliases de reloj (crear, ver, eliminar), con validación de duplicados y feedback visual claro.

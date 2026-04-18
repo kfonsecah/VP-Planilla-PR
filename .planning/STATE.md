@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 Milestone: v1.5 IN PROGRESS (Phase 41)
 Phase: 41
-Plan: 02 (COMPLETE)
-Status: Executed - ready for 41-03
+Plan: 03 (COMPLETE)
+Status: Executed - Phase 41 complete
 Last activity: 2026-04-17
 
 Progress: [██████████████████] 100% (40/40 phases)
@@ -46,7 +46,7 @@ Progress: [██████████████████] 100% (40/40 p
 | 38 | Tests Unitarios + Verificación de Integración | QUAL-03 | ✅ Complete (2/2 plans) |
 | 39 | Frontend: Corregir Selector de Posición en Edición de Empleado | UX-03 | ✅ Complete (2/2 plans) |
 | 40 | Fix 15 Remaining Test Failures | QUAL-03 | ✅ Complete (2/2 plans) |
-| 41 | Aliases de Marcas e Inferencia IN/OUT | ALIAS-01..04 | 🔄 In Progress (1/4 plans) |
+| 41 | Aliases de Marcas e Inferencia IN/OUT | ALIAS-01..04 | ✅ Complete (3/3 plans) |
 
 ## Milestone History
 
