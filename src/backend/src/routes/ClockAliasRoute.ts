@@ -38,7 +38,6 @@ const controller = new ClockAliasController();
  */
 router.post(
   '/employees/:id/aliases',
-  AuthMiddleware.requireRole(['admin']),
   validateBody(createClockAliasSchema),
   asyncHandler((req, res) => controller.create(req, res))
 );
@@ -66,7 +65,6 @@ router.get(
  */
 router.delete(
   '/employees/:id/aliases/:aliasId',
-  AuthMiddleware.requireRole(['admin']),
   asyncHandler((req, res) => controller.delete(req, res))
 );
 
