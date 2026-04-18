@@ -8,9 +8,17 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.5 — 2026-04-13, Phase 32 complete)
+## Current State (v1.5 — 2026-04-18, Phase 41 complete)
 
 **v1.5 IN PROGRESS** — Gestión de Marcas y Planilla para Producción:
+- ✅ **Phase 41 complete:** Clock Aliases + IN/OUT Type Inference by Sequence.
+  - `vpg_clock_aliases` table with FK to employees, unique constraint on (employee_id, name).
+  - `ClockAliasService` with CRUD + `resolveEmployeeByAlias()` for import pipeline.
+  - REST endpoints: POST/GET/DELETE `/api/employees/:id/aliases` (admin-protected for write).
+  - `inferLogTypeBySequence()` — groups by (employee_id, date), alternates IN/OUT by timestamp.
+  - Import pipeline now checks aliases after numeric ID, before full name scan.
+  - Type inference enables Excel files without log_type column to import correctly.
+  - 492 backend tests, all passing.
 - ✅ **Phase 32 complete:** Adjustment Layer schema + Payroll State Machine DB foundation.
   - `vpg_clock_log_adjustments` table with ADD/EDIT/VOID types, optimistic locking, nullable FK for ADD type.
   - `vpg_payroll_recalculations` audit trail table with JSONB snapshots.
@@ -65,4 +73,4 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - Eliminar empleados permanentemente — solo desactivar (status: inactivo)
 
 ---
-*Last updated: 2026-04-12 after v1.4 milestone closure*
+*Last updated: 2026-04-18 after Phase 41 completion*
