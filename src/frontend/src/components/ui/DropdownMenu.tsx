@@ -19,6 +19,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ trigger, children, align = 
       <DropdownMenuPrimitive.Content
         align={align}
         sideOffset={sideOffset}
+        collisionPadding={8}
         className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl p-1 z-50 animate-in fade-in zoom-in-95 duration-150"
       >
         {children}
