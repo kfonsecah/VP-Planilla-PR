@@ -196,6 +196,25 @@
   border-left-color: #52525B !important;
 }
 
+/* Feriados - Pago Obligatorio */
+.calendar-container .fc-event.event-type-feriado-obligatorio {
+  background-color: #047857 !important; /* emerald-700 */
+  border-left-color: #065F46 !important; /* emerald-800 */
+  color: white !important;
+}
+
+/* Feriados - Pago No Obligatorio */
+.calendar-container .fc-event.event-type-feriado-no-obligatorio {
+  background-color: transparent !important;
+  border: 1px solid #10B981 !important; /* emerald-500 */
+  border-left: 4px solid #10B981 !important;
+  color: #047857 !important; /* emerald-700 */
+}
+:is(.dark) .calendar-container .fc-event.event-type-feriado-no-obligatorio {
+  border-color: #059669 !important;
+  color: #34D399 !important; /* emerald-400 */
+}
+
 /* Dark mode — slightly muted */
 :is(.dark) .calendar-container .fc-event.event-type-vacaciones { background-color: #2563EB !important; }
 :is(.dark) .calendar-container .fc-event.event-type-incapacidad { background-color: #EA580C !important; }

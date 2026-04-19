@@ -20,6 +20,7 @@ import { EmployeeLaborEvent, LaborEventFormData } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';
 import EventPopover from '@/components/EventPopover';
+import { getCostaRicaHolidays } from '@/utils/holidays';
 import '@/styles/calendar.css';
 
 // Helper: parse backend date strings into local Date objects
@@ -166,12 +167,36 @@ const LaborEventsCalendar: React.FC<Props> = ({
     calendarEvents.push(previewEvent);
   }
 
+  // Add Costa Rica holidays
+  const currentYear = navigateToDate ? navigateToDate.getFullYear() : new Date().getFullYear();
+  const yearsToCompute = [currentYear - 1, currentYear, currentYear + 1];
+  
+  yearsToCompute.forEach(year => {
+    const holidays = getCostaRicaHolidays(year);
+    holidays.forEach(h => {
+      calendarEvents.push({
+        id: `holiday-${h.date.getTime()}`,
+        title: `🇨🇷 ${h.name} (${h.isMandatoryPay ? 'Pago Obligatorio' : 'No Obligatorio'})`,
+        start: h.date,
+        allDay: true,
+        editable: false,
+        classNames: [h.isMandatoryPay ? 'event-type-feriado-obligatorio' : 'event-type-feriado-no-obligatorio'],
+        display: 'block',
+        extendedProps: { isHoliday: true }
+      });
+    });
+  });
+
   const handleEventClick = (info: EventClickArg) => {
     const jsEvent = info.jsEvent;
     if (jsEvent) {
       jsEvent.preventDefault();
       jsEvent.stopPropagation();
       if (jsEvent.button === 2) return;
+    }
+
+    if (info.event.extendedProps.isHoliday || info.event.extendedProps.__isPreview) {
+      return;
     }
 
     const event = events.find(e => String(e.id) === info.event.id);
