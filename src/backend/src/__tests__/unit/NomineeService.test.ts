@@ -46,6 +46,7 @@ beforeEach(() => {
   prisma.vpg_deductions_per_employee.findMany.mockResolvedValue([]);
   prisma.vpg_positions.findMany.mockResolvedValue([]);
   prisma.vpg_payrolls.findUnique.mockResolvedValue(null);
+  prisma.vpg_company_holidays.findMany.mockResolvedValue([]);
 });
 
 function makeClockLogPair(date: string, localInHour: number, localOutHour: number, empId = 1) {
@@ -196,6 +197,9 @@ describe('NomineeService — REQ 8.5 Holiday Period', () => {
     jest.mocked(EmployeeService.getActiveEmployeesForPeriod).mockResolvedValue([mockEmployee]);
     jest.mocked(prisma.vpg_clock_logs.findMany).mockResolvedValue([]);
     jest.mocked(prisma.vpg_deductions_per_employee.findMany).mockResolvedValue([]);
+    jest.mocked(prisma.vpg_company_holidays.findMany).mockResolvedValue([
+      { company_holidays_date: new Date('2026-05-01'), company_holidays_is_mandatory: true, company_holidays_is_triple: false }
+    ]);
 
     const result = await service.calculatePayrollForPeriod(
       new Date('2026-05-01'),

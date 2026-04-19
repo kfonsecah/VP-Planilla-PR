@@ -20,7 +20,6 @@ import { EmployeeLaborEvent, LaborEventFormData } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';
 import EventPopover from '@/components/EventPopover';
-import { getCostaRicaHolidays } from '@/utils/holidays';
 import '@/styles/calendar.css';
 
 // Helper: parse backend date strings into local Date objects
@@ -106,6 +105,7 @@ interface Props {
   updateEvent?: (id: number, data: Partial<LaborEventFormData>) => Promise<{ success: boolean }>;
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
   navigateToDate?: Date;
+  dbHolidays?: any[]; // using any[] to avoid circular CompanyHoliday type dependency or we can import it
 }
 
 const LaborEventsCalendar: React.FC<Props> = ({ 
@@ -120,6 +120,7 @@ const LaborEventsCalendar: React.FC<Props> = ({
   preview,
   updateEvent,
   navigateToDate,
+  dbHolidays,
 }) => {
   const { showError } = useModal();
   const [calendarKey, setCalendarKey] = useState(0);
@@ -133,7 +134,7 @@ const LaborEventsCalendar: React.FC<Props> = ({
   // Force calendar re-render when events or navigation date change
   useEffect(() => {
     setCalendarKey(prev => prev + 1);
-  }, [events.length, employees.length, navigateToDate?.getTime()]);
+  }, [events.length, employees.length, navigateToDate?.getTime(), dbHolidays]);
 
   const getPreviewEvent = (): EventInput | null => {
     if (!preview) return null;
@@ -167,25 +168,22 @@ const LaborEventsCalendar: React.FC<Props> = ({
     calendarEvents.push(previewEvent);
   }
 
-  // Add Costa Rica holidays
-  const currentYear = navigateToDate ? navigateToDate.getFullYear() : new Date().getFullYear();
-  const yearsToCompute = [currentYear - 1, currentYear, currentYear + 1];
-  
-  yearsToCompute.forEach(year => {
-    const holidays = getCostaRicaHolidays(year);
-    holidays.forEach(h => {
+  // Add Dynamic Costa Rica holidays from Database
+  if (dbHolidays && dbHolidays.length > 0) {
+    dbHolidays.forEach(h => {
+      const hDate = new Date(h.company_holidays_date);
       calendarEvents.push({
-        id: `holiday-${h.date.getTime()}`,
-        title: `🇨🇷 ${h.name} (${h.isMandatoryPay ? 'Pago Obligatorio' : 'No Obligatorio'})`,
-        start: h.date,
+        id: `holiday-${h.company_holidays_id}`,
+        title: `🇨🇷 ${h.company_holidays_name} (${h.company_holidays_is_mandatory ? 'Pago Obligatorio' : 'No Obligatorio'})`,
+        start: hDate,
         allDay: true,
         editable: false,
-        classNames: [h.isMandatoryPay ? 'event-type-feriado-obligatorio' : 'event-type-feriado-no-obligatorio'],
+        classNames: [h.company_holidays_is_mandatory ? 'event-type-feriado-obligatorio' : 'event-type-feriado-no-obligatorio'],
         display: 'block',
-        extendedProps: { isHoliday: true }
+        extendedProps: { isHoliday: true, holidayDetails: h }
       });
     });
-  });
+  }
 
   const handleEventClick = (info: EventClickArg) => {
     const jsEvent = info.jsEvent;

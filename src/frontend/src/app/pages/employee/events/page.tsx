@@ -5,9 +5,11 @@ import EmployeeTabs from '@/components/ui/EmployeeTabs';
 import StatsCards from '@/components/ui/StatsCards';
 import LaborEventsCalendar from '@/components/LaborEventsCalendar';
 import LaborEventModal from '@/components/LaborEventModal';
+import HolidaysManagementModal from '@/components/HolidaysManagementModal';
 import EventsSidebar from '@/components/EventsSidebar';
 import { useLaborEvents } from '@/hooks/useLaborEvents';
 import useEmployeeList from '@/hooks/useEmployeeList';
+import { useHolidays } from '@/hooks/useHolidays';
 import { ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { LaborEventFormData, EmployeeLaborEvent } from '@/types/laborEvent';
 import { toast } from 'sonner';
@@ -15,10 +17,12 @@ import { toast } from 'sonner';
 const LaborEventsPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<EmployeeLaborEvent | undefined>();
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showHolidaysModal, setShowHolidaysModal] = useState(false);
   const [previewEvent, setPreviewEvent] = useState<Partial<EmployeeLaborEvent> | null>(null);
   const [modalInitialDates, setModalInitialDates] = useState<{ start?: Date; end?: Date } | null>(null);
   const { events, isLoading, error, createEvent, updateEvent, refreshEvents, deleteAssignment } = useLaborEvents();
   const { employees } = useEmployeeList();
+  const { data: dbHolidays, refetch: refetchHolidays } = useHolidays();
 
   // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -192,6 +196,7 @@ const LaborEventsPage: React.FC = () => {
               filters={filters}
               onFiltersChange={handleFiltersChange}
               onCreateEvent={handleCreateEvent}
+              onManageHolidays={() => setShowHolidaysModal(true)}
             />
 
             {/* Main calendar container */}
@@ -209,6 +214,7 @@ const LaborEventsPage: React.FC = () => {
                     preview={previewEvent}
                     onPreviewChange={setPreviewEvent}
                     navigateToDate={selectedDate}
+                    dbHolidays={dbHolidays || []}
                   />
               </div>
             </section>
@@ -229,6 +235,14 @@ const LaborEventsPage: React.FC = () => {
         employees={employees}
         initialDates={modalInitialDates}
         onPreviewChange={setPreviewEvent}
+      />
+
+      <HolidaysManagementModal
+        open={showHolidaysModal}
+        onClose={() => {
+          setShowHolidaysModal(false);
+          refetchHolidays();
+        }}
       />
     </div>
   );

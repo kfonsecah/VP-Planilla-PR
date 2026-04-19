@@ -41,7 +41,7 @@ const mockHookReturn = (
     initDate: '2026-04-16',
     endDate: '2026-04-30',
     status: [],
-    branchId: undefined,
+    branch_id: undefined,
   },
   importSessions: [
     {

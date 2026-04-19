@@ -1,7 +1,8 @@
 import {
   isCRHoliday,
-  getCRHolidays,
+  getHolidayForDate,
   countWorkingDaysInPeriod,
+  PayrollHoliday,
   calculateHoursBetween,
   isDateInRange,
   formatDateString,
@@ -29,78 +30,84 @@ import {
 } from '../../utils/payrollUtils';
 import { DayWork } from '../../types/payroll.types';
 
+const mockHolidays: PayrollHoliday[] = [
+  { company_holidays_date: new Date('2026-01-01'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-04-02'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-04-03'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-04-11'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-05-01'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-07-25'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-08-15'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-09-15'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-10-12'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+  { company_holidays_date: new Date('2026-12-25'), company_holidays_is_mandatory: true, company_holidays_is_triple: false },
+];
+
 describe('payrollUtils - Costa Rica Holidays', () => {
+
   describe('isCRHoliday', () => {
     it('returns true for January 1 (Año Nuevo) 2026', () => {
-      expect(isCRHoliday(new Date('2026-01-01'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-01-01'), mockHolidays)).toBe(true);
     });
 
     it('returns true for May 1 (Día del Trabajo) 2026', () => {
-      expect(isCRHoliday(new Date('2026-05-01'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-05-01'), mockHolidays)).toBe(true);
     });
 
     it('returns true for September 15 (Independencia) 2026', () => {
-      expect(isCRHoliday(new Date('2026-09-15'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-09-15'), mockHolidays)).toBe(true);
     });
 
     it('returns true for December 25 (Navidad) 2026', () => {
-      expect(isCRHoliday(new Date('2026-12-25'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-12-25'), mockHolidays)).toBe(true);
     });
 
     it('returns true for July 25 (Anexión de Guanacaste) 2026', () => {
-      expect(isCRHoliday(new Date('2026-07-25'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-07-25'), mockHolidays)).toBe(true);
     });
 
     it('returns true for August 15 (Asunción) 2026', () => {
-      expect(isCRHoliday(new Date('2026-08-15'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-08-15'), mockHolidays)).toBe(true);
     });
 
     it('returns true for October 12 (Día de las Culturas) 2026', () => {
-      expect(isCRHoliday(new Date('2026-10-12'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-10-12'), mockHolidays)).toBe(true);
     });
 
     it('returns true for April 11 (Juan Santamaría) 2026', () => {
-      expect(isCRHoliday(new Date('2026-04-11'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-04-11'), mockHolidays)).toBe(true);
     });
 
     it('returns true for Jueves Santo (April 2, 2026)', () => {
-      expect(isCRHoliday(new Date('2026-04-02'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-04-02'), mockHolidays)).toBe(true);
     });
 
     it('returns true for Viernes Santo (April 3, 2026)', () => {
-      expect(isCRHoliday(new Date('2026-04-03'), 2026)).toBe(true);
+      expect(isCRHoliday(new Date('2026-04-03'), mockHolidays)).toBe(true);
     });
 
     it('returns false for regular day (May 2, 2026)', () => {
-      expect(isCRHoliday(new Date('2026-05-02'), 2026)).toBe(false);
+      expect(isCRHoliday(new Date('2026-05-02'), mockHolidays)).toBe(false);
     });
 
     it('returns false for Saturday (not a holiday)', () => {
-      expect(isCRHoliday(new Date('2026-01-03'), 2026)).toBe(false);
+      expect(isCRHoliday(new Date('2026-01-03'), mockHolidays)).toBe(false);
     });
 
-    it('returns false when year has no holidays defined', () => {
-      expect(isCRHoliday(new Date('2025-05-01'), 2025)).toBe(false);
+    it('returns false when holidays not defined', () => {
+      expect(isCRHoliday(new Date('2025-05-01'), [])).toBe(false);
     });
   });
 
-  describe('getCRHolidays', () => {
-    it('returns all 10 holidays for 2026', () => {
-      const holidays = getCRHolidays(2026);
-      expect(holidays).toHaveLength(10);
+  describe('getHolidayForDate', () => {
+    it('returns the holiday object if match found', () => {
+      const holiday = getHolidayForDate(new Date('2026-01-01'), mockHolidays);
+      expect(holiday?.company_holidays_is_mandatory).toBe(true);
     });
 
-    it('returns holidays as Date objects', () => {
-      const holidays = getCRHolidays(2026);
-      holidays.forEach((h) => {
-        expect(h instanceof Date).toBe(true);
-        expect(isNaN(h.getTime())).toBe(false);
-      });
-    });
-
-    it('returns empty array for year without holidays', () => {
-      const holidays = getCRHolidays(2025);
-      expect(holidays).toHaveLength(0);
+    it('returns undefined if no match', () => {
+      const holiday = getHolidayForDate(new Date('2026-01-02'), mockHolidays);
+      expect(holiday).toBeUndefined();
     });
   });
 
@@ -109,7 +116,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-01-05'),
         new Date('2026-01-10'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(6);
     });
@@ -118,7 +125,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-01-01'),
         new Date('2026-01-01'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(0);
     });
@@ -127,7 +134,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-05-01'),
         new Date('2026-05-15'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(12);
     });
@@ -136,7 +143,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-09-11'),
         new Date('2026-09-17'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(5);
     });
@@ -145,7 +152,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-12-21'),
         new Date('2026-12-27'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(5);
     });
@@ -154,7 +161,7 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-04-02'),
         new Date('2026-04-08'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(4);
     });
@@ -163,17 +170,19 @@ describe('payrollUtils - Costa Rica Holidays', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-01-04'),
         new Date('2026-01-10'),
-        2026
+        mockHolidays
       );
       expect(result).toBe(6);
     });
 
-    it('uses startDate year when year parameter not provided', () => {
+    it('uses empty holidays array when parameter not provided', () => {
       const result = countWorkingDaysInPeriod(
         new Date('2026-05-01'),
         new Date('2026-05-15')
       );
-      expect(result).toBe(12);
+      // Because we didn't pass mockHolidays, May 1 isn't recognized as holiday!
+      // So it will include May 1. Days: May 1-15 = 15 days. 2 Sundays = 13 days
+      expect(result).toBe(13);
     });
   });
 });
@@ -521,8 +530,8 @@ describe('payrollUtils - calculateScheduledHours', () => {
   });
 
   it('returns 0 for a single holiday', () => {
-    // Jan 1, 2026 is a holiday, no working days
-    expect(calculateScheduledHours(new Date('2026-01-01'), new Date('2026-01-01'))).toBe(0);
+    // Jan 1, 2026 is a holiday in mockHolidays, no working days
+    expect(calculateScheduledHours(new Date('2026-01-01'), new Date('2026-01-01'), mockHolidays)).toBe(0);
   });
 });
 

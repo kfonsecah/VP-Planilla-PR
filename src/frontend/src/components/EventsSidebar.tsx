@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import MiniCalendar from '@/components/MiniCalendar';
 import EventFilters from '@/components/EventFilters';
 import { EmployeeLaborEvent } from '@/types/laborEvent';
@@ -26,6 +26,7 @@ interface EventsSidebarProps {
     status: string | null;
   }>) => void;
   onCreateEvent: () => void;
+  onManageHolidays: () => void;
 }
 
 const EventsSidebar: React.FC<EventsSidebarProps> = ({
@@ -38,6 +39,7 @@ const EventsSidebar: React.FC<EventsSidebarProps> = ({
   filters,
   onFiltersChange,
   onCreateEvent,
+  onManageHolidays,
 }) => {
   return (
     <motion.aside
@@ -89,14 +91,21 @@ const EventsSidebar: React.FC<EventsSidebarProps> = ({
           {/* Divider */}
           <div className="border-t border-zinc-100 dark:border-zinc-800 mx-4" />
 
-          {/* Crear Evento button */}
-          <div className="px-4 py-3 flex-shrink-0">
+          {/* Crear Evento y Feriados buttons */}
+          <div className="px-4 py-3 flex flex-col gap-2 flex-shrink-0">
             <button
               onClick={onCreateEvent}
               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
             >
               <PlusIcon className="w-4 h-4" />
               Crear Evento
+            </button>
+            <button
+              onClick={onManageHolidays}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-zinc-300 text-white dark:text-zinc-900 text-sm font-semibold rounded-xl transition-colors shadow-sm"
+            >
+              <SparklesIcon className="w-4 h-4" />
+              Feriados y Leyes
             </button>
           </div>
         </div>

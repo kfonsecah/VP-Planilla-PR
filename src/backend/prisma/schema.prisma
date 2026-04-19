@@ -522,3 +522,15 @@ model vpg_password_change_request {
   @@index([pcr_user_id], map: "idx_password_change_request_user_id")
   @@index([pcr_expires], map: "idx_password_change_request_expires")
 }
+
+model vpg_company_holidays {
+  company_holidays_id            Int      @id @default(autoincrement())
+  company_holidays_name          String   @db.VarChar(100)
+  company_holidays_date          DateTime @db.Date
+  company_holidays_is_mandatory  Boolean  @default(false)
+  company_holidays_is_triple     Boolean  @default(false)
+  company_holidays_status        String   @default("active") @db.VarChar(20)
+  company_holidays_version       Int      @default(1)
+
+  @@index([company_holidays_date], map: "idx_vpg_company_holidays_date")
+}
