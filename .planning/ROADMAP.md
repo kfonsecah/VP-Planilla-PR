@@ -82,6 +82,12 @@
   **Plans:** 2 plans (COMPLETE)
   - [x] 42-01-PLAN.md — clockAliasService + useClockAliases hook
   - [x] 42-02-PLAN.md — EditEmployeeModal alias section integration
+- [ ] Phase 43: Frontend — Rediseño Completo del Calendario de Eventos Laborales
+  **Goal:** Rediseñar completamente la página de eventos laborales (pages/employee/events) — aspecto visual, funcionalidad y flujo de usuario — para ofrecer una experiencia moderna, intuitiva y alineada con el sistema de diseño actual.
+  **Plans:** 3 plans (READY)
+  - [ ] 43-01-PLAN.md — [Wave 1] Sidebar + MiniCalendar + EventFilters + page layout rebuild
+  - [ ] 43-02-PLAN.md — [Wave 1] Calendar restyle + EventPopover + month-only + event type colors
+  - [ ] 43-03-PLAN.md — [Wave 2] Modal redesign + ghost preview + empty state + visual checkpoint
 
 <details>
 <summary>✅ v1.4 (Phases 24-31) — SHIPPED 2026-04-12</summary>
