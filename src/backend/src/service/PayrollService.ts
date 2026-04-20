@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { Payroll } from "../model/payroll";
 import { PayrollStatus } from '@prisma/client';
+import { calculateGrossSalary, countWorkingDaysInPeriod, calculateScheduledHours } from '../utils/payrollUtils';
 
 export class PayrollService {
   /**
@@ -150,6 +151,37 @@ export class PayrollService {
    */
   static async getPayrollEmployees(payrollId: number): Promise<any[]> {
     try {
+      // Get the payroll to access period dates
+      const payroll = await prisma.vpg_payrolls.findUnique({
+        where: { payrolls_id: payrollId },
+        select: {
+          payrolls_period_start: true,
+          payrolls_period_end: true
+        }
+      });
+      
+      if (!payroll) {
+        throw new Error('Payroll not found');
+      }
+
+      // Fetch company holidays for the payroll period
+      const holidays = await prisma.companyHoliday.findMany({
+        where: {
+          company_holidays_date: {
+            gte: payroll.payrolls_period_start,
+            lte: payroll.payrolls_period_end
+          },
+          company_holidays_status: 'active'
+        }
+      });
+
+      // Format holidays for payrollUtils
+      const formattedHolidays: PayrollHoliday[] = holidays.map(h => ({
+        company_holidays_date: h.company_holidays_date,
+        company_holidays_is_mandatory: !!h.company_holidays_is_mandatory,
+        company_holidays_is_triple: !!h.company_holidays_is_triple
+      }));
+
       const rows = await prisma.vpg_payroll_employee.findMany({
         where: { payroll_employee_payroll_id: payrollId },
         orderBy: { payroll_employee_id: 'asc' },
@@ -166,24 +198,60 @@ export class PayrollService {
         },
       });
 
-      return rows.map((row) => ({
-        id: row.payroll_employee_id,
-        payroll_id: row.payroll_employee_payroll_id,
-        employee_id: row.payroll_employee_employee_id,
-        employee_name: `${row.vpg_employees.employee_first_name} ${row.vpg_employees.employee_last_name}${row.vpg_employees.employee_middle_name ? ' ' + row.vpg_employees.employee_middle_name : ''}`.trim(),
-        employee_identification: row.vpg_employees.employee_national_id,
-        position_name: row.vpg_employees.vpg_positions?.position_name,
-        total_hours: Number(row.payroll_employee_total_hours) || 0,
-        overtime_hours: Number(row.payroll_employee_overtime_hours) || 0,
-        overtime_pay: Number(row.payroll_employee_overtime_pay) || 0,
-        weekly_rest_hours: Number(row.payroll_employee_weekly_rest_hours) || 0,
-        weekly_rest_pay: Number(row.payroll_employee_weekly_rest_pay) || 0,
-        bonuses: Number(row.payroll_employee_bonuses) || 0,
-        gross_salary: Number(row.payroll_employee_gross_salary) || 0,
-        total_deductions: Number(row.payroll_employee_total_deductions) || 0,
-        net_salary: Number(row.payroll_employee_net_salary) || 0,
-        version: row.payroll_employee_version,
-      }));
+      return rows.map((row) => {
+        // Convert DayWork array for calculations
+        // Note: In a real implementation, we would fetch actual DayWork data from clock logs
+        // For now, we'll use placeholder data to demonstrate the holiday integration
+        const dayWork: DayWork[] = []; // This would be populated from actual clock log data
+        
+        // Calculate regular hours (capped at 8h/day)
+        const regularHours = calculateRegularHours(dayWork);
+        
+        // Calculate overtime hours
+        const overtimeHours = calculateOvertimeHours(dayWork);
+        
+        // Calculate scheduled hours (required hours for period)
+        const scheduledHours = calculateScheduledHours(
+          payroll.payrolls_period_start,
+          payroll.payrolls_period_end,
+          formattedHolidays
+        );
+        
+        // Calculate weekly rest hours
+        const weeklyRestHours = calculateWeeklyRestHours(
+          regularHours,
+          payroll.payrolls_period_start,
+          payroll.payrolls_period_end
+        );
+        
+        // Calculate gross salary with holiday considerations
+        // Note: This is a simplified version - in reality we'd need to analyze each day's work
+        const grossSalary = calculateGrossSalary(
+          regularHours,
+          overtimeHours,
+          0, // base hourly rate - would come from employee data
+          formattedHolidays
+        );
+
+        return {
+          id: row.payroll_employee_id,
+          payroll_id: row.payroll_employee_payroll_id,
+          employee_id: row.payroll_employee_employee_id,
+          employee_name: `${row.vpg_employees.employee_first_name} ${row.vpg_employees.employee_last_name}${row.vpg_employees.employee_middle_name ? ' ' + row.vpg_employees.employee_middle_name : ''}`.trim(),
+          employee_identification: row.vpg_employees.employee_national_id,
+          position_name: row.vpg_employees.vpg_positions?.position_name,
+          total_hours: Number(row.payroll_employee_total_hours) || 0,
+          overtime_hours: Number(row.payroll_employee_overtime_hours) || 0,
+          overtime_pay: Number(row.payroll_employee_overtime_pay) || 0,
+          weekly_rest_hours: Number(row.payroll_employee_weekly_rest_hours) || 0,
+          weekly_rest_pay: Number(row.payroll_employee_weekly_rest_pay) || 0,
+          bonuses: Number(row.payroll_employee_bonuses) || 0,
+          gross_salary: grossSalary,
+          total_deductions: Number(row.payroll_employee_total_deductions) || 0,
+          net_salary: Number(row.payroll_employee_net_salary) || 0,
+          version: row.payroll_employee_version,
+        };
+      });
     } catch (error) {
       console.error('Error fetching payroll employees:', error);
       throw new Error('Failed to retrieve payroll employees');
