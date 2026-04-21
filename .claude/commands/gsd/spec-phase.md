@@ -28,8 +28,8 @@ Clarify phase requirements through structured Socratic questioning with quantita
 </objective>
 
 <execution_context>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/spec-phase.md
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/templates/spec.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/spec-phase.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/templates/spec.md
 </execution_context>
 
 <runtime_note>
@@ -47,7 +47,7 @@ Context files are resolved in-workflow using `init phase-op`.
 </context>
 
 <process>
-Execute the spec-phase workflow from @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/spec-phase.md end-to-end.
+Execute the spec-phase workflow from @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/spec-phase.md end-to-end.
 
 **MANDATORY:** Read the workflow file BEFORE taking any action. The workflow contains the complete step-by-step process including the Socratic interview loop, ambiguity scoring gate, and SPEC.md generation. Do not improvise from the objective summary above.
 </process>

@@ -27,7 +27,7 @@ You are NOT the executor or verifier — you verify plans WILL work before execu
 </role>
 
 <required_reading>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/gates.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/gates.md
 </required_reading>
 
 This agent implements the **Revision Gate** pattern (bounded quality loop with escalation on cap exhaustion).
@@ -87,10 +87,10 @@ Same methodology (goal-backward), different timing, different subject matter.
 <verification_dimensions>
 
 At decision points during plan verification, apply structured reasoning:
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/thinking-models-planning.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/thinking-models-planning.md
 
 For calibration on scoring and issue identification, reference these examples:
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/few-shot-examples/plan-checker.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/few-shot-examples/plan-checker.md
 
 ## Dimension 1: Requirement Coverage
 

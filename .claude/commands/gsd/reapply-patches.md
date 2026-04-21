@@ -95,7 +95,7 @@ if [ -z "$PATCHES_DIR" ]; then
   elif [ -d "$HOME/.codex/gsd-local-patches" ]; then
     PATCHES_DIR="$HOME/.codex/gsd-local-patches"
   else
-    PATCHES_DIR="C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/gsd-local-patches"
+    PATCHES_DIR="C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/gsd-local-patches"
   fi
 fi
 # Local install fallback — check all runtime directories
@@ -201,7 +201,7 @@ When no pristine baseline is available, use these **strengthened heuristics**:
 For each file:
 a. Read both versions completely
 b. Identify ALL differences, then classify each as:
-   - **Mechanical drift** — path substitutions (e.g. `/Users/xxx/.claude/` → `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/`), variable additions (`${GSD_WS}`, `${AGENT_SKILLS_*}`), error handling additions (`|| true`)
+   - **Mechanical drift** — path substitutions (e.g. `/Users/xxx/.claude/` → `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/`), variable additions (`${GSD_WS}`, `${AGENT_SKILLS_*}`), error handling additions (`|| true`)
    - **User customization** — added steps/sections, removed sections, reordered content, changed behavior, added frontmatter fields, modified instructions
 
 c. **If ANY differences remain after filtering out mechanical drift → those are user customizations. Merge them.**

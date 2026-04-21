@@ -18,8 +18,8 @@ Output: {phase_num}-UI-REVIEW.md
 </objective>
 
 <execution_context>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/ui-review.md
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ui-brand.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/ui-review.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>
@@ -27,6 +27,6 @@ Phase: $ARGUMENTS — optional, defaults to last completed phase.
 </context>
 
 <process>
-Execute @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/ui-review.md end-to-end.
+Execute @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/ui-review.md end-to-end.
 Preserve all workflow gates.
 </process>

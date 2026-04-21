@@ -20,8 +20,8 @@ Output: {phase_num}-UAT.md tracking all test results. If issues found: diagnosed
 </objective>
 
 <execution_context>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/verify-work.md
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/templates/UAT.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/verify-work.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/templates/UAT.md
 </execution_context>
 
 <context>
@@ -33,6 +33,6 @@ Context files are resolved inside the workflow (`init verify-work`) and delegate
 </context>
 
 <process>
-Execute the verify-work workflow from @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/verify-work.md end-to-end.
+Execute the verify-work workflow from @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/verify-work.md end-to-end.
 Preserve all workflow gates (session management, test presentation, diagnosis, fix planning, routing).
 </process>

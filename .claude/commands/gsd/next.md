@@ -20,9 +20,9 @@ Before routing to the next step, scans all prior phases for incomplete work: pla
 </objective>
 
 <execution_context>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/next.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/next.md
 </execution_context>
 
 <process>
-Execute the next workflow from @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/next.md end-to-end.
+Execute the next workflow from @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/next.md end-to-end.
 </process>

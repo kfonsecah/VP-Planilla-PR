@@ -17,7 +17,7 @@ Turn domain rubric ingredients into measurable, tooled evaluation criteria. Writ
 </role>
 
 <required_reading>
-Read `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ai-evals.md` before planning. This is your evaluation framework.
+Read `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ai-evals.md` before planning. This is your evaluation framework.
 </required_reading>
 
 <input>

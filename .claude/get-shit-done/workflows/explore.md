@@ -6,8 +6,8 @@ offers mid-conversation research when useful, then routes crystallized outputs t
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/questioning.md
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/domain-probes.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/questioning.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/domain-probes.md
 </required_reading>
 
 <available_agent_types>

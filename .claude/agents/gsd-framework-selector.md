@@ -11,7 +11,7 @@ Run a ≤6-question interview, score frameworks, return a ranked recommendation 
 </role>
 
 <required_reading>
-Read `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ai-frameworks.md` before asking questions. This is your decision matrix.
+Read `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ai-frameworks.md` before asking questions. This is your decision matrix.
 </required_reading>
 
 <project_context>

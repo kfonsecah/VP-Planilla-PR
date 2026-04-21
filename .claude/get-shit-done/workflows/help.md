@@ -332,7 +332,7 @@ Usage: `/gsd-sketch-wrap-up`
 **`/gsd-note <text>`**
 Zero-friction idea capture — one command, instant save, no questions.
 
-- Saves timestamped note to `.planning/notes/` (or `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/notes/` globally)
+- Saves timestamped note to `.planning/notes/` (or `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/notes/` globally)
 - Three subcommands: append (default), list, promote
 - Promote converts a note into a structured todo
 - Works without a project (falls back to global scope)

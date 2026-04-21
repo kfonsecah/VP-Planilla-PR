@@ -3,7 +3,7 @@ Verify threat mitigations for a completed phase. Confirm PLAN.md threat register
 </purpose>
 
 <required_reading>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ui-brand.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ui-brand.md
 </required_reading>
 
 <available_agent_types>
@@ -84,7 +84,7 @@ Call AskUserQuestion with threat table and options:
 
 ```
 Task(
-  prompt="Read C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/agents/gsd-security-auditor.md for instructions.\n\n" +
+  prompt="Read C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/agents/gsd-security-auditor.md for instructions.\n\n" +
     "<files_to_read>{PLAN, SUMMARY, impl files, SECURITY.md}</files_to_read>" +
     "<threat_register>{threat register}</threat_register>" +
     "<config>asvs_level: {SECURITY_ASVS}, block_on: {SECURITY_BLOCK_ON}</config>" +
@@ -104,7 +104,7 @@ Handle return:
 ## 6. Write/Update SECURITY.md
 
 **State B (create):**
-1. Read template from `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/templates/SECURITY.md`
+1. Read template from `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/templates/SECURITY.md`
 2. Fill: frontmatter, threat register, accepted risks, audit trail
 3. Write to `${PHASE_DIR}/${PADDED_PHASE}-SECURITY.md`
 

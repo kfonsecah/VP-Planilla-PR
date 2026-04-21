@@ -40,7 +40,7 @@ works via Bash and produces equivalent output.
 </documentation_lookup>
 
 <required_reading>
-Read `C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ai-evals.md` — specifically the rubric design and domain expert sections.
+Read `C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ai-evals.md` — specifically the rubric design and domain expert sections.
 </required_reading>
 
 <input>

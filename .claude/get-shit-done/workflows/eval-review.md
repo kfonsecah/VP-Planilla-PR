@@ -5,7 +5,7 @@ Use after /gsd-execute-phase to verify that the evaluation strategy from AI-SPEC
 </purpose>
 
 <required_reading>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ai-evals.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ai-evals.md
 </required_reading>
 
 <process>
@@ -78,7 +78,7 @@ Build file list for auditor:
 Build prompt:
 
 ```markdown
-Read C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/agents/gsd-eval-auditor.md for instructions.
+Read C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/agents/gsd-eval-auditor.md for instructions.
 
 <objective>
 Conduct evaluation coverage audit of Phase {phase_number}: {phase_name}

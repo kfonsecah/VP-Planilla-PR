@@ -19,8 +19,8 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
 <execution_context>
 **Load these files NOW (before proceeding):**
 
-- @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/complete-milestone.md (main workflow)
-- @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/templates/milestone-archive.md (archive template)
+- @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/complete-milestone.md (main workflow)
+- @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/templates/milestone-archive.md (archive template)
   </execution_context>
 
 <context>

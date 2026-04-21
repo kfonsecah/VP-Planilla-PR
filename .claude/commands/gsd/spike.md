@@ -20,8 +20,8 @@ Does not require `/gsd-new-project` — auto-creates `.planning/spikes/` if need
 </objective>
 
 <execution_context>
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/spike.md
-@C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/references/ui-brand.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/spike.md
+@C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <runtime_note>
@@ -36,6 +36,6 @@ Idea: $ARGUMENTS
 </context>
 
 <process>
-Execute the spike workflow from @C:/Users/Kendall Fonseca/Desktop/U/Ingeniria en sitemas/VP-Planilla/.claude/get-shit-done/workflows/spike.md end-to-end.
+Execute the spike workflow from @C:/Users/Administrador/Desktop/U-Local/Vp-Planilla/.claude/get-shit-done/workflows/spike.md end-to-end.
 Preserve all workflow gates (decomposition, risk ordering, verification, MANIFEST updates, commit patterns).
 </process>
