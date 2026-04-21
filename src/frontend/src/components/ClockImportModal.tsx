@@ -1,9 +1,87 @@
-import React, { useState } from 'react';
-import { ArrowUpTrayIcon, XMarkIcon, DocumentIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
+import { ArrowUpTrayIcon, XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { ImportPreviewTable } from './ImportPreviewTable';
+import { detectColumns } from '../features/clock-logs/parser/excelColumnDetector';
+import { parseDateTime } from '../features/clock-logs/parser/dateFormatParser';
+import { classifyByTimeWindow } from '../features/clock-logs/parser/timeWindowClassifier';
+import { useTimeWindows } from '../hooks/useTimeWindows';
 
 export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [rows, setRows] = useState<any[]>([]);
+  const [isParsing, setIsParsing] = useState(false);
+  const { windows: timeWindows } = useTimeWindows();
+
+  useEffect(() => {
+    if (selectedFile) {
+      parseFile(selectedFile);
+    } else {
+      setRows([]);
+    }
+  }, [selectedFile]);
+
+  const parseFile = async (file: File) => {
+    setIsParsing(true);
+    try {
+      if (file.name.endsWith('.csv')) {
+        await parseCSV(file);
+      } else {
+        await parseExcel(file);
+      }
+    } catch (err) {
+      console.error('Error parsing file:', err);
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
+  const parseCSV = async (file: File) => {
+    const text = await file.text();
+    const lines = text.split('\n').map(l => l.split(','));
+    if (lines.length < 2) return;
+    
+    const headers = lines[0];
+    const cols = detectColumns(headers);
+    
+    const newRows = lines.slice(1).filter(l => l.length > 1).map((line, idx) => {
+      const dt = parseDateTime(line[cols.dateIdx], line[cols.timeIdx]);
+      return {
+        id: line[cols.idIdx] || String(idx + 1),
+        date: dt ? dt.toLocaleString() : 'Inválida',
+        type: line[cols.typeIdx] || 'N/A'
+      };
+    });
+    setRows(newRows);
+  };
+
+  const parseExcel = async (file: File) => {
+    const { Workbook } = await import('exceljs');
+    const buffer = await file.arrayBuffer();
+    const workbook = new Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.worksheets[0];
+    
+    const data: any[][] = [];
+    ws.eachRow(row => {
+      data.push(row.values as any[]);
+    });
+
+    if (data.length < 2) return;
+    
+    const headers = data[1].slice(1); // ExcelJS values are 1-indexed
+    const cols = detectColumns(headers);
+    
+    const newRows = data.slice(2).map((row, idx) => {
+      const vals = row.slice(1);
+      const dt = parseDateTime(vals[cols.dateIdx], vals[cols.timeIdx]);
+      return {
+        id: String(vals[cols.idIdx] || idx + 1),
+        date: dt ? dt.toLocaleString() : 'Inválida',
+        type: String(vals[cols.typeIdx] || 'N/A')
+      };
+    });
+    setRows(newRows);
+  };
 
   if (!isOpen) return null;
 
@@ -30,7 +108,7 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
               <p className="text-sm font-medium">
                 {selectedFile ? selectedFile.name : <><span className="text-green-600">Haz clic para subir</span> o arrastra el archivo</>}
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Soporta formatos .xlsx y .csv</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Soportamos formatos .xlsx y .csv</p>
             </div>
             <input 
               type="file" 
@@ -61,7 +139,15 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
              <h3 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Previsualización de Datos</h3>
              <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800"></div>
            </div>
-           <ImportPreviewTable rows={[]} skippedRows={[]} />
+           
+           {isParsing ? (
+             <div className="py-12 flex flex-col items-center justify-center text-zinc-400 space-y-4">
+               <div className="w-8 h-8 border-2 border-zinc-200 border-t-green-600 rounded-full animate-spin" />
+               <p className="text-sm font-medium animate-pulse">Analizando estructura del archivo...</p>
+             </div>
+           ) : (
+             <ImportPreviewTable rows={rows} skippedRows={[]} />
+           )}
          </div>
          
          <div className="mt-auto flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
@@ -69,7 +155,7 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
              Cancelar
            </button>
            <button 
-            disabled={!selectedFile}
+            disabled={!selectedFile || rows.length === 0 || isParsing}
             className="px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-sm font-medium shadow-sm shadow-green-600/20 transition-colors flex items-center gap-2"
            >
              Procesar Importación
