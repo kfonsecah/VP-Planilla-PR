@@ -138,13 +138,18 @@
 
 ### Phase 46: Rediseño Motor de Reconocimiento de Marcas
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Rediseñar el pipeline completo de importación y auditoría de marcas de reloj: (1) parser Excel con detección automática de columnas, (2) clasificación por ventanas de tiempo configurables con indicadores de confianza, (3) UI de auditoría por jornada con confirmación por día, (4) corrección asistida con sugerencias.
+**Requirements**: MARCAS-01 a MARCAS-06, D-01 a D-14
 **Depends on:** Phase 45
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 46 to break down)
+- [x] 46-01-PLAN.md — Backend: Schema + TimeWindowService + DayConfirmationService + MarkSuggestionService
+- [x] 46-02-PLAN.md — Backend: REST API controllers and routes
+- [x] 46-03-PLAN.md — Backend: Mark suggestion service for missing mark inference
+- [x] 46-04-PLAN.md — Frontend: Excel parser with auto-detection and time window classification
+- [x] 46-05-PLAN.md — Frontend: Audit UI components (confidence badges, type selector, day row)
+- [x] 46-06-PLAN.md — Frontend: ClockImportModal with preview flow
 
 ---
 
