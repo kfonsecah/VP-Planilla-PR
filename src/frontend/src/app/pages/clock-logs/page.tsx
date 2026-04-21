@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import { useEffectiveMarks } from '@/hooks/useEffectiveMarks';
 import ImportSessionsPanel from '@/components/ImportSessionsPanel';
 import BranchGroup from '@/components/BranchGroup';
@@ -11,6 +11,7 @@ import type { EffectiveClockLog } from '@/services/effectiveMarksService';
 import AddClockLogModal from '@/components/AddClockLogModal';
 import EditClockLogModal from '@/components/EditClockLogModal';
 import VoidClockLogModal from '@/components/VoidClockLogModal';
+import { ClockImportModal } from '@/components/ClockImportModal';
 import { ClockLog as AdjustmentClockLog } from '@/services/clockLogAdjustmentService';
 import {
   STATUS_OPTIONS,
@@ -115,6 +116,7 @@ export default function ClockLogsDashboardPage() {
     refresh,
   } = useEffectiveMarks();
 
+  const [modalOpen, setModalOpen] = useState(false);
   const [showImportPanel, setShowImportPanel] = useState(false);  // D-12: collapsed by default
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -167,12 +169,18 @@ export default function ClockLogsDashboardPage() {
       <div className="p-6 max-w-7xl mx-auto">
 
         {/* B. Page header (UX-03 — contextual guide subtitle) */}
-        <div className="mb-6">
-          <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">Marcas / Dashboard</p>
-          <h1 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-100">Panel de Control de Marcas</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Revise y corrija marcas de reloj antes de calcular planilla. Grupos por sucursal, empleado y día.
-          </p>
+        <div className="mb-6 flex justify-between items-end">
+          <div>
+            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">Marcas / Dashboard</p>
+            <h1 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-100">Panel de Control de Marcas</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+              Revise y corrija marcas de reloj antes de calcular planilla. Grupos por sucursal, empleado y día.
+            </p>
+          </div>
+          <button onClick={() => setModalOpen(true)} className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-medium cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm mb-1">
+            <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
+            Importar marcas (.xlsx, .csv)
+          </button>
         </div>
 
         {/* C. Biweekly preset buttons + date range (D-01) */}
@@ -356,6 +364,11 @@ export default function ClockLogsDashboardPage() {
         onClose={() => setSelectedEntryForVoid(null)}
         clockLog={selectedEntryForVoid}
         onConfirm={() => refresh()}
+      />
+
+      <ClockImportModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
       />
     </div>
   );

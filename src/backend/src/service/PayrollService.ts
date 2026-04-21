@@ -1,7 +1,8 @@
 import { prisma } from '../lib/prisma';
 import { Payroll } from "../model/payroll";
 import { PayrollStatus } from '@prisma/client';
-import { calculateGrossSalary, countWorkingDaysInPeriod, calculateScheduledHours } from '../utils/payrollUtils';
+import { calculateGrossSalary, countWorkingDaysInPeriod, calculateScheduledHours, PayrollHoliday, calculateRegularHours, calculateOvertimeHours, calculateWeeklyRestHours } from '../utils/payrollUtils';
+import { DayWork } from '../types/payroll.types';
 
 export class PayrollService {
   /**
@@ -165,7 +166,7 @@ export class PayrollService {
       }
 
       // Fetch company holidays for the payroll period
-      const holidays = await prisma.companyHoliday.findMany({
+      const holidays = await prisma.vpg_company_holidays.findMany({
         where: {
           company_holidays_date: {
             gte: payroll.payrolls_period_start,
@@ -227,9 +228,11 @@ export class PayrollService {
         // Calculate gross salary with holiday considerations
         // Note: This is a simplified version - in reality we'd need to analyze each day's work
         const grossSalary = calculateGrossSalary(
-          regularHours,
-          overtimeHours,
-          0, // base hourly rate - would come from employee data
+          dayWork,
+          0, // base hourly rate
+          0, // bonuses
+          payroll.payrolls_period_start,
+          payroll.payrolls_period_end,
           formattedHolidays
         );
 

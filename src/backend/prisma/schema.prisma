@@ -534,3 +534,29 @@ model vpg_company_holidays {
 
   @@index([company_holidays_date], map: "idx_vpg_company_holidays_date")
 }
+
+model VpgTimeWindow {
+  time_window_id         Int       @id @default(autoincrement())
+  company_id             Int
+  time_window_name       String    @map("time_window_name")
+  time_window_type       String    @map("time_window_type") // "ENTRY_MORNING", "EXIT_LUNCH", etc.
+  time_window_start_hour String    @map("time_window_start_hour") // "HH:MM"
+  time_window_end_hour   String    @map("time_window_end_hour") // "HH:MM"
+  time_window_active     Boolean   @default(true) @map("time_window_active")
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  @@map("vpg_time_windows")
+}
+
+model VpgDayConfirmation {
+  confirmation_id        Int       @id @default(autoincrement())
+  employee_id            Int       @map("employee_id")
+  confirmation_date      DateTime  @map("confirmation_date") @db.Date
+  confirmed_by           Int       @map("confirmed_by")
+  confirmation_notes     String?   @map("confirmation_notes")
+  created_at             DateTime  @default(now())
+
+  @@unique([employee_id, confirmation_date])
+  @@map("vpg_day_confirmations")
+}

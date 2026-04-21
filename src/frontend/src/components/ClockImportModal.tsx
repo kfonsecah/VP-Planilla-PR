@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import { ArrowUpTrayIcon, XMarkIcon, DocumentIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ImportPreviewTable } from './ImportPreviewTable';
+
+export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-zinc-950/60 dark:bg-zinc-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-zinc-900 dark:text-zinc-100">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 max-w-4xl w-full flex flex-col max-h-[90vh]">
+         {/* Header */}
+         <div className="mb-6 flex justify-between items-start">
+           <div>
+             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Importar Marcas</h2>
+             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sube un reporte del reloj marcador para detectar marcas entrantes y salientes.</p>
+           </div>
+           <button onClick={onClose} className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+              <XMarkIcon className="w-5 h-5" />
+           </button>
+         </div>
+         
+         {/* Upload Zone */}
+         <label className="relative group flex flex-col items-center justify-center w-full py-8 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30 hover:border-green-500 dark:hover:border-green-600 transition-all cursor-pointer mb-6 overflow-hidden">
+            <div className="flex flex-col items-center justify-center">
+              <div className="p-3 bg-white dark:bg-zinc-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                <ArrowUpTrayIcon className="w-6 h-6 text-zinc-500 dark:text-zinc-400 group-hover:text-green-600" />
+              </div>
+              <p className="text-sm font-medium">
+                {selectedFile ? selectedFile.name : <><span className="text-green-600">Haz clic para subir</span> o arrastra el archivo</>}
+              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Soporta formatos .xlsx y .csv</p>
+            </div>
+            <input 
+              type="file" 
+              className="absolute inset-0 opacity-0 cursor-pointer" 
+              accept=".xlsx,.xls,.csv" 
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            />
+            
+            {selectedFile && (
+              <div className="absolute inset-0 bg-green-50/90 dark:bg-zinc-900/95 flex items-center justify-center gap-3">
+                <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                <div className="text-left">
+                  <p className="text-xs font-bold text-green-700 dark:text-green-500 uppercase tracking-wider">Archivo Listo</p>
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{selectedFile.name}</p>
+                </div>
+                <button 
+                  onClick={(e) => { e.preventDefault(); setSelectedFile(null); }}
+                  className="ml-4 p-1.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm hover:text-red-500 transition-colors"
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+         </label>
+         
+         <div className="flex-1 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+           <div className="flex items-center gap-2 mb-3">
+             <h3 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Previsualización de Datos</h3>
+             <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800"></div>
+           </div>
+           <ImportPreviewTable rows={[]} skippedRows={[]} />
+         </div>
+         
+         <div className="mt-auto flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
+           <button onClick={onClose} className="px-5 py-2.5 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl text-sm font-medium transition-colors shadow-sm">
+             Cancelar
+           </button>
+           <button 
+            disabled={!selectedFile}
+            className="px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-sm font-medium shadow-sm shadow-green-600/20 transition-colors flex items-center gap-2"
+           >
+             Procesar Importación
+             <CheckCircleIcon className="w-4 h-4" />
+           </button>
+         </div>
+      </div>
+    </div>
+  );
+}

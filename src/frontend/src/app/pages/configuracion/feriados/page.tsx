@@ -179,7 +179,7 @@ export default function FeriadosPage() {
       {/* Generate standard holidays button */}
       <Button onClick={() => setGenerateModalOpen(true)} className="mb-4">
         Generar Semana Santa automáticamente
-      </button>
+      </Button>
 
       {/* Holidays table */}
       <Table>
