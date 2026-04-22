@@ -67,7 +67,15 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
   ];
 
   const bottomMenuItems = [
-    { href: "/configuracion", icon: "/images/layout/settings.png", text: "Configuración" },
+    { 
+      href: "/pages/configuracion", 
+      icon: "/images/layout/settings.png", 
+      text: "Configuración",
+      subItems: [
+        { href: '/pages/configuracion', text: 'Ventanas de Tiempo' },
+        { href: '/pages/configuracion/feriados', text: 'Feriados' }
+      ]
+    },
   ];
 
   return (
