@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma";
 import { ImportSessionService } from "./ImportSessionService";
 import { ClockLogsService, ClockLogSource } from "./ClockLogsService";
 import { ClockLogAnalysisService } from "./ClockLogAnalysisService";
-import { normalizeLogType, inferLogTypeBySequence } from "../utils/clockLogNormalization";
+import { normalizeLogType, inferLogTypeByTimeWindow, TimeWindowConfig } from "../utils/clockLogNormalization";
 import { ClockAliasService } from "./ClockAliasService";
 
 /**
@@ -153,7 +153,18 @@ export class ClockLogsImportService {
 
             // Infer IN/OUT for rows without explicit type, BEFORE bulk insert
             if (noTypeRows.length > 0) {
-                const inferred = inferLogTypeBySequence(noTypeRows);
+                // Fetch active time windows to guide inference
+                const activeWindows = await prisma.vpgTimeWindow.findMany({
+                    where: { time_window_active: true },
+                    select: {
+                        time_window_name: true,
+                        time_window_type: true,
+                        time_window_start_hour: true,
+                        time_window_end_hour: true,
+                    }
+                });
+                
+                const inferred = inferLogTypeByTimeWindow(noTypeRows, activeWindows);
                 for (const row of inferred) {
                     resolved.push({
                         employee_id: row.employee_id,

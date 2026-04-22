@@ -64,16 +64,32 @@ export type InferLogTypeResult = {
   remarks?: string | null;
 };
 
+export interface TimeWindowConfig {
+  time_window_name: string;
+  time_window_type: string;
+  time_window_start_hour: string;
+  time_window_end_hour: string;
+}
+
+function toMinutes(timeStr: string): number {
+  const parts = timeStr.split(':');
+  const hours = parseInt(parts[0] || '0', 10);
+  const minutes = parseInt(parts[1] || '0', 10);
+  return hours * 60 + minutes;
+}
+
 /**
- * Infers IN/OUT log type by sequence when clock file does not provide type.
- * Groups rows by (employee_id, UTC date), sorts each group by timestamp ascending,
- * then assigns alternately: index 0 -> IN, index 1 -> OUT, index 2 -> IN, etc.
+ * Infers IN/OUT log type by matching against configured time windows.
+ * If no windows match, falls back to chronological sequence assignment.
+ * Groups rows by (employee_id, UTC date), sorts each group by timestamp ascending.
  *
  * @param rows - Array of resolved rows without log_type
+ * @param windows - Array of configured time windows
  * @returns Same rows with log_type inferred as 'IN' | 'OUT'
  */
-export function inferLogTypeBySequence(
-  rows: InferLogTypeRow[]
+export function inferLogTypeByTimeWindow(
+  rows: InferLogTypeRow[],
+  windows: TimeWindowConfig[] = []
 ): InferLogTypeResult[] {
   if (rows.length === 0) return [];
 
@@ -94,12 +110,44 @@ export function inferLogTypeBySequence(
   for (const group of grouped.values()) {
     // Sort ascending by timestamp within each group
     group.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    
     for (let i = 0; i < group.length; i++) {
+      const row = group[i];
+      let inferredType: CanonicalLogType | null = null;
+      
+      // Try to match time window
+      if (windows.length > 0) {
+        // We use local hour of the timestamp, assuming UTC corresponds to local time for these calculations
+        // (If timestamp is stored in UTC but represents local time, substring(11,16) gets the time)
+        const hhmm = row.timestamp.toISOString().substring(11, 16);
+        const markMinutes = toMinutes(hhmm);
+        
+        const matching = windows.filter((w) => {
+          const start = toMinutes(w.time_window_start_hour);
+          const end = toMinutes(w.time_window_end_hour);
+          if (start <= end) {
+            return markMinutes >= start && markMinutes < end;
+          } else {
+            return markMinutes >= start || markMinutes < end;
+          }
+        });
+        
+        if (matching.length > 0) {
+          // If matches multiple, just use the first one's type
+          inferredType = matching[0].time_window_type.toUpperCase() === 'OUT' ? 'OUT' : 'IN';
+        }
+      }
+      
+      // Fallback to sequence if no window matched
+      if (!inferredType) {
+         inferredType = i % 2 === 0 ? 'IN' : 'OUT';
+      }
+
       result.push({
-        employee_id: group[i].employee_id,
-        timestamp: group[i].timestamp,
-        log_type: i % 2 === 0 ? 'IN' : 'OUT',
-        remarks: group[i].remarks,
+        employee_id: row.employee_id,
+        timestamp: row.timestamp,
+        log_type: inferredType,
+        remarks: row.remarks,
       });
     }
   }

@@ -1,4 +1,4 @@
-import { normalizeLogType, isValidCanonicalType, inferLogTypeBySequence } from '../../../utils/clockLogNormalization';
+import { normalizeLogType, isValidCanonicalType, inferLogTypeByTimeWindow } from '../../../utils/clockLogNormalization';
 
 describe('clockLogNormalization', () => {
   describe('normalizeLogType', () => {
@@ -90,14 +90,14 @@ describe('clockLogNormalization', () => {
     });
   });
 
-  describe('inferLogTypeBySequence', () => {
+  describe('inferLogTypeByTimeWindow', () => {
     it('should return empty array for empty input', () => {
-      expect(inferLogTypeBySequence([])).toEqual([]);
+      expect(inferLogTypeByTimeWindow([])).toEqual([]);
     });
 
     it('should assign IN to single row per employee+day', () => {
       const row = { employee_id: 1, timestamp: new Date('2026-04-01T08:00:00Z') };
-      const result = inferLogTypeBySequence([row]);
+      const result = inferLogTypeByTimeWindow([row]);
       expect(result[0].log_type).toBe('IN');
     });
 
@@ -106,7 +106,7 @@ describe('clockLogNormalization', () => {
         { employee_id: 1, timestamp: new Date('2026-04-01T08:00:00Z') },
         { employee_id: 1, timestamp: new Date('2026-04-01T17:00:00Z') },
       ];
-      const result = inferLogTypeBySequence(rows);
+      const result = inferLogTypeByTimeWindow(rows);
       expect(result.find(r => r.timestamp.toISOString() === '2026-04-01T08:00:00.000Z')?.log_type).toBe('IN');
       expect(result.find(r => r.timestamp.toISOString() === '2026-04-01T17:00:00.000Z')?.log_type).toBe('OUT');
     });
@@ -117,7 +117,7 @@ describe('clockLogNormalization', () => {
         { employee_id: 1, timestamp: new Date('2026-04-01T12:00:00Z') },
         { employee_id: 1, timestamp: new Date('2026-04-01T13:00:00Z') },
       ];
-      const result = inferLogTypeBySequence(rows);
+      const result = inferLogTypeByTimeWindow(rows);
       const sorted = result.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       expect(sorted[0].log_type).toBe('IN');
       expect(sorted[1].log_type).toBe('OUT');
@@ -131,7 +131,7 @@ describe('clockLogNormalization', () => {
         { employee_id: 2, timestamp: new Date('2026-04-01T09:00:00Z') },
         { employee_id: 2, timestamp: new Date('2026-04-01T18:00:00Z') },
       ];
-      const result = inferLogTypeBySequence(rows);
+      const result = inferLogTypeByTimeWindow(rows);
       const emp1 = result.filter(r => r.employee_id === 1).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       const emp2 = result.filter(r => r.employee_id === 2).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       expect(emp1[0].log_type).toBe('IN');
@@ -145,7 +145,7 @@ describe('clockLogNormalization', () => {
         { employee_id: 1, timestamp: new Date('2026-04-01T08:00:00Z') },
         { employee_id: 1, timestamp: new Date('2026-04-02T08:00:00Z') },
       ];
-      const result = inferLogTypeBySequence(rows);
+      const result = inferLogTypeByTimeWindow(rows);
       expect(result.every(r => r.log_type === 'IN')).toBe(true);
     });
 
@@ -154,11 +154,33 @@ describe('clockLogNormalization', () => {
         { employee_id: 1, timestamp: new Date('2026-04-01T17:00:00Z') }, // arrives first but later time
         { employee_id: 1, timestamp: new Date('2026-04-01T08:00:00Z') }, // earlier time → should be IN
       ];
-      const result = inferLogTypeBySequence(rows);
+      const result = inferLogTypeByTimeWindow(rows);
       const early = result.find(r => r.timestamp.toISOString() === '2026-04-01T08:00:00.000Z');
       const late = result.find(r => r.timestamp.toISOString() === '2026-04-01T17:00:00.000Z');
       expect(early?.log_type).toBe('IN');
       expect(late?.log_type).toBe('OUT');
+    });
+
+    it('should use time windows if provided', () => {
+      const rows = [
+        { employee_id: 1, timestamp: new Date('2026-04-01T17:00:00Z') }, // OUT
+        { employee_id: 1, timestamp: new Date('2026-04-01T08:00:00Z') }, // IN
+        { employee_id: 1, timestamp: new Date('2026-04-01T16:00:00Z') } // also OUT! (missed punch)
+      ];
+      const windows = [
+        { time_window_name: 'Morning', time_window_type: 'IN', time_window_start_hour: '06:00', time_window_end_hour: '10:00' },
+        { time_window_name: 'Evening', time_window_type: 'OUT', time_window_start_hour: '15:00', time_window_end_hour: '19:00' }
+      ];
+      
+      const result = inferLogTypeByTimeWindow(rows, windows);
+      
+      const early = result.find(r => r.timestamp.toISOString() === '2026-04-01T08:00:00.000Z');
+      const late1 = result.find(r => r.timestamp.toISOString() === '2026-04-01T16:00:00.000Z');
+      const late2 = result.find(r => r.timestamp.toISOString() === '2026-04-01T17:00:00.000Z');
+      
+      expect(early?.log_type).toBe('IN');
+      expect(late1?.log_type).toBe('OUT'); // Correctly inferred as OUT instead of fallback IN
+      expect(late2?.log_type).toBe('OUT'); // Correctly inferred as OUT
     });
   });
 });

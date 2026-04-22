@@ -114,7 +114,7 @@ describe('EmployeeService', () => {
       expect(result).not.toBeNull();
       expect(result!.id).toBe(1);
       expect(result!.name).toBe('Juan Carlos Perez');
-      expect(prisma.vpg_employees.findUnique).toHaveBeenCalledWith({ where: { employee_id: 1 } });
+      expect(prisma.vpg_employees.findUnique).toHaveBeenCalledWith({ where: { employee_id: 1 }, include: { vpg_positions: true } });
     });
 
     it('should return null when employee not found', async () => {
