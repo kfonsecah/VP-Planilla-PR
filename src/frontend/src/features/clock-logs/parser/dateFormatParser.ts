@@ -19,7 +19,17 @@ export function parseDateTime(dateVal: any, timeVal?: any): Date | null {
   if (typeof dateVal === 'number') {
     date = excelDateToJs(dateVal);
   } else if (dateVal instanceof Date) {
-    date = dateVal;
+    // ExcelJS parses dates using UTC. For example "2026-04-01" becomes "2026-04-01T00:00:00.000Z".
+    // If we use this directly in a UTC-6 timezone, its local date is March 31.
+    // We must reconstruct it as a local date using the UTC components.
+    date = new Date(
+      dateVal.getUTCFullYear(),
+      dateVal.getUTCMonth(),
+      dateVal.getUTCDate(),
+      dateVal.getUTCHours(),
+      dateVal.getUTCMinutes(),
+      dateVal.getUTCSeconds()
+    );
   } else {
     // String parsing
     const s = String(dateVal).trim();
@@ -28,9 +38,13 @@ export function parseDateTime(dateVal: any, timeVal?: any): Date | null {
     } else {
       // Try common formats
       const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+      const ymd = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      
       if (dmy) {
         const year = dmy[3].length === 2 ? 2000 + parseInt(dmy[3]) : parseInt(dmy[3]);
         date = new Date(year, parseInt(dmy[2]) - 1, parseInt(dmy[1]));
+      } else if (ymd) {
+        date = new Date(parseInt(ymd[1]), parseInt(ymd[2]) - 1, parseInt(ymd[3]));
       } else {
         date = new Date(s);
       }
@@ -44,6 +58,8 @@ export function parseDateTime(dateVal: any, timeVal?: any): Date | null {
     } else if (typeof timeVal === 'string' && timeVal.includes(':')) {
       const p = timeVal.split(':');
       date.setHours(parseInt(p[0]), parseInt(p[1]), p[2] ? parseInt(p[2]) : 0);
+    } else if (timeVal instanceof Date) {
+      date.setHours(timeVal.getUTCHours(), timeVal.getUTCMinutes(), timeVal.getUTCSeconds());
     }
   }
 
