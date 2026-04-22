@@ -5,11 +5,13 @@ import { detectColumns } from '../features/clock-logs/parser/excelColumnDetector
 import { parseDateTime } from '../features/clock-logs/parser/dateFormatParser';
 import { classifyByTimeWindow } from '../features/clock-logs/parser/timeWindowClassifier';
 import { useTimeWindows } from '../hooks/useTimeWindows';
+import { ClockLogsService } from '@/services/clockLogsService';
 
-export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+export function ClockImportModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose: () => void, onSuccess?: () => void }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [rows, setRows] = useState<any[]>([]);
   const [isParsing, setIsParsing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { windows: timeWindows } = useTimeWindows();
 
   useEffect(() => {
@@ -48,7 +50,8 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
       return {
         id: line[cols.idIdx] || String(idx + 1),
         date: dt ? dt.toLocaleString() : 'Inválida',
-        type: line[cols.typeIdx] || 'N/A'
+        isoDate: dt ? dt.toISOString() : null,
+        type: (cols.typeIdx !== -1 && line[cols.typeIdx]) ? String(line[cols.typeIdx]) : ''
       };
     });
     setRows(newRows);
@@ -68,19 +71,40 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
 
     if (data.length < 2) return;
     
-    const headers = data[1].slice(1); // ExcelJS values are 1-indexed
+    const headers = data[0].slice(1); // ExcelJS row.values are 1-indexed, but data array is 0-indexed
     const cols = detectColumns(headers);
     
-    const newRows = data.slice(2).map((row, idx) => {
+    const newRows = data.slice(1).map((row, idx) => {
       const vals = row.slice(1);
       const dt = parseDateTime(vals[cols.dateIdx], vals[cols.timeIdx]);
       return {
         id: String(vals[cols.idIdx] || idx + 1),
         date: dt ? dt.toLocaleString() : 'Inválida',
-        type: String(vals[cols.typeIdx] || 'N/A')
+        isoDate: dt ? dt.toISOString() : null,
+        type: (cols.typeIdx !== -1 && vals[cols.typeIdx]) ? String(vals[cols.typeIdx]) : ''
       };
     });
     setRows(newRows);
+  };
+
+  const handleImport = async () => {
+    setIsSubmitting(true);
+    try {
+      const payloadLogs = rows.filter(r => r.isoDate).map(r => ({
+        employee_id: r.id,
+        employee_name: r.id,
+        timestamp: r.isoDate,
+        log_type: r.type
+      }));
+      await ClockLogsService.importLogs(payloadLogs as any, 'excel_import');
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      alert('Error procesando importación: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -155,10 +179,11 @@ export function ClockImportModal({ isOpen, onClose }: { isOpen: boolean, onClose
              Cancelar
            </button>
            <button 
-            disabled={!selectedFile || rows.length === 0 || isParsing}
+            onClick={handleImport}
+            disabled={!selectedFile || rows.length === 0 || isParsing || isSubmitting}
             className="px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-sm font-medium shadow-sm shadow-green-600/20 transition-colors flex items-center gap-2"
            >
-             Procesar Importación
+             {isSubmitting ? 'Importando...' : 'Procesar Importación'}
              <CheckCircleIcon className="w-4 h-4" />
            </button>
          </div>

@@ -651,6 +651,10 @@ export default function ClockLogsDashboardPage() {
       <ClockImportModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
+        onSuccess={() => {
+          setModalOpen(false);
+          refresh();
+        }}
       />
     </div>
   );
