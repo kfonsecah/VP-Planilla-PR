@@ -2,6 +2,10 @@
 
 Este documento centraliza la definición y responsabilidades de los agentes de IA configurados para el proyecto **VP-Planilla**. Estos agentes operan bajo la metodología **GSD (Get Shit Done)** para garantizar la integridad arquitectónica y el cumplimiento de los requisitos legales de la planilla costarricense.
 
+> **CONTRATO DE EJECUCIÓN:** Todo agente DEBE leer `PHASE_CONTRACT.md` antes de planificar o ejecutar.
+> Ese archivo define los gates obligatorios, prohibiciones absolutas y el protocolo de bloqueo.
+
+
 ## Agentes Estratégicos (Planificación y Diseño)
 
 | Agente | Responsabilidad Principal | Cuándo Invocar |

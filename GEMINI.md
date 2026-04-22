@@ -7,7 +7,13 @@ Full-stack payroll management system for Costa Rica labor law compliance.
 - **DB schema**: `src/backend/prisma/schema.prisma`
 - **Java clock-log parser**: `src/Java/` (standalone utility)
 
+> ⚠️ **LECTURA OBLIGATORIA ANTES DE CUALQUIER ACCIÓN:**
+> Leer `PHASE_CONTRACT.md` en la raíz del proyecto. Contiene las reglas de ejecución
+> estrictas para todos los agentes: gates de fase, reglas de nombrado, arquitectura,
+> protocolo de bloqueo y lista de prohibiciones. No inferir, no improvisar.
+
 ---
+
 
 ## Stack & Versions
 
