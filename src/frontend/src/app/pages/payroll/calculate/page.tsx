@@ -10,6 +10,123 @@ import PayrollCreateModal from '@/components/PayrollCreateModal';
 import DatePicker from '@/components/DatePicker';
 import { Select, SelectItem } from '@/components/ui/Select';
 
+const getDatesForType = (typeName: string, today: Date): { start: Date; end: Date } => {
+  if (typeName.includes('quincenal') || typeName.includes('quincena')) {
+    const day = today.getDate();
+    if (day <= 15) {
+      return {
+        start: new Date(today.getFullYear(), today.getMonth(), 1),
+        end: new Date(today.getFullYear(), today.getMonth(), 15)
+      };
+    }
+    return {
+      start: new Date(today.getFullYear(), today.getMonth(), 16),
+      end: new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    };
+  }
+  
+  if (typeName.includes('mensual') || typeName.includes('mes')) {
+    return {
+      start: new Date(today.getFullYear(), today.getMonth(), 1),
+      end: new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    };
+  }
+  
+  if (typeName.includes('semanal') || typeName.includes('semana')) {
+    const start = new Date(today);
+    const end = new Date(today);
+    end.setDate(end.getDate() + 6);
+    return { start, end };
+  }
+  
+  const start = new Date(today);
+  const end = new Date(today);
+  end.setDate(end.getDate() + 14);
+  return { start, end };
+};
+
+const formatDateDisplay = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+};
+
+const parseDisplayDate = (displayDate: string): string => {
+  if (!displayDate || displayDate.length < 8) return '';
+  const [day, month, year] = displayDate.split('/');
+  const fullYear = year.length === 2 ? `20${year}` : year;
+  return `${fullYear}-${month}-${day}`;
+};
+
+const displayDateToDate = (displayDate: string): Date | null => {
+  if (!displayDate || displayDate.length < 8) return null;
+  const [day, month, year] = displayDate.split('/');
+  const fullYear = year.length === 2 ? Number(`20${year}`) : Number(year);
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  if (
+    Number.isNaN(fullYear) ||
+    Number.isNaN(monthNumber) ||
+    Number.isNaN(dayNumber)
+  ) {
+    return null;
+  }
+  return new Date(fullYear, monthNumber - 1, dayNumber);
+};
+
+const validateQuincenal = (diffDays: number, isWarning: boolean): string | null => {
+  if (diffDays < 14 || diffDays > 16) {
+    return isWarning 
+      ? `El rango actual es de ${diffDays} días. Para una planilla quincenal se recomiendan 15 días (del 1 al 15 o del 16 al último día del mes).`
+      : 'Para planilla quincenal, el periodo debe ser de aproximadamente 15 días';
+  }
+  return null;
+};
+
+const validateMensual = (start: Date, end: Date, isWarning: boolean): string | null => {
+  if (start.getDate() !== 1) {
+    return isWarning
+      ? `Para una planilla mensual, la fecha de inicio debe ser el primer día del mes.`
+      : 'Para planilla mensual, la fecha de inicio debe ser el primer día del mes';
+  }
+  const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+  if (end.getDate() !== lastDay.getDate() || end.getMonth() !== start.getMonth()) {
+    return isWarning
+      ? `Para una planilla mensual, la fecha de fin debe ser el último día del mes (${lastDay.getDate()}).`
+      : 'Para planilla mensual, la fecha de fin debe ser el último día del mes';
+  }
+  return null;
+};
+
+const validateSemanal = (diffDays: number, isWarning: boolean): string | null => {
+  if (diffDays < 6 || diffDays > 7) {
+    return isWarning
+      ? `El rango actual es de ${diffDays} días. Para una planilla semanal se requieren 7 días.`
+      : 'Para planilla semanal, el periodo debe ser de 7 días';
+  }
+  return null;
+};
+
+const getPeriodValidationMessage = (typeName: string, start: Date, end: Date, isWarning: boolean): string | null => {
+  const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  const normalizedType = typeName.toLowerCase();
+
+  if (normalizedType.includes('quincenal') || normalizedType.includes('quincena')) {
+    return validateQuincenal(diffDays, isWarning);
+  }
+  
+  if (normalizedType.includes('mensual') || normalizedType.includes('mes')) {
+    return validateMensual(start, end, isWarning);
+  }
+  
+  if (normalizedType.includes('semanal') || normalizedType.includes('semana')) {
+    return validateSemanal(diffDays, isWarning);
+  }
+
+  return null;
+};
+
 export default function PayrollCalculatePage() {
   const { data, isLoading, error, calculatePayrollForPeriod } = useNominee();
   const { data: payrollTypes, isLoading: loadingTypes } = usePayrollTypes();
@@ -30,71 +147,10 @@ export default function PayrollCalculatePage() {
     const parsedCurrent = currentStartDate ? displayDateToDate(currentStartDate) : null;
     const today = parsedCurrent ?? new Date();
     
-    if (typeName.includes('quincenal') || typeName.includes('quincena')) {
-      const day = today.getDate();
-      let start: Date, end: Date;
-      
-      if (day <= 15) {
-        start = new Date(today.getFullYear(), today.getMonth(), 1);
-        end = new Date(today.getFullYear(), today.getMonth(), 15);
-      } else {
-        start = new Date(today.getFullYear(), today.getMonth(), 16);
-        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      }
-      
-      setStartDate(formatDateDisplay(start));
-      setEndDate(formatDateDisplay(end));
-    } else if (typeName.includes('mensual') || typeName.includes('mes')) {
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
-      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      
-      setStartDate(formatDateDisplay(start));
-      setEndDate(formatDateDisplay(end));
-    } else if (typeName.includes('semanal') || typeName.includes('semana')) {
-      const start = new Date(today);
-      const end = new Date(today);
-      end.setDate(end.getDate() + 6);
-      
-      setStartDate(formatDateDisplay(start));
-      setEndDate(formatDateDisplay(end));
-    } else {
-      const start = new Date(today);
-      const end = new Date(today);
-      end.setDate(end.getDate() + 14);
-      
-      setStartDate(formatDateDisplay(start));
-      setEndDate(formatDateDisplay(end));
-    }
-  };
-
-  const formatDateDisplay = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-    return `${day}/${month}/${year}`;
-  };
-
-  const parseDisplayDate = (displayDate: string): string => {
-    if (!displayDate || displayDate.length < 8) return '';
-    const [day, month, year] = displayDate.split('/');
-    const fullYear = year.length === 2 ? `20${year}` : year;
-    return `${fullYear}-${month}-${day}`;
-  };
-
-  const displayDateToDate = (displayDate: string): Date | null => {
-    if (!displayDate || displayDate.length < 8) return null;
-    const [day, month, year] = displayDate.split('/');
-    const fullYear = year.length === 2 ? Number(`20${year}`) : Number(year);
-    const monthNumber = Number(month);
-    const dayNumber = Number(day);
-    if (
-      Number.isNaN(fullYear) ||
-      Number.isNaN(monthNumber) ||
-      Number.isNaN(dayNumber)
-    ) {
-      return null;
-    }
-    return new Date(fullYear, monthNumber - 1, dayNumber);
+    const { start, end } = getDatesForType(typeName, today);
+    
+    setStartDate(formatDateDisplay(start));
+    setEndDate(formatDateDisplay(end));
   };
 
   useEffect(() => {
@@ -105,54 +161,16 @@ export default function PayrollCalculatePage() {
   }, [payrollTypeId]);
 
   useEffect(() => {
-    if (!payrollTypeId || !startDate || !endDate || startDate.length < 8 || endDate.length < 8) {
-      setDateRangeWarning(null);
-      return;
-    }
-
-    const selectedType = payrollTypes?.find(pt => pt.id === payrollTypeId);
-    if (!selectedType) {
-      setDateRangeWarning(null);
-      return;
-    }
-
     const start = displayDateToDate(startDate);
     const end = displayDateToDate(endDate);
-    
-    if (!start || !end) {
+    const selectedType = payrollTypes?.find(pt => pt.id === payrollTypeId);
+
+    if (!selectedType || !start || !end || startDate.length < 8 || endDate.length < 8) {
       setDateRangeWarning(null);
       return;
     }
-    
-    const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    const typeName = selectedType.name.toLowerCase();
 
-    let warning = null;
-
-    if (typeName.includes('quincenal') || typeName.includes('quincena')) {
-      if (diffDays < 14) {
-        warning = `El rango actual es de ${diffDays} días. Para una planilla quincenal se recomiendan 15 días (del 1 al 15 o del 16 al último día del mes).`;
-      } else if (diffDays > 16) {
-        warning = `El rango actual es de ${diffDays} días. Para una planilla quincenal se recomiendan 15 días (del 1 al 15 o del 16 al último día del mes).`;
-      }
-    } else if (typeName.includes('mensual') || typeName.includes('mes')) {
-      if (start.getDate() !== 1) {
-        warning = `Para una planilla mensual, la fecha de inicio debe ser el primer día del mes.`;
-      } else {
-        const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-        if (end.getDate() !== lastDay.getDate() || end.getMonth() !== start.getMonth()) {
-          warning = `Para una planilla mensual, la fecha de fin debe ser el último día del mes (${lastDay.getDate()}).`;
-        }
-      }
-    } else if (typeName.includes('semanal') || typeName.includes('semana')) {
-      if (diffDays < 6) {
-        warning = `El rango actual es de ${diffDays} días. Para una planilla semanal se requieren 7 días.`;
-      } else if (diffDays > 7) {
-        warning = `El rango actual es de ${diffDays} días. Para una planilla semanal se requieren 7 días.`;
-      }
-    }
-
-    setDateRangeWarning(warning);
+    setDateRangeWarning(getPeriodValidationMessage(selectedType.name, start, end, true));
   }, [startDate, endDate, payrollTypeId, payrollTypes]);
 
   const validateDatesForType = (): string | null => {
@@ -161,7 +179,6 @@ export default function PayrollCalculatePage() {
     const selectedType = payrollTypes?.find(pt => pt.id === payrollTypeId);
     if (!selectedType) return null;
 
-    const typeName = selectedType.name.toLowerCase();
     const start = displayDateToDate(startDate);
     const end = displayDateToDate(endDate);
     
@@ -169,27 +186,7 @@ export default function PayrollCalculatePage() {
       return 'Formato de fecha inválido. Use dd/mm/yy';
     }
     
-    const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (typeName.includes('quincenal') || typeName.includes('quincena')) {
-      if (diffDays < 14 || diffDays > 16) {
-        return 'Para planilla quincenal, el periodo debe ser de aproximadamente 15 días';
-      }
-    } else if (typeName.includes('mensual') || typeName.includes('mes')) {
-      if (start.getDate() !== 1) {
-        return 'Para planilla mensual, la fecha de inicio debe ser el primer día del mes';
-      }
-      const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-      if (end.getDate() !== lastDay.getDate()) {
-        return 'Para planilla mensual, la fecha de fin debe ser el último día del mes';
-      }
-    } else if (typeName.includes('semanal') || typeName.includes('semana')) {
-      if (diffDays !== 6 && diffDays !== 7) {
-        return 'Para planilla semanal, el periodo debe ser de 7 días';
-      }
-    }
-
-    return null;
+    return getPeriodValidationMessage(selectedType.name, start, end, false);
   };
 
   const handleCalculate = async () => {

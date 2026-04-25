@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>
         {/* Aquí metemos el ClientLayout */}
         <ClientLayout>{children}</ClientLayout>

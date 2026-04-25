@@ -95,7 +95,7 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
     }
     setIsSubmitting(true);
     try {
-      const targetStatus = correctionAction === 'discard' ? 'corrected' : 'corrected';
+      const targetStatus = 'corrected';
       await ClockLogsService.updateClockLogStatus(log.id, targetStatus, justification.trim());
       toast.success('Marca actualizada correctamente');
       onCorrected();

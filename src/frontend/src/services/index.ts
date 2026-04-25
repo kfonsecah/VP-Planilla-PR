@@ -5,6 +5,10 @@
 // Auth
 export * from './authService';
 
+// Clock Aliases
+export { ClockAliasService } from './clockAliasService';
+export type { ClockAlias } from './clockAliasService';
+
 // Employees
 export * from './employeeService';
 

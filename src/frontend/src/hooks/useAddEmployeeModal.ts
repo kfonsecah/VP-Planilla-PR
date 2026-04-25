@@ -118,9 +118,7 @@ const useAddEmployeeModal = () => {
 
     // Fecha: YYYY-MM-DD (permitir vacío)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (formData.employee_hire_date && !dateRegex.test(formData.employee_hire_date)) return false;
-
-    return true;
+    return !(formData.employee_hire_date && !dateRegex.test(formData.employee_hire_date));
   };
 
   return {

@@ -164,8 +164,7 @@ export const ClockLogsService = {
   },
 
   async importLogs(logs: ClockLog[], source: string = 'excel_import'): Promise<ImportResult> {
-    const response = await http.post('/clock-logs/import', { logs, source });
-    return response;
+    return await http.post('/clock-logs/import', { logs, source });
   },
 
   async updateClockLogStatus(id: number, status: string, justification: string): Promise<void> {

@@ -9,6 +9,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
   }
 };
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const createEmployee = async (employeeData: EmployeeFormData): Promise<Employee> => {
   // Normalize fields to match backend schema (uses employee_ prefix)
   const normalizedNationalId = (employeeData.employee_national_id || '').replace(/\D/g, '');
@@ -30,6 +31,8 @@ export const createEmployee = async (employeeData: EmployeeFormData): Promise<Em
     employee_email: employeeData.employee_email,
     employee_position_id: typeof positionId === 'number' && !Number.isNaN(positionId) ? positionId : null,
     employee_hire_date: hireDate ? hireDate.toISOString() : null,
+    employee_phone: employeeData.employee_phone || null,
+    employee_gender: employeeData.employee_gender || null,
     employee_required_hours_biweekly: requiredHours && !Number.isNaN(requiredHours) ? requiredHours : null,
     employee_status: 'A'
   };
@@ -56,14 +59,17 @@ export interface EmployeeUpdateData {
   national_id?: string | null;
   social_code?: string | null;
   email?: string;
+  phone?: string | null;
   hire_date?: string;
   position_id?: number | null;
+  gender?: string | null;
   required_hours_biweekly?: number | null;
   status?: string;
   fired?: boolean;
   exit_date?: string;
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const updateEmployee = async (id: string | number, employeeData: Partial<EmployeeFormData> & { status?: string }): Promise<Employee> => {
   // Backend schema expects employee_ prefix, and only sends fields with actual values
   const payload: Record<string, unknown> = {};
@@ -114,7 +120,22 @@ export const updateEmployee = async (id: string | number, employeeData: Partial<
       payload.employee_required_hours_biweekly = requiredHours;
     }
   }
-  
+
+  // Handle both prefixed (modal: employee_phone) and non-prefixed (edit page: phone)
+  const phoneVal = 'employee_phone' in employeeData
+    ? (employeeData as Record<string, unknown>).employee_phone
+    : (employeeData as Record<string, unknown>).phone;
+  if (phoneVal !== undefined) {
+    payload.employee_phone = (phoneVal as string) || null;
+  }
+
+  const genderVal = 'employee_gender' in employeeData
+    ? (employeeData as Record<string, unknown>).employee_gender
+    : (employeeData as Record<string, unknown>).gender;
+  if (genderVal !== undefined) {
+    payload.employee_gender = (genderVal as string) || null;
+  }
+
   if (employeeData.status) {
     payload.employee_status = employeeData.status;
   }

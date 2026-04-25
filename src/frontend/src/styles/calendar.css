@@ -1,113 +1,360 @@
-/* Estilos específicos para el calendario */
+/* ================================================================
+   Calendario de Eventos Laborales — VP-Planilla
+   Sistema de diseño zinc-950 con colores por tipo de evento
+   ================================================================ */
+
+/* === Root Variables === */
 .calendar-container .fc {
-  background-color: white;
-  border-radius: 0.5rem;
-  padding: 1rem;
+  --fc-border-color: #e4e4e7; /* zinc-200 */
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: #fafafa; /* zinc-50 */
+  --fc-today-bg-color: rgba(34, 197, 94, 0.06);
   font-family: inherit;
+  background: transparent;
 }
 
+:is(.dark) .calendar-container .fc {
+  --fc-border-color: #27272a; /* zinc-800 */
+  --fc-neutral-bg-color: #27272a; /* zinc-800 */
+  --fc-today-bg-color: rgba(34, 197, 94, 0.08);
+}
+
+/* === Toolbar === */
 .calendar-container .fc .fc-toolbar.fc-header-toolbar {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .calendar-container .fc .fc-toolbar-title {
-  color: #3B4D36;
-  font-weight: 300;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #3f3f46; /* zinc-700 */
 }
 
-.calendar-container .fc .fc-button-primary {
-  background-color: #A7AA94;
-  border-color: #A7AA94;
-  color: #3B4D36;
+:is(.dark) .calendar-container .fc .fc-toolbar-title {
+  color: #ffffff;
 }
 
-.calendar-container .fc .fc-button-primary:hover {
-  background-color: #6F7153;
-  border-color: #6F7153;
+/* Buttons */
+.calendar-container .fc .fc-button {
+  background-color: #f4f4f5; /* zinc-100 */
+  border: 1px solid #e4e4e7; /* zinc-200 */
+  color: #3f3f46; /* zinc-700 */
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  box-shadow: none;
+  outline: none;
+  transition: all 150ms;
+}
+
+:is(.dark) .calendar-container .fc .fc-button {
+  background-color: #27272a; /* zinc-800 */
+  border-color: #3f3f46; /* zinc-700 */
+  color: #e4e4e7; /* zinc-200 */
+}
+
+.calendar-container .fc .fc-button:hover {
+  background-color: #16a34a; /* green-600 */
+  border-color: #16a34a;
   color: white;
+}
+
+.calendar-container .fc .fc-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .calendar-container .fc .fc-button-primary:not(:disabled).fc-button-active,
 .calendar-container .fc .fc-button-primary:not(:disabled):active {
-  background-color: #3B4D36;
-  border-color: #3B4D36;
-  color: white;
+  background-color: #16a34a !important; /* green-600 */
+  border-color: #16a34a !important;
+  color: white !important;
 }
 
-.calendar-container .fc .fc-day-today {
-  background-color: rgba(231, 220, 193, 0.3) !important;
+/* === Column Headers === */
+.calendar-container .fc .fc-col-header-cell {
+  padding: 0.75rem 0;
 }
 
-.calendar-container .fc .fc-daygrid-day-number,
 .calendar-container .fc .fc-col-header-cell-cushion {
-  color: #3B4D36;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #71717a; /* zinc-500 */
 }
 
+:is(.dark) .calendar-container .fc .fc-col-header-cell-cushion {
+  color: #a1a1aa; /* zinc-400 */
+}
+
+/* === Day Grid === */
+.calendar-container .fc .fc-daygrid-day-number {
+  font-size: 0.8125rem;
+  color: #52525b; /* zinc-600 */
+  padding: 0.5rem;
+}
+
+:is(.dark) .calendar-container .fc .fc-daygrid-day-number {
+  color: #a1a1aa; /* zinc-400 */
+}
+
+.calendar-container .fc .fc-daygrid-day:hover {
+  background-color: #fafafa; /* zinc-50 */
+}
+
+:is(.dark) .calendar-container .fc .fc-daygrid-day:hover {
+  background-color: rgba(39, 39, 42, 0.5); /* zinc-800/50 */
+}
+
+/* Today highlight */
+.calendar-container .fc .fc-day-today {
+  background-color: var(--fc-today-bg-color) !important;
+}
+
+.calendar-container .fc .fc-day-today .fc-daygrid-day-number {
+  background-color: #16a34a; /* green-600 */
+  color: white !important;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* === Borders === */
+.calendar-container .fc th,
+.calendar-container .fc td {
+  border-color: var(--fc-border-color);
+}
+
+/* === Event Type Colors === */
 .calendar-container .fc-event {
   cursor: pointer;
-  /* Default pill appearance is preserved; specific status colors are applied via additional classes */
-  background-color: #A7AA94 !important;
-  border: 1px solid #6F7153 !important;
-  color: #3B4D36 !important;
-  border-radius: 12px !important;
-  padding: 4px 8px !important;
-  margin: 2px 1px !important;
-  font-size: 0.85rem !important;
+  border-radius: 0.375rem !important;
+  padding: 0.125rem 0.5rem !important;
+  margin: 1px 2px !important;
+  font-size: 0.75rem !important;
   font-weight: 500 !important;
-  opacity: 1 !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-}
-
-.calendar-container .fc-event .fc-event-title {
-  color: #3B4D36 !important;
-  font-weight: 500 !important;
+  border: none !important;
+  border-left: 3px solid transparent !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transition: all 150ms ease !important;
+  position: relative;
 }
 
 .calendar-container .fc-event:hover {
-  background-color: #6F7153 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.calendar-container .fc-event .fc-event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: white !important;
 }
 
-.calendar-container .fc-event:hover .fc-event-title {
+/* Event type: Vacaciones */
+.calendar-container .fc-event.event-type-vacaciones {
+  background-color: #3B82F6 !important;
+  border-left-color: #2563EB !important;
+}
+
+/* Event type: Incapacidad */
+.calendar-container .fc-event.event-type-incapacidad {
+  background-color: #F97316 !important;
+  border-left-color: #EA580C !important;
+}
+
+/* Event type: Permiso */
+.calendar-container .fc-event.event-type-permiso {
+  background-color: #A855F7 !important;
+  border-left-color: #9333EA !important;
+}
+
+/* Event type: Día Libre */
+.calendar-container .fc-event.event-type-dia-libre {
+  background-color: #14B8A6 !important;
+  border-left-color: #0D9488 !important;
+}
+
+/* Event type: Suspensión */
+.calendar-container .fc-event.event-type-suspension {
+  background-color: #EF4444 !important;
+  border-left-color: #DC2626 !important;
+}
+
+/* Event type: Otro */
+.calendar-container .fc-event.event-type-otro {
+  background-color: #71717A !important;
+  border-left-color: #52525B !important;
+}
+
+/* Feriados - Pago Obligatorio */
+.calendar-container .fc-event.event-type-feriado-obligatorio {
+  background-color: #047857 !important; /* emerald-700 */
+  border-left-color: #065F46 !important; /* emerald-800 */
   color: white !important;
 }
 
-.calendar-container .fc .fc-timegrid-slot-label-cushion {
-  color: #3B4D36;
+/* Feriados - Pago No Obligatorio */
+.calendar-container .fc-event.event-type-feriado-no-obligatorio {
+  background-color: transparent !important;
+  border: 1px solid #10B981 !important; /* emerald-500 */
+  border-left: 4px solid #10B981 !important;
 }
 
-.calendar-container .fc th,
-.calendar-container .fc td {
-  border-color: #D2B48C;
+.calendar-container .fc-event.event-type-feriado-no-obligatorio .fc-event-title {
+  color: #047857 !important; /* emerald-700 */
 }
 
-/* Status-specific colors: keep same pill shape/size and hover behavior */
-.calendar-container .fc-event.status-active {
-  background-color: #A7AA94 !important; /* keep original warm neutral for active */
-  border: 1px solid #6F7153 !important;
-  color: #3B4D36 !important;
+:is(.dark) .calendar-container .fc-event.event-type-feriado-no-obligatorio {
+  border-color: #059669 !important;
 }
 
-.calendar-container .fc-event.status-completed {
-  background-color: #94aa9d !important; /* light green background */
-  border: 1px solid #4b5750 !important; /* green border */
-  color: #065F46 !important; /* darker green text */
+:is(.dark) .calendar-container .fc-event.event-type-feriado-no-obligatorio .fc-event-title {
+  color: #34D399 !important; /* emerald-400 */
 }
 
-.calendar-container .fc-event.status-inactive {
-  background-color: #c0c7c3 !important; /* very light gray */
-  border: 1px solid #818386 !important; /* muted gray border */
-  color: #6B7280 !important; /* muted text color */
+/* Dark mode — slightly muted */
+:is(.dark) .calendar-container .fc-event.event-type-vacaciones { background-color: #2563EB !important; }
+:is(.dark) .calendar-container .fc-event.event-type-incapacidad { background-color: #EA580C !important; }
+:is(.dark) .calendar-container .fc-event.event-type-permiso { background-color: #9333EA !important; }
+:is(.dark) .calendar-container .fc-event.event-type-dia-libre { background-color: #0D9488 !important; }
+:is(.dark) .calendar-container .fc-event.event-type-suspension { background-color: #DC2626 !important; }
+:is(.dark) .calendar-container .fc-event.event-type-otro { background-color: #52525B !important; }
+
+/* === Status Badges (dot indicator) === */
+.calendar-container .fc-event.status-badge-active::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background-color: #22C55E;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Preview event uses an amber tone but keeps pill styling */
+.calendar-container .fc-event.status-badge-completed::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background-color: #60A5FA;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.calendar-container .fc-event.status-badge-cancelled::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background-color: #F87171;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  opacity: 0.8;
+}
+
+/* === Drag & Drop Feedback === */
+.calendar-container .fc-event-dragging {
+  opacity: 0.7 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  transform: scale(1.05) !important;
+}
+
+.calendar-container .fc-event-resizing {
+  border: 2px dashed currentColor !important;
+}
+
+/* === Preview Ghost Event === */
 .calendar-container .fc-event.status-preview {
-  background-color: #F59E0B !important;
-  border: 1px solid #D97706 !important;
-  color: #FFFFFF !important;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(245, 158, 11, 0.85),
+    rgba(245, 158, 11, 0.85) 3px,
+    rgba(245, 158, 11, 0.65) 3px,
+    rgba(245, 158, 11, 0.65) 6px
+  ) !important;
+  border: 2px dashed #D97706 !important;
+  border-left: 2px dashed #D97706 !important;
+  animation: preview-pulse 2s ease-in-out infinite;
 }
 
+.calendar-container .fc-event.event-preview-ghost {
+  pointer-events: none;
+}
+
+@keyframes preview-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.preview-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  display: block;
+  margin-bottom: 1px;
+  color: white;
+}
+
+/* === More Link === */
+.calendar-container .fc .fc-more-link {
+  font-size: 0.75rem;
+  color: #16a34a; /* green-600 */
+  font-weight: 500;
+}
+
+.calendar-container .fc .fc-more-link:hover {
+  text-decoration: underline;
+  color: #15803d; /* green-700 */
+}
+
+:is(.dark) .calendar-container .fc .fc-more-link {
+  color: #4ade80; /* green-400 */
+}
+
+/* === View Container === */
 .calendar-container .fc-view {
   border-radius: 0.5rem;
   overflow: hidden;
+}
+
+/* === Popover for +N more === */
+.calendar-container .fc .fc-popover {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e4e4e7;
+}
+
+:is(.dark) .calendar-container .fc .fc-popover {
+  background-color: #18181b;
+  border-color: #3f3f46;
+}
+
+.calendar-container .fc .fc-popover-header {
+  background-color: #f4f4f5;
+  border-radius: 0.75rem 0.75rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+}
+
+:is(.dark) .calendar-container .fc .fc-popover-header {
+  background-color: #27272a;
+  color: #e4e4e7;
 }

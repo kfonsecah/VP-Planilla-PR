@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dynamic from 'next/dynamic';
 import { employeeSchema, EmployeeSchemaType, EmployeeSchemaInputType } from '@/schemas/employee';
 import { Position } from '@/services/positionsService';
 import { Select, SelectItem } from '@/components/ui/Select';
+import { ClockAliasService } from '@/services/clockAliasService';
 
 // Lazy-load framer-motion animation primitives
 const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false });
@@ -15,7 +16,7 @@ const AnimatePresence = dynamic(() => import('framer-motion').then(mod => mod.An
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (employeeData: EmployeeSchemaType) => Promise<void> | void;
+  onSubmit: (employeeData: EmployeeSchemaType) => Promise<{ id: string | number } | void> | void;
   positions?: Position[] | null;
   positionsLoading?: boolean;
 }
@@ -51,6 +52,10 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     }
   });
 
+  const [pendingAliases, setPendingAliases] = useState<string[]>([]);
+  const [newPendingAlias, setNewPendingAlias] = useState('');
+  const [aliasError, setAliasError] = useState('');
+
   useEffect(() => {
     if (!isOpen) return;
     if (modalRef.current) {
@@ -58,7 +63,26 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       if (firstInput) setTimeout(() => firstInput.focus(), 100);
     }
     reset();
+    setPendingAliases([]);
+    setNewPendingAlias('');
+    setAliasError('');
   }, [isOpen, reset]);
+
+  const handleAddPending = useCallback(() => {
+    const trimmed = newPendingAlias.trim();
+    if (!trimmed) return;
+    if (pendingAliases.includes(trimmed)) {
+      setAliasError('Este alias ya está en la lista');
+      return;
+    }
+    setPendingAliases((prev) => [...prev, trimmed]);
+    setNewPendingAlias('');
+    setAliasError('');
+  }, [newPendingAlias, pendingAliases]);
+
+  const handleRemovePending = useCallback((alias: string) => {
+    setPendingAliases((prev) => prev.filter((a) => a !== alias));
+  }, []);
 
   const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
   const modalVariants = {
@@ -68,7 +92,12 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   };
 
   const onFormSubmit = async (data: EmployeeSchemaType) => {
-    await onSubmit(data);
+    const result = await onSubmit(data);
+    if (result?.id && pendingAliases.length > 0) {
+      await Promise.allSettled(
+        pendingAliases.map((name) => ClockAliasService.createAlias(result.id, name))
+      );
+    }
     onClose();
   };
 
@@ -157,17 +186,18 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
                     <div>
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Posición *</label>
-                      <Controller
-                        name="employee_position_id"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value || ''}
-                            onValueChange={field.onChange}
-                            disabled={positionsLoading}
-                            placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
-                            className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
-                          >
+<Controller
+                          name="employee_position_id"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              value={field.value || ''}
+                              selectedLabel={positionOptions.find(p => String(p.id) === String(field.value))?.name}
+                              onValueChange={field.onChange}
+                              disabled={positionsLoading}
+                              placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
+                              className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+                            >
                             {positionOptions.map((position) => (
                               <SelectItem key={position.id} value={position.id}>
                                 {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
@@ -214,6 +244,60 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                         className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500" 
                       />
                       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Ejemplo: 104 horas para medio tiempo, 208 para tiempo completo</p>
+                    </div>
+
+                    <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-4">
+                      <h3 className="text-base font-medium text-zinc-700 dark:text-zinc-100 mb-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
+                        Aliases de Reloj
+                      </h3>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {pendingAliases.length === 0 ? (
+                          <span className="text-sm text-zinc-500">Sin aliases configurados</span>
+                        ) : (
+                          pendingAliases.map((alias) => (
+                            <span
+                              key={alias}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full text-sm text-zinc-700 dark:text-zinc-300"
+                            >
+                              <span>{alias}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePending(alias)}
+                                className="ml-1 text-zinc-400 hover:text-red-500 transition-colors"
+                                aria-label={`Eliminar alias ${alias}`}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newPendingAlias}
+                          onChange={(e) => setNewPendingAlias(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddPending();
+                            }
+                          }}
+                          placeholder="Nuevo alias..."
+                          className="flex-1 px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddPending}
+                          disabled={!newPendingAlias.trim()}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-zinc-400 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                          Agregar
+                        </button>
+                      </div>
+                      {aliasError && (
+                        <p className="text-sm text-red-600 mt-2">{aliasError}</p>
+                      )}
                     </div>
 
                     <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-4">

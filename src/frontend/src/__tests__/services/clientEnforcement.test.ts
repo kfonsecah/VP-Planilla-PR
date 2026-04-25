@@ -2,7 +2,6 @@ import { AuditLogsService } from '../../services/auditLogsService';
 import { BranchService } from '../../services/branchService';
 import { PayrollEmployeesService } from '../../services/payrollEmployeesService';
 import { http } from '../../services/http';
-import { externalHttp } from '../../services/externalHttp';
 
 // Mock the http service
 jest.mock('../../services/http', () => ({

@@ -59,24 +59,219 @@ const getLogBadgeClasses = (status?: string) => {
   return 'bg-zinc-100 text-zinc-700 border-zinc-200';
 };
 
+const matchesTerm = (employee: PayrollEmployeeReportRow, normalizedTerm: string): boolean => {
+  const searchableFields = [
+    employee.fullName,
+    employee.email,
+    employee.nationalId,
+    employee.socialSecurityCode,
+  ];
+  
+  return searchableFields
+    .filter(Boolean)
+    .some((value) => value!.toLowerCase().includes(normalizedTerm));
+};
+
 const filterEmployees = (
   employees: PayrollEmployeeReportRow[],
   term: string
 ) => {
   if (!term) return employees;
   const normalized = term.toLowerCase();
-  return employees.filter((employee) =>
-    [
-      employee.fullName,
-      employee.email,
-      employee.nationalId,
-      employee.socialSecurityCode,
-    ]
-      .filter(Boolean)
-      .some((value) => value!.toLowerCase().includes(normalized))
-  );
+  return employees.filter((employee) => matchesTerm(employee, normalized));
 };
 
+const buildToggledSelection = (
+  allSelected: boolean,
+  currentSelection: number[],
+  filtered: { employeeId: number }[]
+): number[] => {
+  if (allSelected) {
+    return currentSelection.filter((id) => !filtered.some((e) => e.employeeId === id));
+  }
+  const idsToAdd = filtered.map((e) => e.employeeId).filter((id) => !currentSelection.includes(id));
+  return [...currentSelection, ...idsToAdd];
+};
+
+const applyReportTypeToggle = (prev: OfficialReportType[], type: OfficialReportType): OfficialReportType[] => {
+  if (prev.includes(type)) {
+    if (prev.length === 1) return prev;
+    return prev.filter((value) => value !== type);
+  }
+  return [...prev, type];
+};
+
+const validateSendReports = (
+  selectedPayrollId: number | null,
+  dataset: PayrollReportDataset | null,
+  selectedEmployees: number[],
+  reportTypes: OfficialReportType[]
+): string | null => {
+  if (!selectedPayrollId || !dataset) return 'Debes elegir una planilla para enviar los comprobantes.';
+  if (selectedEmployees.length === 0) return 'Selecciona al menos un empleado para enviar los reportes.';
+  if (reportTypes.length === 0) return 'Debes seleccionar al menos un tipo de reporte.';
+  return null;
+};
+
+const validateDownloadPdf = (
+  selectedPayrollId: number | null,
+  dataset: PayrollReportDataset | null,
+  selectedEmployees: number[]
+): string | null => {
+  if (!selectedPayrollId || !dataset) return 'Debes elegir una planilla para descargar los comprobantes.';
+  if (selectedEmployees.length === 0) return 'Selecciona al menos un empleado para generar el comprobante.';
+  return null;
+};
+
+const parseCcEmails = (ccInput: string): string[] => {
+  return ccInput
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => value && value.includes('@'));
+};
+
+const ERROR_MESSAGES = {
+  dashboardLoad: 'No se pudo cargar el dashboard de reportes',
+  datasetLoad: 'No se pudo cargar la planilla seleccionada',
+  sendReports: 'No se pudo enviar los reportes',
+  downloadPdf: 'No se pudo generar el PDF de comprobantes',
+} as const;
+
+const getErrorMessage = (error: unknown, key: keyof typeof ERROR_MESSAGES): string => {
+  return error instanceof Error ? error.message : ERROR_MESSAGES[key];
+};
+
+const handleLoadDatasetError = (setError: (e: string | null) => void) => {
+  return (error: unknown) => {
+    setError(error instanceof Error ? error.message : ERROR_MESSAGES.datasetLoad);
+    toast.error(ERROR_MESSAGES.datasetLoad);
+  };
+};
+
+const loadDashboard = async (
+  setDashboard: (data: ReportsDashboardData) => void,
+  setError: (error: string | null) => void,
+  setSelectedPayrollId: (id: number) => void,
+  selectedPayrollId: number | null
+) => {
+  setError(null);
+  try {
+    const data = await ReportsService.getDashboard();
+    setDashboard(data);
+    if (!selectedPayrollId && data.payrolls.length > 0) {
+      setSelectedPayrollId(data.payrolls[0].id);
+    }
+  } catch (error) {
+    setError(error instanceof Error ? error.message : ERROR_MESSAGES.dashboardLoad);
+    toast.error(ERROR_MESSAGES.dashboardLoad);
+  }
+};
+
+const fetchPayrollData = async (payrollId: number) => {
+  const [datasetResponse, logsResponse] = await Promise.all([
+    ReportsService.getPayrollDataset(payrollId),
+    ReportsService.getPayrollLogs(payrollId),
+  ]);
+  return { datasetResponse, logsResponse };
+};
+
+const refreshDataset = async (
+  payrollId: number,
+  setDataset: (data: PayrollReportDataset) => void,
+  setLogs: (logs: ReportLogEntry[]) => void,
+  setSelectedEmployees: (ids: number[]) => void,
+  setLoadingDataset: (loading: boolean) => void,
+  setError: (error: string | null) => void
+) => {
+  setLoadingDataset(true);
+  setError(null);
+  try {
+    const { datasetResponse, logsResponse } = await fetchPayrollData(payrollId);
+    setDataset(datasetResponse);
+    setLogs(logsResponse);
+    setSelectedEmployees(datasetResponse.employees.map((e) => e.employeeId));
+  } catch (error) {
+    handleLoadDatasetError(setError)(error);
+  } finally {
+    setLoadingDataset(false);
+  }
+};
+
+const handleSendReportsAction = async (
+  ccInput: string,
+  selectedPayrollId: number,
+  selectedEmployees: number[],
+  reportTypes: OfficialReportType[],
+  customMessage: string,
+  setDispatchSummary: (s: ReportDispatchSummary | null) => void,
+  setSending: (s: boolean) => void,
+  setDataset: (d: PayrollReportDataset) => void,
+  setLogs: (l: ReportLogEntry[]) => void,
+  setSelectedEmployees: (e: number[]) => void,
+  setLoadingDataset: (l: boolean) => void,
+  setError: (e: string | null) => void,
+  setDashboard: (d: ReportsDashboardData) => void,
+  setSelectedPayrollId: (id: number) => void
+) => {
+  const cc = parseCcEmails(ccInput);
+  setSending(true);
+  try {
+    const response = await ReportsService.sendReports({
+      payrollId: selectedPayrollId,
+      employeeIds: selectedEmployees,
+      reportTypes,
+      cc,
+      customMessage: customMessage.trim() || undefined,
+    });
+    setDispatchSummary(response);
+    toast.success(
+      `Se procesaron ${response.requested} colaboradores (${response.sent} enviados, ${response.failed} fallidos).`
+    );
+    await refreshDataset(selectedPayrollId, setDataset, setLogs, setSelectedEmployees, setLoadingDataset, setError);
+    await loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId);
+  } catch (error: unknown) {
+    console.error(error);
+    const message = getErrorMessage(error, 'sendReports');
+    toast.error(message);
+  } finally {
+    setSending(false);
+  }
+};
+
+const handleDownloadPdfAction = async (
+  selectedPayrollId: number,
+  selectedEmployees: number[],
+  setDownloadingPdf: (d: boolean) => void
+) => {
+  setDownloadingPdf(true);
+  try {
+    const { blob, fileName } = await ReportsService.downloadPaymentReceiptsPdf({
+      payrollId: selectedPayrollId,
+      employeeIds: selectedEmployees,
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
+
+    toast.success(
+      selectedEmployees.length === 1
+        ? 'Se descargó el comprobante del empleado seleccionado.'
+        : 'Se descargó un único PDF con todos los comprobantes seleccionados.'
+    );
+  } catch (error: unknown) {
+    console.error(error);
+    const message = getErrorMessage(error, 'downloadPdf');
+    toast.error(message);
+  } finally {
+    setDownloadingPdf(false);
+  }
+};
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export default function ReportsPage() {
   const [dashboard, setDashboard] = useState<ReportsDashboardData | null>(null);
   const [selectedPayrollId, setSelectedPayrollId] = useState<number | null>(null);
@@ -93,47 +288,14 @@ export default function ReportsPage() {
   const [dispatchSummary, setDispatchSummary] = useState<ReportDispatchSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDashboard = async () => {
-    setError(null);
-    try {
-      const data = await ReportsService.getDashboard();
-      setDashboard(data);
-      if (!selectedPayrollId && data.payrolls.length > 0) {
-        setSelectedPayrollId(data.payrolls[0].id);
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'No se pudo cargar el dashboard de reportes');
-      toast.error('No se pudo cargar el dashboard de reportes');
-    }
-  };
-
-  const refreshDataset = async (payrollId: number) => {
-    setLoadingDataset(true);
-    setError(null);
-    try {
-      const [datasetResponse, logsResponse] = await Promise.all([
-        ReportsService.getPayrollDataset(payrollId),
-        ReportsService.getPayrollLogs(payrollId),
-      ]);
-      setDataset(datasetResponse);
-      setLogs(logsResponse);
-      setSelectedEmployees(datasetResponse.employees.map((employee) => employee.employeeId));
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'No se pudo cargar la planilla seleccionada');
-      toast.error('No se pudo cargar la planilla seleccionada');
-    } finally {
-      setLoadingDataset(false);
-    }
-  };
-
   useEffect(() => {
-    loadDashboard();
+    loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (selectedPayrollId) {
-      refreshDataset(selectedPayrollId);
+      refreshDataset(selectedPayrollId, setDataset, setLogs, setSelectedEmployees, setLoadingDataset, setError);
     }
   }, [selectedPayrollId]);
 
@@ -152,120 +314,120 @@ export default function ReportsPage() {
     filteredEmployees.every((employee) => selectedEmployees.includes(employee.employeeId));
 
   const toggleEmployeeSelection = (employeeId: number) => {
-    setSelectedEmployees((prev) =>
-      prev.includes(employeeId)
-        ? prev.filter((id) => id !== employeeId)
-        : [...prev, employeeId]
-    );
+    const isSelected = selectedEmployees.includes(employeeId);
+    if (isSelected) {
+      setSelectedEmployees((prev) => prev.filter((id) => id !== employeeId));
+    } else {
+      setSelectedEmployees((prev) => [...prev, employeeId]);
+    }
   };
 
   const toggleSelectAll = () => {
     if (!dataset) return;
-    if (allSelected) {
-      setSelectedEmployees((prev) =>
-        prev.filter((id) => !filteredEmployees.some((employee) => employee.employeeId === id))
-      );
-    } else {
-      const idsToAdd = filteredEmployees
-        .map((employee) => employee.employeeId)
-        .filter((id) => !selectedEmployees.includes(id));
-      setSelectedEmployees([...selectedEmployees, ...idsToAdd]);
-    }
+    setSelectedEmployees(buildToggledSelection(allSelected, selectedEmployees, filteredEmployees));
   };
 
   const toggleReportType = (type: OfficialReportType) => {
-    setReportTypes((prev) => {
-      if (prev.includes(type)) {
-        if (prev.length === 1) return prev;
-        return prev.filter((value) => value !== type);
-      }
-      return [...prev, type];
-    });
+    setReportTypes((prev) => applyReportTypeToggle(prev, type));
   };
 
   const handleSendReports = async () => {
-    if (!selectedPayrollId || !dataset) {
-      toast.warning('Debes elegir una planilla para enviar los comprobantes.');
+    const validationError = validateSendReports(selectedPayrollId, dataset, selectedEmployees, reportTypes);
+    if (validationError) {
+      toast.warning(validationError);
       return;
     }
-
-    if (selectedEmployees.length === 0) {
-      toast.warning('Selecciona al menos un empleado para enviar los reportes.');
-      return;
-    }
-
-    if (reportTypes.length === 0) {
-      toast.warning('Debes seleccionar al menos un tipo de reporte.');
-      return;
-    }
-
-    const cc = ccInput
-      .split(',')
-      .map((value) => value.trim())
-      .filter((value) => value && value.includes('@'));
-
-    setSending(true);
-    try {
-      const response = await ReportsService.sendReports({
-        payrollId: selectedPayrollId,
-        employeeIds: selectedEmployees,
-        reportTypes,
-        cc,
-        customMessage: customMessage.trim() || undefined,
-      });
-      setDispatchSummary(response);
-      toast.success(
-        `Se procesaron ${response.requested} colaboradores (${response.sent} enviados, ${response.failed} fallidos).`
-      );
-      await refreshDataset(selectedPayrollId);
-      await loadDashboard();
-    } catch (error: unknown) {
-      console.error(error);
-      const message = error instanceof Error ? error.message : 'No se pudo enviar los reportes';
-      toast.error(message);
-    } finally {
-      setSending(false);
-    }
+    const payrollId = selectedPayrollId as number;
+    await handleSendReportsAction(
+      ccInput,
+      payrollId,
+      selectedEmployees,
+      reportTypes,
+      customMessage,
+      setDispatchSummary,
+      setSending,
+      setDataset,
+      setLogs,
+      setSelectedEmployees,
+      setLoadingDataset,
+      setError,
+      setDashboard,
+      setSelectedPayrollId
+    );
   };
 
   const handleDownloadReceiptsPdf = async () => {
-    if (!selectedPayrollId || !dataset) {
-      toast.warning('Debes elegir una planilla para descargar los comprobantes.');
+    const validationError = validateDownloadPdf(selectedPayrollId, dataset, selectedEmployees);
+    if (validationError) {
+      toast.warning(validationError);
       return;
     }
-
-    if (selectedEmployees.length === 0) {
-      toast.warning('Selecciona al menos un empleado para generar el comprobante.');
-      return;
-    }
-
-    setDownloadingPdf(true);
-    try {
-      const { blob, fileName } = await ReportsService.downloadPaymentReceiptsPdf({
-        payrollId: selectedPayrollId,
-        employeeIds: selectedEmployees,
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      window.URL.revokeObjectURL(url);
-
-      toast.success(
-        selectedEmployees.length === 1
-          ? 'Se descargó el comprobante del empleado seleccionado.'
-          : 'Se descargó un único PDF con todos los comprobantes seleccionados.'
-      );
-    } catch (error: unknown) {
-      console.error(error);
-      const message = error instanceof Error ? error.message : 'No se pudo generar el PDF de comprobantes';
-      toast.error(message);
-    } finally {
-      setDownloadingPdf(false);
-    }
+    const payrollId = selectedPayrollId as number;
+    await handleDownloadPdfAction(payrollId, selectedEmployees, setDownloadingPdf);
   };
+
+  const renderEmployeeRow = (employee: PayrollEmployeeReportRow) => {
+    const isSelected = selectedEmployees.includes(employee.employeeId);
+    return (
+      <tr key={employee.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+        <td className="px-4 py-3">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => toggleEmployeeSelection(employee.employeeId)}
+          />
+        </td>
+        <td className="px-4 py-3">
+          <p className="font-semibold">{employee.fullName}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{employee.position || 'Sin puesto'}</p>
+        </td>
+        <td className="px-4 py-3">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{employee.email || 'Sin correo'}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-500">CCSS: {employee.socialSecurityCode || 'N/A'}</p>
+        </td>
+        <td className="px-4 py-3 text-right">{formatCurrency(employee.grossSalary)}</td>
+        <td className="px-4 py-3 text-right">{formatCurrency(employee.totalDeductions)}</td>
+        <td className="px-4 py-3 text-right font-semibold text-zinc-800 dark:text-zinc-100">
+          {formatCurrency(employee.netSalary)}
+        </td>
+        <td className="px-4 py-3">
+          {employee.lastDispatch ? (
+            <div className="text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="font-semibold text-zinc-800 dark:text-zinc-100">{employee.lastDispatch.type}</p>
+              <p>{formatDate(employee.lastDispatch.generated_at)}</p>
+              <span
+                className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
+                  employee.lastDispatch.status
+                )}`}
+              >
+                {employee.lastDispatch.status}
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">Sin registros</span>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+  const renderDispatchResult = (result: { employeeId: number; employeeName: string; status: string; detail: string }) => (
+    <div key={`${result.employeeId}-${result.status}-${result.detail}`} className="border-b border-zinc-200 dark:border-zinc-700 py-2 last:border-0">
+      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{result.employeeName}</p>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">{result.detail}</p>
+      <span
+        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+          result.status === 'sent'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            : result.status === 'failed'
+            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+            : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
+        }`}
+      >
+        {result.status.toUpperCase()}
+      </span>
+    </div>
+  );
 
   const renderReportTarget = (target: ReportTargetSummary) => (
     <div
@@ -318,7 +480,7 @@ export default function ReportsPage() {
               <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar datos</p>
               <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
               <button
-                onClick={loadDashboard}
+                onClick={() => loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId)}
                 className="flex items-center gap-2 mx-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
                 <ArrowPathIcon className="w-4 h-4" />
@@ -437,47 +599,7 @@ export default function ReportsPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-                      {filteredEmployees.map((employee) => (
-                        <tr key={employee.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={selectedEmployees.includes(employee.employeeId)}
-                              onChange={() => toggleEmployeeSelection(employee.employeeId)}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-semibold">{employee.fullName}</p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">{employee.position || 'Sin puesto'}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">{employee.email || 'Sin correo'}</p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-500">CCSS: {employee.socialSecurityCode || 'N/A'}</p>
-                          </td>
-                          <td className="px-4 py-3 text-right">{formatCurrency(employee.grossSalary)}</td>
-                          <td className="px-4 py-3 text-right">{formatCurrency(employee.totalDeductions)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-zinc-800 dark:text-zinc-100">
-                            {formatCurrency(employee.netSalary)}
-                          </td>
-                          <td className="px-4 py-3">
-                            {employee.lastDispatch ? (
-                              <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                                <p className="font-semibold text-zinc-800 dark:text-zinc-100">{employee.lastDispatch.type}</p>
-                                <p>{formatDate(employee.lastDispatch.generated_at)}</p>
-                                <span
-                                  className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
-                                    employee.lastDispatch.status
-                                  )}`}
-                                >
-                                  {employee.lastDispatch.status}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-zinc-400 dark:text-zinc-500">Sin registros</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {filteredEmployees.map(renderEmployeeRow)}
                       {filteredEmployees.length === 0 && (
                         <tr>
                           <td colSpan={7} className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
@@ -578,7 +700,7 @@ export default function ReportsPage() {
               </div>
               <div className="flex flex-col gap-3">
                 {dashboard?.targets.length
-                  ? dashboard.targets.map((target) => renderReportTarget(target))
+                  ? dashboard.targets.map(renderReportTarget)
                   : (
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
                       Configure los entes receptores en la base de datos para mostrar sus contactos aquí.
@@ -629,23 +751,7 @@ export default function ReportsPage() {
                   {dispatchSummary.sent} enviados · {dispatchSummary.failed} fallidos
                 </p>
                 <div className="mt-3 max-h-32 overflow-y-auto pr-1">
-                  {dispatchSummary.results.map((result) => (
-                    <div key={`${result.employeeId}-${result.status}-${result.detail}`} className="border-b border-zinc-200 dark:border-zinc-700 py-2 last:border-0">
-                      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{result.employeeName}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{result.detail}</p>
-                      <span
-                        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                          result.status === 'sent'
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                            : result.status === 'failed'
-                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                            : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
-                        }`}
-                      >
-                        {result.status.toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
+                  {dispatchSummary.results.map(renderDispatchResult)}
                 </div>
               </div>
             )}

@@ -193,4 +193,39 @@ router.put("/payroll/:id", validateBody(updatePayrollSchema), asyncHandler(Payro
  */
 router.get("/payroll/:id/employees", asyncHandler(PayrollController.getPayrollEmployees));
 
+/**
+ * @route   POST /payroll/:id/approve
+ * @desc    Approve a payroll (BORRADOR -> APROBADA)
+ * @access  Private
+ */
+router.post("/payroll/:id/approve", asyncHandler(PayrollController.approvePayroll));
+
+/**
+ * @route   POST /payroll/:id/pay
+ * @desc    Mark payroll as paid (APROBADA -> PAGADA)
+ * @access  Private
+ */
+router.post("/payroll/:id/pay", asyncHandler(PayrollController.markAsPaid));
+
+/**
+ * @route   POST /payroll/:id/reopen
+ * @desc    Reopen a payroll (APROBADA -> BORRADOR)
+ * @access  Private
+ */
+router.post("/payroll/:id/reopen", asyncHandler(PayrollController.reopenPayroll));
+
+/**
+ * @route   POST /payroll/:id/recalculate
+ * @desc    Recalculate a payroll in BORRADOR state
+ * @access  Private
+ */
+router.post("/payroll/:id/recalculate", asyncHandler(PayrollController.recalculatePayroll));
+
+/**
+ * @route   GET /payroll/aguinaldo/:employeeId/:year
+ * @desc    Calculate aguinaldo for an employee
+ * @access  Private
+ */
+router.get("/payroll/aguinaldo/:employeeId/:year", asyncHandler(PayrollController.calculateAguinaldo));
+
 export default router;

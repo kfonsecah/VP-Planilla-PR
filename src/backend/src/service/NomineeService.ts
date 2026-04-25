@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ClockLogsService } from "../service/ClockLogsService";
+import { ClockLogEffectiveService } from "./ClockLogEffectiveService";
 import { prisma } from "../lib/prisma";
 import { DeductionsService } from "./DeductionsService";
 import { EmployeeService } from "./EmployeeService";
@@ -287,6 +288,15 @@ export class NomineeService {
       const bonusesMap     = await NomineeService.preloadBonuses(startDate, endDate);
       const deductionsMap  = await NomineeService.preloadDeductions();
       const positionsMap   = await NomineeService.preloadPositions();
+      const holidays       = await prisma.vpg_company_holidays.findMany({
+        where: {
+          company_holidays_date: {
+            gte: startDate,
+            lte: endDate
+          },
+          company_holidays_status: 'active'
+        }
+      });
 
       for (const employee of employees) {
         try {
@@ -299,7 +309,8 @@ export class NomineeService {
             laborEventsMap.get(Number(employee.id)) || [],
             bonusesMap.get(Number(employee.id)) || [],
             deductionsMap.get(Number(employee.id)) || [],
-            positionsMap
+            positionsMap,
+            holidays
           );
 
           result.employees.push(employeePayroll);
@@ -401,7 +412,8 @@ export class NomineeService {
     employeeLaborEvents: any[],
     employeeBonuses: any[],
     employeeDeductions: any[],
-    positionsMap: Map<number, any>
+    positionsMap: Map<number, any>,
+    holidays: any[]
   ): Promise<EmployeePayroll> {
     const employeePayroll: EmployeePayroll = {
       employeeId: employee.id.toString(),
@@ -491,6 +503,7 @@ export class NomineeService {
         employeePayroll.scheduledHours = PayrollUtils.calculateScheduledHours(
           startDate,
           endDate,
+          holidays
         );
       }
 
@@ -529,24 +542,29 @@ export class NomineeService {
         startDate,
         endDate,
       );
-      // Calculate pay directly from already-computed hours to ensure consistency
+      // Calculate pay
       employeePayroll.weeklyRestPay = PayrollUtils.roundToMoney(
         employeePayroll.weeklyRestHours * employeePayroll.baseHourlySalary,
       );
-      employeePayroll.overtimePay = PayrollUtils.roundToMoney(
-        employeePayroll.overtimeHours * employeePayroll.baseHourlySalary * 1.5,
+
+      // Overtime Pay using the new logic
+      employeePayroll.overtimePay = PayrollUtils.calculateOvertimePay(
+        dailyWork.days,
+        employeePayroll.baseHourlySalary,
+        holidays
       );
 
       // Calculate bonuses from preloaded data
       employeePayroll.bonuses = this.calculateBonusesFromData(employeeBonuses);
 
-      // Gross salary = regular pay + overtime pay (×1.5) + weekly rest pay + bonuses
-      // Use already-computed values for consistency
-      employeePayroll.grossSalary = PayrollUtils.roundToMoney(
-        employeePayroll.regularHours * employeePayroll.baseHourlySalary +
-          employeePayroll.overtimePay +
-          employeePayroll.weeklyRestPay +
-          employeePayroll.bonuses,
+      // Gross salary using the new holiday-aware logic
+      employeePayroll.grossSalary = PayrollUtils.calculateGrossSalary(
+        dailyWork.days,
+        employeePayroll.baseHourlySalary,
+        employeePayroll.bonuses,
+        startDate,
+        endDate,
+        holidays
       );
       
       // Calculate deductions from preloaded data
@@ -891,23 +909,24 @@ export class NomineeService {
     startDate: Date,
     endDate: Date
   ): Promise<Map<number, any[]>> {
-    const logs = await prisma.vpg_clock_logs.findMany({
-      where: {
-        clock_logs_timestamp: {
-          gte: startDate,
-          lte: endDate
-        }
-      }
+    // Use effective marks so EDIT/VOID adjustments are reflected in payroll
+    const effectiveMarksMap = await ClockLogEffectiveService.getEffectiveMarksForAllEmployees(startDate, endDate);
+    
+    const result = new Map<number, any[]>();
+    
+    effectiveMarksMap.forEach((marks, employeeId) => {
+      // Map EffectiveMark fields: effectiveTimestamp → timestamp, logType → log_type
+      const mapped = marks.map(m => ({
+        id: m.id,
+        employee_id: m.employeeId,
+        timestamp: m.effectiveTimestamp,
+        log_type: m.logType,
+        remarks: null,
+      }));
+      result.set(employeeId, mapped);
     });
-    // Map DB field names to the shape expected by processDailyWork and payrollUtils
-    const mapped = logs.map(l => ({
-      id: l.clock_logs_id,
-      employee_id: l.clock_logs_employee_id,
-      timestamp: l.clock_logs_timestamp,
-      log_type: l.clock_logs_log_type,
-      remarks: l.clock_logs_remarks,
-    }));
-    return NomineeService.groupByEmployee(mapped, (item) => item.employee_id);
+    
+    return result;
   }
 
   private static async preloadVacations(): Promise<Map<number, any[]>> {

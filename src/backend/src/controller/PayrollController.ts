@@ -126,4 +126,147 @@ export class PayrollController {
       });
     }
   }
+
+  /**
+   * Approve a payroll
+   * POST /payroll/:id/approve
+   * @param req - Express request object
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with approved payroll or error
+   */
+  static async approvePayroll(req: Request, res: Response) {
+    try {
+      const payrollId = Number(req.params.id);
+      const userId = req.user.id;
+      
+      const payroll = await PayrollService.approvePayroll(payrollId, userId);
+      
+      res.json({
+        success: true,
+        data: payroll
+      });
+    } catch (error: any) {
+      console.error("Failed to approve payroll:", error);
+      res.status(400).json({
+        success: false,
+        error: error.message || "Failed to approve payroll"
+      });
+    }
+  }
+
+  /**
+   * Mark a payroll as paid
+   * POST /payroll/:id/pay
+   * @param req - Express request object
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with paid payroll or error
+   */
+  static async markAsPaid(req: Request, res: Response) {
+    try {
+      const payrollId = Number(req.params.id);
+      
+      const payroll = await PayrollService.markAsPaid(payrollId);
+      
+      res.json({
+        success: true,
+        data: payroll
+      });
+    } catch (error: any) {
+      console.error("Failed to mark payroll as paid:", error);
+      res.status(400).json({
+        success: false,
+        error: error.message || "Failed to mark payroll as paid"
+      });
+    }
+  }
+
+  /**
+   * Reopen a payroll
+   * POST /payroll/:id/reopen
+   * @param req - Express request object containing reason in body
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with reopened payroll or error
+   */
+  static async reopenPayroll(req: Request, res: Response) {
+    try {
+      const payrollId = Number(req.params.id);
+      const { reason } = req.body;
+      const userId = req.user.id;
+      
+      if (!reason || reason.length < 10) {
+        return res.status(400).json({
+          success: false,
+          error: "El motivo de reopening debe tener al menos 10 caracteres"
+        });
+      }
+      
+      const payroll = await PayrollService.reopenPayroll(payrollId, userId, reason);
+      
+      res.json({
+        success: true,
+        data: payroll
+      });
+    } catch (error: any) {
+      console.error("Failed to reopen payroll:", error);
+      res.status(400).json({
+        success: false,
+        error: error.message || "Failed to reopen payroll"
+      });
+    }
+  }
+
+  /**
+   * Recalculate a payroll
+   * POST /payroll/:id/recalculate
+   * @param req - Express request object containing reason in body
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with recalculated payroll or error
+   */
+  static async recalculatePayroll(req: Request, res: Response) {
+    try {
+      const payrollId = Number(req.params.id);
+      const { reason } = req.body;
+      const userId = req.user.id;
+      
+      const payroll = await PayrollService.recalculatePayroll(payrollId, userId, reason || 'Recálculo manual');
+      
+      res.json({
+        success: true,
+        data: payroll
+      });
+    } catch (error: any) {
+      console.error("Failed to recalculate payroll:", error);
+      res.status(400).json({
+        success: false,
+        error: error.message || "Failed to recalculate payroll"
+      });
+    }
+  }
+
+  /**
+   * Calculate aguinaldo for an employee
+   * GET /payroll/aguinaldo/:employeeId/:year
+   * @param req - Express request object
+   * @param res - Express response object
+   * @returns Promise<Response> - HTTP response with aguinaldo calculation or error
+   */
+  static async calculateAguinaldo(req: Request, res: Response) {
+    try {
+      const employeeId = Number(req.params.employeeId);
+      const year = Number(req.params.year);
+      
+      const result = await PayrollService.calculateAguinaldo(employeeId, year);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error: any) {
+      console.error("Failed to calculate aguinaldo:", error);
+      res.status(400).json({
+        success: false,
+        error: error.message || "Failed to calculate aguinaldo"
+      });
+    }
+  }
 }

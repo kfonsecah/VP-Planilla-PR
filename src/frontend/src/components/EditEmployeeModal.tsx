@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dynamic from 'next/dynamic';
 import { employeeSchema, EmployeeSchemaType, EmployeeSchemaInputType } from '@/schemas/employee';
 import { Position } from '@/services/positionsService';
 import { Select, SelectItem } from '@/components/ui/Select';
+import { useClockAliases } from '@/hooks/useClockAliases';
 
 // Lazy-load framer-motion animation primitives
 const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false });
 const AnimatePresence = dynamic(() => import('framer-motion').then(mod => mod.AnimatePresence), { ssr: false });
 
 interface RawEmployeeData {
+  id?: string | number;
+  employee_id?: string | number;
   employee_first_name?: string;
   name?: string;
   employee_middle_name?: string;
@@ -24,6 +27,7 @@ interface RawEmployeeData {
   email?: string;
   phone?: string;
   position_id?: string | number | null;
+  employee_position_id?: string | number | null;
   hire_date?: string;
   gender?: string;
   required_hours_biweekly?: string;
@@ -55,28 +59,75 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
     salary: typeof position.base_salary === 'number' ? position.base_salary : Number(position.base_salary) || 0
   }));
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
+const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue } = useForm<EmployeeSchemaInputType, unknown, EmployeeSchemaType>({
     resolver: zodResolver(employeeSchema),
+    defaultValues: {
+      employee_first_name: '',
+      employee_middle_name: '',
+      employee_last_name: '',
+      employee_national_id: '',
+      employee_social_code: '',
+      employee_email: '',
+      employee_phone: '',
+      employee_position_id: '',
+      employee_hire_date: '',
+      employee_gender: '',
+      employee_required_hours_biweekly: '',
+    }
   });
 
-  useEffect(() => {
-    if (isOpen && employeeData) {
-      reset({
-        employee_first_name: employeeData.employee_first_name ?? employeeData.name ?? '',
-        employee_middle_name: employeeData.employee_middle_name ?? employeeData.middle_name ?? '',
-        employee_last_name: employeeData.employee_last_name ?? employeeData.last_name ?? '',
-        employee_national_id: employeeData.national_id || '',
-        employee_social_code: employeeData.social_code || '',
-        employee_email: employeeData.email || '',
-        employee_phone: employeeData.phone || '',
-        employee_position_id: String(employeeData.position_id || ''),
-        employee_hire_date: employeeData.hire_date ? new Date(employeeData.hire_date).toISOString().split('T')[0] : '',
-        employee_gender: employeeData.gender || '',
-        employee_required_hours_biweekly: employeeData.required_hours_biweekly || '',
-      });
-    }
-  }, [isOpen, employeeData, reset]);
+  // Alias management
+  const employeeId = employeeData?.id ?? employeeData?.employee_id ?? '';
+  const [newAlias, setNewAlias] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const { aliases, isLoading: aliasesLoading, error: aliasError, addAlias, removeAlias } = useClockAliases(employeeId);
 
+  const handleAddAlias = useCallback(async () => {
+    if (!newAlias.trim()) return;
+    setIsAdding(true);
+    const success = await addAlias(newAlias);
+    setIsAdding(false);
+    if (success) setNewAlias('');
+  }, [newAlias, addAlias]);
+
+  // Track if we've initialized form for current employee
+  const initializedRef = useRef<string>('');
+  
+  // Initialize form when modal opens with employee data
+  useEffect(() => {
+    if (!isOpen || !employeeData) return;
+    
+    const empKey = `${employeeData.name || ''}-${employeeData.position_id || ''}`;
+    
+    // Skip if already initialized for this employee
+    if (initializedRef.current === empKey) return;
+    initializedRef.current = empKey;
+    
+    const targetPos = employeeData.position_id != null && employeeData.position_id !== undefined 
+      ? String(employeeData.position_id) 
+      : '';
+    
+    // Full reset with target position
+    reset({
+      employee_first_name: employeeData.employee_first_name ?? employeeData.name ?? '',
+      employee_middle_name: employeeData.employee_middle_name ?? employeeData.middle_name ?? '',
+      employee_last_name: employeeData.employee_last_name ?? employeeData.last_name ?? '',
+      employee_national_id: employeeData.national_id || '',
+      employee_social_code: employeeData.social_code || '',
+      employee_email: employeeData.email || '',
+      employee_phone: employeeData.phone || '',
+      employee_position_id: targetPos,
+      employee_hire_date: employeeData.hire_date ? new Date(employeeData.hire_date).toISOString().split('T')[0] : '',
+      employee_gender: employeeData.gender || '',
+      employee_required_hours_biweekly: employeeData.required_hours_biweekly || '',
+    });
+    
+    // Force-set position after reset to ensure it survives validation
+    setTimeout(() => {
+      setValue('employee_position_id', targetPos, { shouldValidate: false });
+    }, 0);
+  }, [isOpen, employeeData, reset, setValue]);
+  
   useEffect(() => {
     if (!isOpen) return;
     if (modalRef.current) {
@@ -239,21 +290,26 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                           <Controller
                             name="employee_position_id"
                             control={control}
-                            render={({ field }) => (
-                              <Select
-                                value={field.value || ''}
-                                onValueChange={field.onChange}
-                                disabled={positionsLoading}
-                                placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
-                                className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
-                              >
-                                {positionOptions.map((position) => (
-                                  <SelectItem key={position.id} value={position.id}>
-                                    {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
-                                  </SelectItem>
-                                ))}
-                              </Select>
-                            )}
+                            render={({ field }) => {
+                              const selectedPosition = positionOptions.find(p => String(p.id) === String(field.value));
+                              const displayLabel = selectedPosition?.name || (field.value ? `Posición ID: ${field.value}` : '');
+                              return (
+                                <Select
+                                  value={field.value || ''}
+                                  selectedLabel={displayLabel}
+                                  onValueChange={field.onChange}
+                                  disabled={positionsLoading}
+                                  placeholder={positionsLoading ? 'Cargando posiciones...' : 'Seleccionar posición'}
+                                  className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
+                                >
+                                  {positionOptions.map((position) => (
+                                    <SelectItem key={position.id} value={position.id}>
+                                      {position.name} - ₡{position.salary.toLocaleString()} | HExtra: ₡{(position.salary * 1.5).toLocaleString()}
+                                    </SelectItem>
+                                  ))}
+                                </Select>
+                              );
+                            }}
                           />
                           {errors.employee_position_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{String(errors.employee_position_id?.message)}</p>}
                         </div>
@@ -296,6 +352,71 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                         </div>
                       </div>
                     </div>
+
+                    {/* Aliases Section - D-01, D-02 */}
+                    {employeeId && (
+                      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-4">
+                        <h3 className="text-base font-medium text-zinc-700 dark:text-zinc-100 mb-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
+                          Aliases de Reloj
+                        </h3>
+
+                        {/* Aliases list as chips - D-03 */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {aliasesLoading ? (
+                            <span className="text-sm text-zinc-500">Cargando...</span>
+                          ) : aliases.length === 0 ? (
+                            <span className="text-sm text-zinc-500">Sin aliases configurados</span>
+                          ) : (
+                            aliases.map((alias) => (
+                              <span
+                                key={alias.id}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full text-sm text-zinc-700 dark:text-zinc-300"
+                              >
+                                <span>{alias.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeAlias(alias.id)}
+                                  className="ml-1 text-zinc-400 hover:text-red-500 transition-colors"
+                                  aria-label={`Eliminar alias ${alias.name}`}
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Inline input + button - D-05 */}
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newAlias}
+                            onChange={(e) => setNewAlias(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddAlias();
+                              }
+                            }}
+                            placeholder="Nuevo alias..."
+                            className="flex-1 px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddAlias}
+                            disabled={!newAlias.trim() || isAdding}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-zinc-400 text-white text-sm font-medium rounded-lg transition-colors"
+                          >
+                            {isAdding ? 'Agregando...' : 'Agregar'}
+                          </button>
+                        </div>
+
+                        {/* Error message - D-04 */}
+                        {aliasError && (
+                          <p className="text-sm text-red-600 mt-2">{aliasError}</p>
+                        )}
+                      </div>
+                    )}
 
                     <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4">
                       <div className="flex flex-col sm:flex-row gap-3">

@@ -60,5 +60,11 @@ export const usePositions = () => {
     } finally { setIsMutating(false); }
   };
 
-  return { data, isLoading: isFetching, isMutating, error, refetch: fetchAll, create, update, remove };
+  // Wrapper that ensures cache bypass on manual refetch
+  const refetch = useCallback(async () => {
+    invalidateCache(CACHE_KEY);
+    await fetchAll();
+  }, [fetchAll]);
+
+  return { data, isLoading: isFetching, isMutating, error, refetch, create, update, remove };
 };

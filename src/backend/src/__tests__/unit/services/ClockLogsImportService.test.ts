@@ -4,6 +4,7 @@ import { ClockLogsImportService } from '../../../service/ClockLogsImportService'
 import { ImportSessionService } from '../../../service/ImportSessionService';
 import { ClockLogsService } from '../../../service/ClockLogsService';
 import { ClockLogAnalysisService } from '../../../service/ClockLogAnalysisService';
+import { ClockAliasService } from '../../../service/ClockAliasService';
 
 // Mock prisma
 jest.mock('../../../lib/prisma', () => {
@@ -17,12 +18,15 @@ const { prisma } = require('../../../lib/prisma');
 jest.mock('../../../service/ImportSessionService');
 jest.mock('../../../service/ClockLogsService');
 jest.mock('../../../service/ClockLogAnalysisService');
+jest.mock('../../../service/ClockAliasService');
 
 describe('ClockLogsImportService', () => {
   const service = new ClockLogsImportService();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: no alias match (existing tests unaffected)
+    (ClockAliasService.resolveEmployeeByAlias as jest.Mock).mockResolvedValue(null);
   });
 
   describe('resolveEmployeeId', () => {
@@ -95,6 +99,35 @@ describe('ClockLogsImportService', () => {
       
       expect(result).toBeNull();
     });
+
+    it('should resolve via alias table when numeric ID fails and alias exists', async () => {
+      prisma.vpg_employees.findFirst.mockResolvedValue(null); // numeric ID not found
+      (ClockAliasService.resolveEmployeeByAlias as jest.Mock).mockResolvedValue(77);
+
+      const result = await service.resolveEmployeeId(999, 'Juan');
+
+      expect(result).toBe(77);
+      // findMany (name scan) must NOT have been called — alias was faster
+      expect(prisma.vpg_employees.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to name scan when numeric ID fails and alias not found', async () => {
+      prisma.vpg_employees.findFirst.mockResolvedValue(null);
+      (ClockAliasService.resolveEmployeeByAlias as jest.Mock).mockResolvedValue(null);
+      prisma.vpg_employees.findMany.mockResolvedValue([
+        {
+          employee_id: 202,
+          employee_first_name: 'Ana',
+          employee_middle_name: null,
+          employee_last_name: 'López',
+        }
+      ]);
+
+      const result = await service.resolveEmployeeId(null, 'Ana López');
+
+      expect(result).toBe(202);
+      expect(prisma.vpg_employees.findMany).toHaveBeenCalled();
+    });
   });
 
   describe('processImport', () => {
@@ -158,6 +191,42 @@ describe('ClockLogsImportService', () => {
       await expect(service.processImport(mockLogs, 'java_import', 1)).rejects.toThrow('Fatal error');
 
       expect(ImportSessionService.updateSession).toHaveBeenCalledWith(12, { status: 'failed' });
+    });
+  });
+
+  describe('processImport with no log_type (inference)', () => {
+    beforeEach(() => {
+      // Setup session mocks
+      (ImportSessionService.createSession as jest.Mock).mockResolvedValue({ id: 99 });
+      (ImportSessionService.updateSession as jest.Mock).mockResolvedValue(undefined);
+      (ClockLogAnalysisService.runPostImportAnalysis as jest.Mock).mockResolvedValue({ total: 0 });
+
+      const mockBulkCreate = jest.fn().mockResolvedValue({ created: 2 });
+      (ClockLogsService as jest.Mock).mockImplementation(() => ({
+        bulkCreate: mockBulkCreate,
+      }));
+
+      // Resolve employee lookup
+      prisma.vpg_employees.findFirst.mockResolvedValue({ employee_id: 1 });
+      (ClockAliasService.resolveEmployeeByAlias as jest.Mock).mockResolvedValue(null);
+    });
+
+    it('should infer IN and OUT for two rows without log_type for same employee+day', async () => {
+      const logs = [
+        { employee_id: 1, timestamp: '2026-04-01T08:00:00Z', employee_name: 'Test', log_type: undefined },
+        { employee_id: 1, timestamp: '2026-04-01T17:00:00Z', employee_name: 'Test', log_type: undefined },
+      ];
+
+      const result = await service.processImport(logs as any, 'excel_import', 1);
+
+      // Both rows should be created (not skipped)
+      expect(result.skipped).toBe(0);
+      // bulkCreate was called with 2 rows having log_type IN and OUT
+      const bulkCreateInstance = (ClockLogsService as jest.Mock).mock.results[0].value;
+      const callArgs = bulkCreateInstance.bulkCreate.mock.calls[0][0] as any[];
+      const sorted = [...callArgs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      expect(sorted[0].log_type).toBe('IN');
+      expect(sorted[1].log_type).toBe('OUT');
     });
   });
 });

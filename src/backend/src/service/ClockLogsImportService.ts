@@ -2,7 +2,8 @@ import { prisma } from "../lib/prisma";
 import { ImportSessionService } from "./ImportSessionService";
 import { ClockLogsService, ClockLogSource } from "./ClockLogsService";
 import { ClockLogAnalysisService } from "./ClockLogAnalysisService";
-import { normalizeLogType } from "../utils/clockLogNormalization";
+import { normalizeLogType, inferLogTypeByTimeWindow, TimeWindowConfig } from "../utils/clockLogNormalization";
+import { ClockAliasService } from "./ClockAliasService";
 
 /**
  * Normalizes a name string for comparison.
@@ -17,13 +18,13 @@ function normalizeName(value: string) {
 }
 
 /**
- * Resolves an employee ID from either a numeric ID or a name.
+ * Resolves an employee ID from either a numeric ID, alias, or name.
  */
 async function resolveEmployeeId(
     employee_id: unknown,
     employee_name: unknown
 ): Promise<number | null> {
-    // Si hay employee_id, verificar que exista en la DB antes de usarlo
+    // 1. Try numeric ID first
     if (employee_id != null) {
         const n = Number(employee_id);
         if (!isNaN(n)) {
@@ -32,7 +33,6 @@ async function resolveEmployeeId(
                 select: { employee_id: true }
             });
             if (existing) return n;
-            // Si no existe, caer a búsqueda por nombre
         }
     }
 
@@ -41,6 +41,11 @@ async function resolveEmployeeId(
     const normalized = normalizeName(String(employee_name));
     if (!normalized) return null;
 
+    // 2. Check aliases table (before full name scan - faster indexed lookup)
+    const aliasMatch = await ClockAliasService.resolveEmployeeByAlias(normalized);
+    if (aliasMatch) return aliasMatch;
+
+    // 3. Fallback to full name scan
     const employees = await prisma.vpg_employees.findMany({
         select: {
             employee_id: true,
@@ -98,10 +103,16 @@ export class ClockLogsImportService {
                 remarks: string | null;
             }> = [];
             const skipped: string[] = [];
+            const noTypeRows: Array<{
+                employee_id: number;
+                timestamp: Date;
+                remarks: string | null;
+            }> = [];
 
             for (const l of logs) {
-                if (!l.timestamp || !l.log_type) {
-                    skipped.push(`Fila sin timestamp o log_type`);
+                // Timestamp is always required
+                if (!l.timestamp) {
+                    skipped.push(`Fila sin timestamp`);
                     continue;
                 }
 
@@ -117,17 +128,50 @@ export class ClockLogsImportService {
                     continue;
                 }
 
-                try {
-                    const normalizedType = normalizeLogType(String(l.log_type));
-                    resolved.push({
+                if (!l.log_type) {
+                    // Collect for inference - type will be assigned by sequence
+                    noTypeRows.push({
                         employee_id: employeeId,
                         timestamp,
-                        log_type: normalizedType,
-                        remarks: l.remarks ?? null
+                        remarks: l.remarks ?? null,
                     });
-                } catch {
-                    skipped.push(`Tipo de marca desconocido: "${l.log_type}"`);
-                    continue;
+                } else {
+                    // Row has explicit log_type - normalize via existing function
+                    try {
+                        const normalizedType = normalizeLogType(String(l.log_type));
+                        resolved.push({
+                            employee_id: employeeId,
+                            timestamp,
+                            log_type: normalizedType,
+                            remarks: l.remarks ?? null
+                        });
+                    } catch {
+                        skipped.push(`Tipo de marca desconocido: "${l.log_type}"`);
+                    }
+                }
+            }
+
+            // Infer IN/OUT for rows without explicit type, BEFORE bulk insert
+            if (noTypeRows.length > 0) {
+                // Fetch active time windows to guide inference
+                const activeWindows = await prisma.vpgTimeWindow.findMany({
+                    where: { time_window_active: true },
+                    select: {
+                        time_window_name: true,
+                        time_window_type: true,
+                        time_window_start_hour: true,
+                        time_window_end_hour: true,
+                    }
+                });
+                
+                const inferred = inferLogTypeByTimeWindow(noTypeRows, activeWindows);
+                for (const row of inferred) {
+                    resolved.push({
+                        employee_id: row.employee_id,
+                        timestamp: row.timestamp,
+                        log_type: row.log_type,
+                        remarks: row.remarks ?? null,
+                    });
                 }
             }
 

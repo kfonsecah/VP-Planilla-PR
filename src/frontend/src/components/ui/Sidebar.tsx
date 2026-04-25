@@ -33,6 +33,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       icon: "/images/layout/payroll.png",
       text: "Cálculo de planillas",
       subItems: [
+        { href: '/pages/payroll/wizard', text: 'Wizard de planilla' },
         { href: '/pages/payroll/calculate', text: 'Calcular planilla' },
         { href: '/pages/payroll/list', text: 'Historial de planillas' },
         { href: '/pages/payroll-types/list', text: 'Tipos de planilla' }
@@ -66,7 +67,15 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
   ];
 
   const bottomMenuItems = [
-    { href: "/configuracion", icon: "/images/layout/settings.png", text: "Configuración" },
+    { 
+      href: "/pages/configuracion", 
+      icon: "/images/layout/settings.png", 
+      text: "Configuración",
+      subItems: [
+        { href: '/pages/configuracion/ventanas', text: 'Ventanas de Tiempo' },
+        { href: '/pages/configuracion/feriados', text: 'Feriados' }
+      ]
+    },
   ];
 
   return (

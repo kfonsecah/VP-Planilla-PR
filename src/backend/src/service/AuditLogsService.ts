@@ -91,9 +91,10 @@ export class AuditLogsService {
   }
 
   /**
-   * Get a single audit log by ID
-   * @param id - The ID of the audit log
-   * @returns Promise<AuditLog | null> - The audit log or null if not found
+   * Create an audit log record
+   * @param params - Audit log parameters
+   * @param tx - Optional Prisma transaction client
+   * @returns Promise<void>
    */
   static async createAuditLog(params: {
     userId: number;
@@ -101,8 +102,9 @@ export class AuditLogsService {
     entity: string;
     entityId: number;
     details?: string;
-  }): Promise<void> {
-    await prisma.vpg_audit_logs.create({
+  }, tx?: any): Promise<void> {
+    const prismaClient = tx || prisma;
+    await prismaClient.vpg_audit_logs.create({
       data: {
         audit_logs_user_id: params.userId,
         audit_logs_action: params.action,

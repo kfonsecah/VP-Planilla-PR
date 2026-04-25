@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model vpg_audit_logs {
@@ -80,6 +81,24 @@ enum ClockLogSource {
   java_import
   excel_import
   manual
+  device
+}
+
+enum ClockLogAdjustmentType {
+  ADD
+  EDIT
+  VOID
+}
+
+enum ClockLogAdjustmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PayrollStatus {
+  BORRADOR
+  APROBADA
+  PAGADA
 }
 
 model vpg_clock_logs {
@@ -94,6 +113,7 @@ model vpg_clock_logs {
   clock_logs_import_session_id Int?
   vpg_employees                vpg_employees             @relation(fields: [clock_logs_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_logs_employees_16")
   vpg_clock_import_sessions    vpg_clock_import_sessions? @relation(fields: [clock_logs_import_session_id], references: [import_sessions_id], onDelete: SetNull, onUpdate: NoAction, map: "fk_vpg_clock_logs_import_sessions_26")
+  vpg_clock_log_adjustments    vpg_clock_log_adjustments[]
 
   @@unique([clock_logs_employee_id, clock_logs_timestamp, clock_logs_log_type], map: "uq_vpg_clock_logs_emp_ts_type")
   @@index([clock_logs_employee_id], map: "idx_vpg_clock_logs_employee_id")
@@ -103,6 +123,40 @@ model vpg_clock_logs {
   @@index([clock_logs_source], map: "idx_vpg_clock_logs_source")
   @@index([clock_logs_status, clock_logs_source], map: "idx_vpg_clock_logs_status_source")
   @@index([clock_logs_import_session_id], map: "idx_vpg_clock_logs_import_session_id")
+}
+
+model vpg_clock_log_adjustments {
+  adjustment_id                 Int                       @id @default(autoincrement())
+  adjustment_clock_log_id       Int?
+  adjustment_employee_id        Int
+  adjustment_type               ClockLogAdjustmentType
+  adjustment_original_timestamp DateTime?                 @db.Timestamp(6)
+  adjustment_new_timestamp      DateTime?                 @db.Timestamp(6)
+  adjustment_log_type           ClockLogType
+  adjustment_justification      String                    @db.Text
+  adjustment_status             ClockLogAdjustmentStatus  @default(ACTIVE)
+  adjustment_created_by         Int
+  adjustment_created_at         DateTime                  @default(now()) @db.Timestamp(6)
+  adjustment_version            Int                       @default(1)
+  vpg_clock_logs                vpg_clock_logs?           @relation(fields: [adjustment_clock_log_id], references: [clock_logs_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_log_adjustments_clock_logs_27")
+  vpg_employees                 vpg_employees             @relation(fields: [adjustment_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_log_adjustments_employees_28")
+  vpg_users                     vpg_users                 @relation(fields: [adjustment_created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_log_adjustments_users_29")
+
+  @@index([adjustment_clock_log_id, adjustment_status], map: "idx_vpg_clock_log_adjustments_log_status")
+  @@index([adjustment_employee_id], map: "idx_vpg_clock_log_adjustments_employee_id")
+}
+
+model vpg_clock_aliases {
+  aliases_id          Int           @id @default(autoincrement())
+  aliases_employee_id Int
+  aliases_name        String        @db.VarChar(100)
+  aliases_created_at  DateTime      @default(now()) @db.Timestamp(6)
+  aliases_version     Int           @default(1)
+  vpg_employees       vpg_employees @relation(fields: [aliases_employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_clock_aliases_employees_33")
+
+  @@unique([aliases_employee_id, aliases_name], map: "uq_vpg_clock_aliases_emp_name")
+  @@index([aliases_employee_id], map: "idx_vpg_clock_aliases_employee_id")
+  @@index([aliases_name], map: "idx_vpg_clock_aliases_name")
 }
 
 model vpg_clock_import_sessions {
@@ -179,10 +233,14 @@ model vpg_employees {
   employee_fired                   Boolean                       @default(false)
   employee_status                  String                        @db.Char(1)
   employee_required_hours_biweekly Decimal?                      @db.Decimal(5, 2)
+  employee_gender                  String?                       @db.VarChar(20)
+  employee_phone                   String?                       @db.VarChar(20)
   employee_version                 Int                           @default(1)
   vpg_bonuses                      vpg_bonuses[]
   vpg_branch_employee              vpg_branch_employee[]         @ignore
   vpg_clock_logs                   vpg_clock_logs[]
+  vpg_clock_log_adjustments        vpg_clock_log_adjustments[]
+  vpg_clock_aliases                vpg_clock_aliases[]
   vpg_deductions_per_employee      vpg_deductions_per_employee[]
   vpg_employee_deductions          vpg_employee_deductions[]
   vpg_employee_documents           vpg_employee_documents[]
@@ -269,22 +327,42 @@ model vpg_payroll_types {
 }
 
 model vpg_payrolls {
-  payrolls_id              Int                       @id @default(autoincrement())
-  payrolls_payroll_type_id Int
-  payrolls_period_start    DateTime                  @db.Date
-  payrolls_period_end      DateTime                  @db.Date
-  payrolls_payment_date    DateTime                  @db.Date
-  payrolls_status          String                    @db.VarChar(20)
-  payrolls_version         Int                       @default(1)
-  vpg_bonuses              vpg_bonuses[]
-  vpg_employee_deductions  vpg_employee_deductions[]
-  vpg_payroll_employee     vpg_payroll_employee[]
-  vpg_payroll_types        vpg_payroll_types         @relation(fields: [payrolls_payroll_type_id], references: [payroll_types_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payrolls_payroll_types_07")
+  payrolls_id                   Int                           @id @default(autoincrement())
+  payrolls_payroll_type_id      Int
+  payrolls_period_start         DateTime                      @db.Date
+  payrolls_period_end           DateTime                      @db.Date
+  payrolls_payment_date         DateTime                      @db.Date
+  payrolls_status               PayrollStatus
+  payrolls_approved_by          Int?
+  payrolls_approved_at          DateTime?                     @db.Timestamp(6)
+  payrolls_notes                String?
+  payrolls_reopened_at          DateTime?                     @db.Timestamp(6)
+  payrolls_reopen_reason        String?
+  payrolls_version              Int                           @default(1)
+  vpg_bonuses                   vpg_bonuses[]
+  vpg_employee_deductions       vpg_employee_deductions[]
+  vpg_payroll_employee          vpg_payroll_employee[]
+  vpg_payroll_types             vpg_payroll_types             @relation(fields: [payrolls_payroll_type_id], references: [payroll_types_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payrolls_payroll_types_07")
+  vpg_users                     vpg_users?                    @relation(fields: [payrolls_approved_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payrolls_users_approved_by_30")
+  vpg_payroll_recalculations    vpg_payroll_recalculations[]
 
   @@index([payrolls_payroll_type_id], map: "idx_vpg_payrolls_payroll_type_id")
   @@index([payrolls_period_end], map: "idx_vpg_payrolls_period_end")
   @@index([payrolls_period_start], map: "idx_vpg_payrolls_period_start")
   @@index([payrolls_status], map: "idx_vpg_payrolls_status")
+}
+
+model vpg_payroll_recalculations {
+  recalc_id            Int          @id @default(autoincrement())
+  recalc_payroll_id    Int
+  recalc_reason        String       @db.Text
+  recalc_timestamp     DateTime     @default(now()) @db.Timestamp(6)
+  recalc_created_by    Int
+  recalc_data_snapshot Json
+  vpg_payrolls         vpg_payrolls @relation(fields: [recalc_payroll_id], references: [payrolls_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payroll_recalculations_payrolls_31")
+  vpg_users            vpg_users    @relation(fields: [recalc_created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_vpg_payroll_recalculations_users_32")
+
+  @@index([recalc_payroll_id], map: "idx_vpg_payroll_recalculations_payroll_id")
 }
 
 model vpg_positions {
@@ -348,10 +426,13 @@ model vpg_users {
   user_role         String              @db.VarChar(20)
   user_version      Int                 @default(1)
   user_last_login   DateTime?           @db.Timestamp(6)
-  vpg_audit_logs              vpg_audit_logs[]
-  vpg_report_logs             vpg_report_logs[]
-  vpg_notifications           vpg_notifications[]
-  vpg_clock_import_sessions   vpg_clock_import_sessions[]
+  vpg_audit_logs                   vpg_audit_logs[]
+  vpg_report_logs                  vpg_report_logs[]
+  vpg_notifications                vpg_notifications[]
+  vpg_clock_import_sessions        vpg_clock_import_sessions[]
+  vpg_clock_log_adjustments        vpg_clock_log_adjustments[]
+  vpg_payrolls_approved            vpg_payrolls[]
+  vpg_payroll_recalculations       vpg_payroll_recalculations[]
 
   @@index([user_email], map: "idx_vpg_users_email")
   @@index([user_national_id], map: "idx_vpg_users_national_id")
@@ -441,4 +522,42 @@ model vpg_password_change_request {
 
   @@index([pcr_user_id], map: "idx_password_change_request_user_id")
   @@index([pcr_expires], map: "idx_password_change_request_expires")
+}
+
+model vpg_company_holidays {
+  company_holidays_id            Int      @id @default(autoincrement())
+  company_holidays_name          String   @db.VarChar(100)
+  company_holidays_date          DateTime @db.Date
+  company_holidays_is_mandatory  Boolean  @default(false)
+  company_holidays_is_triple     Boolean  @default(false)
+  company_holidays_status        String   @default("active") @db.VarChar(20)
+  company_holidays_version       Int      @default(1)
+
+  @@index([company_holidays_date], map: "idx_vpg_company_holidays_date")
+}
+
+model VpgTimeWindow {
+  time_window_id         Int       @id @default(autoincrement())
+  company_id             Int
+  time_window_name       String    @map("time_window_name")
+  time_window_type       String    @map("time_window_type") // "ENTRY_MORNING", "EXIT_LUNCH", etc.
+  time_window_start_hour String    @map("time_window_start_hour") // "HH:MM"
+  time_window_end_hour   String    @map("time_window_end_hour") // "HH:MM"
+  time_window_active     Boolean   @default(true) @map("time_window_active")
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  @@map("vpg_time_windows")
+}
+
+model VpgDayConfirmation {
+  confirmation_id        Int       @id @default(autoincrement())
+  employee_id            Int       @map("employee_id")
+  confirmation_date      DateTime  @map("confirmation_date") @db.Date
+  confirmed_by           Int       @map("confirmed_by")
+  confirmation_notes     String?   @map("confirmation_notes")
+  created_at             DateTime  @default(now())
+
+  @@unique([employee_id, confirmation_date])
+  @@map("vpg_day_confirmations")
 }

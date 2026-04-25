@@ -1,6 +1,9 @@
 import { ClockLogsService } from '@/services/clockLogsService';
 import { http } from '@/services/http';
 
+const TEST_INIT_DATE = '2026-02-01';
+const TEST_END_DATE = '2026-02-28';
+
 jest.mock('@/services/http', () => ({
   http: {
     get: jest.fn(),
@@ -20,7 +23,7 @@ describe('ClockLogsService', () => {
       const mockStats = { byStatus: { pending: 5 }, bySource: { manual: 10 }, total: 15 };
       (http.get as jest.Mock).mockResolvedValue(mockStats);
 
-      const result = await ClockLogsService.getStats('2026-02-01', '2026-02-28');
+      const result = await ClockLogsService.getStats(TEST_INIT_DATE, TEST_END_DATE);
 
       expect(result).toEqual(mockStats);
       expect(http.get).toHaveBeenCalledWith('/clock-logs/stats?initDate=2026-02-01&endDate=2026-02-28');
@@ -29,7 +32,7 @@ describe('ClockLogsService', () => {
     it('should return default empty object when response is null/undefined', async () => {
       (http.get as jest.Mock).mockResolvedValue(null);
 
-      const result = await ClockLogsService.getStats('2026-02-01', '2026-02-28');
+      const result = await ClockLogsService.getStats(TEST_INIT_DATE, TEST_END_DATE);
 
       expect(result).toEqual({ byStatus: {}, bySource: {}, total: 0 });
     });
@@ -37,8 +40,8 @@ describe('ClockLogsService', () => {
 
   describe('getClockLogsPaginated', () => {
     const defaultParams = {
-      initDate: '2026-02-01',
-      endDate: '2026-02-28',
+      initDate: TEST_INIT_DATE,
+      endDate: TEST_END_DATE,
       page: 1,
       pageSize: 20,
     };

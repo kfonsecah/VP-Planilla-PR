@@ -334,12 +334,13 @@ const useEmployeeList = () => {
   /**
    * Añade un nuevo empleado (persistido en backend)
    */
-  const handleAddEmployee = async (employeeData: EmployeeFormData) => {
+  const handleAddEmployee = async (employeeData: EmployeeFormData): Promise<Employee | void> => {
     try {
       const created = await apiCreateEmployee(employeeData);
       const createdObj = created as RawEmployee;
       setRawEmployees((prev) => [...prev, createdObj]);
       invalidateCache('vp_employees_cache'); // so next mount re-fetches
+      return created;
     } catch (error) {
       console.error('Error creating employee', error);
       toast.error('No se pudo guardar el empleado. Revisa la consola para más detalles.');
@@ -396,13 +397,15 @@ const useEmployeeList = () => {
     closeAddEmployeeModal,
     closeEditEmployeeModal
     ,
-    // Provide a refresh function so pages can re-fetch employees on demand
+    // Provide a refresh function so pages can re-fetch employees and positions on demand
     refreshEmployees: async () => {
       try {
         invalidateCache('vp_employees_cache');
         const apiEmployees = await apiGetEmployees();
         writeCache('vp_employees_cache', apiEmployees as RawEmployee[]);
         setRawEmployees(apiEmployees as RawEmployee[]);
+        // Also refresh positions so both datasets stay in sync
+        await refreshPositions();
       } catch (error) {
         console.error('Error refreshing employees', error);
       }

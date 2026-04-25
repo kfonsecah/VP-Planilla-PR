@@ -282,7 +282,7 @@ CREATE TABLE "vpg_vacations" (
     "vacations_employee_id" INTEGER NOT NULL,
     "vacations_start_date" DATE NOT NULL,
     "vacations_end_date" DATE NOT NULL,
-    "vacations_total_days" INTEGER DEFAULT ((vacations_end_date - vacations_start_date) + 1),
+    "vacations_total_days" INTEGER,
     "vacations_paid" BOOLEAN DEFAULT true,
     "vacations_status" VARCHAR(20) DEFAULT 'Aprobado',
     "vacations_version" INTEGER NOT NULL DEFAULT 1,

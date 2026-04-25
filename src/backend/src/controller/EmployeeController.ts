@@ -23,6 +23,8 @@ export class EmployeeController {
       email: rawData.employee_email || rawData.email,
       position_id: rawData.employee_position_id || rawData.position_id,
       hire_date: rawData.employee_hire_date || rawData.hire_date,
+      phone: rawData.employee_phone ?? rawData.phone ?? null,
+      gender: rawData.employee_gender ?? rawData.gender ?? null,
       required_hours_biweekly: rawData.employee_required_hours_biweekly || rawData.required_hours_biweekly || null,
       status: rawData.employee_status || rawData.status || 'active'
     };
@@ -77,22 +79,43 @@ export class EmployeeController {
     const employeeId = parseInt(req.params.id as string, 10);
     const rawData = req.body;
 
-    // Map frontend fields to Employee model fields (support both prefixed and non-prefixed)
-    const employeeData = {
-      name: rawData.employee_first_name || rawData.name,
-      last_name: rawData.employee_last_name || rawData.last_name,
-      middle_name: rawData.employee_middle_name || rawData.middle_name || '',
-      national_id: rawData.employee_national_id || rawData.national_id || '',
-      social_code: rawData.employee_social_code || rawData.social_code || '',
-      email: rawData.employee_email || rawData.email,
-      position_id: rawData.employee_position_id ?? rawData.position_id,
-      hire_date: rawData.employee_hire_date || rawData.hire_date,
-      exit_date: rawData.employee_exit_date || rawData.exit_date,
-      fired: rawData.employee_fired ?? rawData.fired ?? false,
-      required_hours_biweekly: rawData.employee_required_hours_biweekly ?? rawData.required_hours_biweekly ?? null,
-      status: rawData.employee_status || rawData.status,
-      version: rawData.employee_version || rawData.version
-    };
+    // Map frontend fields to Employee model fields (support both prefixed and non-prefixed).
+    // Use undefined (not null/empty) for missing fields so the service can distinguish
+    // "field was sent" from "field was omitted" — omitted fields must not overwrite DB values.
+    const resolve = (prefixed: unknown, plain: unknown) =>
+      prefixed !== undefined ? prefixed : plain;
+
+    const employeeData: Record<string, unknown> = {};
+    const name = resolve(rawData.employee_first_name, rawData.name);
+    if (name !== undefined) employeeData.name = name;
+    const last_name = resolve(rawData.employee_last_name, rawData.last_name);
+    if (last_name !== undefined) employeeData.last_name = last_name;
+    const middle_name = resolve(rawData.employee_middle_name, rawData.middle_name);
+    if (middle_name !== undefined) employeeData.middle_name = middle_name;
+    const national_id = resolve(rawData.employee_national_id, rawData.national_id);
+    if (national_id !== undefined) employeeData.national_id = national_id;
+    const social_code = resolve(rawData.employee_social_code, rawData.social_code);
+    if (social_code !== undefined) employeeData.social_code = social_code;
+    const email = resolve(rawData.employee_email, rawData.email);
+    if (email !== undefined) employeeData.email = email;
+    const phone = resolve(rawData.employee_phone, rawData.phone);
+    if (phone !== undefined) employeeData.phone = phone;
+    const position_id = resolve(rawData.employee_position_id, rawData.position_id);
+    if (position_id !== undefined) employeeData.position_id = position_id;
+    const hire_date = resolve(rawData.employee_hire_date, rawData.hire_date);
+    if (hire_date !== undefined) employeeData.hire_date = hire_date;
+    const exit_date = resolve(rawData.employee_exit_date, rawData.exit_date);
+    if (exit_date !== undefined) employeeData.exit_date = exit_date;
+    const fired = resolve(rawData.employee_fired, rawData.fired);
+    if (fired !== undefined) employeeData.fired = fired;
+    const gender = resolve(rawData.employee_gender, rawData.gender);
+    if (gender !== undefined) employeeData.gender = gender;
+    const required_hours_biweekly = resolve(rawData.employee_required_hours_biweekly, rawData.required_hours_biweekly);
+    if (required_hours_biweekly !== undefined) employeeData.required_hours_biweekly = required_hours_biweekly;
+    const status = resolve(rawData.employee_status, rawData.status);
+    if (status !== undefined) employeeData.status = status;
+    const version = resolve(rawData.employee_version, rawData.version);
+    if (version !== undefined) employeeData.version = version;
 
     try {
       const updatedEmployee = await EmployeeService.updateEmployee(

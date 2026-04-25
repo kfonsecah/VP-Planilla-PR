@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import { EventResizeDoneArg } from '@fullcalendar/interaction';
@@ -20,12 +19,80 @@ const FullCalendar = dynamic(() => import('@fullcalendar/react'), {
 import { EmployeeLaborEvent, LaborEventFormData } from '@/types/laborEvent';
 import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';
+import EventPopover from '@/components/EventPopover';
 import '@/styles/calendar.css';
-import {
-  EyeIcon,
-  PencilIcon,
-  TrashIcon
-} from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
+import { CompanyHoliday } from '@/services/holidaysService';
+
+// Helper: parse backend date strings into local Date objects
+function parseBackendDateToLocal(dateStr?: string | null): Date | undefined {
+  if (!dateStr) return undefined;
+  try {
+    const utcMidnightRegex = /^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.000)?Z$/;
+    const m = String(dateStr).match(utcMidnightRegex);
+    if (m) {
+      const [y, mo, d] = m[1].split('-').map(Number);
+      return new Date(y, mo - 1, d, 0, 0, 0);
+    }
+    const parsed = new Date(dateStr);
+    if (isNaN(parsed.getTime())) return undefined;
+    return parsed;
+  } catch {
+    return undefined;
+  }
+}
+
+// Determinar clase CSS por tipo de evento
+function getEventTypeClass(eventName?: string): string {
+  const name = (eventName || '').toLowerCase();
+  if (name.includes('vacacion')) return 'event-type-vacaciones';
+  if (name.includes('incapacidad')) return 'event-type-incapacidad';
+  if (name.includes('permiso')) return 'event-type-permiso';
+  if (name.includes('libre')) return 'event-type-dia-libre';
+  if (name.includes('suspensi')) return 'event-type-suspension';
+  return 'event-type-otro';
+}
+
+// Determinar clase CSS por status (badge dot)
+function getStatusBadgeClass(status?: string): string {
+  if (status === 'completed') return 'status-badge-completed';
+  if (status === 'cancelled') return 'status-badge-cancelled';
+  return 'status-badge-active';
+}
+
+function resolveEventDate(dateValue: string | Date | null | undefined): Date | undefined {
+  if (!dateValue) return undefined;
+  return dateValue instanceof Date
+    ? parseBackendDateToLocal(dateValue.toISOString())
+    : parseBackendDateToLocal(dateValue);
+}
+
+function toCalendarEvent(event: EmployeeLaborEvent, employees: Employee[]): EventInput {
+  const emp = employees.find(e => String(e.id) === String(event.employee_id));
+  const employeeName = emp ? emp.name : 'Empleado';
+  const titleName = event.labor_event_name || `Evento #${event.labor_event_id}`;
+
+  const startDate = resolveEventDate(event.start_date);
+  let endDate = resolveEventDate(event.end_date ?? undefined);
+
+  const isAllDay = typeof event.start_date === 'string' && /T00:00:00(?:\.000)?Z$/.test(String(event.start_date));
+  if (isAllDay && startDate && (!endDate || endDate.getTime() <= startDate.getTime())) {
+    const nd = new Date(startDate);
+    nd.setDate(nd.getDate() + 1);
+    endDate = nd;
+  }
+
+  return {
+    id: String(event.id),
+    title: `${titleName} - ${employeeName}`,
+    start: startDate,
+    end: endDate || undefined,
+    allDay: isAllDay,
+    textColor: '#FFFFFF',
+    classNames: [getEventTypeClass(event.labor_event_name), getStatusBadgeClass(event.status)],
+    extendedProps: { ...event },
+  };
+}
 
 interface Props {
   onEventClick?: (event: EmployeeLaborEvent) => void;
@@ -39,6 +106,9 @@ interface Props {
   preview?: Partial<EmployeeLaborEvent> | null;
   updateEvent?: (id: number, data: Partial<LaborEventFormData>) => Promise<{ success: boolean }>;
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
+  navigateToDate?: Date;
+  dbHolidays?: any[]; // using any[] to avoid circular CompanyHoliday type dependency or we can import it
+  onEditHoliday?: (holiday: any) => void;
 }
 
 const LaborEventsCalendar: React.FC<Props> = ({ 
@@ -52,125 +122,74 @@ const LaborEventsCalendar: React.FC<Props> = ({
   deleteAssignment, 
   preview,
   updateEvent,
+  navigateToDate,
+  dbHolidays,
+  onEditHoliday,
 }) => {
   const { showError } = useModal();
-  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<EmployeeLaborEvent | null>(null);
-  const menuOpenedAtRef = React.useRef<number | null>(null);
   const [calendarKey, setCalendarKey] = useState(0);
 
-  // Force calendar re-render when events change
-  React.useEffect(() => {
+  // Estado del popover de acciones
+  const [popoverEvent, setPopoverEvent] = useState<{
+    event: EmployeeLaborEvent;
+    anchor: { x: number; y: number };
+  } | null>(null);
+
+  // Force calendar re-render when events or navigation date change
+  useEffect(() => {
     setCalendarKey(prev => prev + 1);
-  }, [events.length, employees.length]); // Only trigger when the count changes, not the full arrays
+  }, [events.length, employees.length, navigateToDate?.getTime(), dbHolidays]);
 
-  // Helper: parse backend date strings into local Date objects
-  function parseBackendDateToLocal(dateStr?: string | null) {
-    if (!dateStr) return undefined;
-    try {
-      const utcMidnightRegex = /^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.000)?Z$/;
-      const m = String(dateStr).match(utcMidnightRegex);
-      if (m) {
-        const [y, mo, d] = m[1].split('-').map(Number);
-        return new Date(y, mo - 1, d, 0, 0, 0);
-      }
-
-      const parsed = new Date(dateStr);
-      if (isNaN(parsed.getTime())) return undefined;
-      return parsed;
-    } catch {
-      return undefined;
-    }
-  }
-
-  // Convert events to FullCalendar format
-  const calendarEvents: EventInput[] = events.map(event => {
-    const emp = employees.find(e => String(e.id) === String(event.employee_id));
-    const employeeName = emp ? emp.name : 'Empleado';
-    const titleName = event.labor_event_name || `Evento #${event.labor_event_id}`;
-
-    const startDate = parseBackendDateToLocal(event.start_date instanceof Date ? event.start_date.toISOString() : event.start_date);
-    let endDate = parseBackendDateToLocal(event.end_date instanceof Date ? event.end_date.toISOString() : (event.end_date ?? undefined));
-
-    const isAllDay = typeof event.start_date === 'string' && /T00:00:00(?:\.000)?Z$/.test(String(event.start_date));
-    if (isAllDay) {
-      if (!endDate || (startDate && endDate && endDate.getTime() <= (startDate.getTime()))) {
-        if (startDate) {
-          const nd = new Date(startDate);
-          nd.setDate(nd.getDate() + 1);
-          endDate = nd;
-        }
-      }
-    }
-
-    // Assign a semantic class name based on status so CSS can control the pill colors
-    const statusClass = event.status === 'completed'
-      ? 'status-completed'
-      : event.status === 'cancelled'
-        ? 'status-inactive'
-        : 'status-active';
-
-    return {
-      id: String(event.id),
-      title: `${titleName} - ${employeeName}`,
-      start: startDate,
-      end: endDate || undefined,
-      allDay: isAllDay,
-      // keep text color consistent; let CSS handle background/border via the status class
-      textColor: '#FFFFFF',
-      classNames: [statusClass],
-      extendedProps: { ...event }
-    };
-  });
-
-  // Add preview event if provided
-  if (preview) {
+  const getPreviewEvent = (): EventInput | null => {
+    if (!preview) return null;
     const emp = employees.find(e => String(e.id) === String(preview.employee_id));
     const empName = emp ? emp.name : 'Empleado';
     const title = preview.labor_event_name || 'Evento (previsualización)';
     const start = preview.start_date ? (preview.start_date instanceof Date ? preview.start_date : parseBackendDateToLocal(String(preview.start_date))) : undefined;
     const end = preview.end_date ? (preview.end_date instanceof Date ? preview.end_date : parseBackendDateToLocal(String(preview.end_date))) : undefined;
 
-    if (start) {
-      // cast to any so we can include backgroundColor/borderColor for preview without TS errors
-      calendarEvents.push(({
-        id: 'preview',
-        title: `${title} - ${empName}`,
-        start,
-        end: end || undefined,
-        allDay: false,
-        backgroundColor: '#F59E0B',
-        borderColor: '#D97706',
-        textColor: '#FFFFFF',
-        classNames: ['status-preview'],
-        extendedProps: { ...preview, __isPreview: true }
-      } as EventInput));
-    }
+    if (!start) return null;
+
+    return {
+      id: 'preview',
+      title: `🔍 Vista previa: ${title} - ${empName}`,
+      start,
+      end: end || undefined,
+      allDay: false,
+      backgroundColor: '#F59E0B',
+      borderColor: '#D97706',
+      textColor: '#FFFFFF',
+      classNames: ['status-preview', 'event-preview-ghost'],
+      editable: false,
+      extendedProps: { ...preview, __isPreview: true }
+    } as EventInput;
+  };
+
+  // Convert events to FullCalendar format
+  const calendarEvents: EventInput[] = events.map(event => toCalendarEvent(event, employees));
+  const previewEvent = getPreviewEvent();
+  if (previewEvent) {
+    calendarEvents.push(previewEvent);
   }
 
-  const openMenuForEvent = (ev: { id: string | number }, clientX: number, clientY: number) => {
-    const eventObj = events.find(e => String(e.id) === String(ev.id));
-    setSelectedEvent(eventObj || null);
-    setAnchor({ x: clientX, y: clientY });
-    menuOpenedAtRef.current = Date.now();
-  };
-
-  const closeMenu = () => {
-    setAnchor(null);
-    setSelectedEvent(null);
-    menuOpenedAtRef.current = null;
-  };
-
-  const handleDeleteClick = async () => {
-    if (!selectedEvent) return;
-    try {
-      await deleteAssignment(selectedEvent.id);
-      await refreshEvents();
-      closeMenu();
-    } catch {
-      showError('Error', 'No se pudo eliminar la asignación');
-    }
-  };
+  // Add Dynamic Costa Rica holidays from Database
+  if (dbHolidays && dbHolidays.length > 0) {
+    dbHolidays.forEach(h => {
+      const hDate = parseBackendDateToLocal(h.company_holidays_date);
+      if (!hDate) return;
+      
+      calendarEvents.push({
+        id: `holiday-${h.company_holidays_id}`,
+        title: `🇨🇷 ${h.company_holidays_name} (${h.company_holidays_is_mandatory ? 'Pago Obligatorio' : 'No Obligatorio'})`,
+        start: hDate,
+        allDay: true,
+        editable: false,
+        classNames: [h.company_holidays_is_mandatory ? 'event-type-feriado-obligatorio' : 'event-type-feriado-no-obligatorio'],
+        display: 'block',
+        extendedProps: { isHoliday: true, holidayDetails: h }
+      });
+    });
+  }
 
   const handleEventClick = (info: EventClickArg) => {
     const jsEvent = info.jsEvent;
@@ -180,27 +199,27 @@ const LaborEventsCalendar: React.FC<Props> = ({
       if (jsEvent.button === 2) return;
     }
 
+    if (info.event.extendedProps.isHoliday) {
+      const h = info.event.extendedProps.holidayDetails;
+      if (h && onEditHoliday) {
+        onEditHoliday(h);
+      }
+      return;
+    }
+
+    if (info.event.extendedProps.__isPreview) {
+      return;
+    }
+
     const event = events.find(e => String(e.id) === info.event.id);
-    if (event && onEventClick) {
-      onEventClick(event);
+    if (event) {
+      const rect = info.el.getBoundingClientRect();
+      setPopoverEvent({
+        event,
+        anchor: { x: rect.right + 8, y: rect.top }
+      });
     }
   };
-
-  // Close menu on outside click
-  React.useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!anchor) return;
-      if (menuOpenedAtRef.current && Date.now() - menuOpenedAtRef.current < 300) return;
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      const menu = document.querySelector('.laborevent-options-menu');
-      if (menu && !menu.contains(target)) {
-        closeMenu();
-      }
-    };
-    document.addEventListener('click', handler);
-    return () => document.removeEventListener('click', handler);
-  }, [anchor]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     if (onDateSelect) {
@@ -244,8 +263,26 @@ const LaborEventsCalendar: React.FC<Props> = ({
     }
   };
 
+  const handleDatesSet = (arg: { start: Date; end: Date; view: unknown }) => {
+    try {
+      if (!onVisibleRangeChange) return;
+
+      const view = arg.view as typeof arg.view & { currentStart?: Date; currentEnd?: Date };
+      const rawStart = view?.currentStart ?? arg.start;
+      const rawEnd = view?.currentEnd ?? arg.end;
+
+      if (rawStart && rawEnd) {
+        const start = new Date(rawStart);
+        start.setHours(0,0,0,0);
+        const end = new Date(rawEnd);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        onVisibleRangeChange(start, end);
+      }
+    } catch {}
+  };
+
   if (isLoading) {
-    return <div className="flex items-center justify-center h-96 text-[#8B8B8B] dark:text-zinc-500">Cargando eventos...</div>;
+    return <div className="flex items-center justify-center h-96 text-zinc-400 dark:text-zinc-500">Cargando eventos...</div>;
   }
 
   return (
@@ -253,12 +290,13 @@ const LaborEventsCalendar: React.FC<Props> = ({
       <div className="calendar-container h-full">
         <FullCalendar
           key={calendarKey}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
+          initialDate={navigateToDate || undefined}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: ''
           }}
           events={calendarEvents}
           timeZone="local"
@@ -269,37 +307,27 @@ const LaborEventsCalendar: React.FC<Props> = ({
           eventResize={handleEventResize}
           eventDrop={handleEventDrop}
           eventDidMount={(info) => {
-            try {
-              info.el.addEventListener('contextmenu', (e: MouseEvent) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                  openMenuForEvent({ id: info.event.id }, e.clientX || 0, e.clientY || 0);
-                } catch {}
-              });
-            } catch {}
+            // Tooltip nativo para feriados
+            if (info.event.extendedProps.isHoliday) {
+              const h = info.event.extendedProps.holidayDetails as CompanyHoliday | undefined;
+              if (h) {
+                const tipo = h.company_holidays_is_mandatory ? 'Pago Obligatorio' : 'No Obligatorio';
+                info.el.setAttribute('title', `${h.company_holidays_name} (${tipo}) - Clic para ver detalles`);
+              }
+            }
+
+            // Agregar etiqueta "Vista previa" a eventos preview
+            if (info.event.extendedProps.__isPreview) {
+              const label = document.createElement('span');
+              label.className = 'preview-label';
+              label.textContent = 'Vista previa';
+              info.el.prepend(label);
+            }
           }}
           eventClick={handleEventClick}
           select={handleDateSelect}
           selectable={true}
-          datesSet={(arg) => {
-            try {
-              // Use view.currentStart/currentEnd to get the logical visible range of the current view
-              const view = arg.view as typeof arg.view & { currentStart?: Date; currentEnd?: Date };
-              const rawStart = view?.currentStart ?? arg.start;
-              const rawEnd = view?.currentEnd ?? arg.end;
-
-              if (rawStart && rawEnd && onVisibleRangeChange) {
-                // Normalize to day boundaries to avoid off-by-one month issues
-                const start = new Date(rawStart);
-                start.setHours(0,0,0,0);
-                const end = new Date(rawEnd);
-                // FullCalendar's currentEnd is typically exclusive; subtract 1ms to make it inclusive
-                end.setMilliseconds(end.getMilliseconds() - 1);
-                onVisibleRangeChange(start, end);
-              }
-            } catch {}
-          }}
+          datesSet={handleDatesSet}
           locale="es"
           height="100%"
           aspectRatio={1.5}
@@ -309,37 +337,25 @@ const LaborEventsCalendar: React.FC<Props> = ({
           eventDisplay="block"
         />
 
-        {/* Options popover */}
-        {anchor && selectedEvent && (
-          <div
-            style={{ position: 'fixed', left: anchor.x, top: anchor.y, transform: 'translate(6px, 6px)', zIndex: 1000 }}
-            className="laborevent-options-menu w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg"
-          >
-            <div className="py-1">
-              <button
-                onClick={() => { if (selectedEvent) onEventClick?.(selectedEvent); closeMenu(); }}
-                className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-zinc-700 dark:text-white hover:bg-[#F5F1E8] dark:hover:bg-zinc-700 transition-colors"
-              >
-                <EyeIcon className="w-4 h-4" />
-                Ver Detalles
-              </button>
-              <button
-                onClick={() => { if (selectedEvent) onEventClick?.(selectedEvent); closeMenu(); }}
-                className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-zinc-700 dark:text-white hover:bg-[#F5F1E8] dark:hover:bg-zinc-700 transition-colors"
-              >
-                <PencilIcon className="w-4 h-4" />
-                Editar Evento
-              </button>
-              <div className="border-t border-zinc-200 dark:border-zinc-700 mx-2 my-1"></div>
-              <button
-                onClick={handleDeleteClick}
-                className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-              >
-                <TrashIcon className="w-4 h-4" />
-                Eliminar
-              </button>
-            </div>
-          </div>
+        {/* Click popover de acciones */}
+        {popoverEvent && (
+          <EventPopover
+            event={popoverEvent.event}
+            anchor={popoverEvent.anchor}
+            employeeName={employees.find(e => String(e.id) === String(popoverEvent.event.employee_id))?.name || 'Empleado'}
+            onView={() => { onEventClick?.(popoverEvent.event); setPopoverEvent(null); }}
+            onEdit={() => { onEventClick?.(popoverEvent.event); setPopoverEvent(null); }}
+            onDelete={async () => {
+              try {
+                await deleteAssignment(popoverEvent.event.id);
+                await refreshEvents();
+                setPopoverEvent(null);
+              } catch {
+                showError('Error', 'No se pudo eliminar la asignación');
+              }
+            }}
+            onClose={() => setPopoverEvent(null)}
+          />
         )}
       </div>
     </div>

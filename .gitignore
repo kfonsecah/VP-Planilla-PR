@@ -103,3 +103,15 @@ query_emp.mjs
 # .planning/ directory is tracked (milestone & phase planning)
 !.planning/
 !.planning/**
+
+# Graphify — build cache and large generated artifacts
+graphify-out/
+.planning/graphs/graph.json
+.planning/graphs/graph.html
+.planning/graphs/.last-build-snapshot.json
+
+# Auto-generated file inventories (do not commit)
+tracked_files.txt
+
+# Frontend TypeScript build cache
+src/frontend/tsconfig.tsbuildinfo

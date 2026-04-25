@@ -28,8 +28,7 @@ export const useNominee = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await NomineeService.getClockLogs(initDate, endDate);
-      return res;
+      return await NomineeService.getClockLogs(initDate, endDate);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al obtener registros');
       throw err;
@@ -42,8 +41,7 @@ export const useNominee = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await NomineeService.getEmployeeDeductions(employeeId);
-      return res;
+      return await NomineeService.getEmployeeDeductions(employeeId);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al obtener deducciones');
       throw err;

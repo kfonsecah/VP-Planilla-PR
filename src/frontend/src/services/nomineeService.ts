@@ -52,4 +52,16 @@ export const NomineeService = {
       throw new Error(err instanceof Error ? err.message : 'Error al calcular planilla para el periodo');
     }
   },
+
+  async calculateAguinaldo(employeeIds: number[], startDate: string, endDate: string): Promise<unknown> {
+    try {
+      return await http.post('/nominee/calculate-aguinaldo', {
+        employeeIds,
+        start_date: startDate,
+        end_date: endDate,
+      });
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al calcular aguinaldo');
+    }
+  },
 };

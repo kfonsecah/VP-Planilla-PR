@@ -3,10 +3,14 @@
  * Contains pure functions and constants for formatting and visual configuration.
  */
 
+const SOURCE_LABEL_JAVA = 'Java';
+const SOURCE_LABEL_EXCEL = 'Excel';
+const SOURCE_LABEL_MANUAL = 'Manual';
+
 export const SOURCE_LABELS: Record<string, string> = {
-  java_import: 'Java',
-  excel_import: 'Excel',
-  manual: 'Manual',
+  java_import: SOURCE_LABEL_JAVA,
+  excel_import: SOURCE_LABEL_EXCEL,
+  manual: SOURCE_LABEL_MANUAL,
 };
 
 export const STATUS_OPTIONS = ['pending', 'valid', 'anomaly', 'orphan', 'corrected'] as const;
@@ -52,6 +56,8 @@ export const STATUS_NAMES: Record<string, string> = {
   corrected: 'Corregida',
 };
 
+const INACTIVE_TOGGLE_CLASSES = 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700';
+
 export const STATUS_TOGGLE_COLORS: Record<string, { active: string; inactive: string }> = {
   pending: {
     active: 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border-gray-400',
@@ -59,19 +65,19 @@ export const STATUS_TOGGLE_COLORS: Record<string, { active: string; inactive: st
   },
   valid: {
     active: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border-green-400',
-    inactive: 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700',
+    inactive: INACTIVE_TOGGLE_CLASSES,
   },
   anomaly: {
     active: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-400',
-    inactive: 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700',
+    inactive: INACTIVE_TOGGLE_CLASSES,
   },
   orphan: {
     active: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 border-red-400',
-    inactive: 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700',
+    inactive: INACTIVE_TOGGLE_CLASSES,
   },
   corrected: {
     active: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-400',
-    inactive: 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700',
+    inactive: INACTIVE_TOGGLE_CLASSES,
   },
 };
 
@@ -115,14 +121,14 @@ export const parseDisplayToISO = (display: string): string => {
 /**
  * Returns a view model with presentation-specific properties for a clock log.
  */
-export const getClockLogViewModel = (log: any) => {
+export const getClockLogViewModel = (log: Record<string, unknown>) => {
   const isProblematic = log.status === 'anomaly' || log.status === 'orphan';
   
   return {
     ...log,
-    displaySource: SOURCE_LABELS[log.source] ?? log.source,
-    displayTimestamp: new Date(log.timestamp).toLocaleString('es-CR'),
-    statusText: STATUS_NAMES[log.status] ?? log.status,
+    displaySource: SOURCE_LABELS[String(log.source)] ?? log.source,
+    displayTimestamp: new Date(String(log.timestamp)).toLocaleString('es-CR'),
+    statusText: STATUS_NAMES[String(log.status)] ?? log.status,
     isProblematic,
     actionButtonLabel: isProblematic ? 'Corregir' : 'Ver',
     typeBadgeClasses: `inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${

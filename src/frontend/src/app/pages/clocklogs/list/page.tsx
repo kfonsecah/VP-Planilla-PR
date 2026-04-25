@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ClockLogsService, AttendanceSummary, ClockLog } from '@/services/clockLogsService';
+import { getEmployees } from '@/services/employeeService';
 import {
   ClockIcon,
   CalendarIcon,
@@ -17,6 +18,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { Select, SelectItem } from '@/components/ui/Select';
 
+const CR_TIMEZONE = 'America/Costa_Rica';
+
 export default function AttendancePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -25,6 +28,53 @@ export default function AttendancePage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [editingLog, setEditingLog] = useState<ClockLog | null>(null);
+  const [employees, setEmployees] = useState<{ id: number | string; name: string }[]>([]);
+
+  useEffect(() => {
+    getEmployees()
+      .then(emps => {
+        setEmployees((emps as unknown as Array<Record<string, unknown>>).map(e => ({
+          id: e.id as number | string,
+          name: String(e.name || '')
+        })));
+      })
+      .catch(() => {});
+  }, []);
+
+  const processLogs = (logs: ClockLog[], empList: { id: number | string; name: string }[]): AttendanceSummary[] => {
+    const grouped: Record<string, AttendanceSummary> = {};
+
+    for (const log of logs) {
+      const date = new Intl.DateTimeFormat('en-CA', { timeZone: CR_TIMEZONE }).format(new Date(log.timestamp));
+      const empId = log.employee_id ?? 'unknown';
+      const key = `${empId}_${date}`;
+      const emp = empList.find(e => String(e.id) === String(empId));
+      const empName = emp?.name || (empId !== 'unknown' ? `Empleado #${empId}` : 'Empleado sin identificar');
+
+      if (!grouped[key]) {
+        grouped[key] = { employee_id: empId, employee_name: empName, date, logs: [], hours_worked: 0, check_in: null, check_out: null, inconsistencies: [] };
+      }
+      grouped[key].logs.push(log);
+    }
+
+    return Object.values(grouped).map(entry => {
+      const sorted = [...entry.logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      const firstIn = sorted.find(l => l.log_type === 'IN');
+      const lastOut = [...sorted].reverse().find(l => l.log_type === 'OUT');
+      const checkIn = firstIn?.timestamp ?? null;
+      const checkOut = lastOut?.timestamp ?? null;
+      const hoursWorked = checkIn && checkOut
+        ? (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 3_600_000
+        : 0;
+      const inCount = sorted.filter(l => l.log_type === 'IN').length;
+      const outCount = sorted.filter(l => l.log_type === 'OUT').length;
+      const inconsistencies: string[] = [];
+      if (!firstIn) inconsistencies.push('Sin entrada registrada');
+      if (!lastOut) inconsistencies.push('Sin salida registrada');
+      if (inCount !== outCount) inconsistencies.push(`Marcas desbalanceadas: ${inCount} entradas, ${outCount} salidas`);
+      return { ...entry, logs: sorted, check_in: checkIn, check_out: checkOut, hours_worked: hoursWorked, inconsistencies };
+    }).sort((a, b) => a.date.localeCompare(b.date) || a.employee_name.localeCompare(b.employee_name));
+  };
 
   const handleFetch = async () => {
     if (!startDate || !endDate) {
@@ -35,9 +85,16 @@ export default function AttendancePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await ClockLogsService.getAttendanceSummary(startDate, endDate);
-      setData(res);
-      toast.success(`Se encontraron ${res.length} registros de asistencia`);
+      let currentEmployees = employees;
+      if (currentEmployees.length === 0) {
+        const emps = (await getEmployees()) as unknown as Array<Record<string, unknown>>;
+        currentEmployees = emps.map(e => ({ id: e.id as number | string, name: String(e.name || '') }));
+        setEmployees(currentEmployees);
+      }
+      const logs = await ClockLogsService.getClockLogs(startDate, endDate);
+      const processed = processLogs(logs, currentEmployees);
+      setData(processed);
+      toast.success(`Se encontraron ${processed.length} registros de asistencia`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al obtener registros');
       toast.error(err instanceof Error ? err.message : 'Error al obtener registros');
@@ -56,10 +113,32 @@ export default function AttendancePage() {
     setExpandedRows(newExpanded);
   };
 
+  // Convert UTC ISO → "YYYY-MM-DDTHH:MM" in Costa Rica time (for datetime-local input)
+  const toLocalInputValue = (isoString: string): string => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: CR_TIMEZONE,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date(isoString));
+    const p: Record<string, string> = {};
+    parts.forEach(({ type, value }) => { p[type] = value; });
+    const h = p.hour === '24' ? '00' : p.hour;
+    return `${p.year}-${p.month}-${p.day}T${h}:${p.minute}`;
+  };
+
+  // Convert "YYYY-MM-DDTHH:MM" in CR time → UTC ISO string (Costa Rica is always UTC-6)
+  const crLocalToUTC = (localString: string): string => {
+    const [date, time] = localString.split('T');
+    const [y, mo, d] = date.split('-').map(Number);
+    const [h, mi] = time.split(':').map(Number);
+    return new Date(Date.UTC(y, mo - 1, d, h + 6, mi)).toISOString();
+  };
+
   const handleEditLog = (log: ClockLog) => {
     setEditingLog({
       ...log,
-      timestamp: new Date(log.timestamp).toISOString().slice(0, 16)
+      timestamp: toLocalInputValue(log.timestamp)
     });
   };
 
@@ -68,7 +147,7 @@ export default function AttendancePage() {
 
     try {
       await ClockLogsService.updateClockLog(editingLog.id, {
-        timestamp: editingLog.timestamp,
+        timestamp: crLocalToUTC(editingLog.timestamp),
         log_type: editingLog.log_type,
         remarks: editingLog.remarks
       });
@@ -84,7 +163,8 @@ export default function AttendancePage() {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleTimeString('es-CR', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: CR_TIMEZONE
     });
   };
 
@@ -93,7 +173,8 @@ export default function AttendancePage() {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: CR_TIMEZONE
     });
   };
 
@@ -411,7 +492,7 @@ export default function AttendancePage() {
                                         <div>
                                           <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Hora</p>
                                           <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                                            {new Date(log.timestamp).toLocaleTimeString('es-CR')}
+                                            {new Date(log.timestamp).toLocaleTimeString('es-CR', { timeZone: CR_TIMEZONE })}
                                           </p>
                                         </div>
                                         {log.remarks && (

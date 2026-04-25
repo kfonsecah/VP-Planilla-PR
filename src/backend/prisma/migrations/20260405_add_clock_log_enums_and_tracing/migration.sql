@@ -1,11 +1,20 @@
 -- CreateEnum
-CREATE TYPE "ClockLogType" AS ENUM ('IN', 'OUT');
+DO $$ BEGIN
+  CREATE TYPE "ClockLogType" AS ENUM ('IN', 'OUT');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "ClockLogStatus" AS ENUM ('pending', 'valid', 'anomaly', 'corrected', 'orphan');
+DO $$ BEGIN
+  CREATE TYPE "ClockLogStatus" AS ENUM ('pending', 'valid', 'anomaly', 'corrected', 'orphan');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateEnum
-CREATE TYPE "ClockLogSource" AS ENUM ('java_import', 'excel_import', 'manual');
+-- CreateEnum (ClockLogSource may already exist from add_clock_import_sessions migration)
+DO $$ BEGIN
+  CREATE TYPE "ClockLogSource" AS ENUM ('java_import', 'excel_import', 'manual');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Pre-cleanup: normalize existing log_type values BEFORE enum cast
 UPDATE "vpg_clock_logs"

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Test/sample Excel files (use docs/samples/ or public/samples/ instead)
+*.xlsx

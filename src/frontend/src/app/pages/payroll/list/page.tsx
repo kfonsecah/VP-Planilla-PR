@@ -45,29 +45,40 @@ export default function PayrollListPage() {
   }, [loadPayrolls]);
 
   const getStatusBadge = (status: string | undefined) => {
+    // Phase 36 state machine: BORRADOR → APROBADA → PAGADA
+    if (status === 'BORRADOR' || status === 'draft' || status === 'PENDIENTE' || status === 'CALCULADO') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-100 dark:bg-yellow-900/30 text-zinc-600 dark:text-yellow-200 border border-zinc-300 dark:border-yellow-700">
+          <ClockIcon className="w-4 h-4" />
+          Borrador
+        </span>
+      );
+    }
+
+    if (status === 'APROBADA' || status === 'approved') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700">
+          <CheckCircleIcon className="w-4 h-4" />
+          Aprobada
+        </span>
+      );
+    }
+
+    if (status === 'PAGADA' || status === 'PAGADO' || status === 'paid' || status === 'completed') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white border border-blue-700">
+          <CheckCircleIcon className="w-4 h-4" />
+          Pagada
+        </span>
+      );
+    }
+
+    // Legacy status handling
     if (status === 'CALCULADO') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-700">
           <ChartBarIcon className="w-4 h-4" />
           Calculado
-        </span>
-      );
-    }
-
-    if (status === 'PAGADO' || status === 'completed') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-600 text-white border border-green-700">
-          <CheckCircleIcon className="w-4 h-4" />
-          Pagado
-        </span>
-      );
-    }
-
-    if (status === 'PENDIENTE' || status === 'draft') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-100 dark:bg-yellow-900/30 text-zinc-600 dark:text-yellow-200 border border-zinc-300 dark:border-yellow-700">
-          <ClockIcon className="w-4 h-4" />
-          Pendiente
         </span>
       );
     }
@@ -113,11 +124,57 @@ export default function PayrollListPage() {
       async () => {
         setUpdatingId(payrollId);
         try {
-          await PayrollService.updatePayroll(payrollId, { status: 'PAGADO' });
+          await PayrollService.markAsPaid(payrollId);
           await loadPayrolls();
           toast.success('La planilla ha sido marcada como PAGADA');
         } catch (err) {
           const message = (err as Error)?.message || 'Error al actualizar el estado';
+          toast.error(message);
+        } finally {
+          setUpdatingId(null);
+        }
+      }
+    );
+  };
+
+  const approvePayroll = async (payrollId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    modal.showConfirmation(
+      'Aprobar Planilla',
+      '¿Está seguro de aprobar esta planilla? Una vez aprobada no podrá modificarse.',
+      async () => {
+        setUpdatingId(payrollId);
+        try {
+          await PayrollService.approvePayroll(payrollId);
+          await loadPayrolls();
+          toast.success('La planilla ha sido aprobada');
+        } catch (err) {
+          const message = (err as Error)?.message || 'Error al aprobar la planilla';
+          toast.error(message);
+        } finally {
+          setUpdatingId(null);
+        }
+      }
+    );
+  };
+
+  const reopenPayroll = async (payrollId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    modal.showConfirmation(
+      'Reabrir Planilla',
+      '¿Está seguro de reabrir esta planilla? Podrá modificar los datos nuevamente.',
+      async () => {
+        setUpdatingId(payrollId);
+        try {
+          await PayrollService.reopenPayroll(payrollId, 'Reabierta por usuario');
+          await loadPayrolls();
+          toast.success('La planilla ha sido reabierta');
+        } catch (err) {
+          const message = (err as Error)?.message || 'Error al reopen la planilla';
           toast.error(message);
         } finally {
           setUpdatingId(null);
@@ -253,7 +310,7 @@ export default function PayrollListPage() {
                   <div>
                     <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Pagadas</p>
                     <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">
-                      {payrolls.filter(p => p.status === 'PAGADO').length}
+                      {payrolls.filter(p => p.status === 'PAGADA' || p.status === 'PAGADO').length}
                     </p>
                   </div>
                 </div>
@@ -341,28 +398,97 @@ export default function PayrollListPage() {
                       Ver Detalle
                     </Link>
 
-                    {/* Botón marcar como pagada */}
-                    <button
-                      onClick={(e) => markAsPaid(p.id, e)}
-                      disabled={updatingId === p.id || p.status === 'PAGADO'}
-                      className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg transition-colors font-semibold disabled:cursor-not-allowed text-sm ${
-                        p.status === 'PAGADO'
-                          ? 'bg-zinc-400 dark:bg-zinc-600 text-white'
-                          : 'bg-green-600 hover:bg-green-500 text-white disabled:opacity-50'
-                      }`}
-                    >
-                      {updatingId === p.id ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          <span>Actualizando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircleIcon className="w-5 h-5" />
-                          <span>{p.status === 'PAGADO' ? 'Ya Pagada' : 'Marcar como Pagada'}</span>
-                        </>
-                      )}
-                    </button>
+                    {/* Contextual action buttons based on status */}
+                    {p.status === 'BORRADOR' && (
+                      <button
+                        onClick={(e) => approvePayroll(p.id, e)}
+                        disabled={updatingId === p.id}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
+                      >
+                        {updatingId === p.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Aprobando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircleIcon className="w-5 h-5" />
+                            <span>Aprobar</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {p.status === 'APROBADA' && (
+                      <>
+                        <button
+                          onClick={(e) => markAsPaid(p.id, e)}
+                          disabled={updatingId === p.id}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
+                        >
+                          {updatingId === p.id ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span>Marcando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircleIcon className="w-5 h-5" />
+                              <span>Marcar como Pagada</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => reopenPayroll(p.id, e)}
+                          disabled={updatingId === p.id}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
+                        >
+                          <ArrowPathIcon className="w-5 h-5" />
+                          <span>Reabrir</span>
+                        </button>
+                      </>
+                    )}
+
+                    {(p.status === 'PAGADA' || p.status === 'PAGADO') && (
+                      <button
+                        onClick={(e) => reopenPayroll(p.id, e)}
+                        disabled={updatingId === p.id}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
+                      >
+                        {updatingId === p.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Reabriendo...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ArrowPathIcon className="w-5 h-5" />
+                            <span>Reabrir</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {/* Legacy: PENDIENTE/CALCULADO status buttons */}
+                    {(p.status === 'PENDIENTE' || p.status === 'CALCULADO') && (
+                      <button
+                        onClick={(e) => markAsPaid(p.id, e)}
+                        disabled={updatingId === p.id}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors font-semibold disabled:opacity-50 text-sm"
+                      >
+                        {updatingId === p.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Actualizando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircleIcon className="w-5 h-5" />
+                            <span>Marcar como Pagada</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

@@ -1,27 +1,46 @@
 # Milestones
 
-## v1.4 — Stability and Integration Hardening (In Progress: 2026-04-12)
+## v1.5 — Gestión de Marcas y Planilla para Producción (Shipped: 2026-04-24)
 
-**Phases completed:** 6 phases (24-29), 9+ plans
-**Timeline:** 2026-04-09 → 2026-04-12 (4 days)
-**Status:** In Progress
+**Phases completed:** 17 phases (32-48), 51 plans
+**Timeline:** 2026-04-12 → 2026-04-24 (12 days)
+**Tests:** 492+ backend (Jest) + 5 Java (JUnit 5) = 497+ total
+**LOC:** ~13,278 TypeScript
+**Status:** Archived
+**Known deferred items at close:** 22 (see STATE.md Deferred Items)
 
 **Key accomplishments:**
+1. **Effective Marks Engine:** Non-destructive adjustment layer (ADD/EDIT/VOID) with mandatory justification, payroll lock enforcement, and full audit trail in `vpg_clock_log_adjustments`.
+2. **Payroll State Machine:** BORRADOR → APROBADA → PAGADA lifecycle with aguinaldo calculation per Costa Rica labor law. Full REST API for all transitions.
+3. **Payroll Wizard:** 3-step guided flow (period selection → calculation review → approval) replacing the flat payroll page.
+4. **Clock Alias System:** `vpg_clock_aliases` table with CRUD, `resolveEmployeeByAlias()`, and IN/OUT type inference by sequence for Excel imports without log_type column.
+5. **Mark Recognition Engine Redesign:** Excel parser with automatic column detection, configurable time-window classification with confidence indicators, day-confirmation audit UI.
+6. **Grouped Clock Logs View:** Hierarchical layout (Branch → Employee → Day → IN/OUT pair) with infinite scroll and biweekly presets.
+7. **Configurable Holidays Engine:** DB-backed company holidays integrated into payroll math (mandatory pay + triple overtime on holidays).
+8. **Employee Profile Redesign:** Consolidated tabs (summary, labor, salary, marks, events, docs) with full modal integration.
+9. **Labor Calendar Redesign:** Modern sidebar + mini-calendar + event filters + animated popovers.
+10. **Repo Cleanup:** Dead code removed (holidays.ts), .gitignore verified, stale docs purged.
 
-1. Auth Token Lifecycle End-to-End - Unified refresh/revocation/logout and auth errors across platform
-2. HTTP Client Layer Enforcement - Eliminated bypasses to http.ts, standardized error handling in frontend services
-3. Repository Hygiene and Build Cleanup - Cleaned versioned artifacts, reinforced multi-stack .gitignore
-4. Monolith Decomposition and Maintainability - Refactored monolithic files with regression tests
-5. Email Notification Module - Email notifications via Resend (verification codes, notifications)
-6. Implement changePassword Feature - Secure password change with 6-digit verification code, 15-min expiry, HTML email template with Verde Gestión branding
+**Archive:** `.planning/milestones/v1.5-ROADMAP.md`
 
-**Current focus:**
+---
 
-- Phase 29 completed: Backend endpoints + Frontend modal integration in login and users pages
+## v1.4 — Stability and Integration Hardening (Shipped: 2026-04-12)
 
-**Known gaps:**
+**Phases completed:** 8 phases (24-31), 15 plans
+**Timeline:** 2026-04-09 → 2026-04-12 (4 days)
+**Status:** Archived
 
-- Phase 30 and 31 pending for v1.4 completion
+**Key accomplishments:**
+1. **Auth Hardening:** Unified token lifecycle (refresh/revocation/logout) with consistent error mapping.
+2. **HTTP Enforcement:** Unified frontend client (`http.ts`) for all business services.
+3. **Repository Hygiene:** Clean git index (removed IDE/build artifacts) and tracked `package-lock.json`.
+4. **Modularization:** Monolith decomposition into `ClockLogsService`, `ImportSessionService`, etc.
+5. **Security:** Secure email-verified password reset flow with bcrypt hashing.
+6. **Code Quality:** Centralized environment configuration validated with Zod.
+7. **Java Automation:** Introduced JUnit 5 and Mockito baseline for the clock-log utility.
+
+**Archive:** `.planning/milestones/v1.4-ROADMAP.md`
 
 ---
 
@@ -32,17 +51,11 @@
 **Status:** User-confirmed milestone closure
 
 **Key accomplishments:**
-
 1. Pipeline robusto de marcas con normalizacion canonica IN/OUT y trazabilidad status/source
 2. Sesiones de importacion con vinculo a marcas y endpoints de consulta operativos
 3. Deteccion automatica de huerfanas/anomalias + endpoints de resolucion
 4. Correccion manual con auditoria y proteccion de rutas administrativas
 5. Dashboard UI de marcas con filtros, badges, modal de detalle y sesiones recientes
-6. Cierre de fase 23 para estabilizacion integral del flujo de marcas (confirmado por usuario)
-
-**Known gaps at close:**
-
-- REQUIREMENTS.md traceability remained partially unchecked at close (NORM-*, TRACK-*, ORPHAN-*, ANOMALY-* still marked Pending in file state)
 
 **Archive:** `.planning/milestones/v1.3-ROADMAP.md`
 
@@ -55,68 +68,11 @@
 **Tests:** 104 → 287 (+183), 17 suites, 0 failures, cobertura 42.49%
 
 **Key accomplishments:**
-
-1. 9 nuevas suites de tests unitarios — VacationService, PayrollTypeService, PositionService, BonusesService, EmployeeDeductions, LaborEventsService, UserService, NotificationService, AuditLogsService
-2. payrollUtils.test.ts extendido a 103 casos (97% cobertura) — cubre validateClockLogPairs, getSundaysInPeriod, calculateOvertimeHoursBiweekly y más
-3. sessionStorage cache (TTL 5 min) implementado en 8 hooks — elimina re-fetch en navegación
-4. Sidebar modernizado — active state verde, chevron animado, dot status, sin viñetas en sub-ítems
-5. Fix ESLint y TypeScript: 0 errores de lint, 0 errores de compilación
-
-**Known gaps at close:**
-
-- Cobertura 42.49% (target 60% no alcanzado — NomineeService, PaymentReceiptService, ReportsService pendientes)
-- Sistema de marcas de reloj sin validación de anomalías — planificado en v1.3
+1. 9 nuevas suites de tests unitarios
+2. payrollUtils.test.ts extendido a 103 casos (97% cobertura)
+3. sessionStorage cache (TTL 5 min) implementado en 8 hooks
+4. Sidebar modernizado — zinc-950, animaciones, dot status
 
 **Archive:** `.planning/milestones/v1.2-ROADMAP.md`
-
----
-
-## v1.1 Calidad, UI Moderna y Cobertura de Tests (Shipped: 2026-04-02)
-
-**Phases completed:** 8 phases, 22 plans, 30 tasks
-**Timeline:** 2026-03-31 → 2026-04-02 (2 días)
-**Tests:** 104 pasando (8 suites backend), 0 failures
-
-**Key accomplishments:**
-
-1. Tests unitarios para EmployeeService, ClockLogService, DeductionService y AuthService (Fases 09-10)
-2. Design system dark mode completo — tokens CSS globales, paleta zinc-950, sidebar moderno (Fase 11)
-3. UI dark consistente en todas las tablas, formularios y modales del sistema (Fase 12)
-4. Integración frontend-backend auditada — 3 payload mismatches corregidos, errores concretos del backend, skeletons y toasts (Fase 13)
-5. Servicio de notificaciones completo — backend API + UI en Header + página dedicada + polling 30s (Fase 14)
-6. Skeleton loading + error banners con retry en las 18 vistas del sistema (Fase 15)
-7. Rendimiento web mejorado — ~1.55MB JS diferido, imágenes comprimidas 11.5MB → 39KB (99.7%) (Fase 16)
-
-**Known gaps at close:**
-
-- TESTS-05: Cobertura de tests en 33% (target 60% no alcanzable sin NomineeService coverage adicional)
-- 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
-
-**Archive:** `.planning/milestones/v1.1-ROADMAP.md`
-
----
-
-## v1.0 Estabilización y Completitud (Shipped: 2026-03-27)
-
-**Phases completed:** 8 phases, 22 plans
-**Timeline:** 2026-03-25 → 2026-03-27 (3 días)
-**Tests:** 45 pasando (42 unit + 3 integration), 0 failures
-
-**Key accomplishments:**
-
-1. Migrados 16 servicios al singleton Prisma — eliminados pools de conexión duplicados
-2. 13 rutas API desprotegidas aseguradas con JWT AuthMiddleware
-3. CORS wildcard restringido + validación Zod en 5 dominios (Employee, Payroll, ClockLog, Deduction, User)
-4. Cálculo de planilla optimizado de O(N×5) a O(6) queries con métodos preload
-5. Feriados nacionales CR integrados al cálculo de días laborales
-6. Rate limiting en login, Helmet headers, revocación de tokens via DB blocklist
-7. 45 tests unitarios/integración para NomineeService y PayrollService
-
-**Known gaps at close:**
-
-- REQ 5.3: `prisma db push` en vez de `migrate dev` — user_last_login no reproducible en deploy limpio
-- REQ 8.8: Sin tests de integración para POST /api/nominee/payroll (Should, no Must)
-
-**Archive:** `.planning/milestones/v1.0-ROADMAP.md`
 
 ---

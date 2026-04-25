@@ -10,6 +10,8 @@ export const createEmployeeSchema = z.object({
   employee_position_id: z.coerce.number().int().positive('Position ID invalido'),
   employee_hire_date: z.string().min(1, 'Fecha de contratacion requerida'),
   employee_required_hours_biweekly: z.coerce.number().optional().nullable(),
+  employee_phone: z.string().max(20).optional().nullable(),
+  employee_gender: z.string().max(20).optional().nullable(),
   // employee_status acepta tanto el código de 1 char ('A','V','I','M') como los strings largos del frontend
   // ('active','vacation','incomplete_assistance','incapacity_maternity'). El service mapea al Char(1) de la DB.
   employee_status: z.string().max(25, 'Estado de empleado invalido').optional().default('A'),
@@ -38,6 +40,11 @@ export const updateEmployeeSchema = z.object({
   employee_hire_date: z.string().optional().nullable(),
   employee_required_hours_biweekly: z.coerce.number().optional().nullable(),
   employee_status: z.string().max(25).optional().nullable(),
+  // Phone and gender
+  employee_phone: z.string().max(20).optional().nullable(),
+  employee_gender: z.string().max(20).optional().nullable(),
+  phone: z.string().max(20).optional().nullable(),
+  gender: z.string().max(20).optional().nullable(),
   // Dismiss fields
   employee_exit_date: z.string().optional().nullable(),
   employee_fired: z.boolean().optional(),

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 type Column<T> = {
   key: keyof T | string;
@@ -120,12 +121,18 @@ export default function Table<T extends { id?: number | string }>({
                 </td>
               ))}
               <td className="px-4 py-2.5 text-sm text-right">
-                {onEdit && (
-                  <button onClick={() => onEdit(row)} className="mr-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 rounded text-sm transition-colors">Editar</button>
-                )}
-                {onDelete && (
-                  <button onClick={() => onDelete(row)} className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white dark:bg-red-600 dark:hover:bg-red-700 rounded text-sm transition-colors">Eliminar</button>
-                )}
+                <div className="flex items-center justify-end gap-1">
+                  {onEdit && (
+                    <button onClick={() => onEdit(row)} className="p-1.5 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors" title="Editar">
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button onClick={() => onDelete(row)} className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors" title="Eliminar">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

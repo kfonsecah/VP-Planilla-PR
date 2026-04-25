@@ -10,11 +10,10 @@ jest.mock('sonner');
 // Mock next/dynamic to render components immediately
 jest.mock('next/dynamic', () => ({
   __esModule: true,
-  default: (loader: any) => {
-    const React = require('react');
-    return (props: any) => {
+  default: () => {
+    return (props: Record<string, unknown>) => {
       const { children, ...rest } = props;
-      return <div {...rest}>{children}</div>;
+      return <div {...rest}>{children as React.ReactNode}</div>;
     };
   },
 }));

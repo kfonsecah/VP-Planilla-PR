@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
+const CLOCK_LOG_SOURCES = ['java_import', 'excel_import', 'manual', 'device'] as const;
+
 const clockLogItemSchema = z.object({
   timestamp: z.string().min(1, 'Timestamp requerido'),
   log_type: z.string().min(1, 'Tipo de log requerido'),
   employee_id: z.coerce.number().optional(),
   employee_name: z.string().optional(),
   remarks: z.string().optional().nullable(),
+  source: z.enum(CLOCK_LOG_SOURCES).optional(),
 });
 
 export const bulkCreateClockLogSchema = z.object({

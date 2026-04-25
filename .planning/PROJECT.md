@@ -8,66 +8,64 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.3 — 2026-04-09)
+## Current State (v1.5 SHIPPED — 2026-04-24)
 
-**v1.3 SHIPPED** — Sistema de Marcas de Reloj Robusto:
-- ✅ Normalizacion de tipos de marcas (IN/OUT) y trazabilidad por status/source
-- ✅ Sesiones de importacion con vinculo a marcas e historial operativo
-- ✅ Motor de deteccion de huerfanas y anomalias con endpoints de consulta/resolucion
-- ✅ Correccion manual con auditoria de cambios y rutas protegidas
-- ✅ Dashboard de marcas (filtros, badges, sesiones, modal de detalle/correccion)
-- ✅ Cierre de fase 23 con estabilizacion del flujo de marcas (confirmado por usuario)
+**v1.5 SHIPPED** — Gestión de Marcas y Planilla para Producción (Phases 32–48, 51 plans)
+
+- ✓ Effective marks engine with non-destructive adjustment layer (ADD/EDIT/VOID + audit trail) — v1.5
+- ✓ Payroll state machine (BORRADOR → APROBADA → PAGADA) + aguinaldo per CR labor law — v1.5
+- ✓ 3-step payroll wizard (period → calculation review → approval) — v1.5
+- ✓ Clock alias system with IN/OUT type inference for Excel imports — v1.5
+- ✓ Mark recognition engine redesign (auto-detect columns, time windows, confidence indicators) — v1.5
+- ✓ Grouped clock logs view: Branch → Employee → Day → IN/OUT pair — v1.5
+- ✓ Configurable holidays engine (DB-backed, integrated into payroll math) — v1.5
+- ✓ Employee profile redesign (consolidated tabs: summary, labor, salary, marks, events, docs) — v1.5
+- ✓ Labor events calendar redesign — v1.5
+- ✓ 497+ tests passing (492 Jest + 5 JUnit 5) — v1.5
+
+**Next milestone:** v1.6 (to be defined via `/gsd:new-milestone`)
 
 ## Context
 
 - **Stack:** Express 5 + TypeScript 5.8 (backend) · Next.js 15 + React 19 (frontend) · Prisma 6 + PostgreSQL · Tailwind 4
 - **Arquitectura:** Route → Controller → Service → Prisma (backend) / Page → Hook → Service → http.ts (frontend)
 - **Dominio:** Semana laboral lunes–sábado · 8h regulares/día · 1.5× hasta 10h · 2× sobre 10h · descanso semanal 0.5×
-- **Repositorio:** brownfield — código existente mejorado en v1.0, UI modernizada en v1.1
-- **Tests:** 104 backend tests (8 suites), 0 failures
-- **Performance:** ~1.55MB JS diferido, imágenes comprimidas 99.7%, Next.js compress habilitado
+- **Tests:** 492+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 497+ passing.
+- **Performance:** JS diferido, imágenes comprimidas, Next.js compress habilitado.
 
-## Current Milestone: v1.4 — Stability and Integration Hardening (Planning)
+## History
 
-**Goal:** Resolver concerns criticos transversales (auth lifecycle, capa HTTP, higiene de repositorio y modularidad) para estabilizar la base antes de nuevas features.
+<details>
+<summary>v1.4 SHIPPED (2026-04-12) — Stability and Integration Hardening</summary>
 
-**Target features:**
-- Auth token lifecycle consistente entre backend y frontend (refresh, expiry, revocation, logout)
-- Eliminacion de bypasses a `http.ts` y estandarizacion de llamadas API
-- Limpieza de artefactos generados versionados (`dist`, `target`, temporales) y hardening de `.gitignore`
-- Descomposicion de archivos monoliticos de alta complejidad con cobertura de pruebas de regresion
+- Auth lifecycle unified (refresh/revocation/logout) with consistent error mapping
+- HTTP layer enforced: all frontend services use `http.ts`, no raw fetch bypasses
+- Repository hygiene: git index purged of build artifacts, `package-lock.json` tracked
+- Monolith decomposed into specialized services (ClockLogs, Audit, Notifications)
+- Email-verified password reset with bcrypt hashing and 15-min token expiry
+- Centralized environment validation via Zod; JUnit 5 baseline for Java utility
 
-**Previous:** v1.3 shipped 2026-04-09 — phases 18-23 completadas.
+</details>
 
-**v1.1 accomplishments:**
-- 104 backend tests, design system dark mode, UI consistente en todos los módulos
-- Integración frontend-backend auditada, servicio de notificaciones completo
-- Skeleton loading + error banners en 18 vistas, rendimiento mejorado (JS diferido, imágenes 99.7% comprimidas)
+<details>
+<summary>v1.3 SHIPPED (2026-04-09) — Sistema de Marcas de Reloj Robusto</summary>
 
-## Key Decisions
+- Normalizacion de tipos de marcas (IN/OUT) y trazabilidad por status/source
+- Sesiones de importacion con vinculo a marcas e historial operativo
+- Motor de deteccion de huerfanas y anomalias con endpoints de consulta/resolucion
+- Correccion manual con auditoria de cambios y rutas protegidas
+- Dashboard de marcas (filtros, badges, sesiones, modal de detalle/correccion)
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Singleton Prisma via lib/prisma.ts | Ya existía, solo faltaba usarlo | ✅ v1.0 |
-| AuthMiddleware por ruta (router.use) | Más control sin allowlist complicada | ✅ v1.0 |
-| Zod validation en backend | Frontend ya usa Zod | ✅ v1.0 |
-| Feriados CR como lista estática | No hay API pública confiable | ✅ v1.0 |
-| Token revocation con DB blocklist | Redis no está en el stack | ✅ v1.0 |
-| No eliminar empleados — solo desactivar | Eliminar rompería historial de planillas | ✅ Regla de negocio |
-| Dark mode: paleta zinc-950 exclusivamente | Consistencia visual, no gray-* ni hex sin dark: | ✅ v1.1 |
-| Toast notifications: sonner, NO modales | Feedback CRUD más limpio y no intrusivo | ✅ v1.1 |
-| Loading states: separar isFetching de isMutating | Evitar skeletons durante operaciones CRUD | ✅ v1.1 |
-| Skeleton loading: solo en initial fetch | Condición `isLoading && data.length === 0` | ✅ v1.1 |
-| Dynamic imports para librerías pesadas | FullCalendar, ExcelJS, framer-motion diferidos (~1.55MB) | ✅ v1.1 |
-| Imágenes comprimidas con sharp | 11.5MB → 39KB (99.7% reducción) | ✅ v1.1 |
-| NotificationPanel: named export | Convención del proyecto para componentes UI | ✅ v1.1 |
-| Dark mode: paleta zinc-950 exclusivamente | Consistencia visual, no gray-* ni hex sin dark: | ✅ v1.1 |
-| Toast notifications: sonner, NO modales | Feedback CRUD más limpio y no intrusivo | ✅ v1.1 |
-| Loading states: separar isFetching de isMutating | Evitar skeletons durante operaciones CRUD | ✅ v1.1 |
-| Skeleton loading: solo en initial fetch | Condición `isLoading && data.length === 0` | ✅ v1.1 |
-| Dynamic imports para librerías pesadas | FullCalendar, ExcelJS, framer-motion diferidos (~1.55MB) | ✅ v1.1 |
-| Imágenes comprimidas con sharp | 11.5MB → 39KB (99.7% reducción) | ✅ v1.1 |
-| NotificationPanel: named export | Convención del proyecto para componentes UI | ✅ v1.1 |
+</details>
+
+<details>
+<summary>v1.2 SHIPPED (2026-04-04) — Cobertura de Tests y Mejoras UI</summary>
+
+- 287 backend tests total.
+- sessionStorage cache (TTL 5 min) en hooks.
+- Sidebar modernizado (dark mode zinc-950).
+
+</details>
 
 ## Out of Scope
 
@@ -78,22 +76,4 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - Eliminar empleados permanentemente — solo desactivar (status: inactivo)
 
 ---
-## Evolution
-
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
-
----
-*Last updated: 2026-04-09 after v1.4 milestone initialization*
+*Last updated: 2026-04-25 after v1.5 milestone*

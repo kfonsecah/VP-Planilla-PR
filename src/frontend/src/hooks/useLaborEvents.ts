@@ -51,23 +51,33 @@ export const useLaborEvents = () => {
     }
   };
 
+  const getOrCreateLaborEventId = async (eventData: LaborEventFormData): Promise<{ id: number; name?: string }> => {
+    let laborEventId = (eventData as LaborEventFormData & { labor_event_id?: number }).labor_event_id;
+    let created: { id?: number; name?: string } | undefined = undefined;
+
+    if (!laborEventId && (eventData.name || eventData.description)) {
+      created = await LaborEventsService.createLaborEvent({
+        name: eventData.name!,
+        description: eventData.description!,
+        event_type: 'custom'
+      });
+      laborEventId = created.id;
+    }
+
+    if (!laborEventId) {
+      throw new Error('No se especificó un ID de evento ni datos para crear uno');
+    }
+
+    return { id: laborEventId, name: created?.name };
+  };
+
   const createEvent = async (eventData: LaborEventFormData): Promise<EmployeeLaborEvent> => {
     try {
-      let laborEventId: number | undefined = (eventData as LaborEventFormData & { labor_event_id?: number }).labor_event_id;
-      let created: { id?: number; name?: string } | undefined = undefined;
-
-      if (!laborEventId && (eventData.name || eventData.description)) {
-        created = await LaborEventsService.createLaborEvent({
-          name: eventData.name!,
-          description: eventData.description!,
-          event_type: 'custom'
-        });
-        laborEventId = created.id;
-      }
+      const { id: laborEventId, name: createdName } = await getOrCreateLaborEventId(eventData);
 
       const assignPayload = {
         employee_id: eventData.employee_id!,
-        labor_event_id: laborEventId!,
+        labor_event_id: laborEventId,
         start_date: eventData.start_date instanceof Date ? 
           eventData.start_date.toISOString() : eventData.start_date!,
         end_date: eventData.end_date ? 
@@ -81,7 +91,7 @@ export const useLaborEvents = () => {
       
       return {
         ...assignedEvent,
-        labor_event_name: eventData.name || (created ? created.name : undefined),
+        labor_event_name: eventData.name || createdName,
         start_date: assignPayload.start_date,
         end_date: assignPayload.end_date,
       } as EmployeeLaborEvent;
@@ -91,85 +101,61 @@ export const useLaborEvents = () => {
     }
   };
 
+  const mapUpdatedEvent = (event: EmployeeLaborEvent, id: number, eventData: Partial<LaborEventFormData>): EmployeeLaborEvent => {
+    if (event.id !== id) return event;
+    
+    const updated = { ...event };
+    
+    if (eventData.start_date !== undefined) {
+      updated.start_date = eventData.start_date instanceof Date ?
+        eventData.start_date.toISOString() : (eventData.start_date || updated.start_date);
+    }
+    
+    if (eventData.end_date !== undefined) {
+      updated.end_date = eventData.end_date ?
+        (eventData.end_date instanceof Date ? eventData.end_date.toISOString() : eventData.end_date) : null;
+    }
+    
+    if (eventData.status !== undefined) updated.status = eventData.status;
+    if (eventData.employee_id !== undefined) updated.employee_id = eventData.employee_id;
+    if (eventData.name !== undefined) updated.labor_event_name = eventData.name;
+    if (eventData.description !== undefined) updated.labor_event_description = eventData.description;
+    
+    return updated;
+  };
+
   const updateEvent = async (id: number, eventData: Partial<LaborEventFormData>): Promise<{ success: boolean }> => {
     try {
-      // Find the current event to get labor_event_id
       const currentEvent = events.find(e => e.id === id);
-      if (!currentEvent) {
-        throw new Error('Evento no encontrado');
-      }
+      if (!currentEvent) throw new Error('Evento no encontrado');
 
       let hasUpdates = false;
 
-      // Update labor event type (name/description) using existing backend endpoint
       if (eventData.name !== undefined || eventData.description !== undefined) {
-        const eventTypePayload: { name?: string; description?: string } = {};
-        if (eventData.name !== undefined) eventTypePayload.name = eventData.name;
-        if (eventData.description !== undefined) eventTypePayload.description = eventData.description;
+        const payload: { name?: string; description?: string } = {};
+        if (eventData.name !== undefined) payload.name = eventData.name;
+        if (eventData.description !== undefined) payload.description = eventData.description;
         
-        await LaborEventsService.updateLaborEvent(currentEvent.labor_event_id, eventTypePayload);
+        await LaborEventsService.updateLaborEvent(currentEvent.labor_event_id, payload);
         hasUpdates = true;
       }
 
-      // For other fields (dates, status, employee_id), we'll update the local state
-      // since the backend doesn't have an endpoint for updating employee labor events
-      if (eventData.start_date !== undefined || eventData.end_date !== undefined ||
-          eventData.status !== undefined || eventData.employee_id !== undefined) {
-        
-        // Update local state to reflect changes in UI
-        setEvents(prevEvents =>
-          prevEvents.map(event => {
-            if (event.id === id) {
-              const updatedEvent = { ...event };
-              
-              if (eventData.start_date !== undefined) {
-                updatedEvent.start_date = eventData.start_date instanceof Date ?
-                  eventData.start_date.toISOString() : (eventData.start_date || updatedEvent.start_date);
-              }
-              
-              if (eventData.end_date !== undefined) {
-                updatedEvent.end_date = eventData.end_date ?
-                  (eventData.end_date instanceof Date ? eventData.end_date.toISOString() : eventData.end_date) : null;
-              }
-              
-              if (eventData.status !== undefined) {
-                updatedEvent.status = eventData.status;
-              }
-              
-              if (eventData.employee_id !== undefined) {
-                updatedEvent.employee_id = eventData.employee_id;
-              }
+      const isLocalUpdate = eventData.start_date !== undefined || eventData.end_date !== undefined ||
+          eventData.status !== undefined || eventData.employee_id !== undefined ||
+          eventData.name !== undefined || eventData.description !== undefined;
 
-              // Update the enriched fields if name/description changed
-              if (eventData.name !== undefined) {
-                updatedEvent.labor_event_name = eventData.name;
-              }
-              
-              if (eventData.description !== undefined) {
-                updatedEvent.labor_event_description = eventData.description;
-              }
-              
-              return updatedEvent;
-            }
-            return event;
-          })
-        );
-        
+      if (isLocalUpdate) {
+        setEvents(prev => prev.map(ev => mapUpdatedEvent(ev, id, eventData)));
         hasUpdates = true;
       }
 
-      if (hasUpdates) {
-        // Only refresh if we updated the labor event type (which persists)
-        if (eventData.name !== undefined || eventData.description !== undefined) {
-          await fetchEvents();
-        }
+      if (hasUpdates && (eventData.name !== undefined || eventData.description !== undefined)) {
+        await fetchEvents();
       }
       
       return { success: true };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar evento';
-      setError(errorMessage);
-      console.error('Update event error:', err);
+      setError(err instanceof Error ? err.message : 'Error al actualizar evento');
       throw err;
     }
   };

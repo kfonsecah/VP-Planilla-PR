@@ -10,6 +10,7 @@ import payrollTypeRoutes from "./routes/PayrollTypeRoute";
 import payrollRoutes from "./routes/PayrollRoutes";
 import reportsRoutes from "./routes/ReportsRoute";
 import clockLogsRoutes from "./routes/ClockLogsRoute";
+import clockAliasRoutes from "./routes/ClockAliasRoute";
 import bonusesRoutes from "./routes/BonusesRoute";
 import nomineeRoutes from "./routes/NomineeRoute";
 import positionRoutes from "./routes/PositionRoute";
@@ -19,6 +20,10 @@ import userRoutes from "./routes/UserRoute";
 import paymentReceiptRoutes from "./routes/PaymentReceiptRoute";
 import { notificationRouter } from "./routes/NotificationRoute";
 import emailRoutes from "./routes/EmailRoute";
+import companyHolidayRoutes from "./routes/companyHolidayRoutes";
+import timeWindowRoutes from "./routes/TimeWindowRoute";
+import dayConfirmationRoutes from "./routes/DayConfirmationRoute";
+import markSuggestionRoutes from "./routes/MarkSuggestionRoute";
 import { swaggerSpec } from "./utils/docs";
 import { env } from "./config/env";
 
@@ -67,6 +72,7 @@ app.use("/api", employeeDeductionsRoutes);
 app.use("/api", payrollTypeRoutes);
 app.use("/api", payrollRoutes);
 app.use("/api", clockLogsRoutes);
+app.use("/api", clockAliasRoutes);
 app.use("/api", bonusesRoutes);
 app.use("/api", reportsRoutes);
 app.use("/api", nomineeRoutes);
@@ -77,6 +83,10 @@ app.use("/api", userRoutes);
 app.use("/api/payment-receipts", paymentReceiptRoutes);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/email", emailRoutes);
+app.use("/api/company-holidays", companyHolidayRoutes);
+app.use("/api/time-windows", timeWindowRoutes);
+app.use("/api/day-confirmations", dayConfirmationRoutes);
+app.use("/api/suggestions", markSuggestionRoutes);
 
 // Servir la especificación de Swagger en formato JSON
 app.get("/api/docs/swagger.json", (req, res) => {

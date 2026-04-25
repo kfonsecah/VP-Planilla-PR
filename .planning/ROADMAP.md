@@ -2,10 +2,49 @@
 
 ## Milestones
 
+- ✅ **v1.5 — Gestión de Marcas y Planilla para Producción** (shipped 2026-04-25)
+- ✅ **v1.4 — Stability and Integration Hardening** (shipped 2026-04-12)
 - ✅ **v1.3 — Sistema de Marcas de Reloj Robusto** (shipped 2026-04-09)
-- 🚧 **v1.4 — Stability and Integration Hardening**
 
 ## Phases
+
+<details>
+<summary>✅ v1.5 — Gestión de Marcas y Planilla para Producción (Phases 32-48) — SHIPPED 2026-04-25</summary>
+
+- [x] Phase 32: Schema Ajustes y Aprobacion (2/2 plans) — completed 2026-04-13
+- [x] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes (3/3 plans) — completed 2026-04-14
+- [x] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada) (3/3 plans) — completed 2026-04-15
+- [x] Phase 35: Frontend — Corrección de Marcas (5/5 plans) — completed 2026-04-15
+- [x] Phase 36: Backend — State Machine de Planilla + Aguinaldo (2/2 plans) — completed 2026-04-15
+- [x] Phase 37: Frontend — Wizard de Planilla Quincenal (5/5 plans) — completed 2026-04-24
+- [x] Phase 38: Tests Unitarios + Verificación de Integración (2/2 plans) — completed 2026-04-16
+- [x] Phase 39: Frontend — Corregir Selector de Posición en Edición de Empleado (2/2 plans) — completed 2026-04-16
+- [x] Phase 40: Fix 15 Remaining Test Failures from Phase 38 (2/2 plans) — completed 2026-04-17
+- [x] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT (4/4 plans) — completed 2026-04-17
+- [x] Phase 42: Frontend — Gestión de Aliases de Marcas (2/2 plans) — completed 2026-04-18
+- [x] Phase 43: Frontend — Rediseño Completo del Calendario de Eventos Laborales (3/3 plans) — completed 2026-04-20
+- [x] Phase 44: Core — Motor de Feriados Globales Configurables (3/3 plans) — completed 2026-04-21
+- [x] Phase 45: Frontend — Rediseño del Perfil de Empleado (4/4 plans) — completed 2026-04-22
+- [x] Phase 46: Rediseño Motor de Reconocimiento de Marcas (6/6 plans) — completed 2026-04-23
+- [x] Phase 47: Completitud y Refinamiento de Auditoría (1/1 plan) — completed 2026-04-24
+- [x] Phase 48: Limpieza de Archivos y Carpetas Innecesarios (2/2 plans) — completed 2026-04-24
+
+</details>
+
+
+<details>
+<summary>✅ v1.4 (Phases 24-31) — SHIPPED 2026-04-12</summary>
+
+- [x] Phase 24: Auth Token Lifecycle End-to-End
+- [x] Phase 25: HTTP Client Layer Enforcement
+- [x] Phase 26: Repository Hygiene and Build Artifacts Cleanup
+- [x] Phase 27: Monolith Decomposition and Maintainability
+- [x] Phase 28: Email Notification Module
+- [x] Phase 29: Implement changePassword Feature
+- [x] Phase 30: Fix Repository Hygiene
+- [x] Phase 31: Improve Code Quality & Automation
+
+</details>
 
 <details>
 <summary>✅ v1.3 (Phases 18-23) — SHIPPED 2026-04-09</summary>
@@ -19,108 +58,11 @@
 
 </details>
 
-### 🚧 v1.4 (In Progress)
-
-- [x] **Phase 24: Auth Token Lifecycle End-to-End** - Unificar refresh/revocation/logout y errores de autenticacion en toda la plataforma (completed 2026-04-09)
-- [x] **Phase 25: HTTP Client Layer Enforcement** - Eliminar bypasses a `http.ts` y estandarizar manejo de errores en servicios frontend (completed 2026-04-11)
-- [x] **Phase 26: Repository Hygiene and Build Artifacts Cleanup** - Limpiar artefactos versionados y reforzar `.gitignore` multi-stack (completed 2026-04-11)
-- [x] **Phase 27: Monolith Decomposition and Maintainability** - Refactor de archivos monoliticos con pruebas de regresion (completed 2026-04-11)
-- [x] **Phase 28: Email Notification Module** - Módulo de notificaciones por email con Resend (completed 2026-04-11)
-- [x] **Phase 29: Implement `changePassword` Feature** - Sistema de recuperación de contraseña con código de verificación (completed 2026-04-12)
-- [x] **Phase 30: Fix Repository Hygiene** (completed 2026-04-12)
-- [ ] **Phase 31: Improve Code Quality & Automation**
-
-### Phase 26: Repository Hygiene and Build Artifacts Cleanup
-
-**Goal:** Limpiar artefactos versionados y reforzar `.gitignore` multi-stack para que dist/, target/ y outputs de build no se versionen.
-
-**Requirements:** HYG-01, HYG-02, HYG-03
-
-**Plans:** 3 plans
-
-Plans:
-- [x] 26-01-PLAN.md — Auditoría y limpieza de artefactos versionados del repo
-- [x] 26-02-PLAN.md — Refuerzo de .gitignore multi-stack (backend, frontend, Java)
-- [x] 26-03-PLAN.md — Cierre de brechas: artefactos Python y lock files recursivos
-
-### Phase 27: Monolith Decomposition and Maintainability
-
-**Goal:** Refactor de archivos monoliticos de alta complejidad separando responsabilidades y desacoplando logica de negocio de UI.
-
-**Requirements:** MOD-01, MOD-02, MOD-03
-
-**Plans:** 3 plans
-
-Plans:
-- [x] 27-01-PLAN.md — Auditoria de complejidad y seleccion de candidatos para descomposicion
-- [x] 27-02-PLAN.md — Refactor de logica de parsing e importacion de marcas (desacople de Page/Hook)
-- [x] 27-03-PLAN.md — Cierre de fase y validacion de no regresion con suite de pruebas
-
-#### Phase 25 Planning Snapshot
-
-**Goal:** Eliminar bypasses a `http.ts` y estandarizar el manejo de errores y llamadas a APIs externas.
-
-**Requirements:** HTTP-01, HTTP-02, HTTP-03
-
-**Plans:** 2 plans
-
-Plans:
-- [x] 25-01-PLAN.md — Refactor de servicios internos (auditLogs, branch, payrollEmployees) a http.ts
-- [x] 25-02-PLAN.md — Capa de API externa para clima y verificación final de cumplimiento
-
-### Phase 28: Email Notification Module
-**Goal:** Implementar un módulo de notificaciones por email usando Gmail API con OAuth2 para enviar emails sin ser marcado como spam.
-
-**Requirements:** EMAIL-01, EMAIL-02, EMAIL-03 (TBD)
-**Gap Closure:** Nuevo módulo - sistema de notificaciones por email para la planilla.
-
-### Phase 29: Implement `changePassword` Feature
-**Goal:** Implement the full `changePassword` functionality, resolving the stub in `AuthController.ts`.
-**Requirements:** AUTH-09 (TBD)
-**Gap Closure:** Closes gap from v1.4 audit: `changePassword` stub.
-
-**Plans:** 1/1 plans complete
-
-Plans:
-- [x] 29-01-PLAN.md — Secure password change with email verification code (6-digit, 15-min expiry)
-
-### Phase 30: Fix Repository Hygiene
-**Goal:** Fix repository hygiene issues identified in the v1.4 audit.
-**Requirements:** HYG-01, HYG-02
-**Gap Closure:** Closes gaps from v1.4 audit: tracked `.pyc` files and inconsistent lock file policy.
-
-### Phase 31: Improve Code Quality & Automation
-**Goal:** Refactor code for better maintainability and improve test automation by centralizing env vars and adding Java unit tests.
-
-**Requirements:** QUAL-01, QUAL-02
-**Gap Closure:** Closes gaps from v1.4 audit: manual test execution and direct `process.env` access.
-
-**Plans:** 1/2 plans executed
-
-Plans:
-- [x] 31-01-PLAN.md — Centralized and validated backend environment configuration (Zod)
-- [ ] 31-02-PLAN.md — Automated unit tests for Java clocklogs utility (JUnit 5)
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 18. Normalización y Trazabilidad | v1.3 | 2/2 | Complete | 2026-04-05 |
-| 19. Sesiones de Importación | v1.3 | 2/2 | Complete | 2026-04-05 |
-| 20. Huérfanas y Anomalías | v1.3 | 3/3 | Complete | 2026-04-05 |
-| 21. Corrección Manual | v1.3 | 2/2 | Complete | 2026-04-05 |
-| 22. Dashboard UI de Marcas | v1.3 | 3/3 | Complete | 2026-04-06 |
-| 23. Debug y Corrección de Marcas | v1.3 | 2/2 | Complete | 2026-04-09 |
-| 24. Auth Token Lifecycle End-to-End | v1.4 | 3/3 | Complete   | 2026-04-09 |
-| 25. HTTP Client Layer Enforcement | v1.4 | 2/2 | Complete | 2026-04-11 |
-| 26. Repository Hygiene and Build Cleanup | v1.4 | 3/3 | Complete | 2026-04-11 |
-| 27. Monolith Decomposition and Maintainability | v1.4 | 3/3 | Complete | 2026-04-11 |
-| 28. Email Notification Module | v1.4 | 2/2 | Complete | 2026-04-11 |
-| 29. Implement changePassword Feature | v1.4 | 1/1 | Complete | 2026-04-12 |
-| 30. Fix Repository Hygiene | v1.4 | 1/1 | Complete | 2026-04-12 |
-
 ## Archives
 
+- **v1.5** requirements: `.planning/milestones/v1.5-REQUIREMENTS.md`
+- **v1.5** roadmap: `.planning/milestones/v1.5-ROADMAP.md`
+- Milestone roadmap archive: `.planning/milestones/v1.4-ROADMAP.md`
 - Milestone roadmap archive: `.planning/milestones/v1.3-ROADMAP.md`
-- Milestone roadmap archive: `.planning/milestones/v1.4-ROADMAP.md` (Update candidate after v1.4 completion)
+- Milestone requirements archive: `.planning/milestones/v1.4-REQUIREMENTS.md`
 - Milestone requirements archive: `.planning/milestones/v1.3-REQUIREMENTS.md`

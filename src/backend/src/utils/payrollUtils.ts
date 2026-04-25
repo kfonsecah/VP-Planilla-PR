@@ -9,37 +9,29 @@ const REGULAR_HOURS_PER_DAY = 8;
 const OVERTIME_MULTIPLIER = 1.5;
 const WORKING_DAYS_PER_WEEK = 6; // Monday – Saturday
 
-// ── Costa Rica National Holidays (Feriados Nacionales) ───────────────────────
-export const FERIADOS_CR: Record<number, string[]> = {
-  2026: ['01-01', '04-02', '04-03', '04-11', '05-01', '07-25', '08-15', '09-15', '10-12', '12-25'],
-  2027: ['01-01', '03-25', '03-26', '04-11', '05-01', '07-25', '08-15', '09-15', '10-12', '12-25'],
-};
+export interface PayrollHoliday {
+  company_holidays_date: Date;
+  company_holidays_is_mandatory: boolean;
+  company_holidays_is_triple: boolean;
+}
 
 /**
- * Check if a date is a Costa Rica national holiday
+ * Check if a date is a Costa Rica national holiday based on dynamic DB list
  * @param date - Date to check
- * @param year - Year for holiday lookup (defaults to date's year)
- * @returns True if date is a CR national holiday
+ * @param holidays - Array of company holidays
+ * @returns True if date is a holiday
  */
-export function isCRHoliday(date: Date, year?: number): boolean {
-  const yr = year ?? date.getUTCFullYear();
-  const mmdd = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-  return FERIADOS_CR[yr]?.includes(mmdd) ?? false;
+export function isCRHoliday(date: Date, holidays: PayrollHoliday[]): boolean {
+  const dateStr = formatDateString(date);
+  return holidays.some(h => formatDateString(new Date(h.company_holidays_date)) === dateStr);
 }
 
-/**
- * Get all holiday dates for a given year
- * @param year - Year to get holidays for
- * @returns Array of Date objects for each holiday
- */
-export function getCRHolidays(year: number): Date[] {
-  const holidays = FERIADOS_CR[year] ?? [];
-  return holidays.map((mmdd) => {
-    const [month, day] = mmdd.split('-').map(Number);
-    const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-    return date;
-  });
+export function getHolidayForDate(date: Date, holidays: PayrollHoliday[]): PayrollHoliday | undefined {
+  const dateStr = formatDateString(date);
+  return holidays.find(h => formatDateString(new Date(h.company_holidays_date)) === dateStr);
 }
+
+
 
 /**
  * Calculate working hours between two timestamps
@@ -367,12 +359,11 @@ export function getSundaysInPeriod(startDate: Date, endDate: Date): Date[] {
  * Count Mon–Sat working days in the full period, excluding CR national holidays.
  * Used both for weekly-rest denominator and scheduled hours.
  */
-export function countWorkingDaysInPeriod(startDate: Date, endDate: Date, year?: number): number {
-  const yr = year ?? startDate.getUTCFullYear();
+export function countWorkingDaysInPeriod(startDate: Date, endDate: Date, holidays: PayrollHoliday[] = []): number {
   let count = 0;
   const current = new Date(startDate);
   while (current <= endDate) {
-    if (current.getUTCDay() !== 0 && !isCRHoliday(current, yr)) {
+    if (current.getUTCDay() !== 0 && !isCRHoliday(current, holidays)) {
       count++;
     }
     current.setUTCDate(current.getUTCDate() + 1);
@@ -386,8 +377,9 @@ export function countWorkingDaysInPeriod(startDate: Date, endDate: Date, year?: 
 export function calculateScheduledHours(
   startDate: Date,
   endDate: Date,
+  holidays: PayrollHoliday[] = []
 ): number {
-  return countWorkingDaysInPeriod(startDate, endDate) * REGULAR_HOURS_PER_DAY;
+  return countWorkingDaysInPeriod(startDate, endDate, holidays) * REGULAR_HOURS_PER_DAY;
 }
 
 /**
@@ -413,10 +405,21 @@ export function calculateWeeklyRestHours(
 export function calculateOvertimePay(
   days: DayWork[],
   hourlyRate: number,
+  holidays: PayrollHoliday[] = []
 ): number {
-  return roundToMoney(
-    calculateOvertimeHours(days) * hourlyRate * OVERTIME_MULTIPLIER,
-  );
+  let totalOtPay = 0;
+  days.forEach(day => {
+    const dayOvertime = Math.max(0, day.hoursWorked - REGULAR_HOURS_PER_DAY);
+    if (dayOvertime > 0) {
+      const holiday = getHolidayForDate(new Date(day.date), holidays);
+      let multiplier = OVERTIME_MULTIPLIER;
+      if (holiday?.company_holidays_is_mandatory) {
+        multiplier = holiday.company_holidays_is_triple ? 3.0 : 2.0;
+      }
+      totalOtPay += dayOvertime * hourlyRate * multiplier;
+    }
+  });
+  return roundToMoney(totalOtPay);
 }
 
 /**
@@ -443,9 +446,39 @@ export function calculateGrossSalary(
   bonuses: number,
   startDate: Date,
   endDate: Date,
+  holidays: PayrollHoliday[] = []
 ): number {
-  const regular = roundToMoney(calculateRegularHours(days) * hourlyRate);
-  const overtime = calculateOvertimePay(days, hourlyRate);
+  let regularPay = 0;
+  
+  // Calculate regular pay respecting holiday multipliers
+  days.forEach(day => {
+    const dayRegular = Math.min(day.hoursWorked, REGULAR_HOURS_PER_DAY);
+    const holiday = getHolidayForDate(new Date(day.date), holidays);
+    
+    let multiplier = 1.0;
+    if (holiday?.company_holidays_is_mandatory && day.hoursWorked > 0) {
+      multiplier = 2.0;
+    }
+    
+    regularPay += dayRegular * hourlyRate * multiplier;
+  });
+  
+  // Base pay for mandatory holidays not worked
+  holidays.forEach(holiday => {
+    if (holiday.company_holidays_is_mandatory) {
+      const hDate = new Date(holiday.company_holidays_date);
+      // If it falls in period, and not a Sunday, and we have NO record of hours worked
+      if (hDate >= startDate && hDate <= endDate && hDate.getDay() !== 0) {
+        const workedDay = days.find(d => formatDateString(new Date(d.date)) === formatDateString(hDate));
+        if (!workedDay || workedDay.hoursWorked === 0) {
+           regularPay += REGULAR_HOURS_PER_DAY * hourlyRate;
+        }
+      }
+    }
+  });
+
+  const regular = roundToMoney(regularPay);
+  const overtime = calculateOvertimePay(days, hourlyRate, holidays);
   const weeklyRest = calculateWeeklyRestPay(
     days,
     hourlyRate,

@@ -1,16 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: — Stability and Integration Hardening
-status: Archived
-stopped_at: v1.4 Complete
-last_updated: "2026-04-12T06:45:00.000Z"
-last_activity: 2026-04-12
+milestone: v1.5
+milestone_name: Gestión de Marcas y Planilla para Producción
+status: shipped
+last_updated: "2026-04-25T00:00:00.000Z"
+last_activity: "2026-04-25 -- v1.5 milestone closed and archived"
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 14
-  completed_plans: 14
+  total_phases: 17
+  completed_phases: 17
+  total_plans: 7
+  completed_plans: 7
   percent: 100
 ---
 
@@ -18,33 +17,42 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-09)
+See: .planning/PROJECT.md (updated 2026-04-24)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** Phase 31 — Improve Code Quality & Automation (COMPLETED)
+**Current focus:** v1.5 SHIPPED — planning next milestone v1.6 via /gsd:new-milestone
 
 ## Current Position
 
-Phase: 31
-Plan: Completed
-Plans: 14/14 milestone plans complete
-Next: Milestone v1.4 Final Review / Audit
-Last activity: 2026-04-12
+Milestone: v1.5 IN PROGRESS — ALL PHASES COMPLETE
+Phase: 48 (limpieza-archivos-carpetas-innecesarios) — COMPLETED
+Plan: 2 of 2
+Status: All 17 phases complete — milestone ready for audit/ship
+Last activity: 2026-04-24 -- Phase 48 complete (repo cleanup done)
 
-Progress: [██████████] 100% (14/14 plans complete)
+Progress: [██████████████████] 100% (17/17 phases complete)
 
-## v1.4 Phase Map
+## v1.5 Phase Map
 
 | Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 24 | Auth Token Lifecycle End-to-End | AUTH-05..08 | ✅ Complete (3/3 plans) |
-| 25 | HTTP Client Layer Enforcement | HTTP-01..03 | ✅ Complete (2/2 plans) |
-| 26 | Repository Hygiene and Build Cleanup | HYG-01..03 | ✅ Complete (3/3 plans) |
-| 27 | Monolith Decomposition and Maintainability | MOD-01..03 | ✅ Complete (3/3 plans) |
-| 28 | Email Notification Module | EMAIL-01..02 | ✅ Complete (2/2 plans) |
-| 29 | Implement changePassword Feature | PASS-01..02 | ✅ Complete (2/2 plans) |
-| 30 | Fix Repository Hygiene | HYG-01..02 | ✅ Complete (1/1 plans) |
-| 31 | Improve Code Quality & Automation | QUAL-01..02 | ✅ Complete (2/2 plans) |
+|------|------|--------------|--------|
+| 32 | Schema Ajustes y Aprobacion | AJUS-01..03 | ✅ Complete (2/2 plans) |
+| 33 | Motor de Marcas Efectivas + API | MARCAS-01..05 | ✅ Complete (3/3 plans) |
+| 34 | Rediseño Clock Logs (Vista Agrupada) | MARCAS-06..10 | ✅ Complete (3/3 plans) |
+| 35 | Frontend Clock Log Corrections | MARCAS-02..05, UX-02 | ✅ Complete (5/5 plans) |
+| 36 | Backend: State Machine de Planilla + Aguinaldo | PAY-01..04 | ✅ Complete (2/2 plans) |
+| 37 | Frontend: Wizard de Planilla Quincenal | PAY-05..10 | ✅ Complete (5/5 plans) |
+| 38 | Tests Unitarios + Verificación de Integración | QUAL-03 | ✅ Complete (2/2 plans) |
+| 39 | Frontend: Corregir Selector de Posición en Edición de Empleado | UX-03 | ✅ Complete (2/2 plans) |
+| 40 | Fix 15 Remaining Test Failures | QUAL-03 | ✅ Complete (2/2 plans) |
+| 41 | Aliases de Marcas e Inferencia IN/OUT | ALIAS-01..04 | ✅ Complete (4/4 plans) |
+| 42 | Frontend: Gestión de Aliases de Marcas | REQ-42-01..04 | ✅ Complete (2/2 plans) |
+| 43 | Frontend: Rediseño Calendario de Eventos Laborales | UX-04..06 | ✅ Complete (3/3 plans) |
+| 44 | Core: Motor de Feriados Globales Configurables | FERIADOS-01..03 | ✅ Complete (3/3 plans) |
+| 45 | Frontend: Rediseño del Perfil de Empleado | UX-07..10 | ✅ Complete (4/4 plans) |
+| 46 | Rediseño Motor de Reconocimiento de Marcas | MARCAS-01..05 | ✅ Complete (6/6 plans) |
+| 47 | Completitud y Refinamiento de Auditoría | MARCAS-06..10 | ✅ Complete (1/1 plans) |
+| 48 | Limpieza de Archivos y Carpetas Innecesarios | CLEAN-01..02 | ✅ Complete (2/2 plans) |
 
 ## Milestone History
 
@@ -54,84 +62,95 @@ Progress: [██████████] 100% (14/14 plans complete)
 | v1.1 | Calidad, UI Moderna y Cobertura | Archived | 104 tests |
 | v1.2 | Cobertura de Tests y Mejoras UI | Archived | 287 tests |
 | v1.3 | Sistema de Marcas de Reloj Robusto | Archived | 326+ tests |
-| v1.4 | Stability and Integration Hardening | Active | TBD |
+| v1.4 | Stability and Integration Hardening | Archived | 441+ tests |
+| v1.5 | Gestión de Marcas y Planilla para Producción | 🚧 In Progress | 492+ tests |
 
-## Phase 29 - ChangePassword Feature (COMPLETED 2026-04-12)
+## Phase 42 - Frontend: Gestión de Aliases de Marcas (COMPLETED 2026-04-18)
 
 ### Summary
 
-- Backend: `vpg_password_change_request` model, `/api/auth/password-request` and `/api/auth/password-confirm` endpoints
-- Frontend: `ChangePasswordModal.tsx` component with 3-step flow (request → confirm → success)
-- Email: HTML template with Verde Gestión branding
-- Integration: Modal added to both login page and users page
+- **Plan 01**: Implemented `clockAliasService.ts` (HTTP service with ClockAlias interface) and `useClockAliases.ts` hook with fetchAliases/addAlias/removeAlias and optimistic delete.
+- **Plan 02**: Integrated alias management section into `EditEmployeeModal.tsx` — chips display with delete buttons, inline add input, loading/empty/error states, all wired to useClockAliases hook.
 
-### Changes Made
+### Decisions
 
-- Added password change request flow with 6-digit verification code
-- Email verification code sent via Resend
-- Code expires in 15 minutes
-- Frontend modal integrated in `/pages/auth` and `/pages/users`
+- `RawEmployeeData` interface extended with `id`/`employee_id` to pass employee identifier to alias hook
+- Alias hook destructures renamed (`aliasesLoading`, `aliasError`) to avoid shadowing form state variables
+
+## Phase 34 - Frontend: Rediseño Clock Logs (Vista Agrupada) (COMPLETED 2026-04-15)
+
+### Summary
+
+- **Plan 01**: Implemented `effectiveMarksService.ts` and `useEffectiveMarks.ts` hook for grouped data fetching.
+- **Plan 02**: Created `BranchGroup`, `EmployeeCard`, and `DailyRow` components for the hierarchical view.
+- **Plan 03**: Reconstructed `page.tsx` for clock logs with the hierarchical grouped layout, infinite scroll, and biweekly presets.
+
+## Phase 33 - Backend: Motor de Marcas Efectivas + API de Ajustes (COMPLETED 2026-04-14)
+
+### Summary
+
+- **Logic**: Implemented `ClockLogAdjustmentService` for non-destructive EDIT/VOID operations.
+- **Engine**: Developed `ClockLogEffectiveService` to provide paired IN/OUT entries with calculated durations.
+- **API**: Exposed `GET /api/clock-logs/effective` and `POST /api/clock-logs/adjust`.
+- **Integration**: Updated `NomineeService` to use effective marks instead of raw logs.
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 43 added: Rediseño Completo del Calendario de Eventos Laborales
+- Phase 44 added: Core Motor de Feriados Globales Configurables
+- Phase 45 added: Frontend Rediseño del Perfil de Empleado
+- Phase 46 added: Rediseño Motor de Reconocimiento de Marcas
+- Phase 47 added: Completitud y Refinamiento de Auditoría
+- Phase 48 added: Limpieza de Archivos y Carpetas Innecesarios
+
 ### Tests
 
-- Backend: 338+ tests pasando (21+ suites), 0 failures, cobertura ~45%
-- Frontend: sin tests automatizados (pendiente milestone futuro)
+- Backend: 492+ tests (Jest).
+- Java: 5 tests (JUnit 5).
+- Total: 497+ tests passing, 0 failures.
 
-### Architecture Notes for v1.4
+### Architecture Notes for v1.5
 
-- `vpg_clock_logs` fields: id, employee_id, timestamp, log_type (VARCHAR 10), remarks, version, status (pending|valid|anomaly|corrected|orphan), source (java_import|excel_import|manual), clock_logs_import_session_id (FK, nullable)
-- Java parser produces IN/OUT; Excel files produce ENTRADA/SALIDA — Phase 18 adds normalization
-- `vpg_clock_import_sessions` table EXISTS (created Phase 19) — tracks import lifecycle with source, status, counts, created_by
-- `import_session_id` FK added to `vpg_clock_logs` — each log knows which import created it
-- `POST /api/clock-logs/import` endpoint EXISTS — creates session, bulk-creates logs, runs `ClockLogAnalysisService.runPostImportAnalysis`, returns { session_id, status, created, skipped, anomalies, errors[] }
-- Anomaly detection and orphan queue implemented in Phase 20:
-  - `ClockLogAnalysisService` with detectors: `detectOrphans`, `detectDoubleEntry`, `detectDoubleExit`, `detectLongSessions`
-  - Automatic post-import analysis sets statuses (`orphan`, `anomaly`, `valid`) per log
-  - Query endpoints: `GET /api/clock-logs/orphans` and `GET /api/clock-logs/anomalies` return paginated results with employee info
-  - Resolution endpoint: `POST /api/clock-logs/orphans/:id/resolve` supports `discard` (→ corrected) and `assign_complement` (→ valid + manual complement log)
-- `vpg_audit_logs` table already exists — audit trail used for all corrections
-- **Phase 21-01:** Added `ClockLogsService.createManualLog` and `ClockLogsService.updateClockLogStatus` methods with audit integration; Zod schemas `createManualLogSchema` and `updateClockLogStatusSchema`
-- **Phase 21-02:** Added controller endpoints (`createManualLog`, `updateClockLogStatus`), route registrations with admin auth and Swagger docs, and full controller unit tests
-- **Phase 21 complete:** Manual correction API fully operational with audit trail and admin protection
-- **Phase 22 complete:** Dashboard UI de Marcas at `/pages/clock-logs` — stats cards (5 statuses), paginated table with status badges, employee autocomplete filter, ImportSessionsPanel, ClockLogDetailModal with audit history and correction flow. Verified 11/11 (2026-04-05). Human UAT items pending browser confirmation.
-- **v1.4 focus:** hardening de auth lifecycle, enforcement de capa HTTP, higiene de repo y modularizacion de archivos monoliticos.
-- Thresholds: orphan window 24h, long session > 16h
-
-### Known Issues
-
-- COV-01: Cobertura ~45% (target 60% — NomineeService + PaymentReceiptService + ReportsService pendientes)
-- TS-01: 1 error TypeScript pre-existente en `attendance/page.tsx` (`skipped_count`) — no bloqueante
-- (CLOCK-01 resolved: anomaly detection, orphan queue, and resolution endpoints now implemented in Phase 20)
-
-### Key v1.3 Decisions (logged as phases complete)
-
-- Canonical type: IN/OUT (not ENTRADA/SALIDA) — Java format chosen as canonical
-- Status values: pending | valid | anomaly | corrected | orphan
-- Source values: java_import | excel_import | manual
-- Orphan threshold: 24h window for matching IN/OUT pairs
-- Long session threshold: 16 continuous hours
-- Anomaly detection triggered automatically after each successful import
-- Session status "failed" only set when session starts but crashes mid-process — invalid input returns 400 without creating a session
-
-### Key v1.4 Decisions (logged as plans complete)
-
-- Auth failures now use one middleware helper (`buildAuthError`) to prevent payload drift across 401/403 branches.
-- `TokenExpiredError` is preserved in `AuthService.verifyToken` so middleware maps expired tokens to `AUTH_TOKEN_EXPIRED` instead of generic invalid token.
-- Refresh stays as a public endpoint but now validates `refresh_token`, resolves user identity, and issues a new access token via `AuthService.issueAccessToken`.
-- Logout revocation is treated as idempotent server behavior: duplicate/expired token paths are controlled (never 500) while revoked token reuse is denied.
-- Refresh orchestration is now centralized in `http.ts` with a single-flight lock, preventing concurrent refresh stampedes on parallel 401 responses.
-- Frontend auth error handling now prioritizes `error.code` for 401 flows while preserving fallback parsing for legacy payloads.
-- **Phase 25 complete:** Centralized external API calls in `externalHttp.ts` to ensure zero internal token leakage to third-party services. Refactored all frontend services (`AuditLogsService`, `BranchService`, `PayrollEmployeesService`, `ClockLogsService`) to use the unified `http.ts` client, eliminating raw `fetch` or `axios` bypasses.
-
-## Session Continuity
-
-Last session: 2026-04-12T05:36:25.320Z
-Stopped at: Completed 30-01-PLAN.md
-Resume: Run `/gsd-execute-phase 26` to continue with v1.4.
-Note: v1.3 artifacts archived under `.planning/milestones/`.
+- **Auth Hardening:** Unified token refresh/revocation logic. Error payloads consistent via `buildAuthError`.
+- **HTTP Layer:** All frontend calls must use `http.ts`. Raw `fetch`/`axios` calls are forbidden.
+- **Effective Marks:** All attendance UI must use the grouped effective marks API to show paired IN/OUT logs.
+- **Component Pattern:** Use `framer-motion` for all collapsible/animated UI elements to maintain consistency.
+- **Clock Aliases:** Import pipeline resolves employee by alias before numeric ID and full name scan.
+- **Time Windows:** Mark classification uses configurable time windows with confidence indicators.
 
 ---
 
-*Updated: 2026-04-11 — Completed Phase 25 execution*
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-04-25:
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | add-employee-phone-sex-null | awaiting_human_verify |
+| debug | day-confirmation-500-error | awaiting_human_verify |
+| debug | p2000-employee-update-column-too-long | verified fix - fixed |
+| debug | perfil-empleado-salario-base-edicion-info | investigating |
+| debug | position-not-in-edit-form | investigating |
+| debug | position-selector-not-showing-current | awaiting_human_verify |
+| debug | uat-phase13-issues | investigating |
+| debug | update-employee-required-hours-biweekly-unknown-field | verified fix/ fixed |
+| quick_task | 260404-o3p-implementar-sessionstorage-cache-en-hook | missing |
+| uat_gap | Phase 22 (22-HUMAN-UAT.md) | partial - 6 pending scenarios |
+| uat_gap | Phase 23 (23-UAT.md) | testing - 3 pending scenarios |
+| uat_gap | Phase 24 (24-HUMAN-UAT.md) | partial - 1 pending scenario |
+| uat_gap | Phase 27 (27-UAT.md) | unknown - 0 pending scenarios |
+| uat_gap | Phase 36 (36-UAT.md) | testing - 10 pending scenarios |
+| uat_gap | Phase 42 (42-HUMAN-UAT.md) | partial - 4 pending scenarios |
+| verification_gap | Phase 01 (01-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 02 (02-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 22 (22-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 24 (24-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 26 (26-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 38 (38-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 42 (42-VERIFICATION.md) | human_needed |
+
+---
+
+*Updated: 2026-04-24 — Phase 48 complete, v1.5 all phases done*

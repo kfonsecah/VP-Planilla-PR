@@ -6,6 +6,6 @@ export interface ClockLogs {
   remarks?: string;
   version: number;
   status: 'pending' | 'valid' | 'anomaly' | 'corrected' | 'orphan';
-  source: 'java_import' | 'excel_import' | 'manual';
+  source: 'java_import' | 'excel_import' | 'manual' | 'device';
   import_session_id?: number;
 }
