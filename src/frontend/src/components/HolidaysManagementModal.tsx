@@ -5,11 +5,10 @@ import Table from '@/components/ui/Table';
 import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useHolidays } from '@/hooks/useHolidays';
-import { CompanyHoliday } from '@/services/holidaysService';
+import { CompanyHoliday, CRHoliday, getCostaRicaHolidays } from '@/services/holidaysService';
 import { UseFormReturn } from 'react-hook-form';
 import { ArrowPathIcon, PlusIcon, SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
-import { getCostaRicaHolidays } from '@/utils/holidays';
 
 interface HolidaysManagementModalProps {
   open: boolean;
@@ -121,8 +120,8 @@ export default function HolidaysManagementModal({ open, onClose, editHoliday }: 
       const defaultHolidays = getCostaRicaHolidays(selectedYear);
       // Construct payload skipping duplicates by exact name to avoid timezone issues
       const payload = defaultHolidays
-        .filter(dh => !data?.some(eh => eh.company_holidays_name.trim().toLowerCase() === dh.name.trim().toLowerCase()))
-        .map(h => ({
+        .filter((dh: CRHoliday) => !data?.some(eh => eh.company_holidays_name.trim().toLowerCase() === dh.name.trim().toLowerCase()))
+        .map((h: CRHoliday) => ({
           company_holidays_date: h.date.toISOString(),
           company_holidays_name: h.name,
           company_holidays_is_mandatory: h.isMandatoryPay,
