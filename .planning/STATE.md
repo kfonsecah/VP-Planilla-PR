@@ -25,12 +25,20 @@ See: .planning/PROJECT.md (updated 2026-04-24)
 ## Current Position
 
 Milestone: v1.6 IN PROGRESS
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-24 -- Milestone v1.6 started
+Phase: 49 (persistencia-vista) — COMPLETED
+Plan: 1 of 1
+Status: Executed plan 49-01
+Last activity: 2026-04-24 -- Phase 49 complete
 
-Progress: [....................] 0% (0/0 phases complete)
+Progress: [######..............] 33% (1/3 phases complete)
+
+## v1.6 Phase Map
+
+| Phase | Name | Requirements | Status |
+|------|------|--------------|--------|
+| 49 | Persistencia de Vista (Caché de UI) | UX-11, UX-12 | ✅ Complete (1/1 plans) |
+| 50 | Corrección Lógica de Nivel de Confianza y Estatus | AUDIT-02, AUDIT-03 | ⏳ Not Started |
+| 51 | Edición Directa de Marcas en Auditoría | AUDIT-01 | ⏳ Not Started |
 
 ## v1.5 Phase Map
 
@@ -65,6 +73,13 @@ Progress: [....................] 0% (0/0 phases complete)
 | v1.4 | Stability and Integration Hardening | Archived | 441+ tests |
 | v1.5 | Gestión de Marcas y Planilla para Producción | Archived | 497+ tests |
 | v1.6 | Mejoras en Auditoría de Marcas y UX | 🚧 In Progress | -- |
+
+## Phase 49 - Frontend: Persistencia de Vista (Caché de UI) (COMPLETED 2026-04-24)
+
+### Summary
+
+- **Plan 01**: Refactored `activeTab` and `expandedEmployees` in the clock logs page to derive solely from URL query parameters (`useSearchParams`).
+- Implemented automatic cache invalidation using an effect that resets URL variables when date filters change.
 
 ## Phase 42 - Frontend: Gestión de Aliases de Marcas (COMPLETED 2026-04-18)
 
