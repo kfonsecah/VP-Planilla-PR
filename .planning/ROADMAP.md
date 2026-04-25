@@ -2,144 +2,34 @@
 
 ## Milestones
 
-- 🔄 **v1.5 — Gestión de Marcas y Planilla para Producción** (in progress)
+- ✅ **v1.5 — Gestión de Marcas y Planilla para Producción** (shipped 2026-04-25)
 - ✅ **v1.4 — Stability and Integration Hardening** (shipped 2026-04-12)
 - ✅ **v1.3 — Sistema de Marcas de Reloj Robusto** (shipped 2026-04-09)
 
-## Milestone History
+## Phases
 
-- [x] **v1.4 — Stability and Integration Hardening** (2026-04-09 → 2026-04-12) — [Archive](.planning/milestones/v1.4-ROADMAP.md)
-  - All 8 phases completed (Phases 24-31).
-  - Auth/HTTP/Hygiene/Modularization requirements fulfilled.
-  - 441+ tests total across stacks.
+<details>
+<summary>✅ v1.5 — Gestión de Marcas y Planilla para Producción (Phases 32-48) — SHIPPED 2026-04-25</summary>
 
-## Phases — v1.5 (Phases 32-48)
+- [x] Phase 32: Schema Ajustes y Aprobacion (2/2 plans) — completed 2026-04-13
+- [x] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes (3/3 plans) — completed 2026-04-14
+- [x] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada) (3/3 plans) — completed 2026-04-15
+- [x] Phase 35: Frontend — Corrección de Marcas (5/5 plans) — completed 2026-04-15
+- [x] Phase 36: Backend — State Machine de Planilla + Aguinaldo (2/2 plans) — completed 2026-04-15
+- [x] Phase 37: Frontend — Wizard de Planilla Quincenal (5/5 plans) — completed 2026-04-24
+- [x] Phase 38: Tests Unitarios + Verificación de Integración (2/2 plans) — completed 2026-04-16
+- [x] Phase 39: Frontend — Corregir Selector de Posición en Edición de Empleado (2/2 plans) — completed 2026-04-16
+- [x] Phase 40: Fix 15 Remaining Test Failures from Phase 38 (2/2 plans) — completed 2026-04-17
+- [x] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT (4/4 plans) — completed 2026-04-17
+- [x] Phase 42: Frontend — Gestión de Aliases de Marcas (2/2 plans) — completed 2026-04-18
+- [x] Phase 43: Frontend — Rediseño Completo del Calendario de Eventos Laborales (3/3 plans) — completed 2026-04-20
+- [x] Phase 44: Core — Motor de Feriados Globales Configurables (3/3 plans) — completed 2026-04-21
+- [x] Phase 45: Frontend — Rediseño del Perfil de Empleado (4/4 plans) — completed 2026-04-22
+- [x] Phase 46: Rediseño Motor de Reconocimiento de Marcas (6/6 plans) — completed 2026-04-23
+- [x] Phase 47: Completitud y Refinamiento de Auditoría (1/1 plan) — completed 2026-04-24
+- [x] Phase 48: Limpieza de Archivos y Carpetas Innecesarios (2/2 plans) — completed 2026-04-24
 
-- [x] Phase 32: Schema Ajustes y Aprobacion
-- [x] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes
-- [x] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada)
-- [x] Phase 35: Frontend — Corrección de Marcas
-- [x] Phase 36: Backend — State Machine de Planilla + Aguinaldo
-- [x] Phase 37: Frontend — Wizard de Planilla Quincenal
-- [x] Phase 38: Tests Unitarios + Verificación de Integración
-- [x] Phase 39: Frontend — Corregir Selector de Posición en Edición de Empleado
-- [x] Phase 40: Fix 15 Remaining Test Failures from Phase 38
-- [x] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT
-- [x] Phase 42: Frontend — Gestión de Aliases de Marcas
-- [x] Phase 43: Frontend — Rediseño Completo del Calendario de Eventos Laborales
-- [x] Phase 44: Core — Motor de Feriados Globales Configurables
-- [x] Phase 45: Frontend — Rediseño del Perfil de Empleado
-- [x] Phase 46: Rediseño Motor de Reconocimiento de Marcas
-- [x] Phase 47: Completitud y Refinamiento de Auditoría
-- [x] Phase 48: Limpieza de Archivos y Carpetas Innecesarios
-
----
-
-- [x] Phase 32: Schema Ajustes y Aprobacion
-  **Goal:** Estructurar la base de datos para soportar ajustes no destructivos de marcas y el ciclo de vida de aprobación de planilla.
-  **Plans:** 2 plans
-  - [x] 32-01-PLAN.md — Define models and enums in Prisma schema and apply migration.
-  - [x] 32-02-PLAN.md — Create Zod schemas for the new models and update existing ones.
-- [x] Phase 33: Backend — Motor de Marcas Efectivas + API de Ajustes
-  **Goal:** Implementar la lógica de negocio y endpoints para gestionar ajustes (EDIT/VOID) y calcular marcas efectivas emparejadas.
-  **Plans:** 3 plans
-  - [x] 33-01-PLAN.md — Adjustment Service & Validation (Payroll Lock + Auditing).
-  - [x] 33-02-PLAN.md — Effective Marks Engine (Prisma.distinct + Fallback Logic).
-  - [x] 33-03-PLAN.md — Pairing Engine & API Endpoints (Paired IN/OUT + Controller).
-- [x] Phase 34: Frontend — Rediseño Clock Logs (Vista Agrupada)
-  **Goal:** Reemplazar la tabla plana de marcas con una vista jerárquica agrupada (Sucursal > Empleado > Día > Par) que facilita la detección rápida de anomalías antes del cálculo de planilla.
-  **Plans:** 3 plans
-  - [x] 34-01-PLAN.md — Service layer + Hook (effectiveMarksService.ts + useEffectiveMarks.ts).
-  - [x] 34-02-PLAN.md — Core components (BranchGroup, EmployeeCard, DailyRow).
-  - [x] 34-03-PLAN.md — Page redesign (page.tsx reconstruction + ImportSessionsPanel + infinite scroll).
-- [x] Phase 35: Frontend — Corrección de Marcas (Agregar/Editar/Anular)
-  **Goal:** Implementar los modales de corrección de marcas (agregar/editar/anular) con justificación obligatoria y vista de auditoría.
-  **Plans:** 5 plans
-  - [x] 35-01-PLAN.md — Add Clock Log Modal with service layer.
-  - [x] 35-02-PLAN.md — Edit Clock Log Modal.
-  - [x] 35-03-PLAN.md — Void Clock Log Modal with confirmation.
-  - [x] 35-04-PLAN.md — Audit Timeline component.
-  - [x] 35-05-PLAN.md — Integration into attendance page.
-- [x] Phase 36: Backend — State Machine de Planilla + Aguinaldo
-  **Goal:** Implementar el ciclo de vida de la planilla (BORRADOR → APROBADA → PAGADA) y cálculo de aguinaldo según ley laboral costarricense.
-  **Plans:** 2 plans
-  - [x] 36-01-PLAN.md — State machine service methods (approvePayroll, markAsPaid, reopenPayroll, recalculatePayroll) + aguinaldo calculation + tests.
-  - [x] 36-02-PLAN.md — REST API endpoints for state transitions and aguinaldo.
-- [x] Phase 37: Frontend — Wizard de Planilla Quincenal
-  **Goal:** Reemplazar la página actual de cálculo con un wizard guiado de 3 pasos que lleve al jefe desde la selección de período hasta la aprobación.
-  **Plans:** 5 plans
-  - [x] 37-01-PLAN.md — Core wizard infrastructure (PayrollWizard, usePayrollWizard hook, PayrollPeriodCard)
-  - [x] 37-02-PLAN.md — Step 2 wrapper with PayrollResults integration
-  - [x] 37-03-PLAN.md — Step 3 executive summary + Phase 36 state machine integration
-  - [x] 37-04-PLAN.md — Payroll list with status badges and contextual actions
-  - [x] 37-05-PLAN.md — Gap closure: fix status badges, contextual buttons, wizard data integration
-- [x] Phase 38: Tests Unitarios + Verificación de Integración
-  **Goal:** Ejecutar y verificar la suite de pruebas unitarias y de integración para asegurar la estabilidad de las nuevas funcionalidades de la v1.5.
-  **Plans:** 2 plans
-  - [x] 38-01-PLAN.md — Run test suite and categorize failures
-  - [x] 38-02-PLAN.md — Fix identified test failures
-- [x] Phase 39: Frontend — Corregir Selector de Posición en Edición de Empleado
-  **Goal:** Corregir el selector de posiciones en el formulario de edición de empleados para que muestre las posiciones correctamente, sincronizado con la tabla de empleados.
-  **Plans:** 2 plans (COMPLETE)
-  - [x] 39-01-PLAN.md — Fix Selector display and consistency
-  - [x] 39-02-PLAN.md — Ensure Data Synchronization
-- [x] Phase 40: Fix 15 Remaining Test Failures from Phase 38
-  **Goal:** Corregir los 15 tests que fallan en la suite de pruebas (NomineeService.test.ts, ClockLogEffectiveService.Paginated.test.ts, clock-logs/page.test.tsx).
-  **Plans:** 2 plans
-  - [x] 40-01-PLAN.md — Fix backend test failures (TypeScript error + NomineeService)
-  - [x] 40-02-PLAN.md — Fix frontend test failures (clock-logs page UI elements)
-- [x] Phase 41: Backend — Aliases de Marcas e Inferencia IN/OUT
-  **Goal:** Implementar la tabla `vpg_clock_aliases` para que cada empleado tenga pseudónimos de reloj, y adaptar el proceso de importación para inferir el tipo IN/OUT por secuencia (impar=IN, par=OUT por empleado+día) cuando el archivo no trae tipo de marca.
-  **Plans:** 4 plans
-  - [x] 41-01-PLAN.md — Prisma schema migration (vpg_clock_aliases) + ClockAlias model interface + Zod schemas
-  - [x] 41-02-PLAN.md — ClockAliasService (CRUD + resolveEmployeeByAlias) + Controller + Route
-  - [x] 41-03-PLAN.md — ClockLogsImportService updates (alias lookup + type inference) + route registration
-  - [x] 41-04-PLAN.md — Unit tests: ClockAliasService + ClockLogsImportService alias/inference coverage
-- [x] Phase 42: Frontend — Gestión de Aliases de Marcas
-  **Goal:** Agregar en la ficha de cada empleado una sección para administrar sus aliases de reloj (crear, ver, eliminar), con validación de duplicados y feedback visual claro.
-  **Plans:** 2 plans (COMPLETE)
-  - [x] 42-01-PLAN.md — clockAliasService + useClockAliases hook
-  - [x] 42-02-PLAN.md — EditEmployeeModal alias section integration
-- [x] Phase 43: Frontend — Rediseño Completo del Calendario de Eventos Laborales
-  **Goal:** Rediseñar completamente la página de eventos laborales (pages/employee/events) — aspecto visual, funcionalidad y flujo de usuario — para ofrecer una experiencia moderna, intuitiva y alineada con el sistema de diseño actual.
-  **Plans:** 3 plans (DONE)
-  - [x] 43-01-PLAN.md — [Wave 1] Sidebar + MiniCalendar + EventFilters + page layout rebuild
-  - [x] 43-02-PLAN.md — [Wave 1] Calendar restyle + EventPopover + month-only + event type colors
-  - [x] 43-03-PLAN.md — [Wave 2] Modal redesign + ghost preview + empty state + visual checkpoint
-- [x] Phase 44: Core — Motor de Feriados Globales Configurables
-  **Goal:** Migrar el manejo de feriados a un modelo de base de datos donde el cliente configure qué días aplican pago obligatorio y pago triple de horas extra, integrándolo al motor matemático de planillas.
-  **Plans:** 3 plans (COMPLETE)
-  - [x] 44-01-PLAN.md — Schema Prisma & Backend CRUD para CompanyHolidays
-  - [x] 44-02-PLAN.md — Actualización del motor matemático (payrollUtils.ts) para nómina
-  - [x] 44-03-PLAN.md — Frontend: UI Administrativa y sincronización del calendario
-- [x] Phase 45: Frontend — Rediseño del Perfil de Empleado
-  **Goal:** Restructuración completa de la vista "Ver Perfil" de Empleado (/pages/employee/list) para presentar de forma consolidada estado, labor, salario, marcas, eventos y documentos.
-  **Plans:** 4 plans (COMPLETE)
-  - [x] 45-01-PLAN.md — Enrutamiento y Base del Perfil (Tabs)
-  - [x] 45-02-PLAN.md — Tab "Resumen" (Widgets Consolidados)
-  - [x] 45-03-PLAN.md — Integración de Modals y Acciones Completas
-  - [x] 45-04-PLAN.md — Conexión con Tabla Principal (EmployeeTable.tsx)
-- [x] Phase 46: Rediseño Motor de Reconocimiento de Marcas
-  **Goal:** Rediseñar el pipeline completo de importación y auditoría de marcas de reloj: (1) parser Excel con detección automática de columnas, (2) clasificación por ventanas de tiempo configurables con indicadores de confianza, (3) UI de auditoría por jornada con confirmación por día, (4) corrección asistida con sugerencias.
-  **Requirements**: MARCAS-01 a MARCAS-06, D-01 a D-14
-  **Depends on:** Phase 45
-  **Plans:** 6 plans
-  - [x] 46-01-PLAN.md — Backend: Schema + TimeWindowService + DayConfirmationService + MarkSuggestionService
-  - [x] 46-02-PLAN.md — Backend: REST API controllers and routes
-  - [x] 46-03-PLAN.md — Backend: Mark suggestion service for missing mark inference
-  - [x] 46-04-PLAN.md — Frontend: Excel parser with auto-detection and time window classification
-  - [x] 46-05-PLAN.md — Frontend: Audit UI components (confidence badges, type selector, day row)
-  - [x] 46-06-PLAN.md — Frontend: ClockImportModal with preview flow
-- [x] Phase 47: Completitud y Refinamiento de Auditoría
-  **Goal:** Completar y refinar la auditoría de marcas de reloj para producción.
-  **Plans:** 1 plan (COMPLETE)
-  - [x] 47-01-PLAN.md — Completar auditoría de marcas
-- [x] Phase 48: Limpieza de Archivos y Carpetas Innecesarios
-  **Goal:** Eliminar del repositorio todos los archivos muertos: `.md` desactualizados, Excels viejos, carpetas vacías, archivos de código sin referencia, y configs obsoletas — dejando el proyecto limpio y mantenible.
-  **Depends on:** Phase 47
-  **Plans:** 2 plans (COMPLETE)
-  - [x] 48-01-PLAN.md — Artefactos generados, logs y MDs obsoletos del root y backend
-  - [x] 48-02-PLAN.md — Código muerto, Excel de prueba, reportes HTML y carpetas vacías
+</details>
 
 
 <details>

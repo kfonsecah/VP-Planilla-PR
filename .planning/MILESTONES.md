@@ -1,5 +1,30 @@
 # Milestones
 
+## v1.5 — Gestión de Marcas y Planilla para Producción (Shipped: 2026-04-24)
+
+**Phases completed:** 17 phases (32-48), 51 plans
+**Timeline:** 2026-04-12 → 2026-04-24 (12 days)
+**Tests:** 492+ backend (Jest) + 5 Java (JUnit 5) = 497+ total
+**LOC:** ~13,278 TypeScript
+**Status:** Archived
+**Known deferred items at close:** 22 (see STATE.md Deferred Items)
+
+**Key accomplishments:**
+1. **Effective Marks Engine:** Non-destructive adjustment layer (ADD/EDIT/VOID) with mandatory justification, payroll lock enforcement, and full audit trail in `vpg_clock_log_adjustments`.
+2. **Payroll State Machine:** BORRADOR → APROBADA → PAGADA lifecycle with aguinaldo calculation per Costa Rica labor law. Full REST API for all transitions.
+3. **Payroll Wizard:** 3-step guided flow (period selection → calculation review → approval) replacing the flat payroll page.
+4. **Clock Alias System:** `vpg_clock_aliases` table with CRUD, `resolveEmployeeByAlias()`, and IN/OUT type inference by sequence for Excel imports without log_type column.
+5. **Mark Recognition Engine Redesign:** Excel parser with automatic column detection, configurable time-window classification with confidence indicators, day-confirmation audit UI.
+6. **Grouped Clock Logs View:** Hierarchical layout (Branch → Employee → Day → IN/OUT pair) with infinite scroll and biweekly presets.
+7. **Configurable Holidays Engine:** DB-backed company holidays integrated into payroll math (mandatory pay + triple overtime on holidays).
+8. **Employee Profile Redesign:** Consolidated tabs (summary, labor, salary, marks, events, docs) with full modal integration.
+9. **Labor Calendar Redesign:** Modern sidebar + mini-calendar + event filters + animated popovers.
+10. **Repo Cleanup:** Dead code removed (holidays.ts), .gitignore verified, stale docs purged.
+
+**Archive:** `.planning/milestones/v1.5-ROADMAP.md`
+
+---
+
 ## v1.4 — Stability and Integration Hardening (Shipped: 2026-04-12)
 
 **Phases completed:** 8 phases (24-31), 15 plans

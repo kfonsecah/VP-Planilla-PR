@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.5
-milestone_name: milestone
-status: executing
-last_updated: "2026-04-24T00:00:00.000Z"
-last_activity: "2026-04-24 -- Phase 48 complete (repo cleanup + holidays.ts removed)"
+milestone_name: Gestión de Marcas y Planilla para Producción
+status: shipped
+last_updated: "2026-04-25T00:00:00.000Z"
+last_activity: "2026-04-25 -- v1.5 milestone closed and archived"
 progress:
   total_phases: 17
   completed_phases: 17
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-24)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** v1.5 complete — all 17 phases done, ready for milestone audit
+**Current focus:** v1.5 SHIPPED — planning next milestone v1.6 via /gsd:new-milestone
 
 ## Current Position
 

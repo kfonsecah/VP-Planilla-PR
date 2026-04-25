@@ -8,38 +8,22 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.5 — 2026-04-24, ALL 17 phases complete)
+## Current State (v1.5 SHIPPED — 2026-04-24)
 
-**v1.5 COMPLETE** — Gestión de Marcas y Planilla para Producción:
-- ✅ **All 17 phases complete** (Phases 32–48). Milestone ready for audit/ship.
-- ✅ **Phase 48 complete:** Repo cleanup — dead code removed (holidays.ts), .gitignore verified clean.
-- ✅ **Phase 47 complete:** Completitud y Refinamiento de Auditoría de Marcas.
-- ✅ **Phase 46 complete:** Rediseño Motor de Reconocimiento de Marcas — Excel parser con detección automática de columnas, ventanas de tiempo configurables con indicadores de confianza, UI de auditoría por jornada.
-- ✅ **Phase 45 complete:** Rediseño del Perfil de Empleado — tabs consolidados con resumen, labor, salario, marcas, eventos y documentos.
-- ✅ **Phase 44 complete:** Motor de Feriados Globales Configurables — feriados en BD, integración al motor matemático de planillas.
-- ✅ **Phase 43 complete:** Rediseño Completo del Calendario de Eventos Laborales.
-- ✅ **Phase 41 complete:** Clock Aliases + IN/OUT Type Inference by Sequence.
-  - `vpg_clock_aliases` table with FK to employees, unique constraint on (employee_id, name).
-  - `ClockAliasService` with CRUD + `resolveEmployeeByAlias()` for import pipeline.
-  - REST endpoints: POST/GET/DELETE `/api/employees/:id/aliases` (admin-protected for write).
-  - `inferLogTypeBySequence()` — groups by (employee_id, date), alternates IN/OUT by timestamp.
-  - Import pipeline now checks aliases after numeric ID, before full name scan.
-  - Type inference enables Excel files without log_type column to import correctly.
-  - 492+ backend tests, all passing.
-- ✅ **Phase 32 complete:** Adjustment Layer schema + Payroll State Machine DB foundation.
-  - `vpg_clock_log_adjustments` table with ADD/EDIT/VOID types, optimistic locking, nullable FK for ADD type.
-  - `vpg_payroll_recalculations` audit trail table with JSONB snapshots.
-  - `vpg_payrolls.payrolls_status` migrated from String → `PayrollStatus` enum (BORRADOR/APROBADA/PAGADA).
-  - Approval/reopen audit fields on `vpg_payrolls`.
-  - Zod validation schemas: `AdjustmentSchema` (discriminatedUnion), `RecalculationSchema`, updated `PayrollSchema` + `ClockLogSchema`.
+**v1.5 SHIPPED** — Gestión de Marcas y Planilla para Producción (Phases 32–48, 51 plans)
 
-**v1.4 SHIPPED** — Stability and Integration Hardening:
-- ✅ **Auth Lifecycle:** Unified refresh/revocation/logout flow with consistent error mapping.
-- ✅ **HTTP Layer:** Enforced unified client (`http.ts`) for all frontend services, eliminating raw fetch bypasses.
-- ✅ **Repository Hygiene:** Purged git index of build artifacts/OS noise and standardized lock file policies.
-- ✅ **Modularization:** Monolith decomposition into specialized services (ClockLogs, Audit, Notifications).
-- ✅ **Security:** Email-verified password reset flow with bcrypt hashing.
-- ✅ **Code Quality:** Centralized environment validation (Zod) and Java unit testing baseline (JUnit 5).
+- ✓ Effective marks engine with non-destructive adjustment layer (ADD/EDIT/VOID + audit trail) — v1.5
+- ✓ Payroll state machine (BORRADOR → APROBADA → PAGADA) + aguinaldo per CR labor law — v1.5
+- ✓ 3-step payroll wizard (period → calculation review → approval) — v1.5
+- ✓ Clock alias system with IN/OUT type inference for Excel imports — v1.5
+- ✓ Mark recognition engine redesign (auto-detect columns, time windows, confidence indicators) — v1.5
+- ✓ Grouped clock logs view: Branch → Employee → Day → IN/OUT pair — v1.5
+- ✓ Configurable holidays engine (DB-backed, integrated into payroll math) — v1.5
+- ✓ Employee profile redesign (consolidated tabs: summary, labor, salary, marks, events, docs) — v1.5
+- ✓ Labor events calendar redesign — v1.5
+- ✓ 497+ tests passing (492 Jest + 5 JUnit 5) — v1.5
+
+**Next milestone:** v1.6 (to be defined via `/gsd:new-milestone`)
 
 ## Context
 
@@ -50,6 +34,18 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Performance:** JS diferido, imágenes comprimidas, Next.js compress habilitado.
 
 ## History
+
+<details>
+<summary>v1.4 SHIPPED (2026-04-12) — Stability and Integration Hardening</summary>
+
+- Auth lifecycle unified (refresh/revocation/logout) with consistent error mapping
+- HTTP layer enforced: all frontend services use `http.ts`, no raw fetch bypasses
+- Repository hygiene: git index purged of build artifacts, `package-lock.json` tracked
+- Monolith decomposed into specialized services (ClockLogs, Audit, Notifications)
+- Email-verified password reset with bcrypt hashing and 15-min token expiry
+- Centralized environment validation via Zod; JUnit 5 baseline for Java utility
+
+</details>
 
 <details>
 <summary>v1.3 SHIPPED (2026-04-09) — Sistema de Marcas de Reloj Robusto</summary>
@@ -80,4 +76,4 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - Eliminar empleados permanentemente — solo desactivar (status: inactivo)
 
 ---
-*Last updated: 2026-04-24 after Phase 47 completion (Phase 48 pending)*
+*Last updated: 2026-04-25 after v1.5 milestone*
