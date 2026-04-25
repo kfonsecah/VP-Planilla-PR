@@ -25,20 +25,22 @@ See: .planning/PROJECT.md (updated 2026-04-24)
 ## Current Position
 
 Milestone: v1.6 IN PROGRESS
-Phase: 49 (persistencia-vista) — COMPLETED
+Phase: 52 (persistencia-localstorage) â€” COMPLETED
 Plan: 1 of 1
-Status: Executed plan 49-01
-Last activity: 2026-04-24 -- Phase 49 complete
+Status: Executed plan 52-01
+Last activity: 2026-04-25 -- Phase 52 complete
 
-Progress: [######..............] 33% (1/3 phases complete)
+Progress: [#########...........] 50% (2/4 phases complete)
 
 ## v1.6 Phase Map
 
 | Phase | Name | Requirements | Status |
 |------|------|--------------|--------|
-| 49 | Persistencia de Vista (Caché de UI) | UX-11, UX-12 | ✅ Complete (1/1 plans) |
-| 50 | Corrección Lógica de Nivel de Confianza y Estatus | AUDIT-02, AUDIT-03 | ⏳ Not Started |
-| 51 | Edición Directa de Marcas en Auditoría | AUDIT-01 | ⏳ Not Started |
+| 49 | Persistencia de Vista (URL) | UX-11, UX-12 | âœ… Complete |
+| 50 | CorrecciÃ³n LÃ³gica de Estatus | AUDIT-02, AUDIT-03 | âœ… Complete |
+| 52 | Persistencia Robusta (LocalStorage) | UX-11, UX-12 | âœ… Complete |
+| 51 | EdiciÃ³n Directa de Marcas en AuditorÃ­a | AUDIT-01 | â Not Started |
+
 
 ## v1.5 Phase Map
 
@@ -74,7 +76,15 @@ Progress: [######..............] 33% (1/3 phases complete)
 | v1.5 | Gestión de Marcas y Planilla para Producción | Archived | 497+ tests |
 | v1.6 | Mejoras en Auditoría de Marcas y UX | 🚧 In Progress | -- |
 
-## Phase 49 - Frontend: Persistencia de Vista (Caché de UI) (COMPLETED 2026-04-24)
+## Phase 52 - Frontend: Persistencia Robusta (LocalStorage) (COMPLETED 2026-04-25)
+
+### Summary
+
+- **Plan 01**: Implemented `localStorage` persistence for filters in `useEffectiveMarks` hook and active tab/toggles in the clock logs page.
+- Added SSR-safety checks to prevent hydration issues when accessing `window` or `localStorage`.
+
+## Phase 49 - Frontend: Persistencia de Vista (CachÃ© de UI) (COMPLETED 2026-04-24)
+
 
 ### Summary
 

@@ -6,9 +6,10 @@
 - [ ] **AUDIT-03**: System recalculates the employee's audit status (yellow warning state) in real-time immediately after the user corrects or validates a mark.
 
 ### User Experience & Quality of Life
-- **UX-11:** State Persistence – User's active tab selection must be restored after navigating across routes.
-- **UX-12:** Expanded UI Persistence – Specifically clicked employee detail rows inside grouped views must maintain their expanded state despite navigation or modal closures, increasing auditor agility.
-- **UX-13:** Drag & Drop Time Windows – Add visual interface to manage and assign time windows to employees effectively preventing 'no-window' confidence issues.
+- [x] **UX-11:** State Persistence â€“ User's active tab selection must be restored after navigating across routes.
+- [x] **UX-12:** Expanded UI Persistence â€“ Specifically clicked employee detail rows inside grouped views must maintain their expanded state despite navigation or modal closures, increasing auditor agility.        
+- [ ] **UX-13:** Drag & Drop Time Windows â€“ Add visual interface to manage and assign time windows to employees effectively preventing 'no-window' confidence issues.
+
 
 ## Future Requirements (Deferred)
 - (No aplican para este milestone)

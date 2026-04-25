@@ -4,10 +4,11 @@
 
 | Phase | Name | Requirements | Success Criteria | Status |
 |-------|------|--------------|------------------|--------|
-| 49 | Persistencia de Vista (Caché de UI) | UX-11, UX-12 | 2 | Not Started |
-| 50 | Corrección Lógica de Nivel de Confianza y Estatus | AUDIT-02, AUDIT-03 | 2 | Completed |
-| 51 | Edición Directa de Marcas en Auditoría | AUDIT-01 | 3 | Not Started |
-| 52 | UI de Drag and Drop para Ventanas de Tiempo por Empleado | UX-13 | 3 | Not Started |
+| 49 | Persistencia de Vista (CachÃ© de UI) | UX-11, UX-12 | 2 | Completed |
+| 50 | CorrecciÃ³n LÃ³gica de Nivel de Confianza y Estatus | AUDIT-02, AUDIT-03 | 2 | Completed |
+| 52 | Persistencia Robusta (LocalStorage) | UX-11, UX-12 | 2 | Completed |
+| 51 | EdiciÃ³n Directa de Marcas en AuditorÃ­a | AUDIT-01 | 3 | Not Started |
+
 
 ---
 
