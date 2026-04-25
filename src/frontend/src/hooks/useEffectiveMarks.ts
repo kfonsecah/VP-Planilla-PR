@@ -7,6 +7,7 @@ import {
 import { ClockLogsService, ImportSession } from '@/services/clockLogsService';
 
 const PAGE_SIZE = 20;
+const STORAGE_KEY_FILTERS = 'clock_logs_filters';
 
 function getDefaultDates(): { initDate: string; endDate: string } {
   const now = new Date();
@@ -38,10 +39,32 @@ export function useEffectiveMarks() {
   const [error, setError] = useState<string | null>(null);
   const [importSessions, setImportSessions] = useState<ImportSession[]>([]);
   
-  const [filters, setFiltersState] = useState<EffectiveMarksFilters>({
-    ...getDefaultDates(),
-    status: [],
+  const [filters, setFiltersState] = useState<EffectiveMarksFilters>(() => {
+    const defaultDates = getDefaultDates();
+    if (typeof window === 'undefined') return { ...defaultDates, status: [] };
+
+    const saved = localStorage.getItem(STORAGE_KEY_FILTERS);
+    if (!saved) return { ...defaultDates, status: [] };
+
+    try {
+      const parsed = JSON.parse(saved);
+      return {
+        initDate: parsed.initDate || defaultDates.initDate,
+        endDate: parsed.endDate || defaultDates.endDate,
+        status: parsed.status || [],
+        employee_id: parsed.employee_id,
+        branch_id: parsed.branch_id,
+      };
+    } catch (e) {
+      console.warn('[useEffectiveMarks] Error parsing saved filters:', e);
+      return { ...defaultDates, status: [] };
+    }
   });
+
+  // Save filters to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_FILTERS, JSON.stringify(filters));
+  }, [filters]);
 
   // Track if initial sessions have been loaded
   const hasLoadedSessions = useRef(false);
