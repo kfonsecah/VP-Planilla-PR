@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ClockLogsPage from '@/app/pages/clock-logs/page';
-import { useEffectiveMarks } from '@/hooks/useEffectiveMarks';
-import { useClockAudit } from '@/hooks/useClockAudit';
+import { useClockLogsContext } from '@/hooks/useClockLogsContext';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn().mockReturnValue({ replace: jest.fn() }),
@@ -10,14 +9,12 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn().mockReturnValue({ get: jest.fn() }),
 }));
 
-jest.mock('@/hooks/useEffectiveMarks');
-jest.mock('@/hooks/useClockAudit');
+jest.mock('@/hooks/useClockLogsContext');
 jest.mock('@/hooks/useTimeWindows', () => ({
   useTimeWindows: jest.fn().mockReturnValue({ windows: [] }),
 }));
 
-const mockedUseEffectiveMarks = useEffectiveMarks as jest.MockedFunction<typeof useEffectiveMarks>;
-const mockedUseClockAudit = useClockAudit as jest.MockedFunction<typeof useClockAudit>;
+const mockedUseClockLogsContext = useClockLogsContext as jest.MockedFunction<typeof useClockLogsContext>;
 
 describe('ClockLogsPage - has_issues logic', () => {
   beforeEach(() => {
@@ -43,18 +40,29 @@ describe('ClockLogsPage - has_issues logic', () => {
     },
   ];
 
-  it('shows NO issues for LOW confidence + valid status', () => {
-    mockedUseEffectiveMarks.mockReturnValue({
-      data: mockData('valid', 'LOW'),
-      filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
-      importSessions: [],
-    } as any);
+  const mockContextValue = (data: any, clearedDays: Set<string> = new Set()): any => ({
+    data,
+    filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
+    importSessions: [],
+    clearedDays,
+    confirmedDays: new Set(),
+    fetchConfirmations: jest.fn(),
+    isLoading: false,
+    hasMore: false,
+    totalCount: data.length,
+    page: 1,
+    setFilters: jest.fn(),
+    applyDatePreset: jest.fn(),
+    loadMore: jest.fn(),
+    refresh: jest.fn(),
+    confirmDay: jest.fn(),
+    addMarkInline: jest.fn(),
+    changeMarkTypeInline: jest.fn(),
+    voidMarkInline: jest.fn(),
+  });
 
-    mockedUseClockAudit.mockReturnValue({
-      clearedDays: new Set(),
-      confirmedDays: new Set(),
-      fetchConfirmations: jest.fn(),
-    } as any);
+  it('shows NO issues for LOW confidence + valid status', () => {
+    mockedUseClockLogsContext.mockReturnValue(mockContextValue(mockData('valid', 'LOW')));
 
     render(<ClockLogsPage />);
     
@@ -63,7 +71,8 @@ describe('ClockLogsPage - has_issues logic', () => {
     // We can't easily check the internal result of auditEmployees() without more setup,
     // but we can check if the amber dot is NOT present.
     // Let's force 'audit' tab in mock searchParams
-    const { get } = require('next/navigation').useSearchParams();
+    const { useSearchParams } = require('next/navigation');
+    const { get } = useSearchParams();
     get.mockImplementation((key: string) => key === 'tab' ? 'audit' : null);
 
     render(<ClockLogsPage />);
@@ -73,17 +82,7 @@ describe('ClockLogsPage - has_issues logic', () => {
   });
 
   it('shows issues for anomaly status', () => {
-    mockedUseEffectiveMarks.mockReturnValue({
-      data: mockData('anomaly'),
-      filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
-      importSessions: [],
-    } as any);
-
-    mockedUseClockAudit.mockReturnValue({
-      clearedDays: new Set(),
-      confirmedDays: new Set(),
-      fetchConfirmations: jest.fn(),
-    } as any);
+    mockedUseClockLogsContext.mockReturnValue(mockContextValue(mockData('anomaly')));
 
     render(<ClockLogsPage />);
     
@@ -92,17 +91,9 @@ describe('ClockLogsPage - has_issues logic', () => {
   });
 
   it('hides issues optimistically if the day is in clearedDays', () => {
-    mockedUseEffectiveMarks.mockReturnValue({
-      data: mockData('anomaly'),
-      filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
-      importSessions: [],
-    } as any);
-
-    mockedUseClockAudit.mockReturnValue({
-      clearedDays: new Set(['101_2026-02-02']),
-      confirmedDays: new Set(),
-      fetchConfirmations: jest.fn(),
-    } as any);
+    mockedUseClockLogsContext.mockReturnValue(
+      mockContextValue(mockData('anomaly'), new Set(['101_2026-02-02']))
+    );
 
     render(<ClockLogsPage />);
     
@@ -111,19 +102,12 @@ describe('ClockLogsPage - has_issues logic', () => {
   });
 
   it('hides issues for void actions optimistically', () => {
-    mockedUseEffectiveMarks.mockReturnValue({
-      data: mockData('orphan'),
-      filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
-      importSessions: [],
-    } as any);
+    mockedUseClockLogsContext.mockReturnValue(
+      mockContextValue(mockData('orphan'), new Set(['101_2026-02-02']))
+    );
 
-    mockedUseClockAudit.mockReturnValue({
-      clearedDays: new Set(['101_2026-02-02']),
-      confirmedDays: new Set(),
-      fetchConfirmations: jest.fn(),
-    } as any);
-
-    const { get } = require('next/navigation').useSearchParams();
+    const { useSearchParams } = require('next/navigation');
+    const { get } = useSearchParams();
     get.mockImplementation((key: string) => key === 'tab' ? 'audit' : null);
 
     render(<ClockLogsPage />);

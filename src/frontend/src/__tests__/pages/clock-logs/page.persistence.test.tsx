@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ClockLogsPage from '@/app/pages/clock-logs/page';
 import { useEffectiveMarks } from '@/hooks/useEffectiveMarks';
+import { useClockLogsContext } from '@/hooks/useClockLogsContext';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 jest.mock('next/navigation', () => ({
@@ -10,30 +11,20 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@/hooks/useEffectiveMarks');
-jest.mock('@/hooks/useClockAudit', () => ({
-  useClockAudit: jest.fn().mockReturnValue({
-    confirmDay: jest.fn(),
-    fetchConfirmations: jest.fn(),
-    confirmedDays: new Set(),
-    clearedDays: new Set(),
-    addMarkInline: jest.fn(),
-    changeMarkTypeInline: jest.fn(),
-    voidMarkInline: jest.fn(),
-  }),
-}));
+jest.mock('@/hooks/useClockLogsContext');
+const mockedUseClockLogsContext = useClockLogsContext as jest.MockedFunction<typeof useClockLogsContext>;
+
 jest.mock('@/hooks/useTimeWindows', () => ({
   useTimeWindows: jest.fn().mockReturnValue({ windows: [] }),
 }));
 
-const mockedUseEffectiveMarks = useEffectiveMarks as jest.MockedFunction<typeof useEffectiveMarks>;
 const mockedUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockedUseSearchParams = useSearchParams as jest.MockedFunction<typeof useSearchParams>;
 const mockedUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
 
 const mockHookReturn = (
   partial: Partial<ReturnType<typeof useEffectiveMarks>> = {}
-): ReturnType<typeof useEffectiveMarks> => ({
+): any => ({
   data: [
     {
       id: '1-2026-02-02-1-2',
@@ -69,6 +60,13 @@ const mockHookReturn = (
   applyDatePreset: jest.fn(),
   loadMore: jest.fn(),
   refresh: jest.fn(),
+  confirmDay: jest.fn(),
+  fetchConfirmations: jest.fn(),
+  confirmedDays: new Set(),
+  clearedDays: new Set(),
+  addMarkInline: jest.fn(),
+  changeMarkTypeInline: jest.fn(),
+  voidMarkInline: jest.fn(),
   ...partial,
 });
 
@@ -84,7 +82,7 @@ describe('ClockLogsPage - URL Persistence (Phase 49)', () => {
       get: jest.fn().mockReturnValue(null),
       toString: jest.fn().mockReturnValue(''),
     } as any);
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn());
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn());
   });
 
   it('derives activeTab from URL "tab" parameter', () => {
@@ -164,7 +162,7 @@ describe('ClockLogsPage - URL Persistence (Phase 49)', () => {
     const { rerender } = render(<ClockLogsPage />);
 
     // Simulate filter change by re-rendering with different filter values from hook
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn({
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn({
       filters: { initDate: '2026-05-01', endDate: '2026-05-15', status: [] }
     }));
 
