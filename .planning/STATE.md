@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: Gestión de Marcas y Planilla para Producción
-status: shipped
-last_updated: "2026-04-25T00:00:00.000Z"
-last_activity: "2026-04-25 -- v1.5 milestone closed and archived"
+milestone: v1.6
+milestone_name: Mejoras en Auditoría de Marcas y UX
+status: in_progress
+last_updated: "2026-04-24T19:00:00.000Z"
+last_activity: "2026-04-24 -- Milestone v1.6 started (Defining requirements)"
 progress:
-  total_phases: 17
-  completed_phases: 17
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State — VP-Planilla
@@ -20,17 +20,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-24)
 
 **Core value:** Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
-**Current focus:** v1.5 SHIPPED — planning next milestone v1.6 via /gsd:new-milestone
+**Current focus:** v1.6 IN PROGRESS — defining requirements
 
 ## Current Position
 
-Milestone: v1.5 IN PROGRESS — ALL PHASES COMPLETE
-Phase: 48 (limpieza-archivos-carpetas-innecesarios) — COMPLETED
-Plan: 2 of 2
-Status: All 17 phases complete — milestone ready for audit/ship
-Last activity: 2026-04-24 -- Phase 48 complete (repo cleanup done)
+Milestone: v1.6 IN PROGRESS
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-24 -- Milestone v1.6 started
 
-Progress: [██████████████████] 100% (17/17 phases complete)
+Progress: [....................] 0% (0/0 phases complete)
 
 ## v1.5 Phase Map
 
@@ -63,7 +63,8 @@ Progress: [██████████████████] 100% (17/17 p
 | v1.2 | Cobertura de Tests y Mejoras UI | Archived | 287 tests |
 | v1.3 | Sistema de Marcas de Reloj Robusto | Archived | 326+ tests |
 | v1.4 | Stability and Integration Hardening | Archived | 441+ tests |
-| v1.5 | Gestión de Marcas y Planilla para Producción | 🚧 In Progress | 492+ tests |
+| v1.5 | Gestión de Marcas y Planilla para Producción | Archived | 497+ tests |
+| v1.6 | Mejoras en Auditoría de Marcas y UX | 🚧 In Progress | -- |
 
 ## Phase 42 - Frontend: Gestión de Aliases de Marcas (COMPLETED 2026-04-18)
 

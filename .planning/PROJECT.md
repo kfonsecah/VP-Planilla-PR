@@ -8,22 +8,15 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.5 SHIPPED — 2026-04-24)
+## Current State (v1.6 IN PROGRESS — 2026-04-24)
 
-**v1.5 SHIPPED** — Gestión de Marcas y Planilla para Producción (Phases 32–48, 51 plans)
+**v1.6 IN PROGRESS** — Mejoras en Auditoría de Marcas y UX (Phases TBD)
 
-- ✓ Effective marks engine with non-destructive adjustment layer (ADD/EDIT/VOID + audit trail) — v1.5
-- ✓ Payroll state machine (BORRADOR → APROBADA → PAGADA) + aguinaldo per CR labor law — v1.5
-- ✓ 3-step payroll wizard (period → calculation review → approval) — v1.5
-- ✓ Clock alias system with IN/OUT type inference for Excel imports — v1.5
-- ✓ Mark recognition engine redesign (auto-detect columns, time windows, confidence indicators) — v1.5
-- ✓ Grouped clock logs view: Branch → Employee → Day → IN/OUT pair — v1.5
-- ✓ Configurable holidays engine (DB-backed, integrated into payroll math) — v1.5
-- ✓ Employee profile redesign (consolidated tabs: summary, labor, salary, marks, events, docs) — v1.5
-- ✓ Labor events calendar redesign — v1.5
-- ✓ 497+ tests passing (492 Jest + 5 JUnit 5) — v1.5
+- [ ] Edición directa de marcas en la auditoría por jornada (Sincronización Full-stack UI y DB)
+- [ ] Corrección de la lógica de "baja confianza" y recálculo en tiempo real del estatus amarillo
+- [ ] Implementación de caché de vista para panel de auditoría (URL o Storage para recordar pestaña activa y estado de tarjetas expandidas)
 
-**Next milestone:** v1.6 (to be defined via `/gsd:new-milestone`)
+**Next milestone:** v1.7 (to be defined via `/gsd:new-milestone`)
 
 ## Context
 
@@ -34,6 +27,22 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Performance:** JS diferido, imágenes comprimidas, Next.js compress habilitado.
 
 ## History
+
+<details>
+<summary>v1.5 SHIPPED (2026-04-24) — Gestión de Marcas y Planilla para Producción</summary>
+
+- Effective marks engine with non-destructive adjustment layer (ADD/EDIT/VOID + audit trail)
+- Payroll state machine (BORRADOR → APROBADA → PAGADA) + aguinaldo per CR labor law
+- 3-step payroll wizard (period → calculation review → approval)
+- Clock alias system with IN/OUT type inference for Excel imports
+- Mark recognition engine redesign (auto-detect columns, time windows, confidence indicators)
+- Grouped clock logs view: Branch → Employee → Day → IN/OUT pair
+- Configurable holidays engine (DB-backed, integrated into payroll math)
+- Employee profile redesign (consolidated tabs: summary, labor, salary, marks, events, docs)
+- Labor events calendar redesign
+- 497+ tests passing (492 Jest + 5 JUnit 5)
+
+</details>
 
 <details>
 <summary>v1.4 SHIPPED (2026-04-12) — Stability and Integration Hardening</summary>
@@ -75,5 +84,22 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - Migración a microservicios — monolito es correcto para el tamaño actual
 - Eliminar empleados permanentemente — solo desactivar (status: inactivo)
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-04-25 after v1.5 milestone*
+*Last updated: 2026-04-24 after v1.6 milestone started*
