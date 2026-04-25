@@ -122,4 +122,35 @@ Progress: [██████████████████] 100% (17/17 p
 
 ---
 
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-04-25:
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | add-employee-phone-sex-null | awaiting_human_verify |
+| debug | day-confirmation-500-error | awaiting_human_verify |
+| debug | p2000-employee-update-column-too-long | verified fix - fixed |
+| debug | perfil-empleado-salario-base-edicion-info | investigating |
+| debug | position-not-in-edit-form | investigating |
+| debug | position-selector-not-showing-current | awaiting_human_verify |
+| debug | uat-phase13-issues | investigating |
+| debug | update-employee-required-hours-biweekly-unknown-field | verified fix/ fixed |
+| quick_task | 260404-o3p-implementar-sessionstorage-cache-en-hook | missing |
+| uat_gap | Phase 22 (22-HUMAN-UAT.md) | partial - 6 pending scenarios |
+| uat_gap | Phase 23 (23-UAT.md) | testing - 3 pending scenarios |
+| uat_gap | Phase 24 (24-HUMAN-UAT.md) | partial - 1 pending scenario |
+| uat_gap | Phase 27 (27-UAT.md) | unknown - 0 pending scenarios |
+| uat_gap | Phase 36 (36-UAT.md) | testing - 10 pending scenarios |
+| uat_gap | Phase 42 (42-HUMAN-UAT.md) | partial - 4 pending scenarios |
+| verification_gap | Phase 01 (01-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 02 (02-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 22 (22-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 24 (24-VERIFICATION.md) | human_needed |
+| verification_gap | Phase 26 (26-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 38 (38-VERIFICATION.md) | gaps_found |
+| verification_gap | Phase 42 (42-VERIFICATION.md) | human_needed |
+
+---
+
 *Updated: 2026-04-24 — Phase 48 complete, v1.5 all phases done*
