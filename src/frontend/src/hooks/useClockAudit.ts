@@ -1,161 +1,23 @@
-import { useState, useCallback, useMemo } from 'react';
-import { dayConfirmationService } from '../services/dayConfirmationService';
-import { clockLogAdjustmentService } from '../services/clockLogAdjustmentService';
-import { toast } from 'sonner';
+"use client";
 
-export function useClockAudit(onRefresh?: () => void) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [confirmedData, setConfirmedData] = useState<any[]>([]);
-  const [clearedDays, setClearedDays] = useState<Set<string>>(new Set());
+import { useClockLogsContext } from './useClockLogsContext';
 
-  const fetchConfirmations = useCallback(async (startDate?: string, endDate?: string) => {
-    setIsLoading(true);
-    try {
-      const res = await dayConfirmationService.get(undefined, startDate, endDate);
-      if (res.success && Array.isArray(res.data)) {
-        setConfirmedData(res.data);
-      }
-    } catch (e) {
-      console.error('Error fetching confirmations:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const confirmedDays = useMemo(() => {
-    const set = new Set<string>();
-    confirmedData.forEach(c => {
-      const date = new Date(c.confirmation_date).toISOString().split('T')[0];
-      set.add(`${c.employee_id}_${date}`);
-    });
-    return set;
-  }, [confirmedData]);
-
-  const confirmDay = useCallback(async (employeeId: number, date: string) => {
-    const key = `${employeeId}_${date}`;
-    setConfirmedData(prev => [...prev, { employee_id: employeeId, confirmation_date: date }]);
-
-    setIsLoading(true);
-    try {
-      await dayConfirmationService.upsert(employeeId, date);
-      toast.success('Día confirmado');
-    } catch (e) {
-      setConfirmedData(prev => prev.filter(c => {
-        const d = new Date(c.confirmation_date).toISOString().split('T')[0];
-        return `${c.employee_id}_${d}` !== key;
-      }));
-      toast.error('Error al confirmar día');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // --- NUEVAS FUNCIONES INLINE ---
-
-  const addMarkInline = useCallback(async (employeeId: string, date: string, time: string, type: 'IN' | 'OUT') => {
-    const key = `${employeeId}_${date}`;
-    setClearedDays(prev => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-
-    setIsLoading(true);
-    try {
-      // Ensure strict ISO format with Z
-      const timestamp = new Date(`${date}T${time}:00`).toISOString();
-      await clockLogAdjustmentService.addClockLog({
-        employeeId,
-        timestamp,
-        type,
-        justification: 'Ajuste rápido desde auditoría'
-      });
-      toast.success('Marca añadida');
-      onRefresh?.();
-    } catch (e) {
-      setClearedDays(prev => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-      toast.error('Error al añadir marca');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onRefresh]);
-
-  const changeMarkTypeInline = useCallback(async (employeeId: string, logId: number, currentTimestamp: string, newType: 'IN' | 'OUT') => {
-    const date = new Date(currentTimestamp).toISOString().split('T')[0];
-    const key = `${employeeId}_${date}`;
-    setClearedDays(prev => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-
-    setIsLoading(true);
-    try {
-      // Normalize existing timestamp to strict ISO
-      const normalizedTs = new Date(currentTimestamp).toISOString();
-      await clockLogAdjustmentService.editClockLog(
-        String(logId),
-        employeeId,
-        normalizedTs,
-        newType,
-        'Corrección de tipo (IN/OUT) desde auditoría'
-      );
-      toast.success('Tipo actualizado');
-      onRefresh?.();
-    } catch (e) {
-      setClearedDays(prev => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-      toast.error('Error al actualizar tipo');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onRefresh]);
-
-  const voidMarkInline = useCallback(async (employeeId: string, logId: number, type: 'IN' | 'OUT', date: string) => {
-    const key = `${employeeId}_${date}`;
-    setClearedDays(prev => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-
-    setIsLoading(true);
-    try {
-      await clockLogAdjustmentService.voidClockLog(
-        String(logId),
-        employeeId,
-        type,
-        'Anulación rápida desde auditoría'
-      );
-      toast.success('Marca eliminada');
-      onRefresh?.();
-    } catch (e) {
-      setClearedDays(prev => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-      toast.error('Error al eliminar marca');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onRefresh]);
+/**
+ * Hook to access clock audit state and logic.
+ * now wraps the global ClockLogsContext.
+ * @param _onRefresh Kept for backward compatibility, but refresh is now handled by the context.
+ */
+export function useClockAudit(_onRefresh?: () => void) {
+  const context = useClockLogsContext();
 
   return { 
-    isLoading, 
-    confirmDay, 
-    fetchConfirmations, 
-    confirmedDays,
-    clearedDays,
-    addMarkInline,
-    changeMarkTypeInline,
-    voidMarkInline
+    isLoading: context.isLoading, 
+    confirmDay: context.confirmDay, 
+    fetchConfirmations: context.fetchConfirmations, 
+    confirmedDays: context.confirmedDays,
+    clearedDays: context.clearedDays,
+    addMarkInline: context.addMarkInline,
+    changeMarkTypeInline: context.changeMarkTypeInline,
+    voidMarkInline: context.voidMarkInline
   };
 }
