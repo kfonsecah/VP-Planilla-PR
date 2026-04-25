@@ -6,6 +6,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/hooks/useTheme';
+import { ClockLogsProvider } from '@/hooks/useClockLogsContext';
 import { TooltipProvider } from '@/components/ui/Tooltip';
 import { Toaster } from 'sonner';
 import { useEffect, useState } from 'react';
@@ -81,9 +82,11 @@ export default function ClientLayout({
   return (
     <AuthProvider>
       <ThemeProvider>
-        <TooltipProvider>
-          <InnerLayout>{children}</InnerLayout>
-        </TooltipProvider>
+        <ClockLogsProvider>
+          <TooltipProvider>
+            <InnerLayout>{children}</InnerLayout>
+          </TooltipProvider>
+        </ClockLogsProvider>
         <Toaster
           theme="dark"
           position="bottom-right"
