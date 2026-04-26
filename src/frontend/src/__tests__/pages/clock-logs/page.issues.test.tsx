@@ -22,7 +22,7 @@ describe('ClockLogsPage - has_issues logic', () => {
     jest.clearAllMocks();
   });
 
-  const mockData = (status: string) => [
+  const mockData = (status: 'pending' | 'valid' | 'anomaly' | 'corrected' | 'orphan') => [
     {
       id: '1-2026-02-02-1-2',
       employee_id: '101',
@@ -35,7 +35,7 @@ describe('ClockLogsPage - has_issues logic', () => {
         in_log_id: 1,
         out_log_id: 2,
         status,
-        source: 'device',
+        source: 'device' as const,
       },
       calculated_hours: 8,
     },

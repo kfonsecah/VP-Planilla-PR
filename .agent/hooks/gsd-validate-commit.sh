@@ -23,6 +23,29 @@ CMD=$(echo "$INPUT" | node -e "let d='';process.stdin.on('data',c=>d+=c);process
 
 # Only check git commit commands
 if [[ "$CMD" =~ ^git[[:space:]]+commit ]]; then
+  echo "{\"status\": \"info\", \"message\": \"🔍 Ejecutando Safety Gates obligatorios...\"}" >&2
+
+  # Gate 1: Backend TSC
+  echo "{\"status\": \"info\", \"message\": \"[1/3] Verificando tipos en Backend...\"}" >&2
+  if ! (cd src/backend && npx tsc --noEmit); then
+    echo "{\"decision\": \"block\", \"reason\": \"🛑 Error de TypeScript en Backend. Revisa 'cd src/backend && npx tsc --noEmit'\"}"
+    exit 2
+  fi
+
+  # Gate 2: Frontend TSC
+  echo "{\"status\": \"info\", \"message\": \"[2/3] Verificando tipos en Frontend...\"}" >&2
+  if ! (cd src/frontend && npx tsc --noEmit); then
+    echo "{\"decision\": \"block\", \"reason\": \"🛑 Error de TypeScript en Frontend. Revisa 'cd src/frontend && npx tsc --noEmit'\"}"
+    exit 2
+  fi
+
+  # Gate 3: Backend Tests
+  echo "{\"status\": \"info\", \"message\": \"[3/3] Ejecutando tests unitarios...\"}" >&2
+  if ! (cd src/backend && npm test -- --passWithNoTests --watchAll=false); then
+    echo "{\"decision\": \"block\", \"reason\": \"🛑 Tests fallidos en Backend. Revisa 'cd src/backend && npm test'\"}"
+    exit 2
+  fi
+
   # Extract message from -m flag
   MSG=""
   if [[ "$CMD" =~ -m[[:space:]]+\"([^\"]+)\" ]]; then

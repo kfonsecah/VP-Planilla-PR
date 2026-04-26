@@ -1,5 +1,5 @@
 {
-  "mode": "yolo",
+  "mode": "stable",
   "model_profile": "budget",
   "commit_docs": true,
   "parallelization": true,
@@ -30,7 +30,8 @@
     "_auto_chain_active": false
   },
   "hooks": {
-    "context_warnings": true
+    "context_warnings": true,
+    "community": true
   },
   "graphify": {
     "enabled": true
