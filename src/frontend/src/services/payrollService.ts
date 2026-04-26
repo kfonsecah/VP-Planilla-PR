@@ -108,4 +108,28 @@ export const PayrollService = {
       throw new Error(err instanceof Error ? err.message : 'Error al reopen la planilla');
     }
   },
+
+  /**
+   * Save per-employee hour/deduction override for a payroll in BORRADOR state.
+   * @param payrollId - ID of the payroll
+   * @param employeeId - ID of the employee to override
+   * @param override - Override values (all optional)
+   * @returns Updated payroll_employee record
+   */
+  async saveEmployeeOverride(
+    payrollId: number,
+    employeeId: number,
+    override: {
+      regularHours?: number;
+      overtimeHours?: number;
+      weeklyRestHours?: number;
+      totalDeductions?: number;
+    }
+  ): Promise<unknown> {
+    try {
+      return await http.patch(`/payroll/${payrollId}/employee/${employeeId}/override`, override);
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al guardar ajuste de empleado');
+    }
+  },
 };

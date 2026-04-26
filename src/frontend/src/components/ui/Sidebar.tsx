@@ -33,8 +33,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       icon: "/images/layout/payroll.png",
       text: "Cálculo de planillas",
       subItems: [
-        { href: '/pages/payroll/wizard', text: 'Wizard de planilla' },
-        { href: '/pages/payroll/calculate', text: 'Calcular planilla' },
+        { href: '/pages/payroll/wizard', text: 'Nueva planilla' },
         { href: '/pages/payroll/list', text: 'Historial de planillas' },
         { href: '/pages/payroll-types/list', text: 'Tipos de planilla' }
       ]

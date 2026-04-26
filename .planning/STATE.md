@@ -41,6 +41,7 @@ Progress: [#########...........] 50% (2/4 phases complete)
 | 52 | Persistencia Robusta (LocalStorage) | UX-13 | ✅ Complete |
 | 53 | Estado Global (Context) | UX-14 | 🚧 In Progress |
 | 51 | Edición Directa de Marcas en Auditoría | AUDIT-01 | ⏳ Not Started |
+| 54 | Rediseño del Flujo de Planilla | PAY-11..13 | ✅ Complete |
 
 
 ## v1.5 Phase Map

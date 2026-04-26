@@ -7,6 +7,7 @@ import { NomineeService } from '@/services/nomineeService';
 import { PayrollService } from '@/services/payrollService';
 import { getEmployees } from '@/services/employeeService';
 import PayrollWizardStep3 from '@/components/PayrollWizardStep3';
+import PayrollEmployeeAdjustModal from '@/components/PayrollEmployeeAdjustModal';
 import type { Employee } from '@/types/employee';
 
 type PeriodType = 'quincenal' | 'mensual' | 'rango_libre';
@@ -515,31 +516,31 @@ export default function PayrollWizardPage() {
               </>
             )}
 
-            {/* PayrollEmployeeAdjustModal placeholder — será reemplazado en Plan 04 */}
-            {adjustingEmpId !== null && payrollId !== null && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-                onClick={() => setAdjustingEmpId(null)}
-              >
-                <div
-                  className="bg-white dark:bg-zinc-900 rounded-2xl p-8 max-w-md w-full border border-zinc-200 dark:border-zinc-700 shadow-xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
-                    Ajustar Empleado
-                  </h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">
-                    PayrollEmployeeAdjustModal (Plan 04) — Empleado ID: {adjustingEmpId}
-                  </p>
-                  <button
-                    onClick={() => setAdjustingEmpId(null)}
-                    className="w-full py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* PayrollEmployeeAdjustModal integration */}
+            {adjustingEmpId !== null && payrollId !== null && (() => {
+              const emp = calcEmployees.find((e: any) => Number(e.id ?? e.employeeId ?? e.employee_id) === adjustingEmpId);
+              if (!emp) return null;
+              
+              return (
+                <PayrollEmployeeAdjustModal
+                  isOpen={true}
+                  payrollId={payrollId}
+                  employeeId={adjustingEmpId}
+                  employeeName={emp.name ?? emp.employeeName ?? emp.employee_name ?? 'Empleado'}
+                  currentData={{
+                    regularHours: Number(emp.totalHours ?? emp.total_hours ?? 0),
+                    overtimeHours: Number(emp.overtimeHours ?? emp.overtime_hours ?? 0),
+                    weeklyRestHours: Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0),
+                    totalDeductions: Number(emp.totalDeductions ?? emp.total_deductions ?? 0),
+                  }}
+                  onClose={() => setAdjustingEmpId(null)}
+                  onSave={() => {
+                    // Refresh calculation to show updated values and totals
+                    handleCalculate();
+                  }}
+                />
+              );
+            })()}
           </div>
         )}
 
