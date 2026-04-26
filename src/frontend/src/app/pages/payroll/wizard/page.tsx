@@ -134,21 +134,26 @@ export default function PayrollWizardPage() {
     setCalcError(null);
     setCalcResult(null);
     try {
-      // Crear planilla borrador primero
-      const payroll = await PayrollService.createPayroll({
-        payroll_type_id: 1,
-        period_start: dateStart,
-        period_end: dateEnd,
-        payment_date: dateEnd,
-        status: 'BORRADOR',
-      });
-      setPayrollId(payroll.id);
+      let currentId = payrollId;
 
-      // Calcular con los empleados seleccionados
+      // Solo crear planilla si no existe ya una para esta sesión del wizard
+      if (currentId === null) {
+        const payroll = await PayrollService.createPayroll({
+          payroll_type_id: 1,
+          period_start: dateStart,
+          period_end: dateEnd,
+          payment_date: dateEnd,
+          status: 'BORRADOR',
+        });
+        currentId = payroll.id;
+        setPayrollId(currentId);
+      }
+
+      // Calcular con los empleados seleccionados y el ID de planilla existente
       const result = await NomineeService.calculatePayrollForPeriod(
         dateStart,
         dateEnd,
-        payroll.id,
+        currentId,
         selectedEmployeeIds,
       );
 
@@ -164,7 +169,7 @@ export default function PayrollWizardPage() {
     } finally {
       setIsCalculating(false);
     }
-  }, [dateStart, dateEnd, selectedEmployeeIds, setPayrollId, setCalculationData]);
+  }, [dateStart, dateEnd, selectedEmployeeIds, payrollId, setPayrollId, setCalculationData]);
 
   const handleApprove = useCallback(async (pid: number) => {
     await PayrollService.approvePayroll(pid);
@@ -449,6 +454,7 @@ export default function PayrollWizardPage() {
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Empleado</th>
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400 text-right">H. Regulares</th>
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400 text-right">H. Extra</th>
+                        <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400 text-right">D. Semanal</th>
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400 text-right">Deducciones</th>
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400 text-right">Salario Neto</th>
                         <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Estado</th>
@@ -471,6 +477,9 @@ export default function PayrollWizardPage() {
                             </td>
                             <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
                               {Number(emp.overtimeHours ?? emp.overtime_hours ?? 0).toFixed(1)}h
+                            </td>
+                            <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
+                              {Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0).toFixed(1)}h
                             </td>
 
                             <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
