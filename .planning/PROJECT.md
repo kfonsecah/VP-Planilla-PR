@@ -12,9 +12,11 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 
 **v1.6 IN PROGRESS** — Mejoras en Auditoría de Marcas y UX (Phases TBD)
 
-- [ ] Edición directa de marcas en la auditoría por jornada (Sincronización Full-stack UI y DB)
-- [ ] Corrección de la lógica de "baja confianza" y recálculo en tiempo real del estatus amarillo
-- [ ] Implementación de caché de vista para panel de auditoría (URL o Storage para recordar pestaña activa y estado de tarjetas expandidas)
+- [x] Implementación de caché de vista para panel de auditoría (URL) (Phase 49)
+- [x] Corrección de la lógica de "baja confianza" y recálculo en tiempo real (Phase 50)
+- [x] Persistencia robusta en LocalStorage (Tab, Filtros, Estados) (Phase 52)
+- [ ] Estado Global y Navegación Instantánea (ClockLogsContext) (Phase 53)
+- [ ] Edición directa de marcas en la auditoría por jornada (Phase 51)
 
 **Next milestone:** v1.7 (to be defined via `/gsd:new-milestone`)
 

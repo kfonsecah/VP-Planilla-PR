@@ -1,5 +1,13 @@
 # Milestones
 
+## v1.6 — Mejoras en Auditoría de Marcas y UX (In Progress)
+
+**Goal:** Refinar la experiencia de usuario en la auditoría de marcas y asegurar la persistencia de configuraciones críticas.
+**Phases:** 49-52
+**Status:** In Progress
+
+---
+
 ## v1.5 — Gestión de Marcas y Planilla para Producción (Shipped: 2026-04-24)
 
 **Phases completed:** 17 phases (32-48), 51 plans

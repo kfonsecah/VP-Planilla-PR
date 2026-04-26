@@ -36,10 +36,11 @@ Progress: [#########...........] 50% (2/4 phases complete)
 
 | Phase | Name | Requirements | Status |
 |------|------|--------------|--------|
-| 49 | Persistencia de Vista (URL) | UX-11, UX-12 | âœ… Complete |
-| 50 | CorrecciÃ³n LÃ³gica de Estatus | AUDIT-02, AUDIT-03 | âœ… Complete |
-| 52 | Persistencia Robusta (LocalStorage) | UX-11, UX-12 | âœ… Complete |
-| 51 | EdiciÃ³n Directa de Marcas en AuditorÃ­a | AUDIT-01 | â Not Started |
+| 49 | Persistencia de Vista (URL) | UX-11, UX-12 | ✅ Complete |
+| 50 | Corrección Lógica de Estatus | AUDIT-02, AUDIT-03 | ✅ Complete |
+| 52 | Persistencia Robusta (LocalStorage) | UX-13 | ✅ Complete |
+| 53 | Estado Global (Context) | UX-14 | 🚧 In Progress |
+| 51 | Edición Directa de Marcas en Auditoría | AUDIT-01 | ⏳ Not Started |
 
 
 ## v1.5 Phase Map
