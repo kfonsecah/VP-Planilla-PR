@@ -31,6 +31,7 @@ export default function HolidaysManagementModal({ open, onClose, editHoliday }: 
     if (open && editHoliday && !formOpen) {
       openEdit(editHoliday);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editHoliday]);
 
   if (!open) return null;
@@ -236,6 +237,7 @@ export default function HolidaysManagementModal({ open, onClose, editHoliday }: 
           </div>
 
           <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Table columns={columns as any} data={tableData} isLoading={isLoading} error={error} onRetry={refetch} onEdit={openEdit as any} onDelete={openDelete as any} emptyMessage={`No hay feriados registrados para ${selectedYear}`} />
           </div>
         </div>

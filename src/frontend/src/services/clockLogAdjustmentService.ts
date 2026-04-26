@@ -29,6 +29,8 @@ export interface VoidClockLogPayload {
   justification: string;
 }
 
+const ADJUST_ENDPOINT = '/clock-logs/adjust';
+
 /**
  * Service for clock log adjustments (ADD, EDIT, VOID)
  * Communicates with POST /api/clock-logs/adjust
@@ -38,7 +40,7 @@ export const clockLogAdjustmentService = {
    * Add a new clock log mark
    */
   async addClockLog(payload: AddClockLogPayload): Promise<ClockLog> {
-    const response = await http.post('/clock-logs/adjust', {
+    const response = await http.post(ADJUST_ENDPOINT, {
       type: 'ADD',
       employee_id: Number(payload.employeeId),
       new_timestamp: payload.timestamp,
@@ -52,7 +54,7 @@ export const clockLogAdjustmentService = {
    * Edit an existing clock log timestamp or type (non-destructive)
    */
   async editClockLog(id: string | number, employeeId: string | number, timestamp: string, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
-    const response = await http.post('/clock-logs/adjust', {
+    const response = await http.post(ADJUST_ENDPOINT, {
       type: 'EDIT',
       clock_log_id: Number(id),
       employee_id: Number(employeeId),
@@ -67,7 +69,7 @@ export const clockLogAdjustmentService = {
    * Void/annul a clock log (soft delete)
    */
   async voidClockLog(id: string | number, employeeId: string | number, type: 'IN' | 'OUT', justification: string): Promise<ClockLog> {
-    const response = await http.post('/clock-logs/adjust', {
+    const response = await http.post(ADJUST_ENDPOINT, {
       type: 'VOID',
       clock_log_id: Number(id),
       employee_id: Number(employeeId),

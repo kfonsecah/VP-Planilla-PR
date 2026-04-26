@@ -21,7 +21,6 @@ import { Employee } from '@/types/employee';
 import { useModal } from '@/hooks/useModal';
 import EventPopover from '@/components/EventPopover';
 import '@/styles/calendar.css';
-import { toast } from 'sonner';
 import { CompanyHoliday } from '@/services/holidaysService';
 
 // Helper: parse backend date strings into local Date objects
@@ -107,8 +106,8 @@ interface Props {
   updateEvent?: (id: number, data: Partial<LaborEventFormData>) => Promise<{ success: boolean }>;
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
   navigateToDate?: Date;
-  dbHolidays?: any[]; // using any[] to avoid circular CompanyHoliday type dependency or we can import it
-  onEditHoliday?: (holiday: any) => void;
+  dbHolidays?: CompanyHoliday[];
+  onEditHoliday?: (holiday: CompanyHoliday) => void;
 }
 
 const LaborEventsCalendar: React.FC<Props> = ({ 
@@ -135,10 +134,12 @@ const LaborEventsCalendar: React.FC<Props> = ({
     anchor: { x: number; y: number };
   } | null>(null);
 
+  const navigateToDateTime = navigateToDate?.getTime();
+
   // Force calendar re-render when events or navigation date change
   useEffect(() => {
     setCalendarKey(prev => prev + 1);
-  }, [events.length, employees.length, navigateToDate?.getTime(), dbHolidays]);
+  }, [events.length, employees.length, navigateToDateTime, dbHolidays]);
 
   const getPreviewEvent = (): EventInput | null => {
     if (!preview) return null;

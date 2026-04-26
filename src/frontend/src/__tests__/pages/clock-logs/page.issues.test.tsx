@@ -2,11 +2,12 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ClockLogsPage from '@/app/pages/clock-logs/page';
 import { useClockLogsContext } from '@/hooks/useClockLogsContext';
+import { useSearchParams } from 'next/navigation';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn().mockReturnValue({ replace: jest.fn() }),
   usePathname: jest.fn().mockReturnValue('/clock-logs'),
-  useSearchParams: jest.fn().mockReturnValue({ get: jest.fn() }),
+  useSearchParams: jest.fn().mockReturnValue({ get: jest.fn(), toString: jest.fn().mockReturnValue('') }),
 }));
 
 jest.mock('@/hooks/useClockLogsContext');
@@ -21,7 +22,7 @@ describe('ClockLogsPage - has_issues logic', () => {
     jest.clearAllMocks();
   });
 
-  const mockData = (status: any, confidence: any = 'HIGH') => [
+  const mockData = (status: string) => [
     {
       id: '1-2026-02-02-1-2',
       employee_id: '101',
@@ -40,7 +41,7 @@ describe('ClockLogsPage - has_issues logic', () => {
     },
   ];
 
-  const mockContextValue = (data: any, clearedDays: Set<string> = new Set()): any => ({
+  const mockContextValue = (data: ReturnType<typeof mockData>, clearedDays: Set<string> = new Set()): ReturnType<typeof useClockLogsContext> => ({
     data,
     filters: { initDate: '2026-01-01', endDate: '2026-01-15' },
     importSessions: [],
@@ -48,9 +49,11 @@ describe('ClockLogsPage - has_issues logic', () => {
     confirmedDays: new Set(),
     fetchConfirmations: jest.fn(),
     isLoading: false,
+    isLoadingMore: false,
     hasMore: false,
     totalCount: data.length,
     page: 1,
+    error: null,
     setFilters: jest.fn(),
     applyDatePreset: jest.fn(),
     loadMore: jest.fn(),
@@ -62,21 +65,17 @@ describe('ClockLogsPage - has_issues logic', () => {
   });
 
   it('shows NO issues for LOW confidence + valid status', () => {
-    mockedUseClockLogsContext.mockReturnValue(mockContextValue(mockData('valid', 'LOW')));
+    mockedUseClockLogsContext.mockReturnValue(mockContextValue(mockData('valid')));
 
     render(<ClockLogsPage />);
-    
-    // In audit tab (via query param mock if needed, or just check the data structure)
-    // Actually, buildAuditData is called and its result is used.
-    // We can't easily check the internal result of auditEmployees() without more setup,
-    // but we can check if the amber dot is NOT present.
-    // Let's force 'audit' tab in mock searchParams
-    const { useSearchParams } = require('next/navigation');
-    const { get } = useSearchParams();
-    get.mockImplementation((key: string) => key === 'tab' ? 'audit' : null);
+
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockImplementation((key: string) => key === 'tab' ? 'audit' : null),
+      toString: jest.fn().mockReturnValue('tab=audit'),
+    });
 
     render(<ClockLogsPage />);
-    
+
     const issueDot = screen.queryByTitle(/Tiene marcas con problemas/i);
     expect(issueDot).not.toBeInTheDocument();
   });
@@ -85,7 +84,7 @@ describe('ClockLogsPage - has_issues logic', () => {
     mockedUseClockLogsContext.mockReturnValue(mockContextValue(mockData('anomaly')));
 
     render(<ClockLogsPage />);
-    
+
     const issueDot = screen.queryByTitle(/Tiene marcas con problemas/i);
     expect(issueDot).toBeInTheDocument();
   });
@@ -96,7 +95,7 @@ describe('ClockLogsPage - has_issues logic', () => {
     );
 
     render(<ClockLogsPage />);
-    
+
     const issueDot = screen.queryByTitle(/Tiene marcas con problemas/i);
     expect(issueDot).not.toBeInTheDocument();
   });
@@ -106,12 +105,13 @@ describe('ClockLogsPage - has_issues logic', () => {
       mockContextValue(mockData('orphan'), new Set(['101_2026-02-02']))
     );
 
-    const { useSearchParams } = require('next/navigation');
-    const { get } = useSearchParams();
-    get.mockImplementation((key: string) => key === 'tab' ? 'audit' : null);
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockImplementation((key: string) => key === 'tab' ? 'audit' : null),
+      toString: jest.fn().mockReturnValue('tab=audit'),
+    });
 
     render(<ClockLogsPage />);
-    
+
     const issueDot = screen.queryByTitle(/Tiene marcas con problemas/i);
     expect(issueDot).not.toBeInTheDocument();
   });

@@ -64,6 +64,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
         employee_schedule: employee.schedule || 'Horario Diurno',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employee, reset, positions]);
 
   const onSubmit = async (data: EmployeeSchemaType) => {

@@ -1,10 +1,12 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ClockLogsPage from '@/app/pages/clock-logs/page';
-import { useEffectiveMarks } from '@/hooks/useEffectiveMarks';
+import { useClockLogsContext } from '@/hooks/useClockLogsContext';
+import { useSearchParams } from 'next/navigation';
 
 const JAVA_IMPORT = 'java_import';
 const TOTAL_COUNT = 18;
+const MOCK_TAB_DASHBOARD = 'tab=dashboard';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -12,28 +14,15 @@ jest.mock('next/navigation', () => ({
     push: jest.fn(),
   }),
   usePathname: jest.fn().mockReturnValue('/clock-logs'),
-  useSearchParams: jest.fn().mockReturnValue({
-    get: jest.fn(),
-    toString: jest.fn().mockReturnValue(''),
-  }),
+  useSearchParams: jest.fn(),
 }));
-jest.mock('@/hooks/useEffectiveMarks');
-jest.mock('@/hooks/useClockAudit', () => ({
-  useClockAudit: jest.fn().mockReturnValue({
-    confirmDay: jest.fn(),
-    fetchConfirmations: jest.fn(),
-    confirmedDays: new Set(),
-    addMarkInline: jest.fn(),
-    changeMarkTypeInline: jest.fn(),
-    voidMarkInline: jest.fn(),
-  }),
-}));
+jest.mock('@/hooks/useClockLogsContext');
 
-const mockedUseEffectiveMarks = useEffectiveMarks as jest.MockedFunction<typeof useEffectiveMarks>;
+const mockedUseClockLogsContext = useClockLogsContext as jest.MockedFunction<typeof useClockLogsContext>;
 
 const mockHookReturn = (
-  partial: Partial<ReturnType<typeof useEffectiveMarks>> = {}
-): ReturnType<typeof useEffectiveMarks> => ({
+  partial: Partial<ReturnType<typeof useClockLogsContext>> = {}
+): ReturnType<typeof useClockLogsContext> => ({
   data: [
     {
       id: '1-2026-02-02-1-2',
@@ -82,22 +71,27 @@ const mockHookReturn = (
   applyDatePreset: jest.fn(),
   loadMore: jest.fn(),
   refresh: jest.fn(),
+  confirmDay: jest.fn(),
+  fetchConfirmations: jest.fn(),
+  confirmedDays: new Set(),
+  clearedDays: new Set(),
+  addMarkInline: jest.fn(),
+  changeMarkTypeInline: jest.fn(),
+  voidMarkInline: jest.fn(),
   ...partial,
 });
-
-const PENDIENTE = 'Pendiente';
-const VALIDA = 'Valida';
-const ANOMALIA = 'Anomalia';
-const HUERFANA = 'Huerfana';
-const CORREGIDA = 'Corregida';
 
 describe('/pages/clock-logs/page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(null), // Default to 'audit'
+      toString: jest.fn().mockReturnValue(''),
+    });
   });
 
   it('renders page title and description', async () => {
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn());
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn());
     
     // Use lazy initialization to prevent immediate effect execution
     const { container } = render(<ClockLogsPage />);
@@ -107,7 +101,7 @@ describe('/pages/clock-logs/page', () => {
   });
 
   it('renders period preset buttons and date inputs', () => {
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn());
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
     // New period presets: 1ra Quincena, 2da Quincena, Mes Actual
@@ -120,7 +114,11 @@ describe('/pages/clock-logs/page', () => {
   });
 
   it('renders status filter toggle buttons', () => {
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn());
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockImplementation((key) => key === 'tab' ? 'dashboard' : null),
+      toString: jest.fn().mockReturnValue(MOCK_TAB_DASHBOARD),
+    });
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
     // Status filter buttons in Spanish
@@ -138,7 +136,11 @@ describe('/pages/clock-logs/page', () => {
   });
 
   it('renders import sessions panel', () => {
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn());
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockImplementation((key) => key === 'tab' ? 'dashboard' : null),
+      toString: jest.fn().mockReturnValue(MOCK_TAB_DASHBOARD),
+    });
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn());
     render(<ClockLogsPage />);
 
     // Import sessions panel text
@@ -147,7 +149,7 @@ describe('/pages/clock-logs/page', () => {
 
   it('calls applyDatePreset when period button clicked', () => {
     const applyDatePreset = jest.fn();
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn({ applyDatePreset }));
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn({ applyDatePreset }));
     render(<ClockLogsPage />);
 
     fireEvent.click(screen.getByRole('button', { name: /1ra quincena/i }));
@@ -156,8 +158,12 @@ describe('/pages/clock-logs/page', () => {
   });
 
   it('calls setFilters when status filter clicked', () => {
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockImplementation((key) => key === 'tab' ? 'dashboard' : null),
+      toString: jest.fn().mockReturnValue(MOCK_TAB_DASHBOARD),
+    });
     const setFilters = jest.fn();
-    mockedUseEffectiveMarks.mockReturnValue(mockHookReturn({ setFilters }));
+    mockedUseClockLogsContext.mockReturnValue(mockHookReturn({ setFilters }));
     render(<ClockLogsPage />);
 
     fireEvent.click(screen.getByRole('button', { name: /valida/i }));

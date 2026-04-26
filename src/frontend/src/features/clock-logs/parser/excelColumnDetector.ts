@@ -1,4 +1,4 @@
-export function detectColumns(headerRow: any[]) {
+export function detectColumns(headerRow: unknown[]) {
   const headers = headerRow.map(h => String(h || '').toLowerCase().trim());
   
   const idIdx = headers.findIndex(h => /empleado|employee|id|código|cod/i.test(h));

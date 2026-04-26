@@ -63,7 +63,13 @@ const EditClockLogModal: React.FC<EditClockLogModalProps> = ({
       return;
     }
 
-    const newTimestamp = `${date}T${time}:00.000Z`;
+    // Combine date and time, interpret as local time, then convert to ISO
+    const localDateTime = new Date(`${date}T${time}:00`);
+    if (isNaN(localDateTime.getTime())) {
+      toast.error('Fecha o hora inválida');
+      return;
+    }
+    const newTimestamp = localDateTime.toISOString();
 
     setIsSubmitting(true);
     try {

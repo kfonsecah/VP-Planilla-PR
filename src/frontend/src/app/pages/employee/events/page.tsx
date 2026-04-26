@@ -50,20 +50,10 @@ const LaborEventsPage: React.FC = () => {
   // Filtrar eventos según filtros activos del sidebar
   const filteredEvents = useMemo(() => {
     return events.filter(ev => {
-      // Filtrar por empleado
-      if (filters.employeeId && String(ev.employee_id) !== String(filters.employeeId)) return false;
-      
-      // Filtrar por tipo de evento
-      if (filters.eventType) {
-        const name = (ev.labor_event_name || '').toLowerCase();
-        const filterName = filters.eventType.toLowerCase();
-        if (!name.includes(filterName)) return false;
-      }
-      
-      // Filtrar por status
-      if (filters.status && ev.status !== filters.status) return false;
-      
-      return true;
+      const matchesEmployee = !filters.employeeId || String(ev.employee_id) === String(filters.employeeId);
+      const matchesType = !filters.eventType || (ev.labor_event_name || '').toLowerCase().includes(filters.eventType.toLowerCase());
+      const matchesStatus = !filters.status || ev.status === filters.status;
+      return matchesEmployee && matchesType && matchesStatus;
     });
   }, [events, filters]);
 

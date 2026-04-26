@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon, CheckIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, CheckIcon, PlusIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { MarkConfidenceBadge } from './MarkConfidenceBadge';
 import { MarkTypeSelector } from './MarkTypeSelector';
 
@@ -20,6 +20,7 @@ interface AuditDayRowProps {
   calculatedHours?: number | null;
   onConfirm: () => void;
   onAddInline: (time: string, type: 'IN' | 'OUT') => Promise<void>;
+  onEditInline: (mark: DayMark) => void;
   onChangeTypeInline: (employeeId: string, logId: number, currentTimestamp: string, newType: 'IN' | 'OUT') => Promise<void>;
   onVoidInline: (employeeId: string, logId: number, type: 'IN' | 'OUT', date: string) => Promise<void>;
 }
@@ -33,6 +34,7 @@ export function AuditDayRow({
   calculatedHours, 
   onConfirm,
   onAddInline,
+  onEditInline,
   onChangeTypeInline,
   onVoidInline
 }: AuditDayRowProps) {
@@ -132,13 +134,23 @@ export function AuditDayRow({
                   })}
                 </span>
 
-                <button
-                  onClick={() => onVoidInline(employeeId, m.id, m.type, date)}
-                  title="Eliminar marca"
-                  className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <TrashIcon className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => onEditInline(m)}
+                    title="Editar marca"
+                    className="p-1.5 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                  >
+                    <PencilIcon className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => onVoidInline(employeeId, m.id, m.type, date)}
+                    title="Eliminar marca"
+                    className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                  >
+                    <TrashIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

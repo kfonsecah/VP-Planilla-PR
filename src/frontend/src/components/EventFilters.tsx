@@ -16,6 +16,9 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
 
 const EVENT_TYPES = Object.keys(EVENT_TYPE_COLORS);
 
+const SECTION_HEADER_BTN_CLASS = "flex items-center justify-between w-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 py-1";
+const CHEVRON_ROTATE_CLASS = 'rotate-180';
+
 const STATUS_OPTIONS = [
   { value: null, label: 'Todos', color: 'bg-zinc-400' },
   { value: 'active', label: 'Activo', color: 'bg-green-500' },
@@ -90,10 +93,10 @@ const EventFilters: React.FC<EventFiltersProps> = ({
       <div>
         <button
           onClick={() => toggleSection('employee')}
-          className="flex items-center justify-between w-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 py-1"
+          className={SECTION_HEADER_BTN_CLASS}
         >
           <span>Empleado</span>
-          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.employee ? 'rotate-180' : ''}`} />
+          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.employee ? CHEVRON_ROTATE_CLASS : ''}`} />
         </button>
         {expandedSections.employee && (
           <div className="mt-1.5 relative">
@@ -155,10 +158,10 @@ const EventFilters: React.FC<EventFiltersProps> = ({
       <div>
         <button
           onClick={() => toggleSection('eventType')}
-          className="flex items-center justify-between w-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 py-1"
+          className={SECTION_HEADER_BTN_CLASS}
         >
           <span>Tipo de Evento</span>
-          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.eventType ? 'rotate-180' : ''}`} />
+          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.eventType ? CHEVRON_ROTATE_CLASS : ''}`} />
         </button>
         {expandedSections.eventType && (
           <div className="mt-1.5 space-y-0.5">
@@ -184,10 +187,10 @@ const EventFilters: React.FC<EventFiltersProps> = ({
       <div>
         <button
           onClick={() => toggleSection('status')}
-          className="flex items-center justify-between w-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 py-1"
+          className={SECTION_HEADER_BTN_CLASS}
         >
           <span>Estado</span>
-          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.status ? 'rotate-180' : ''}`} />
+          <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expandedSections.status ? CHEVRON_ROTATE_CLASS : ''}`} />
         </button>
         {expandedSections.status && (
           <div className="mt-1.5 space-y-0.5">

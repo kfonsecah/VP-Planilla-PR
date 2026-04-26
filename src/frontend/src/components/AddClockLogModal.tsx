@@ -111,7 +111,13 @@ const AddClockLogModal: React.FC<AddClockLogModalProps> = ({
       return;
     }
 
-    const timestamp = `${date}T${time}:00.000Z`;
+    // Combine date and time, interpret as local time, then convert to ISO
+    const localDateTime = new Date(`${date}T${time}:00`);
+    if (isNaN(localDateTime.getTime())) {
+      toast.error('Fecha o hora inválida');
+      return;
+    }
+    const timestamp = localDateTime.toISOString();
 
     setIsSubmitting(true);
     try {

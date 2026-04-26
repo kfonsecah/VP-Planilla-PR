@@ -95,8 +95,13 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  interface ConfirmationRecord {
+    employee_id: number;
+    confirmation_date: string;
+  }
+
   // --- useClockAudit State ---
-  const [confirmedData, setConfirmedData] = useState<any[]>([]);
+  const [confirmedData, setConfirmedData] = useState<ConfirmationRecord[]>([]);
   const [clearedDays, setClearedDays] = useState<Set<string>>(new Set());
 
   // Track if initial sessions have been loaded
@@ -242,7 +247,7 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
     try {
       await dayConfirmationService.upsert(employeeId, date);
       toast.success('Día confirmado');
-    } catch (e) {
+    } catch {
       setConfirmedData(prev => prev.filter(c => {
         const d = new Date(c.confirmation_date).toISOString().split('T')[0];
         return `${c.employee_id}_${d}` !== key;
@@ -263,7 +268,14 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
-      const timestamp = new Date(`${date}T${time}:00`).toISOString();
+      // Combine date and time, interpret as local time, then convert to ISO
+      const localDateTime = new Date(`${date}T${time}:00`);
+      if (isNaN(localDateTime.getTime())) {
+        toast.error('Fecha o hora inválida');
+        return;
+      }
+      const timestamp = localDateTime.toISOString();
+
       await clockLogAdjustmentService.addClockLog({
         employeeId,
         timestamp,
@@ -272,7 +284,7 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
       });
       toast.success('Marca añadida');
       refresh();
-    } catch (e) {
+    } catch {
       setClearedDays(prev => {
         const next = new Set(prev);
         next.delete(key);
@@ -305,7 +317,7 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
       );
       toast.success('Tipo actualizado');
       refresh();
-    } catch (e) {
+    } catch {
       setClearedDays(prev => {
         const next = new Set(prev);
         next.delete(key);
@@ -335,7 +347,7 @@ export function ClockLogsProvider({ children }: { children: React.ReactNode }) {
       );
       toast.success('Marca eliminada');
       refresh();
-    } catch (e) {
+    } catch {
       setClearedDays(prev => {
         const next = new Set(prev);
         next.delete(key);

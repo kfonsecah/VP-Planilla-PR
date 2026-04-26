@@ -18,6 +18,7 @@ import { getStatusBadgeConfig } from '@/utils/employeeUtils';
  * Página de perfil completo de un empleado
  * Ruta: /pages/employee/[id]
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const EmployeeProfilePage: React.FC = () => {
   const params = useParams();
   const router = useRouter();

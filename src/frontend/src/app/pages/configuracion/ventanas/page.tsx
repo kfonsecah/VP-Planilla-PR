@@ -14,11 +14,7 @@ const timeWindowSchema = z.object({
   type: z.enum(['IN', 'OUT'] as const),
   startHour: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Debe usar formato HH:MM (ej. 08:00)'),
   endHour: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Debe usar formato HH:MM (ej. 17:00)'),
-}).refine((data) => {
-  // Opcional: Validar que inicio sea menor que fin si se asume que no cruza la medianoche
-  // Pero en algunos casos sí cruza, por lo que lo dejamos libre o validamos si es necesario.
-  return true;
-}, { message: "Rango de horas inválido", path: ["endHour"] });
+}).refine(() => true, { message: "Rango de horas inválido", path: ["endHour"] });
 
 type TimeWindowFormValues = z.infer<typeof timeWindowSchema>;
 
@@ -39,8 +35,8 @@ export default function ConfiguracionPage() {
       const data = await timeWindowService.getAll();
       setWindows(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar las ventanas de tiempo');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al cargar las ventanas de tiempo');
     } finally {
       setIsLoading(false);
     }
@@ -60,28 +56,28 @@ export default function ConfiguracionPage() {
     setIsFormOpen(true);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Partial<TimeWindowFormValues>) => {
     try {
       if (editingWindow) {
         await timeWindowService.update(editingWindow.time_window_id, {
-          name: data.name,
-          type: data.type,
-          startHour: data.startHour,
-          endHour: data.endHour
+          name: data.name ?? '',
+          type: data.type ?? 'IN',
+          startHour: data.startHour ?? '',
+          endHour: data.endHour ?? ''
         });
       } else {
         await timeWindowService.create({
           companyId: 1, // Default por contexto de la app
-          name: data.name,
-          type: data.type,
-          startHour: data.startHour,
-          endHour: data.endHour
+          name: data.name ?? '',
+          type: data.type ?? 'IN',
+          startHour: data.startHour ?? '',
+          endHour: data.endHour ?? ''
         });
       }
       setIsFormOpen(false);
       fetchWindows();
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar la ventana de tiempo');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar la ventana de tiempo');
     }
   };
 
@@ -92,8 +88,8 @@ export default function ConfiguracionPage() {
       setIsConfirmDeleteOpen(false);
       setWindowToDelete(null);
       fetchWindows();
-    } catch (err: any) {
-      setError(err.message || 'Error al eliminar la ventana de tiempo');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la ventana de tiempo');
     }
   };
 
@@ -195,6 +191,7 @@ export default function ConfiguracionPage() {
         open={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         title={editingWindow ? 'Editar Ventana de Tiempo' : 'Nueva Ventana de Tiempo'}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver={zodResolver(timeWindowSchema) as any}
         initialValues={editingWindow ? {
           name: editingWindow.time_window_name,

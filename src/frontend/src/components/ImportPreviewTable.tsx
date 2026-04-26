@@ -1,6 +1,18 @@
 import React from 'react';
 
-export function ImportPreviewTable({ rows, skippedRows }: any) {
+interface PreviewRow {
+  id: string;
+  date: string;
+  isoDate: string | null;
+  type: string;
+}
+
+interface ImportPreviewTableProps {
+  rows: PreviewRow[];
+  skippedRows: unknown[];
+}
+
+export function ImportPreviewTable({ rows, skippedRows }: ImportPreviewTableProps) {
   return (
     <div className="w-full overflow-hidden border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900/50">
       <table className="w-full text-sm">
@@ -12,7 +24,7 @@ export function ImportPreviewTable({ rows, skippedRows }: any) {
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-           {rows?.length > 0 ? rows.map((r: any) => (
+           {rows?.length > 0 ? rows.map((r: PreviewRow) => (
              <tr key={r.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                <td className="py-3 px-4 text-zinc-600 dark:text-zinc-400">{r.id}</td>
                <td className="py-3 px-4 text-zinc-900 dark:text-zinc-100">{r.date}</td>

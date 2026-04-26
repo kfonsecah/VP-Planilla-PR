@@ -94,6 +94,7 @@ const { register, control, handleSubmit, formState: { errors, isSubmitting }, re
   const initializedRef = useRef<string>('');
   
   // Initialize form when modal opens with employee data
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   useEffect(() => {
     if (!isOpen || !employeeData) return;
     

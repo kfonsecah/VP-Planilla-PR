@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ChevronDownIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import { useClockLogsContext } from '@/hooks/useClockLogsContext';
@@ -200,10 +200,24 @@ function groupDataByBranch(logs: EffectiveClockLog[], clearedDays: Set<string> =
 }
 
 /**
- * Build an AdjustmentClockLog from an EffectiveClockLog entry.
+ * Build an AdjustmentClockLog from an EffectiveClockLog entry OR an AuditMark.
  * Uses in_log_id/in_time for IN marks; falls back to out_log_id/out_time for OUT-only orphans.
  */
-function toAdjustmentClockLog(entry: EffectiveClockLog): AdjustmentClockLog {
+function toAdjustmentClockLog(entry: EffectiveClockLog | AuditMark, overrideEmployeeId?: string): AdjustmentClockLog {
+  // If it's an AuditMark (from the audit view list)
+  if ('confidence' in entry) {
+    return {
+      id: String(entry.id),
+      employeeId: overrideEmployeeId || '', 
+      timestamp: entry.timestamp,
+      type: entry.type,
+      source: 'DEVICE', // Default for audit view marks
+      createdAt: '',
+      createdBy: '',
+    };
+  }
+
+  // If it's an EffectiveClockLog (from the dashboard cards)
   const hasIn = entry.original.in_log_id != null;
   const logId = hasIn ? entry.original.in_log_id! : (entry.original.out_log_id ?? 0);
   const logType: 'IN' | 'OUT' = hasIn ? 'IN' : 'OUT';
@@ -212,7 +226,7 @@ function toAdjustmentClockLog(entry: EffectiveClockLog): AdjustmentClockLog {
 
   return {
     id: String(logId),
-    employeeId: entry.employee_id,
+    employeeId: overrideEmployeeId || entry.employee_id,
     timestamp: logTimestamp,
     type: logType,
     source: entry.original.source as 'DEVICE' | 'MANUAL',
@@ -231,7 +245,7 @@ const STORAGE_KEY_TAB = 'clock_logs_active_tab';
 const STORAGE_KEY_SHOW_ISSUES = 'clock_logs_show_issues';
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export default function ClockLogsDashboardPage() {
+function ClockLogsDashboardPageInner() {
   const {
     data,
     totalCount,
@@ -246,7 +260,6 @@ export default function ClockLogsDashboardPage() {
     loadMore,
     refresh,
     confirmDay,
-    fetchConfirmations,
     confirmedDays,
     clearedDays,
     addMarkInline,
@@ -273,9 +286,12 @@ export default function ClockLogsDashboardPage() {
     }
   }, [searchParams, pathname, router]);
 
-  const activeTab = (searchParams.get('tab') as PageTab) || 'dashboard';
+  const activeTab = (searchParams.get('tab') as PageTab) || 'audit';
   const expandedParam = searchParams.get('expanded');
-  const expandedEmployees = new Set(expandedParam ? expandedParam.split(',') : []);
+  const expandedEmployees = useMemo(
+    () => new Set(expandedParam ? expandedParam.split(',') : []),
+    [expandedParam]
+  );
 
   const changeTab = useCallback((tab: PageTab) => {
     localStorage.setItem(STORAGE_KEY_TAB, tab);
@@ -400,16 +416,6 @@ export default function ClockLogsDashboardPage() {
         {/* TAB BAR */}
         <div className="flex gap-1 mb-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-1 w-fit">
           <button
-            onClick={() => changeTab('dashboard')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'dashboard'
-                ? 'bg-green-600 text-white shadow-sm'
-                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-            }`}
-          >
-            Vista General
-          </button>
-          <button
             onClick={() => changeTab('audit')}
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               activeTab === 'audit'
@@ -418,6 +424,16 @@ export default function ClockLogsDashboardPage() {
             }`}
           >
             Auditoría por Jornada
+          </button>
+          <button
+            onClick={() => changeTab('dashboard')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'dashboard'
+                ? 'bg-green-600 text-white shadow-sm'
+                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            }`}
+          >
+            Vista General
           </button>
         </div>
 
@@ -670,6 +686,7 @@ export default function ClockLogsDashboardPage() {
                               calculatedHours={day.calculated_hours}
                               onConfirm={() => confirmDay(Number(emp.employee_id), day.date)}
                               onAddInline={(time, type) => addMarkInline(emp.employee_id, day.date, time, type)}
+                              onEditInline={(mark) => setSelectedEntryForEdit(toAdjustmentClockLog(mark, emp.employee_id))}
                               onChangeTypeInline={(eid, logId, ts, type) => changeMarkTypeInline(eid, logId, ts, type)}
                               onVoidInline={(eid, logId, type) => voidMarkInline(eid, logId, type, day.date)}
                             />
@@ -725,5 +742,13 @@ export default function ClockLogsDashboardPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function ClockLogsDashboardPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <ClockLogsDashboardPageInner />
+    </React.Suspense>
   );
 }

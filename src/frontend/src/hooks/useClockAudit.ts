@@ -7,6 +7,7 @@ import { useClockLogsContext } from './useClockLogsContext';
  * now wraps the global ClockLogsContext.
  * @param _onRefresh Kept for backward compatibility, but refresh is now handled by the context.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useClockAudit(_onRefresh?: () => void) {
   const context = useClockLogsContext();
 

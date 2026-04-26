@@ -6,16 +6,32 @@ import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { PlusIcon, PencilSquareIcon, TrashIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+
+interface Holiday {
+  company_holidays_id: number;
+  company_holidays_name: string;
+  company_holidays_date: string;
+  company_holidays_is_mandatory: boolean;
+  company_holidays_is_triple: boolean;
+  company_holidays_status?: string;
+}
+
+interface HolidayFormValues {
+  name: string;
+  date: string;
+  is_mandatory_pay: boolean;
+  allow_triple_overtime: boolean;
+  status: string;
+}
 
 export default function FeriadosPage() {
-  const [holidays, setHolidays] = useState<any[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const [editingHoliday, setEditingHoliday] = useState<any | null>(null);
+
+  const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [holidayToDelete, setHolidayToDelete] = useState<any | null>(null);
+  const [holidayToDelete, setHolidayToDelete] = useState<Holiday | null>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   useEffect(() => {
@@ -28,8 +44,8 @@ export default function FeriadosPage() {
       const data = await holidaysService.getAll();
       setHolidays(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load holidays');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load holidays');
     } finally {
       setLoading(false);
     }
@@ -40,21 +56,21 @@ export default function FeriadosPage() {
     setIsFormOpen(true);
   };
 
-  const openEditModal = (h: any) => {
+  const openEditModal = (h: Holiday) => {
     setEditingHoliday(h);
     setIsFormOpen(true);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Partial<HolidayFormValues>) => {
     try {
       const payload = {
-        company_holidays_name: data.name,
-        company_holidays_date: data.date,
-        company_holidays_is_mandatory: data.is_mandatory_pay,
-        company_holidays_is_triple: data.allow_triple_overtime,
-        company_holidays_status: data.status
+        company_holidays_name: data.name ?? '',
+        company_holidays_date: data.date ?? '',
+        company_holidays_is_mandatory: data.is_mandatory_pay ?? false,
+        company_holidays_is_triple: data.allow_triple_overtime ?? false,
+        company_holidays_status: data.status ?? 'active'
       };
-      
+
       if (editingHoliday) {
         await holidaysService.update(editingHoliday.company_holidays_id, payload);
       } else {
@@ -62,8 +78,8 @@ export default function FeriadosPage() {
       }
       setIsFormOpen(false);
       fetchHolidays();
-    } catch (err: any) {
-      setError(err.message || 'Error saving holiday');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error saving holiday');
     }
   };
 
@@ -73,8 +89,8 @@ export default function FeriadosPage() {
       await holidaysService.delete(holidayToDelete.company_holidays_id);
       setIsConfirmDeleteOpen(false);
       fetchHolidays();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete holiday');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete holiday');
     }
   };
 

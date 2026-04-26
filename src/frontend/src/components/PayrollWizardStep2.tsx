@@ -2,7 +2,6 @@
 
 import React from 'react';
 import PayrollResults from '@/components/PayrollResults';
-import type { WizardState } from '@/hooks/usePayrollWizard';
 
 interface CalculationResult {
   period: {

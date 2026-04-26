@@ -31,8 +31,7 @@ function extractHHMM(time: string): string | null {
     const parts = time.split('T');
     const timePart = parts[1];
     if (!timePart) return null;
-    const hhmm = timePart.substring(0, 5);
-    return hhmm;
+    return timePart.substring(0, 5);
   }
 
   // Already HH:MM or HH:MM:SS
@@ -55,6 +54,7 @@ function extractHHMM(time: string): string | null {
  * - 04:00–12:59 → IN (morning entry)
  * - 13:00–23:59 → OUT (afternoon/evening exit)
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function classifyByTimeWindow(time: string, windows: TimeWindow[]): ClassificationResult {
   const BOUNDARY_MARGIN_MINUTES = 15;
 

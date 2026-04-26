@@ -125,6 +125,7 @@ export default function PayrollWizard() {
     }
   }, [aguinaldoStart, aguinaldoEnd, setCalculationData, goToStep]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleApprove = useCallback(async (_payrollId: number) => {
     toast.success('Planilla aprobada exitosamente');
     reset();
