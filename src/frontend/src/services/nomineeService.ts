@@ -41,11 +41,14 @@ export const NomineeService = {
     }
   },
 
-  async calculatePayrollForPeriod(startDate: string, endDate: string, payrollId?: number): Promise<unknown> {
+  async calculatePayrollForPeriod(startDate: string, endDate: string, payrollId?: number, selectedEmployeeIds?: number[]): Promise<unknown> {
     try {
-      const payload: { startDate: string; endDate: string; payrollId?: number } = { startDate, endDate };
+      const payload: { startDate: string; endDate: string; payrollId?: number; selectedEmployeeIds?: number[] } = { startDate, endDate };
       if (payrollId) {
         payload.payrollId = payrollId;
+      }
+      if (selectedEmployeeIds && selectedEmployeeIds.length > 0) {
+        payload.selectedEmployeeIds = selectedEmployeeIds;
       }
       return await http.post('/nominee/calculate-payroll', payload);
     } catch (err) {

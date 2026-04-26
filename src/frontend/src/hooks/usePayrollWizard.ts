@@ -8,7 +8,7 @@ export interface BiweeklyPeriod {
 }
 
 export interface WizardState {
-  currentStep: 1 | 2 | 3;
+  currentStep: 1 | 2 | 3 | 4;
   selectedPeriod: {
     start: string;
     end: string;
@@ -47,10 +47,12 @@ interface DeductionBreakdown {
 }
 
 export function usePayrollWizard() {
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedPeriod, setSelectedPeriod] = useState<WizardState['selectedPeriod']>(null);
   const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
   const [payrollId, setPayrollId] = useState<number | null>(null);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
+  const [periodType, setPeriodType] = useState<'quincenal' | 'mensual' | 'rango_libre'>('quincenal');
 
   const selectPeriod = useCallback((period: {
     start: string;
@@ -66,7 +68,7 @@ export function usePayrollWizard() {
     });
   }, []);
 
-  const goToStep = useCallback((step: 1 | 2 | 3) => {
+  const goToStep = useCallback((step: 1 | 2 | 3 | 4) => {
     setCurrentStep(step);
   }, []);
 
@@ -83,6 +85,8 @@ export function usePayrollWizard() {
     setSelectedPeriod(null);
     setCalculationData(null);
     setPayrollId(null);
+    setSelectedEmployeeIds([]);
+    setPeriodType('quincenal');
   }, []);
 
   return {
@@ -90,6 +94,10 @@ export function usePayrollWizard() {
     selectedPeriod,
     calculationData,
     payrollId,
+    selectedEmployeeIds,
+    setSelectedEmployeeIds,
+    periodType,
+    setPeriodType,
     selectPeriod,
     goToStep,
     setCalculationData: setCalculationDataState,
