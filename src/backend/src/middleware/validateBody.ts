@@ -13,8 +13,14 @@ export const validateBody = (schema: ZodSchema) =>
   (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      const message = result.error.issues.map(i => i.message).join(', ');
-      res.status(400).json({ success: false, error: message });
+      console.error('[validateBody] Validation failed:', JSON.stringify(result.error.issues, null, 2));
+      console.error('[validateBody] Body received:', JSON.stringify(req.body, null, 2));
+      const message = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
+      res.status(400).json({ 
+        success: false, 
+        error: message,
+        details: result.error.issues // Send full issues to help frontend debugging
+      });
       return;
     }
     req.body = result.data;
