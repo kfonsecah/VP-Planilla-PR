@@ -9,6 +9,7 @@ import { getEmployees } from '@/services/employeeService';
 import PayrollWizardStep3 from '@/components/PayrollWizardStep3';
 import PayrollEmployeeAdjustModal from '@/components/PayrollEmployeeAdjustModal';
 import type { Employee } from '@/types/employee';
+import type { PayrollCalculationResult, EmployeePayroll } from '@/types/payrollTypes';
 
 type PeriodType = 'quincenal' | 'mensual' | 'rango_libre';
 
@@ -56,8 +57,7 @@ export default function PayrollWizardPage() {
   // ── Step 3 state ──────────────────────────────────────────────────────────
   const [isCalculating, setIsCalculating] = useState(false);
   const [calcError, setCalcError] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [calcResult, setCalcResult] = useState<any>(null);
+  const [calcResult, setCalcResult] = useState<PayrollCalculationResult | null>(null);
   const [adjustingEmpId, setAdjustingEmpId] = useState<number | null>(null);
 
   // ── Load employees when entering Step 2 ──────────────────────────────────
@@ -177,14 +177,12 @@ export default function PayrollWizardPage() {
   }, [reset]);
 
   // ── Derived ───────────────────────────────────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const calcEmployees: any[] = Array.isArray((calcResult as any)?.employees)
-    ? (calcResult as any).employees
+  const calcEmployees: EmployeePayroll[] = Array.isArray(calcResult?.employees)
+    ? calcResult.employees
     : [];
 
   const inconsistentCount = calcEmployees.filter(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (e: any) => Array.isArray(e.inconsistencies) && e.inconsistencies.length > 0
+    (e) => Array.isArray(e.inconsistencies) && e.inconsistencies.length > 0
   ).length;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -519,7 +517,7 @@ export default function PayrollWizardPage() {
 
             {/* PayrollEmployeeAdjustModal integration */}
             {adjustingEmpId !== null && payrollId !== null && (() => {
-              const emp = calcEmployees.find((e: any) => Number(e.id ?? e.employeeId ?? e.employee_id) === adjustingEmpId);
+              const emp = calcEmployees.find((e) => Number(e.id ?? e.employeeId ?? e.employee_id) === adjustingEmpId);
               if (!emp) return null;
               
               return (

@@ -55,9 +55,9 @@ process.stdin.on('end', () => {
     process.exit(0);
   }
 
-  let typecheckOutput = '';
-  let failed = false;
+  const errors = [];
 
+  // 1. TypeScript typecheck
   try {
     execSync('npx tsc --noEmit 2>&1', {
       cwd: projectDir,
@@ -65,18 +65,35 @@ process.stdin.on('end', () => {
       stdio: 'pipe',
     });
   } catch (err) {
-    failed = true;
-    typecheckOutput = err.stdout?.toString() || err.message || '';
-    // Trim to last 50 lines to avoid flooding context
-    const lines = typecheckOutput.split('\n');
+    let out = err.stdout?.toString() || err.message || '';
+    const lines = out.split('\n');
     if (lines.length > 50) {
-      typecheckOutput = `...(${lines.length - 50} lines omitted)...\n` + lines.slice(-50).join('\n');
+      out = `...(${lines.length - 50} lines omitted)...\n` + lines.slice(-50).join('\n');
+    }
+    errors.push(`## TypeScript errors (tsc --noEmit)\n\`\`\`\n${out.trim()}\n\`\`\``);
+  }
+
+  // 2. ESLint — frontend only
+  if (projectName === 'frontend') {
+    try {
+      execSync('npx next lint --quiet 2>&1', {
+        cwd: projectDir,
+        timeout: 60000,
+        stdio: 'pipe',
+      });
+    } catch (err) {
+      let out = err.stdout?.toString() || err.message || '';
+      const lines = out.split('\n');
+      if (lines.length > 50) {
+        out = `...(${lines.length - 50} lines omitted)...\n` + lines.slice(-50).join('\n');
+      }
+      errors.push(`## ESLint errors (next lint)\n\`\`\`\n${out.trim()}\n\`\`\``);
     }
   }
 
-  if (failed) {
+  if (errors.length > 0) {
     const output = {
-      additionalContext: `## TypeScript errors in ${projectName} (tsc --noEmit)\n\nFix these before finishing the task:\n\`\`\`\n${typecheckOutput.trim()}\n\`\`\``,
+      additionalContext: `## Build checks failed in ${projectName}\n\nFix these before finishing the task:\n\n${errors.join('\n\n')}`,
     };
     process.stdout.write(JSON.stringify(output));
   }

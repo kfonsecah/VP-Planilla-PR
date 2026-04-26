@@ -2,6 +2,70 @@
  * Types for Payroll Types module
  */
 
+export interface PayrollPeriod {
+  startDate: string;
+  endDate: string;
+}
+
+export interface DeductionBreakdown {
+  deduction_id?: number;
+  code: string;
+  type: 'fixed' | 'percent';
+  amount: number;
+  message: string;
+}
+
+export interface Inconsistency {
+  date: string;
+  message: string;
+}
+
+export interface EmployeePayroll {
+  employeeId: string;
+  employeeName: string;
+  positionId: string;
+  baseHourlySalary: number;
+  scheduledHours: number;
+  regularHours: number;
+  overtimeHours: number;
+  weeklyRestHours: number;
+  weeklyRestPay: number;
+  overtimePay: number;
+  grossSalary: number;
+  totalDeductions: number;
+  netSalary: number;
+  bonuses: number;
+  deductionsBreakdown: DeductionBreakdown[];
+  inconsistencies: Inconsistency[];
+  generalMessages: string[];
+  id?: number;
+  employee_id?: number;
+  name?: string;
+  employee_name?: string;
+  identification?: string;
+  employee_identification?: string;
+  national_id?: string;
+  position?: string;
+  position_name?: string;
+  // snake_case aliases (API may return either format)
+  regular_hours?: number;
+  overtime_hours?: number;
+  weekly_rest_hours?: number;
+  total_deductions?: number;
+}
+
+export interface PayrollSummary {
+  employeesProcessed: number;
+  employeesWithInconsistencies: number;
+  messages: string[];
+}
+
+export interface PayrollCalculationResult {
+  period: PayrollPeriod;
+  employees: EmployeePayroll[];
+  summary: PayrollSummary;
+}
+
 export interface PayrollType {
   id: number;
   name: string;
