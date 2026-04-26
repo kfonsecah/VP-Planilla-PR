@@ -86,9 +86,9 @@ interface EffectiveMarkWithAdj extends EffectiveMark {
  */
 export class ClockLogEffectiveService {
   /**
-   * Internal helper to pair IN/OUT logs for one or more employees.
+   * Helper to pair IN/OUT logs for one or more employees.
    */
-  private static pairLogs(effectiveLogs: EffectiveMark[]): PairedMark[] {
+  public static pairLogs(effectiveLogs: EffectiveMark[]): PairedMark[] {
     // 1. Sort by effectiveTimestamp ASC
     const sortedLogs = [...effectiveLogs].sort((a, b) => a.effectiveTimestamp.getTime() - b.effectiveTimestamp.getTime());
 

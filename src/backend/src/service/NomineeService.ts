@@ -585,6 +585,14 @@ export class NomineeService {
         employeePayroll.totalDeductions,
       );
 
+      // Add alias fields for frontend compatibility
+      (employeePayroll as any).regular_hours = employeePayroll.regularHours;
+      (employeePayroll as any).overtime_hours = employeePayroll.overtimeHours;
+      (employeePayroll as any).total_hours = employeePayroll.regularHours + employeePayroll.overtimeHours;
+      (employeePayroll as any).totalHours = employeePayroll.regularHours + employeePayroll.overtimeHours;
+      (employeePayroll as any).net_salary = employeePayroll.netSalary;
+      (employeePayroll as any).gross_salary = employeePayroll.grossSalary;
+
       if (originalNetSalary < 0) {
         employeePayroll.generalMessages.push(
           "Advertencia: Salario neto calculado como negativo, se estableció en 0.",
@@ -613,7 +621,7 @@ export class NomineeService {
    * @returns Object with processed days and inconsistencies
    */
   private processDailyWork(
-    clockLogs: any[],
+    clockPairs: any[],
     vacations: any[],
     laborEvents: any[],
     startDate: Date,
@@ -656,16 +664,14 @@ export class NomineeService {
         dayWork.hoursWorked = 8.0; // Standard vacation day hours
 
         // Check if there are also clock logs for this vacation day
-        const dayClockLogs = clockLogs.filter(log => {
-          const timestamp = log.timestamp;
+        const hasLogs = clockPairs.some(pair => {
+          const timestamp = (pair.in?.effectiveTimestamp || pair.out?.effectiveTimestamp);
           if (!timestamp) return false;
-          const parsedDate = new Date(timestamp);
-          if (isNaN(parsedDate.getTime())) return false;
-          const logDate = parsedDate.toISOString().split('T')[0];
+          const logDate = new Date(timestamp).toISOString().split('T')[0];
           return logDate === dateStr;
         });
 
-        if (dayClockLogs.length > 0) {
+        if (hasLogs) {
           dayWork.messages.push(
             `Advertencia para ${employeeName} el ${dateStr}: día de vacaciones con marcajes detectados. Se prioriza vacaciones (8h).`,
           );
@@ -681,22 +687,22 @@ export class NomineeService {
           `${eventName} registrado para ${employeeName} el ${dateStr}: sin marcaje requerido.`,
         );
       } else {
-        // Process clock logs for the day
-        const dayClockLogs = clockLogs.filter(log => {
-          const timestamp = log.timestamp;
+        // Process clock logs for the day (using pre-paired marks)
+        const dayPairs = clockPairs.filter(pair => {
+          // Use IN mark date to assign hours to a specific day
+          const timestamp = (pair.in?.effectiveTimestamp || pair.out?.effectiveTimestamp);
           if (!timestamp) return false;
-          const parsedDate = new Date(timestamp);
-          if (isNaN(parsedDate.getTime())) return false;
-          const logDate = parsedDate.toISOString().split('T')[0];
+          const logDate = new Date(timestamp).toISOString().split('T')[0];
           return logDate === dateStr;
         });
 
-        if (dayClockLogs.length === 0) {
+        if (dayPairs.length === 0) {
           // No clock logs for this day - this is normal for weekends/days off
           dayWork.hoursWorked = 0;
         } else {
+          console.log(`[DEBUG] Found ${dayPairs.length} pairs for ${employeeName} on ${dateStr}`);
           const hoursData = this.calculateDailyHours(
-            dayClockLogs,
+            dayPairs,
             dateStr,
             employeeName,
           );
@@ -729,38 +735,36 @@ export class NomineeService {
    * @returns Object with calculated hours and messages
    */
   private calculateDailyHours(
-    dayClockLogs: any[],
+    dayPairs: any[],
     dateStr: string,
     employeeName: string,
   ): { hours: number; messages: string[]; hasInconsistency: boolean } {
     const messages: string[] = [];
+    let totalHours = 0;
+    let hasInconsistency = false;
 
-    // Use utility function to validate clock log pairs
-    const validation = PayrollUtils.validateClockLogPairs(dayClockLogs);
-
-    if (!validation.isValid) {
-      const inconsistencyMsg = `Inconsistencia de marcaje para ${employeeName} el ${dateStr}: ${validation.messages.join(", ")}. Revisar el marcaje manualmente.`;
-      messages.push(inconsistencyMsg);
-      return { hours: 0, messages, hasInconsistency: true };
+    for (const pair of dayPairs) {
+      if (pair.status === 'valid') {
+        totalHours += pair.durationHours;
+        console.log(`[DEBUG] Adding ${pair.durationHours} hours for pair IN: ${pair.in?.effectiveTimestamp}`);
+      } else {
+        hasInconsistency = true;
+        const msg = pair.status === 'orphan' 
+          ? `Marca huérfana detectada (sin entrada o sin salida)`
+          : `Anomalía detectada (doble entrada o marca duplicada)`;
+        console.log(`[DEBUG] Inconsistency: ${msg} on ${dateStr}`);
+        messages.push(`${msg} para ${employeeName} el ${dateStr}.`);
+      }
     }
 
-    // Check for overlapping pairs
-    if (PayrollUtils.hasOverlappingPairs(validation.pairs)) {
-      messages.push(
-        `Inconsistencia de marcaje para ${employeeName} el ${dateStr}: periodos de trabajo superpuestos detectados. Revisar.`,
-      );
-      return { hours: 0, messages, hasInconsistency: true };
+    if (totalHours > 0) {
+      console.log(`[DEBUG] Total daily hours for ${dateStr}: ${totalHours}`);
     }
-
-    // Calculate total hours from valid pairs
-    const totalHours = PayrollUtils.calculateTotalHoursFromPairs(
-      validation.pairs,
-    );
 
     return {
-      hours: totalHours,
+      hours: PayrollUtils.roundToMoney(totalHours),
       messages,
-      hasInconsistency: false,
+      hasInconsistency,
     };
   }
 
@@ -916,15 +920,9 @@ export class NomineeService {
     const result = new Map<number, any[]>();
     
     effectiveMarksMap.forEach((marks, employeeId) => {
-      // Map EffectiveMark fields: effectiveTimestamp → timestamp, logType → log_type
-      const mapped = marks.map(m => ({
-        id: m.id,
-        employee_id: m.employeeId,
-        timestamp: m.effectiveTimestamp,
-        log_type: m.logType,
-        remarks: null,
-      }));
-      result.set(employeeId, mapped);
+      // Use the service's pairing logic to get valid/orphan/anomaly pairs
+      const pairs = ClockLogEffectiveService.pairLogs(marks);
+      result.set(employeeId, pairs);
     });
     
     return result;

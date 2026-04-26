@@ -469,11 +469,12 @@ export default function PayrollWizardPage() {
                               {emp.name ?? emp.employeeName ?? emp.employee_name ?? `Empleado ${empId}`}
                             </td>
                             <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
-                              {Number(emp.totalHours ?? emp.total_hours ?? 0).toFixed(1)}h
+                              {Number(emp.regularHours ?? emp.regular_hours ?? 0).toFixed(1)}h
                             </td>
                             <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
                               {Number(emp.overtimeHours ?? emp.overtime_hours ?? 0).toFixed(1)}h
                             </td>
+
                             <td className="px-4 py-3 text-right text-zinc-700 dark:text-zinc-300">
                               ₡{Number(emp.totalDeductions ?? emp.total_deductions ?? 0).toLocaleString('es-CR')}
                             </td>
@@ -528,7 +529,7 @@ export default function PayrollWizardPage() {
                   employeeId={adjustingEmpId}
                   employeeName={emp.name ?? emp.employeeName ?? emp.employee_name ?? 'Empleado'}
                   currentData={{
-                    regularHours: Number(emp.totalHours ?? emp.total_hours ?? 0),
+                    regularHours: Number(emp.regularHours ?? emp.regular_hours ?? 0),
                     overtimeHours: Number(emp.overtimeHours ?? emp.overtime_hours ?? 0),
                     weeklyRestHours: Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0),
                     totalDeductions: Number(emp.totalDeductions ?? emp.total_deductions ?? 0),
