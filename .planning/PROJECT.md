@@ -25,7 +25,7 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 - **Stack:** Express 5 + TypeScript 5.8 (backend) · Next.js 15 + React 19 (frontend) · Prisma 6 + PostgreSQL · Tailwind 4
 - **Arquitectura:** Route → Controller → Service → Prisma (backend) / Page → Hook → Service → http.ts (frontend)
 - **Dominio:** Semana laboral lunes–sábado · 8h regulares/día · 1.5× hasta 10h · 2× sobre 10h · descanso semanal 0.5×
-- **Tests:** 492+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 497+ passing.
+- **Tests:** 507+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 512+ passing.
 - **Performance:** JS diferido, imágenes comprimidas, Next.js compress habilitado.
 
 ## History
