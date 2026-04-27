@@ -14,7 +14,7 @@ router.use(AuthMiddleware.verifyToken);
  * @desc    Obtener configuración de la empresa
  * @access  Private
  */
-router.get('/config', asyncHandler(EnterpriseController.getConfig));
+router.get('/enterprise/config', asyncHandler(EnterpriseController.getConfig));
 
 /**
  * @route   PATCH /api/enterprise/config
@@ -22,7 +22,7 @@ router.get('/config', asyncHandler(EnterpriseController.getConfig));
  * @access  Private (Admin/Payroll Manager)
  */
 router.patch(
-  '/config',
+  '/enterprise/config',
   AuthMiddleware.requireRole(['admin', 'payroll_manager']),
   validateBody(updateEnterpriseSchema),
   asyncHandler(EnterpriseController.updateConfig)
