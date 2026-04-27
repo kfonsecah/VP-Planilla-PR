@@ -32,3 +32,10 @@
 | UX-11 | Persistencia pestaña activa | Phase 49 |
 | UX-12 | Persistencia estado expandido | Phase 49 |
 | UX-13 | Gestión de ventanas de tiempo | Phase 52 |
+| PAY-24 | Tarifa mínima global opcional | Phase 59 |
+| PAY-25 | Advertencia de tarifa mínima | Phase 60 |
+se 50 |
+| AUDIT-03 | Recálculo de estatus en real-time | Phase 50 |
+| UX-11 | Persistencia pestaña activa | Phase 49 |
+| UX-12 | Persistencia estado expandido | Phase 49 |
+| UX-13 | Gestión de ventanas de tiempo | Phase 52 |

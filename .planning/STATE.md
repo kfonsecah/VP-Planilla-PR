@@ -41,6 +41,7 @@ Progress: [############........] 60% (6/10 phases in roadmap v1.7 range complete
 | 56 | Motor de Cálculo Desacoplado | PAY-21 | ⏳ Not Started |
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | ✅ Complete |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | ✅ Complete |
+| 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 📋 Ready (2 plans) |
 
 ## v1.6 Phase Map (Audit Refinement)
 
