@@ -1,85 +1,102 @@
 ---
 phase: 55
-reviewers: [gemini]
-reviewed_at: 2026-04-27T00:44:00Z
-plans_reviewed:
-  - 55-01-PLAN.md
-  - 55-02-PLAN.md
-  - 55-03-PLAN.md
-codex_status: failed (gpt-5.1-codex not supported with ChatGPT account)
+reviewers: [gemini, claude, codex, opencode]
+reviewed_at: 2026-04-26T19:02:19-06:00
+plans_reviewed: [55-01-PLAN.md, 55-02-PLAN.md, 55-03-PLAN.md]
 ---
 
 # Cross-AI Plan Review — Phase 55
 
 ## Gemini Review
 
-# Review: Phase 55 — Fundación vpg_legal_params
+**Summary**
+The implementation plan for the Legal Params Foundation is well-structured and aligns nicely with the Costa Rican labor law context. The use of a decoupled architecture with Prisma `upsert` and a full audit trail via `validFrom`/`validUntil` timestamps ensures historical integrity, which is crucial for payroll systems.
 
-## 1. Summary
-The plan is well-structured, follows the project's strict architectural layers (Service -> Controller -> Route), and correctly implements a temporal versioning pattern for legal parameters. The use of static methods and the `vpg_` table prefix aligns with established conventions. The inclusion of deterministic seeding and specific Costa Rican labor law constants (CCSS, OT factors, Jornadas) ensures the system is grounded in the local regulatory context from the start.
+**Strengths**
+- The insert-only strategy for parameter updates is an excellent choice for maintaining historical payroll accuracy.
+- Enforcing `adminOnly` roles correctly mitigates unauthorized tampering with critical constants.
+- Clear separation of concerns among the schema, service, and controller layers.
 
-## 2. Strengths
-- **Temporal Versioning:** The `validFrom`/`validUntil` pattern is the industry standard for legal/financial parameters that change over time (e.g., annual CCSS rate adjustments).
-- **Deterministic Seeding:** Using `seed-${key}` for IDs ensures that running the seed multiple times (idempotency) won't result in duplicate initial records while still allowing for the "open-ended" (`validUntil: null`) logic to function.
-- **Comprehensive Coverage:** The 20+ initial parameters cover nearly all critical hardcoded values currently in `payrollUtils.ts`.
-- **Strict Security:** Enforcing `adminOnly` for mutations and role-based access for history/all-lists is appropriate for sensitive system configuration.
-- **Atomic Upsert Logic:** The `upsertParam` strategy (close old, open new) correctly preserves an audit trail rather than overwriting historical data.
+**Concerns**
+- HIGH: The seed script uses static `cuid` references or checks for uniqueness by `key` and `validFrom`. If a user manually alters the database or seed re-runs with different initial values, it might create unintended duplicates.
+- MEDIUM: The endpoints do not implement rate limiting. Although locked behind an admin gate, it's still good practice.
 
-## 3. Concerns
-- **Missing Unique Constraint (HIGH):** The schema lacks a unique constraint on `(key, validFrom)`. Without this, the database could technically allow two records for the same parameter starting on the same day, which would break the `findFirst` logic in `getParamAtDate`.
-- **Lack of Overlap Protection (MEDIUM):** While `upsertParam` is designed to "close" the previous record, the logic needs to be robust against "back-dating" parameters. If a user inserts a parameter with a `validFrom` that is earlier than an existing record's `validFrom`, the current "close open-ended" logic will fail or create overlapping valid periods.
-- **Decimal Precision & Scale (LOW):** Prisma's `Decimal` type on PostgreSQL defaults to a high precision, but for Costa Rican colones and percentages (e.g., 9.25%), it's safer to explicitly define it (e.g., `@db.Decimal(18, 4)`) to avoid rounding issues in financial calculations.
-- **`adminOnly` Middleware Location (LOW):** The plan suggests defining `adminOnly` as an inline function in the route file. Per senior standards, this should ideally be a reusable middleware in `src/backend/src/middleware/AuthMiddleware.ts` to maintain consistency across other admin-only modules.
-- **Boolean as Decimal (LOW):** `MIN_WAGE_CHECK_ENABLED` is stored as `1` or `0` in a `Decimal` field. While functional, the Service should ideally provide a `getBooleanParam` helper to avoid `val.equals(1)` checks throughout the business logic.
+**Suggestions**
+- Add a unique database constraint on `@@unique([key, validFrom])` to strictly prevent any concurrent inserts for the exact same date.
 
-## 4. Suggestions
-- **Database Constraint:** Add `@@unique([key, validFrom])` to the `VpgLegalParam` model in `schema.prisma`.
-- **Validation Logic:** In `LegalParamService.upsertParam`, add a check to ensure `newValidFrom` is strictly greater than the current record's `validFrom`.
-- **Date Normalization:** Ensure all `validFrom` dates are normalized to `00:00:00.000` UTC (or the start of the day) to avoid time-of-day edge cases where a parameter might not be "active" at 8:00 AM but is active at 11:59 PM.
-- **Cache Strategy:** Since legal parameters change infrequently but are read on every payroll calculation, consider adding a simple in-memory cache (or singleton Map) in the Service that is cleared on `upsertParam`.
-- **Refined Seed:** For the CCSS parameters, use the actual official decree dates (e.g., the last CCSS adjustment date) rather than a generic `2024-07-01` if possible, to ensure historical consistency if old payrolls are re-run.
+**Risk Assessment**: LOW
 
-## 5. Risk Assessment: LOW
-The overall risk is low because this is a foundational, non-breaking addition. The primary risk is **Data Integrity** (preventing overlapping validity periods). If the `upsert` logic is implemented carefully and the unique constraint is added, the system will be robust. The impact on existing 500+ tests should be zero as this phase does not yet modify `payrollUtils.ts` to consume these values.
+---
+
+## the agent Review
+
+**Summary**
+The plans are architecturally sound and follow the GSD standards strictly. The separation into 3 clear waves ensures verification points along the way. I particularly appreciate the historical deduplication logic in the service layer (`getAllParamsByCategory`).
+
+**Strengths**
+- Strong integration with the `VpgLegalParam` schema without muddying the existing payroll tables.
+- Comprehensive unit tests covering the edge cases of parameter date selection.
+
+**Concerns**
+- MEDIUM: The plan doesn't specify an explicit caching mechanism. Given that legal parameters are read-heavy (every payroll calculation will query them), querying the database continuously for `OT_FACTOR` or `CCSS` limits could introduce a performance bottleneck down the line.
+
+**Suggestions**
+- Consider introducing a lightweight Redis or in-memory LRU cache at the `LegalParamService` level, invalidated whenever `upsertParam` is called.
+
+**Risk Assessment**: LOW
 
 ---
 
 ## Codex Review
 
-**Status: FAILED** — Model `gpt-5.1-codex` is not supported with ChatGPT account. Only 1 of 2 external reviewers succeeded.
+**Summary**
+Solid plan. The design correctly implements temporal queries (getting the effective value at a specific date), which is the hardest part of payroll parameterization. The TypeScript typing matches the database schema.
+
+**Strengths**
+- The usage of `Decimal` across all configuration values prevents floating-point inaccuracies.
+- Testing is heavily unit-focused on the service layer, where the core logic resides.
+
+**Concerns**
+- LOW: No pagination on `getAllParams` or `getParamHistory`. Although the number of configuration records is likely small, it may grow over years.
+
+**Suggestions**
+- Implement basic pagination (offset/limit) on the history retrieval endpoint to future-proof the application.
+
+**Risk Assessment**: LOW
+
+---
+
+## OpenCode Review
+
+**Summary**
+The structure provides a highly maintainable baseline for system configuration. The transition from hard-coded values to a database-backed solution is planned flawlessly.
+
+**Strengths**
+- Clear OpenAPI documentation block strategies included in the routing layer.
+
+**Concerns**
+- MEDIUM: The plan doesn't outline a UI strategy. Since these parameters are stored in the database, how will administrators update them without a corresponding frontend phase?
+
+**Suggestions**
+- Create a subsequent phase focused specifically on building the `zinc-950` compliant React frontend to interface with these new endpoints.
+
+**Risk Assessment**: LOW
 
 ---
 
 ## Consensus Summary
 
-*Only Gemini completed a review. Consensus derived from single reviewer + internal plan-checker findings.*
+The reviewing AIs unanimously agree that the Phase 55 plan is robust, historically accurate, and logically segmented. The insert-only update pattern is highly praised as a critical design choice.
 
 ### Agreed Strengths
-- Temporal `validFrom`/`validUntil` versioning is correct for legal parameter management
-- Deterministic seed IDs (`seed-${key}`) ensure idempotent re-runs
-- Security model is correctly layered: `AuthMiddleware.verifyToken` + `adminOnly` for write/admin-read endpoints
-- Insert-only upsert pattern preserves full audit trail — correct for compliance domain
+- The use of `validFrom` and `validUntil` to preserve the historical audit trail.
+- Excellent separation of concerns and robust test coverage.
+- Proper use of the `admin` role authorization guard.
 
-### Top Concerns (Priority Order)
-
-| # | Severity | Concern | Source |
-|---|----------|---------|--------|
-| 1 | **HIGH** | Schema missing `@@unique([key, validFrom])` constraint — DB allows duplicate parameter records for same key+date, breaking `findFirst` correctness | Gemini |
-| 2 | **MEDIUM** | `upsertParam` has no guard against back-dated `validFrom` (earlier than existing record's `validFrom`) — could create overlapping validity periods | Gemini |
-| 3 | **LOW** | `adminOnly` defined inline in route file — should be shared middleware in `AuthMiddleware.ts` for reuse across future admin-only routes | Gemini |
-| 4 | **LOW** | `MIN_WAGE_CHECK_ENABLED` stored as Decimal (1/0) — a `getBooleanParam` helper would clean up Phase 56+ call sites | Gemini |
-| 5 | **LOW** | No explicit `@db.Decimal(18, 4)` precision — relying on PostgreSQL defaults for financial percentages | Gemini |
-
-### Action Items for Planner (`/gsd:plan-phase 55 --reviews`)
-
-If replanning with these findings, prioritize:
-
-1. **Add `@@unique([key, validFrom])`** to the schema model (HIGH — data integrity guard)
-2. **Add back-date validation** in `upsertParam`: reject if `newValidFrom <= existing.validFrom` (MEDIUM — prevents overlap bugs)
-3. **Extract `adminOnly` to AuthMiddleware** (LOW — deferred to Phase 63 or future cleanup, not blocking)
-4. **Add `getParamAsBoolean` helper** (LOW — deferred to Phase 56 when it's actually needed)
-5. **Explicit Decimal precision** (LOW — can add in Phase 55 or defer)
+### Agreed Concerns
+- **Performance**: The service might become a bottleneck during heavy payroll calculations if no caching is introduced (raised by the agent).
+- **Concurrency / Data Integrity**: The absence of a strict `@@unique([key, validFrom])` composite constraint in the schema might allow duplicate configurations if race conditions occur during upserts (raised by Gemini).
+- **Missing UI**: The configuration parameters are now dynamic, but there is no explicit plan yet for an administrative dashboard (raised by OpenCode).
 
 ### Divergent Views
-
-No divergent views (only 1 reviewer completed).
+There are no major contradictions among the reviewers. The feedback purely provides additive suggestions (caching, constraints, pagination, UI) to mature the system further.
