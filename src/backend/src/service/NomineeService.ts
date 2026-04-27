@@ -18,6 +18,7 @@ import {
   LegalParamSet,
 } from "../types/payroll.types";
 import { Decimal } from "@prisma/client/runtime/library";
+import { MinuteRoundingPolicy } from "@prisma/client";
 
 // Re-export types so existing consumers importing from NomineeService continue to work
 export type {
@@ -502,6 +503,7 @@ export class NomineeService {
         startDate,
         endDate,
         employee.name,
+        params
       );
 
       employeePayroll.days = dailyWork.days;
@@ -646,6 +648,7 @@ export class NomineeService {
     startDate: Date,
     endDate: Date,
     employeeName: string,
+    params: LegalParamSet,
   ): { days: DayWork[]; inconsistencies: Inconsistency[] } {
     const days: DayWork[] = [];
     const inconsistencies: Inconsistency[] = [];
@@ -724,6 +727,7 @@ export class NomineeService {
             dayPairs,
             dateStr,
             employeeName,
+            params.minuteRoundingPolicy
           );
           dayWork.hoursWorked = hoursData.hours;
           dayWork.messages = hoursData.messages;
@@ -751,21 +755,26 @@ export class NomineeService {
    * @param dayClockLogs - Clock logs for a specific day
    * @param dateStr - Date string for messages
    * @param employeeName - Employee name for messages
+   * @param policy - MinuteRoundingPolicy to apply
    * @returns Object with calculated hours and messages
    */
   private calculateDailyHours(
     dayPairs: any[],
     dateStr: string,
     employeeName: string,
+    policy: MinuteRoundingPolicy = MinuteRoundingPolicy.EXACT
   ): { hours: number; messages: string[]; hasInconsistency: boolean } {
     const messages: string[] = [];
-    let totalHours = 0;
+    let totalMinutes = 0;
     let hasInconsistency = false;
 
     for (const pair of dayPairs) {
       if (pair.status === 'valid') {
-        totalHours += pair.durationHours;
-        console.log(`[DEBUG] Adding ${pair.durationHours} hours for pair IN: ${pair.in?.effectiveTimestamp}`);
+        const inTime = new Date(pair.in.effectiveTimestamp);
+        const outTime = new Date(pair.out.effectiveTimestamp);
+        const minutes = Math.round((outTime.getTime() - inTime.getTime()) / (1000 * 60));
+        totalMinutes += minutes;
+        console.log(`[DEBUG] Adding ${minutes} minutes for pair IN: ${pair.in?.effectiveTimestamp}`);
       } else {
         hasInconsistency = true;
         const msg = pair.status === 'orphan' 
@@ -776,12 +785,14 @@ export class NomineeService {
       }
     }
 
-    if (totalHours > 0) {
-      console.log(`[DEBUG] Total daily hours for ${dateStr}: ${totalHours}`);
+    const totalHours = PayrollUtils.applyMinuteRounding(totalMinutes, policy);
+
+    if (totalMinutes > 0) {
+      console.log(`[DEBUG] Total daily minutes for ${dateStr}: ${totalMinutes} -> Rounded hours: ${totalHours}`);
     }
 
     return {
-      hours: PayrollUtils.roundToMoney(totalHours),
+      hours: totalHours,
       messages,
       hasInconsistency,
     };

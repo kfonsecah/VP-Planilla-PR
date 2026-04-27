@@ -9,10 +9,14 @@ jest.mock('../../lib/prisma', () => {
 
 jest.mock('../../service/EmployeeService');
 jest.mock('../../service/ClockLogEffectiveService');
+jest.mock('../../service/LegalParamService');
 
 const { EmployeeService } = require('../../service/EmployeeService');
 const { ClockLogEffectiveService } = require('../../service/ClockLogEffectiveService');
+const { LegalParamService } = require('../../service/LegalParamService');
 const { prisma } = require('../../lib/prisma');
+import * as PayrollUtils from '../../utils/payrollUtils';
+import { MinuteRoundingPolicy } from '@prisma/client';
 
 // Provide real implementation for pairLogs even if service is mocked
 jest.mocked(ClockLogEffectiveService.pairLogs).mockImplementation((marks: any[]) => {
@@ -88,6 +92,11 @@ beforeEach(() => {
   prisma.vpg_positions.findMany.mockResolvedValue([]);
   prisma.vpg_payrolls.findUnique.mockResolvedValue(null);
   prisma.vpg_company_holidays.findMany.mockResolvedValue([]);
+
+  jest.mocked(LegalParamService.getParamSetAtDate).mockResolvedValue({
+    ...PayrollUtils.DEFAULT_LEGAL_PARAMS,
+    minuteRoundingPolicy: MinuteRoundingPolicy.EXACT,
+  });
 });
 
 function makeClockLogPair(date: string, localInHour: number, localOutHour: number, empId = 1) {
