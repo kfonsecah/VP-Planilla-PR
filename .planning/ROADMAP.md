@@ -11,7 +11,7 @@
 | 54 | Rediseño del Flujo de Planilla | PAY-11, PAY-12, PAY-13 | 5 | Completed |
 | 55 | Fundación vpg_legal_params | PAY-20 | 3 | Not Started |
 | 56 | Motor de Cálculo Desacoplado | PAY-21 | 4 | Not Started |
-| 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Not Started |
+| 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Planning Complete |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Not Started |
 | 59 | Categoría Ocupacional y Salarios Mínimos | PAY-24 | 5 | Not Started |
 | 60 | Validación Salario Mínimo al Aprobar | PAY-25 | 4 | Not Started |
@@ -100,7 +100,12 @@
 1. Enums MinuteRoundingPolicy y ShiftType existen en schema.prisma con migración generada.
 2. PATCH /enterprise/config persiste los nuevos campos.
 3. Seleccionar NEAREST_QUARTER en UI muestra modal legal y registra acknowledgment en vpg_audit_logs.
-**Status:** Not Started
+**Status:** Planning Complete (3 plans ready — execute waves 1→2→3)
+
+**Plans:**
+- [ ] 57-01-PLAN.md — Wave 1: Schema & Migration
+- [ ] 57-02-PLAN.md — Wave 2: Backend API & Service
+- [ ] 57-03-PLAN.md — Wave 3: Frontend UI & Compliance Modal
 
 ### Phase 58: Redondeo de Minutos en Motor
 **Goal:** Implementar las 3 modalidades de redondeo (EXACT, ALWAYS_UP, NEAREST_QUARTER) en payrollUtils.ts.
