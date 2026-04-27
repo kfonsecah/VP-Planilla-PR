@@ -42,6 +42,7 @@ Progress: [############........] 60% (6/10 phases in roadmap v1.7 range complete
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | ✅ Complete |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | ✅ Complete |
 | 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 📋 Ready (2 plans) |
+| 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 📋 Ready (3 plans) |
 
 ## v1.6 Phase Map (Audit Refinement)
 

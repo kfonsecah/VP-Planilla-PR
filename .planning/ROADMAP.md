@@ -14,7 +14,7 @@
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Complete | 2026-04-26 |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Complete | 2026-04-26 |
 | 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Planning Complete |
-| 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Not Started |
+| 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Planning Complete |
 | 61 | Alertas Persistentes Parámetros Legales | PAY-26 | 5 | Not Started |
 | 62 | Confirmación Contraseña Params Críticos | PAY-27 | 2 | Not Started |
 | 63 | Panel Admin Parámetros Legales UI | PAY-28 | 5 | Not Started |
