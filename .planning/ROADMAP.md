@@ -9,6 +9,18 @@
 | 52 | Persistencia Robusta (LocalStorage) | UX-11, UX-12 | 2 | Completed |
 | 51 | EdiciÃ³n Directa de Marcas en AuditorÃ­a | AUDIT-01 | 3 | Not Started |
 | 54 | Rediseño del Flujo de Planilla | PAY-11, PAY-12, PAY-13 | 5 | Completed |
+| 55 | Fundación vpg_legal_params | PAY-20 | 3 | Not Started |
+| 56 | Motor de Cálculo Desacoplado | PAY-21 | 4 | Not Started |
+| 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Not Started |
+| 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Not Started |
+| 59 | Categoría Ocupacional y Salarios Mínimos | PAY-24 | 5 | Not Started |
+| 60 | Validación Salario Mínimo al Aprobar | PAY-25 | 4 | Not Started |
+| 61 | Alertas Persistentes Parámetros Legales | PAY-26 | 5 | Not Started |
+| 62 | Confirmación Contraseña Params Críticos | PAY-27 | 2 | Not Started |
+| 63 | Panel Admin Parámetros Legales UI | PAY-28 | 5 | Not Started |
+| 64 | Snapshot de Params en Planilla Cerrada | PAY-29 | 3 | Not Started |
+| 65 | Proyección de Aguinaldo en UI | PAY-30 | 4 | Not Started |
+| 66 | Soporte Jornadas Mixtas y Nocturnas | PAY-31 | 4 | Not Started |
 
 
 ---
@@ -57,6 +69,115 @@
 - 54-03 (Wave 3): Frontend — /pages/payroll/wizard 4-step page + usePayrollWizard extension
 - 54-04 (Wave 3): Frontend — PayrollEmployeeAdjustModal + payrollService.saveEmployeeOverride()
 - 54-05 (Wave 4): Integration — Sidebar link + /calculate redirect
+
+### Phase 55: Fundación vpg_legal_params
+**Goal:** Crear la tabla vpg_legal_params con su capa completa de backend y migrar todas las constantes hardcodeadas de payrollUtils.ts a registros en BD con fecha de vigencia.
+**Requirements:** PAY-20
+**Success Criteria:**
+1. Modelo VpgLegalParam existe en schema.prisma con todos los campos requeridos y migración generada.
+2. Seed ejecutado: 20+ parámetros iniciales en BD incluyendo jornadas, multiplicadores OT, tasas CCSS y MIN_WAGE_CHECK_ENABLED.
+3. LegalParamService.getParamAtDate('OT_FACTOR', new Date()) retorna 1.5.
+**Status:** Not Started
+
+### Phase 56: Motor de Cálculo Desacoplado
+**Goal:** Eliminar literales numéricos de payrollUtils.ts y hacer que NomineeService cargue parámetros desde vpg_legal_params. Los resultados de planilla no cambian — solo el origen de los valores.
+**Requirements:** PAY-21
+**Success Criteria:**
+1. payrollUtils.ts no contiene literales 1.5, 2.0, 3.0, 8, 48 — todos vienen del LegalParamSet recibido como argumento.
+2. npm test pasa sin regresiones.
+3. Calcular con OT_FACTOR=2.0 en params produce horas extra al doble.
+**Status:** Not Started
+
+### Phase 57: Enterprise Config — Campos Faltantes
+**Goal:** Agregar minuteRoundingPolicy, roundingPolicyAcknowledged, isCommercialActivity y ordinaryShiftType a vpg_enterprise con UI de configuración.
+**Requirements:** PAY-22
+**Success Criteria:**
+1. Enums MinuteRoundingPolicy y ShiftType existen en schema.prisma con migración generada.
+2. PATCH /enterprise/config persiste los nuevos campos.
+3. Seleccionar NEAREST_QUARTER en UI muestra modal legal y registra acknowledgment en vpg_audit_logs.
+**Status:** Not Started
+
+### Phase 58: Redondeo de Minutos en Motor
+**Goal:** Implementar las 3 modalidades de redondeo (EXACT, ALWAYS_UP, NEAREST_QUARTER) en payrollUtils.ts.
+**Requirements:** PAY-23
+**Success Criteria:**
+1. applyMinuteRounding(431, 'ALWAYS_UP') retorna 7.25.
+2. applyMinuteRounding(424, 'NEAREST_QUARTER') retorna 7.00 (4 min descartados).
+3. npm test pasa con todos los casos del Payroll.md §4.
+**Status:** Not Started
+
+### Phase 59: Categoría Ocupacional y Salarios Mínimos
+**Goal:** Los puestos adquieren categoria_ocupacional y los salarios mínimos del Decreto MTSS entran a vpg_legal_params con fecha de vigencia real.
+**Requirements:** PAY-24
+**Success Criteria:**
+1. vpg_positions tiene campo categoria_ocupacional con migración.
+2. Registros MIN_WAGE_* existen en vpg_legal_params con valores del decreto MTSS julio 2025.
+3. LegalParamService.getMinWageForPosition(positionId, date) retorna el valor correcto.
+**Status:** Not Started
+
+### Phase 60: Validación Salario Mínimo al Aprobar
+**Goal:** Bloquear BORRADOR→APROBADA si algún empleado recibe menos del salario mínimo legal. Incluye toggle MIN_WAGE_CHECK_ENABLED y permiso payroll.override_legal_check.
+**Requirements:** PAY-25
+**Success Criteria:**
+1. Aprobar planilla con empleado bajo el mínimo retorna 422 con lista de violaciones.
+2. Usuario con override puede aprobar con justificación; evento queda en vpg_audit_logs.
+3. MIN_WAGE_CHECK_ENABLED=0 omite validación pero genera log de advertencia.
+**Status:** Not Started
+
+### Phase 61: Alertas Persistentes Parámetros Legales
+**Goal:** Cada cambio a vpg_legal_params genera alerta persistente en dashboard visible para admins hasta ser marcada como revisada. Mensajes específicos por parámetro desactivado.
+**Requirements:** PAY-26
+**Success Criteria:**
+1. Modificar OT_FACTOR crea notificación LEGAL_PARAM_CHANGE para todos los usuarios admin/payroll_manager.
+2. Banner en dashboard aparece y desaparece al marcar como revisado.
+3. Cambiar MIN_WAGE_CHECK_ENABLED a 0 muestra mensaje "Verificación de salario mínimo DESACTIVADA".
+**Status:** Not Started
+
+### Phase 62: Confirmación Contraseña Params Críticos
+**Goal:** Modificar cualquier parámetro con isCritical=true requiere re-ingreso de contraseña antes de guardar.
+**Requirements:** PAY-27
+**Success Criteria:**
+1. PATCH /legal-params/OT_FACTOR sin confirmationPassword retorna 400.
+2. Con contraseña incorrecta retorna 403 y el valor no cambia en BD.
+3. Con contraseña correcta guarda el valor y registra password_confirmed:true en vpg_audit_logs.
+**Status:** Not Started
+
+### Phase 63: Panel Admin Parámetros Legales UI
+**Goal:** Página dedicada /pages/configuracion/parametros-legales/ para ver, editar e historializar todos los parámetros legales.
+**Requirements:** PAY-28
+**Success Criteria:**
+1. Admin puede navegar a la página y ver todos los params agrupados por categoría.
+2. Editar un param crítico abre PasswordConfirmModal antes de guardar.
+3. Non-admin recibe redirect/403.
+4. Modal de historial muestra timeline de cambios de un parámetro.
+**Status:** Not Started
+
+### Phase 64: Snapshot de Params en Planilla Cerrada
+**Goal:** Cada planilla aprobada captura en BD los valores exactos de los parámetros legales vigentes en su período para trazabilidad CCSS/MTSS.
+**Requirements:** PAY-29
+**Success Criteria:**
+1. Aprobar una planilla crea registros en vpg_payroll_param_snapshots por cada parámetro.
+2. Detalle de planilla muestra sección "Parámetros utilizados" con valores históricos.
+3. Planilla histórica muestra snapshot correcto aunque los parámetros actuales sean distintos.
+**Status:** Not Started
+
+### Phase 65: Proyección de Aguinaldo en UI
+**Goal:** Perfil de empleado y wizard de planilla muestran aguinaldo acumulado proporcional en tiempo real.
+**Requirements:** PAY-30
+**Success Criteria:**
+1. GET /employees/:id/aguinaldo retorna accrued calculado correctamente.
+2. Perfil de empleado muestra card con monto acumulado y barra de progreso del año.
+3. Wizard paso 3 muestra columna "Aguinaldo acum." por empleado.
+**Status:** Not Started
+
+### Phase 66: Soporte Jornadas Mixtas y Nocturnas
+**Goal:** El motor aplica el cap de horas correcto (6/7/8) según el tipo de jornada asignado al empleado individualmente.
+**Requirements:** PAY-31
+**Success Criteria:**
+1. Empleado con shift_type=NOCTURNA: 7h trabajadas produce 6h regular + 1h OT.
+2. Empleado con USE_ENTERPRISE_DEFAULT hereda el ShiftType de vpg_enterprise.
+3. npm test pasa con los 6 escenarios de jornada definidos en 66-CONTEXT.md.
+**Status:** Not Started
 
 ### Phase 52: UI de Drag and Drop para Ventanas de Tiempo por Empleado
 **Goal:** Allow administrators to intuitively manage, assign, and visualize time windows per employee through a drag-and-drop interface within the sidebar views.
