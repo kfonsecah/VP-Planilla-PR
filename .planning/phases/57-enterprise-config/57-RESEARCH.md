@@ -97,7 +97,7 @@ static async updateConfig(data: UpdateEnterpriseDto, userId: number) {
 
 ### Pitfall 1: Costa Rica Labor Compliance (Rounding)
 **What goes wrong:** Rounding minutes "down" (e.g., 424 -> 420) is illegal in CR if not explicitly allowed by a `Reglamento Interior de Trabajo` and it results in underpayment of effective time.
-**How to avoid:** The UI **must** show a disclaimer. The calculation motor (Phase 58) will rely on the `minuteRoundingPolicy` flag, so the "Agreement" must be stored in DB (`roundingPolicyAcknowledged`).
+**How to avoid:** The UI **must** show a disclaimer. The calculation motor (Phase 58) will rely on the `enterprise_minute_rounding_policy` flag, so the "Agreement" must be stored in DB (`enterprise_rounding_policy_acknowledged`).
 
 ### Pitfall 2: Postgres Enum Migrations
 **What goes wrong:** Adding values to Enums in Postgres cannot happen inside a transaction.
@@ -121,10 +121,10 @@ enum ShiftType {
 
 model vpg_enterprise {
   // ... existing fields
-  minuteRoundingPolicy        MinuteRoundingPolicy @default(EXACT)
-  roundingPolicyAcknowledged  Boolean             @default(false)
-  isCommercialActivity        Boolean             @default(false)
-  ordinaryShiftType           ShiftType           @default(DIURNA)
+  enterprise_minute_rounding_policy        MinuteRoundingPolicy @default(EXACT)
+  enterprise_rounding_policy_acknowledged  Boolean             @default(false)
+  enterprise_is_commercial_activity        Boolean             @default(false)
+  enterprise_ordinary_shift_type           ShiftType           @default(DIURNA)
 }
 ```
 
@@ -145,7 +145,7 @@ model vpg_enterprise {
 | A1 | Only one enterprise record exists | Summary | Multiple enterprises would require multi-tenant logic (out of scope). |
 | A2 | NEAREST_QUARTER refers to 15m | Summary | If it refers to 10m or 30m, the motor logic (Phase 58) will change. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How should `enterprise_image` (Bytes) be handled in the PATCH?**
    - Recommendation: The `PATCH` should allow partial updates. If `enterprise_image` is missing from the payload, it remains unchanged.
