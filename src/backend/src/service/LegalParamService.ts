@@ -1,3 +1,4 @@
+import { MinuteRoundingPolicy } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { CreateLegalParamDto, VpgLegalParam } from '../model/VpgLegalParam';
@@ -11,6 +12,12 @@ export class LegalParamService {
    */
   static async getParamSetAtDate(date: Date): Promise<LegalParamSet> {
     const rawParams = await this.getParamsAtDate(date);
+
+    // Cargar política de redondeo desde la configuración de la empresa
+    const enterprise = await prisma.vpg_enterprise.findFirst({
+      select: { enterprise_minute_rounding_policy: true }
+    });
+    const roundingPolicy = enterprise?.enterprise_minute_rounding_policy ?? MinuteRoundingPolicy.EXACT;
     
     const getParamValue = (key: string): number => {
       const val = rawParams[key];
@@ -29,6 +36,7 @@ export class LegalParamService {
       ccssObreroSalud: getParamValue('CCSS_OBRERO_SALUD'),
       ccssObrerosPension: getParamValue('CCSS_OBRERO_PENSION'),
       ccssObreroBP: getParamValue('CCSS_OBRERO_BP'),
+      minuteRoundingPolicy: roundingPolicy,
     };
   }
   /**
