@@ -2,6 +2,7 @@
  * Payroll calculation utility functions
  * Contains pure helper functions for payroll processing
  */
+import { MinuteRoundingPolicy } from "@prisma/client";
 import { DayWork, LegalParamSet } from "../types/payroll.types";
 
 export const DEFAULT_LEGAL_PARAMS: LegalParamSet = {
@@ -12,7 +13,8 @@ export const DEFAULT_LEGAL_PARAMS: LegalParamSet = {
   holidayTripleFactor: 3.0,
   ccssObreroSalud: 5.5,
   ccssObrerosPension: 4.33,
-  ccssObreroBP: 1.0
+  ccssObreroBP: 1.0,
+  minuteRoundingPolicy: MinuteRoundingPolicy.EXACT
 };
 
 // ── Costa Rica labor law constants ────────────────────────────────────────────
@@ -520,4 +522,31 @@ export function averageOfSalaries(salaries: number[]) {
   });
 
   return roundToMoney(sum / 12);
+}
+
+/**
+ * Apply minute rounding policy to a duration in minutes.
+ * Returns proportional hours (number).
+ * 
+ * @param totalMinutes - Minutes to round
+ * @param policy - Rounding policy (EXACT, ALWAYS_UP, NEAREST_QUARTER)
+ * @returns Hours as decimal (e.g. 1.25, 1.5)
+ */
+export function applyMinuteRounding(totalMinutes: number, policy: MinuteRoundingPolicy = MinuteRoundingPolicy.EXACT): number {
+  const sanitizedMinutes = Math.round(totalMinutes);
+  
+  switch (policy) {
+    case MinuteRoundingPolicy.ALWAYS_UP:
+      // Redondea al cuarto de hora superior (ceil(minutos/15) * 15 / 60)
+      return (Math.ceil(sanitizedMinutes / 15) * 15) / 60;
+      
+    case MinuteRoundingPolicy.NEAREST_QUARTER:
+      // Redondea al cuarto más cercano (round(minutos/15) * 15 / 60)
+      return (Math.round(sanitizedMinutes / 15) * 15) / 60;
+      
+    case MinuteRoundingPolicy.EXACT:
+    default:
+      // EXACT: Retorna proporcional exacto (minutos / 60)
+      return sanitizedMinutes / 60;
+  }
 }
