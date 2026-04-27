@@ -55,6 +55,19 @@ export default function EnterpriseConfigPage() {
 
   const currentPolicy = watch("enterprise_minute_rounding_policy");
 
+  const getRoundingDescription = () => {
+    switch (currentPolicy) {
+      case MinuteRoundingPolicy.EXACT:
+        return "Se pagan los minutos exactamente como se laboran. Opción estándar y más precisa.";
+      case MinuteRoundingPolicy.ALWAYS_UP:
+        return "Cualquier fracción de tiempo se redondea al cuarto de hora superior (ej: 1 min → 15 min).";
+      case MinuteRoundingPolicy.NEAREST_QUARTER:
+        return "Redondeo al cuarto de hora más cercano (regla de los 8 minutos). Requiere descargo legal.";
+      default:
+        return "";
+    }
+  };
+
   const loadConfig = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -206,6 +219,10 @@ export default function EnterpriseConfigPage() {
                         Modalidad C: Cuarto más cercano (Bi-direccional)
                       </option>
                     </select>
+
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 italic">
+                      {getRoundingDescription()}
+                    </p>
                     
                     {currentPolicy === MinuteRoundingPolicy.NEAREST_QUARTER && (
                       <div className="p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-xl flex gap-3">
