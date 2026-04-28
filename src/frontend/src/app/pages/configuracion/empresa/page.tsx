@@ -10,17 +10,18 @@ import {
   ArrowLeftIcon,
   CheckIcon,
   ArrowPathIcon,
-  ExclamationTriangleIcon
-} from "@heroicons/react/24/outline";
-import Link from "next/link";
+  ExclamationTriangleIcon,
+  CurrencyDollarIcon
+  } from "@heroicons/react/24/outline";
+  import Link from "next/link";
 
-import { 
-  EnterpriseService, 
-  MinuteRoundingPolicy, 
-  ShiftType 
-} from "@/services/enterpriseService";
-import LegalRoundingModal from "@/components/LegalRoundingModal";
-
+  import {
+  EnterpriseService,
+  MinuteRoundingPolicy,
+  ShiftType
+  } from "@/services/enterpriseService";
+  import LegalRoundingModal from "@/components/LegalRoundingModal";
+  import { useLegalParamConfig } from "@/hooks/useLegalParamConfig";
 const enterpriseSchema = z.object({
   enterprise_minute_rounding_policy: z.nativeEnum(MinuteRoundingPolicy),
   enterprise_is_commercial_activity: z.boolean(),
@@ -35,6 +36,12 @@ export default function EnterpriseConfigPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [initialPolicy, setInitialPolicy] = useState<MinuteRoundingPolicy>(MinuteRoundingPolicy.EXACT);
+
+  const {
+    form: legalForm,
+    saveConfig: saveLegalConfig,
+    isSubmitting: isLegalSaving
+  } = useLegalParamConfig();
 
   const {
     register,
@@ -292,6 +299,37 @@ export default function EnterpriseConfigPage() {
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       Si está activo, los días de descanso se pagan obligatoriamente (Pago Semanal).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Validación Salario Mínimo Card */}
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <CurrencyDollarIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-zinc-800 dark:text-zinc-100">
+                        Validación de Salario Mínimo
+                      </h3>
+                      <input
+                        type="checkbox"
+                        {...legalForm.register("minWageCheckEnabled")}
+                        onChange={(e) => {
+                          legalForm.register("minWageCheckEnabled").onChange(e);
+                          saveLegalConfig();
+                        }}
+                        disabled={isLegalSaving}
+                        className="w-5 h-5 text-amber-600 border-zinc-300 rounded focus:ring-amber-500 cursor-pointer disabled:opacity-50"
+                      />
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Habilitar advertencias en la planilla si un empleado tiene un salario base inferior al mínimo global.
                     </p>
                   </div>
                 </div>
