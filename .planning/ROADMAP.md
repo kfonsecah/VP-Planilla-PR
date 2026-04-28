@@ -14,7 +14,7 @@
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Complete | 2026-04-26 |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Complete | 2026-04-26 |
 | 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Completed |
-| 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Planning Complete |
+| 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Completed |
 | 61 | Alertas Persistentes Parámetros Legales | PAY-26 | 5 | Not Started |
 | 62 | Confirmación Contraseña Params Críticos | PAY-27 | 2 | Not Started |
 | 63 | Panel Admin Parámetros Legales UI | PAY-28 | 5 | Not Started |
@@ -132,14 +132,21 @@
 - [x] 59-01-PLAN.md — Seed del parámetro GLOBAL_MIN_WAGE_RATE en vpg_legal_params (Wave 1)
 - [x] 59-02-PLAN.md — getGlobalMinWageRate en LegalParamService (Wave 2)
 
-### Phase 60: Validación Salario Mínimo al Aprobar
-**Goal:** Bloquear BORRADOR→APROBADA si algún empleado recibe menos del salario mínimo legal. Incluye toggle MIN_WAGE_CHECK_ENABLED y permiso payroll.override_legal_check.
+### Phase 60: Advertencia de Tarifa Mínima en Planilla
+**Goal:** Proveer validación visual y auditoría (no bloqueante) si un empleado gana menos del salario mínimo global. Incluye toggle MIN_WAGE_CHECK_ENABLED.
 **Requirements:** PAY-25
 **Success Criteria:**
-1. Aprobar planilla con empleado bajo el mínimo retorna 422 con lista de violaciones.
-2. Usuario con override puede aprobar con justificación; evento queda en vpg_audit_logs.
-3. MIN_WAGE_CHECK_ENABLED=0 omite validación pero genera log de advertencia.
-**Status:** Not Started
+1. El Wizard del frontend muestra advertencias visuales si un empleado está bajo el mínimo (si el toggle está activo).
+2. Aprobar planilla con advertencias registra el evento en vpg_audit_logs.
+3. MIN_WAGE_CHECK_ENABLED=0 omite validaciones y logs de auditorÃ­a por este motivo.
+**Status:** Completed
+
+
+**Plans:** 3 plans
+- [x] 60-01-PLAN.md â€” Infraestructura: legalParamService + Hook extension + Backend Audit (Wave 1)      
+- [x] 60-02-PLAN.md â€” UI: Advertencias visuales en el Payroll Wizard (Wave 2)
+- [x] 60-03-PLAN.md â€” ConfiguraciÃ³n: Toggle UI en Enterprise Config (Wave 2)
+
 
 ### Phase 61: Alertas Persistentes Parámetros Legales
 **Goal:** Cada cambio a vpg_legal_params genera alerta persistente en dashboard visible para admins hasta ser marcada como revisada. Mensajes específicos por parámetro desactivado.

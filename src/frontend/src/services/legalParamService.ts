@@ -20,7 +20,7 @@ export const LegalParamService = {
    * @param value The new value to set.
    * @returns Success status of the update.
    */
-  updateParam: async (key: string, value: any): Promise<{ success: boolean }> => {
+  updateParam: async (key: string, value: string | number | boolean): Promise<{ success: boolean }> => {
     return http.patch(`/legal-params/${key}`, { value });
   },
 };

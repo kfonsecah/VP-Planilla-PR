@@ -38,13 +38,13 @@ created: 2026-04-26
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 60-01-01 | 01 | 1 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ⬜ pending |
-| 60-01-02 | 01 | 1 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ⬜ pending |
-| 60-01-03 | 01 | 1 | PAY-25 | T-60-01 | Audit log written | unit | `npm test -- src/backend/src/service/PayrollService` | ✅ W0 | ⬜ pending |
-| 60-02-01 | 02 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ⬜ pending |
-| 60-02-02 | 02 | 2 | PAY-25 | — | N/A | lint | `next lint` | ✅ W0 | ⬜ pending |
-| 60-03-01 | 03 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ⬜ pending |
-| 60-03-02 | 03 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ⬜ pending |
+| 60-01-01 | 01 | 1 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ✅ green |
+| 60-01-02 | 01 | 1 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ✅ green |
+| 60-01-03 | 01 | 1 | PAY-25 | T-60-01 | Audit log written | unit | `npm test -- src/__tests__/unit/services/PayrollService.test.ts` | ✅ W0 | ✅ green |
+| 60-02-01 | 02 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ✅ green |
+| 60-02-02 | 02 | 2 | PAY-25 | — | N/A | lint | `next lint` | ✅ W0 | ✅ green |
+| 60-03-01 | 03 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ✅ green |
+| 60-03-02 | 03 | 2 | PAY-25 | — | N/A | types | `npx tsc --noEmit` | ✅ W0 | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
