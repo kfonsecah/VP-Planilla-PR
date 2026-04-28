@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { LegalParamService } from '@/services/legalParamService';
 
 export interface BiweeklyPeriod {
   start: Date;
@@ -55,6 +56,24 @@ export function usePayrollWizard() {
   const [periodType, setPeriodType] = useState<'quincenal' | 'mensual' | 'rango_libre'>('quincenal');
   const [minWageCheckEnabled, setMinWageCheckEnabled] = useState<number | null>(null);
   const [globalMinWageRate, setGlobalMinWageRate] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchParams = async () => {
+      try {
+        const [enabledRes, rateRes] = await Promise.all([
+          LegalParamService.getParam('MIN_WAGE_CHECK_ENABLED'),
+          LegalParamService.getParam('GLOBAL_MIN_WAGE_RATE'),
+        ]);
+
+        if (enabledRes) setMinWageCheckEnabled(Number(enabledRes.value));
+        if (rateRes) setGlobalMinWageRate(Number(rateRes.value));
+      } catch (error) {
+        console.error('Error fetching legal parameters:', error);
+      }
+    };
+
+    fetchParams();
+  }, []);
 
   const selectPeriod = useCallback((period: {
     start: string;
