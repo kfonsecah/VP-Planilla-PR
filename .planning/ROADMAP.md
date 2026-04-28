@@ -9,8 +9,8 @@
 | 52 | Persistencia Robusta (LocalStorage) | UX-11, UX-12 | 2 | Completed |
 | 51 | EdiciÃ³n Directa de Marcas en AuditorÃ­a | AUDIT-01 | 3 | Not Started |
 | 54 | Rediseño del Flujo de Planilla | PAY-11, PAY-12, PAY-13 | 5 | Completed |
-| 55 | Fundación vpg_legal_params | PAY-20 | 3 | Not Started |
-| 56 | Motor de Cálculo Desacoplado | PAY-21 | 4 | Not Started |
+| 55 | Fundación vpg_legal_params | PAY-20 | 3 | Completed |
+| 56 | Motor de Cálculo Desacoplado | PAY-21 | 4 | Completed |
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Complete | 2026-04-26 |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Complete | 2026-04-26 |
 | 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Planning Complete |
@@ -77,7 +77,7 @@
 1. Modelo VpgLegalParam existe en schema.prisma con todos los campos requeridos y migración generada.
 2. Seed ejecutado: 20+ parámetros iniciales en BD incluyendo jornadas, multiplicadores OT, tasas CCSS y MIN_WAGE_CHECK_ENABLED.
 3. LegalParamService.getParamAtDate('OT_FACTOR', new Date()) retorna 1.5.
-**Status:** Planning Complete (3 plans ready — execute waves 1→2→3)
+**Status:** Completed
 
 **Plans:** 3 plans
 - [ ] 55-01-PLAN.md — Schema + migration + seed (Wave 1)
@@ -91,7 +91,7 @@
 1. payrollUtils.ts no contiene literales 1.5, 2.0, 3.0, 8, 48 — todos vienen del LegalParamSet recibido como argumento.
 2. npm test pasa sin regresiones.
 3. Calcular con OT_FACTOR=2.0 en params produce horas extra al doble.
-**Status:** Not Started
+**Status:** Completed
 
 ### Phase 57: Enterprise Config — Campos Faltantes
 **Goal:** Agregar minuteRoundingPolicy, roundingPolicyAcknowledged, isCommercialActivity y ordinaryShiftType a vpg_enterprise con UI de configuración.
