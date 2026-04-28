@@ -8,8 +8,10 @@
 
 # Check opt-in config — exit silently if not enabled
 if [ -f .planning/config.json ]; then
-  ENABLED=$(node -e "try{const c=require('./.planning/config.json');process.stdout.write(c.hooks?.community===true?'1':'0')}catch{process.stdout.write('0')}" 2>/dev/null)
-  if [ "$ENABLED" != "1" ]; then exit 0; fi
+  # Simple grep for community: true to avoid node capture issues on some Windows shells
+  if ! grep -q '"community"[[:space:]]*:[[:space:]]*true' .planning/config.json; then
+    exit 0
+  fi
 else
   exit 0
 fi

@@ -2,7 +2,14 @@
   "mode": "stable",
   "model_profile": "custom",
   "model_overrides": {
-    "model_profile": "budget"
+    "gsd-planner": "google/gemini-3.0-pro",
+    "gsd-roadmapper": "google/gemini-3.0-pro",
+    "gsd-debugger": "google/gemini-3.0-pro",
+    "gsd-verifier": "google/gemini-3.0-pro",
+    "gsd-executor": "google/gemini-3.0-flash",
+    "gsd-phase-researcher": "google/gemini-3.0-flash",
+    "gsd-project-researcher": "google/gemini-3.0-flash",
+    "gsd-plan-checker": "google/gemini-3.0-pro"
   },
   "commit_docs": true,
   "parallelization": true,

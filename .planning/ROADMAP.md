@@ -13,7 +13,7 @@
 | 56 | Motor de Cálculo Desacoplado | PAY-21 | 4 | Completed |
 | 57 | Enterprise Config — Campos Faltantes | PAY-22 | 3 | Complete | 2026-04-26 |
 | 58 | Redondeo de Minutos en Motor | PAY-23 | 3 | Complete | 2026-04-26 |
-| 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Planning Complete |
+| 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Completed |
 | 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Planning Complete |
 | 61 | Alertas Persistentes Parámetros Legales | PAY-26 | 5 | Not Started |
 | 62 | Confirmación Contraseña Params Críticos | PAY-27 | 2 | Not Started |
@@ -126,11 +126,11 @@
 **Success Criteria:**
 1. vpg_legal_params incluye el parámetro GLOBAL_MIN_WAGE_RATE con los valores del decreto MTSS (2024, 2025).
 2. LegalParamService.getGlobalMinWageRate(date) retorna el valor correcto.
-**Status:** Planning Complete (2 plans ready — execute waves 1→2)
+**Status:** Completed
 
 **Plans:** 2 plans
-- [ ] 59-01-PLAN.md — Seed del parámetro GLOBAL_MIN_WAGE_RATE en vpg_legal_params (Wave 1)
-- [ ] 59-02-PLAN.md — getGlobalMinWageRate en LegalParamService (Wave 2)
+- [x] 59-01-PLAN.md — Seed del parámetro GLOBAL_MIN_WAGE_RATE en vpg_legal_params (Wave 1)
+- [x] 59-02-PLAN.md — getGlobalMinWageRate en LegalParamService (Wave 2)
 
 ### Phase 60: Validación Salario Mínimo al Aprobar
 **Goal:** Bloquear BORRADOR→APROBADA si algún empleado recibe menos del salario mínimo legal. Incluye toggle MIN_WAGE_CHECK_ENABLED y permiso payroll.override_legal_check.
