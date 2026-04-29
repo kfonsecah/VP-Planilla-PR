@@ -143,9 +143,9 @@
 
 
 **Plans:** 3 plans
-- [x] 60-01-PLAN.md â€” Infraestructura: legalParamService + Hook extension + Backend Audit (Wave 1)      
-- [x] 60-02-PLAN.md â€” UI: Advertencias visuales en el Payroll Wizard (Wave 2)
-- [x] 60-03-PLAN.md â€” ConfiguraciÃ³n: Toggle UI en Enterprise Config (Wave 2)
+- [x] 60-01-PLAN.md — Infraestructura: legalParamService + Hook extension + Backend Audit (Wave 1)
+- [x] 60-02-PLAN.md — UI: Advertencias visuales en el Payroll Wizard (Wave 2)
+- [x] 60-03-PLAN.md — Configuración: Toggle UI en Enterprise Config (Wave 2)
 
 
 ### Phase 61: Alertas Persistentes Parámetros Legales
@@ -155,7 +155,14 @@
 1. Modificar OT_FACTOR crea notificación LEGAL_PARAM_CHANGE para todos los usuarios admin/payroll_manager.
 2. Banner en dashboard aparece y desaparece al marcar como revisado.
 3. Cambiar MIN_WAGE_CHECK_ENABLED a 0 muestra mensaje "Verificación de salario mínimo DESACTIVADA".
-**Status:** Not Started
+**Status:** Planning Complete
+
+**Plans:** 5 plans
+- [ ] 61-01-PLAN.md — Schema migration + NotificationService methods (Wave 1)
+- [ ] 61-02-PLAN.md — LegalParamService.upsertParam notification hook (Wave 2)
+- [ ] 61-03-PLAN.md — PATCH acknowledge + GET filter endpoints (Wave 2)
+- [ ] 61-04-PLAN.md — Frontend: banner + panel differentiation + Header bell (Wave 3)
+- [ ] 61-05-PLAN.md — Frontend: DESACTIVADO badge + Wizard step 1 banner (Wave 4)
 
 ### Phase 62: Confirmación Contraseña Params Críticos
 **Goal:** Modificar cualquier parámetro con isCritical=true requiere re-ingreso de contraseña antes de guardar.
