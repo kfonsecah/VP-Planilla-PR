@@ -7,7 +7,7 @@ const router = Router();
 
 // Admin-only middleware — applied to write endpoints and admin-read endpoints
 const adminOnly = (req: any, res: any, next: any) => {
-  const userRole = req.user?.user_role;
+  const userRole = req.user?.role;
   if (userRole !== 'admin') {
     return res.status(403).json({ success: false, error: 'Admin access required' });
   }

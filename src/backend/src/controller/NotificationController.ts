@@ -38,7 +38,7 @@ export class NotificationController {
    * GET /notifications?page=1&limit=20
    */
   static async getNotifications(req: Request, res: Response): Promise<void> {
-    const userId = (req.user as { user_id: number }).user_id;
+    const userId = (req.user as { id: number }).id;
     const typeFilter = req.query.type as string | undefined;
     const unacknowledged = req.query.unacknowledged === 'true';
 
@@ -67,7 +67,7 @@ export class NotificationController {
    * GET /notifications/unread-count
    */
   static async getUnreadCount(req: Request, res: Response): Promise<void> {
-    const userId = (req.user as { user_id: number }).user_id;
+    const userId = (req.user as { id: number }).id;
 
     const count = await NotificationService.getUnreadCount(userId);
 
@@ -80,7 +80,7 @@ export class NotificationController {
    */
   static async markAsRead(req: Request, res: Response): Promise<void> {
     const notificationId = parseInt(req.params.id as string, 10);
-    const userId = (req.user as { user_id: number }).user_id;
+    const userId = (req.user as { id: number }).id;
 
     if (isNaN(notificationId)) {
       res.status(400).json({
@@ -111,7 +111,7 @@ export class NotificationController {
    * PUT /notifications/read-all
    */
   static async markAllAsRead(req: Request, res: Response): Promise<void> {
-    const userId = (req.user as { user_id: number }).user_id;
+    const userId = (req.user as { id: number }).id;
 
     const count = await NotificationService.markAllAsRead(userId);
 
@@ -127,7 +127,7 @@ export class NotificationController {
    */
   static async deleteNotification(req: Request, res: Response): Promise<void> {
     const notificationId = parseInt(req.params.id as string, 10);
-    const userId = (req.user as { user_id: number }).user_id;
+    const userId = (req.user as { id: number }).id;
 
     if (isNaN(notificationId)) {
       res.status(400).json({
@@ -155,8 +155,8 @@ export class NotificationController {
    */
   static async acknowledgeNotification(req: Request, res: Response): Promise<void> {
     const notificationId = parseInt(req.params.id as string, 10);
-    const userRole = (req.user as { user_id: number; user_role: string }).user_role;
-    const userId = (req.user as { user_id: number; user_role: string }).user_id;
+    const userRole = (req.user as { id: number; role: string }).role;
+    const userId = (req.user as { id: number; role: string }).id;
 
     if (userRole !== 'admin' && userRole !== 'payroll_manager') {
       res.status(403).json({ success: false, error: 'Sin permisos para marcar alertas como revisadas' });
