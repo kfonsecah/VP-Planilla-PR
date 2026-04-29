@@ -56,11 +56,11 @@ Exceptions: None
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
 | Body | 14px | 400 | 1.5 | Table cells, parameter values |
-| Label | 12px | 500 | 1.4 | Table headers, metadata |
+| Label | 12px | 400 | 1.4 | Table headers, metadata |
 | Heading (section) | 18px | 600 | 1.2 | "Parámetros utilizados en el cálculo" |
 | Subheading (category) | 16px | 600 | 1.2 | Category group headers in table |
 
-**Established from Phase 63 contract.** Font family defaults to `font-general` (PraderaFont) for body copy, `font-titulo` (VerdeFont) for headings only when needed for branding.
+**Established from Phase 63 contract.** Font family defaults to `font-general` (PraderaFont) for body copy, `font-titulo` (VerdeFont) for headings only when needed for branding. Labels are visually distinct from body via size alone (12px vs 14px), no additional weight required.
 
 ---
 
@@ -129,13 +129,13 @@ Exceptions: None
 ### Table Structure
 - **Container:** `w-full overflow-x-auto` (responsive scrolling on mobile)
 - **Header Row:** `bg-zinc-100 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700`
-- **Header Cell:** `px-4 py-4 text-left text-xs font-medium text-zinc-700 dark:text-zinc-300 uppercase tracking-wider`
+- **Header Cell:** `px-4 py-4 text-left text-xs text-zinc-700 dark:text-zinc-300 uppercase tracking-wider`
 - **Body Rows:** Alternating `bg-white dark:bg-zinc-900/50` and `bg-zinc-50 dark:bg-zinc-900`
 - **Body Cell:** `px-4 py-4 text-sm text-theme-primary dark:text-zinc-100 border-b border-zinc-200 dark:border-zinc-800`
-- **Parameter Name (Column 1):** `font-medium text-theme-primary dark:text-white`
+- **Parameter Name (Column 1):** `text-theme-primary dark:text-white`
 - **Value (Column 2):** `font-bold text-[#4A5D3A] dark:text-white`
 - **Date (Column 3):** `text-xs text-zinc-600 dark:text-zinc-400`
-- **Decree (Column 4):** Badge format: `inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-xs font-medium`
+- **Decree (Column 4):** Badge format: `inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-xs`
 
 ### Category Grouping
 - **Sub-headers within table:** Striped background `bg-zinc-200 dark:bg-zinc-700/50` across full width
