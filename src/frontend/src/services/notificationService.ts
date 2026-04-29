@@ -53,4 +53,20 @@ export const NotificationService = {
   async deleteNotification(id: number): Promise<void> {
     await http.raw(`/notifications/${id}`, { method: 'DELETE' });
   },
+
+  /**
+   * Fetch unacknowledged LEGAL_PARAM_CHANGE alerts for the current user.
+   */
+  async getLegalParamAlerts(): Promise<Notification[]> {
+    const res = await http.raw('/notifications?type=LEGAL_PARAM_CHANGE&unacknowledged=true');
+    const json = await res.json();
+    return (json.data ?? []) as Notification[];
+  },
+
+  /**
+   * Acknowledge a legal param alert notification (admin only).
+   */
+  async acknowledgeNotification(id: number): Promise<void> {
+    await http.raw(`/notifications/${id}/acknowledge`, { method: 'PATCH' });
+  },
 };

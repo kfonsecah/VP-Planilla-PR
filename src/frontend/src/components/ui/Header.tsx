@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@/hooks/user";
 import { useTheme } from "@/hooks/useTheme";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useLegalParamAlertsContext } from "@/context/LegalParamAlertsContext";
 import { SunIcon, MoonIcon, Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import { NotificationPanel } from "./NotificationPanel";
 
@@ -19,6 +20,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { theme, toggleTheme, mounted } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
   const { data, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotifications();
+  const { alerts: legalAlerts } = useLegalParamAlertsContext();
+  const legalAlertCount = legalAlerts.length;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,6 +112,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <div className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full -top-1 -right-1">
               {unreadCount}
             </div>
+          )}
+          {legalAlertCount > 0 && (
+            <div
+              className="absolute w-1.5 h-1.5 bg-red-500 rounded-full bottom-0 right-0"
+              aria-label={`${legalAlertCount} alertas legales sin revisar`}
+            />
           )}
         </div>
       </div>

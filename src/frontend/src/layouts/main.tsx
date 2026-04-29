@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { ClockLogsProvider } from '@/hooks/useClockLogsContext';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+import { LegalParamAlertsProvider } from '@/context/LegalParamAlertsContext';
 import { Toaster } from 'sonner';
 import { useEffect, useState } from 'react';
 
@@ -84,7 +85,9 @@ export default function ClientLayout({
       <ThemeProvider>
         <ClockLogsProvider>
           <TooltipProvider>
-            <InnerLayout>{children}</InnerLayout>
+            <LegalParamAlertsProvider>
+              <InnerLayout>{children}</InnerLayout>
+            </LegalParamAlertsProvider>
           </TooltipProvider>
         </ClockLogsProvider>
         <Toaster

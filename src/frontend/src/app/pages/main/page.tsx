@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLaborEvents } from "@/hooks/useLaborEvents";
 import useEmployeeList from "@/hooks/useEmployeeList";
+import { useUser } from "@/hooks/user";
+import { LegalParamAlertBanner } from "@/components/LegalParamAlertBanner";
 import { formatSalary, getStatusBadgeConfig } from "@/utils/employeeUtils";
 import { EmployeeLaborEvent } from "@/types/laborEvent";
 import { Employee } from "@/types/employee";
@@ -60,6 +62,8 @@ const Home: React.FC = () => {
 
   const { events, isLoading: eventsLoading, refreshEvents } = useLaborEvents();
   const { employees, refreshEmployees, stats } = useEmployeeList();
+  const { user: currentUser } = useUser();
+  const userRole = currentUser?.role ?? '';
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -187,6 +191,9 @@ const Home: React.FC = () => {
             {today.toLocaleDateString("es-CR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
+
+        {/* Legal parameter alerts banner */}
+        <LegalParamAlertBanner userRole={userRole} />
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

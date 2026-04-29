@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Notification } from "@/types/notification";
@@ -118,9 +118,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                   <div
                     key={notification.notifications_id}
                     className={`px-4 py-3 border-b border-[#F8F6F1] dark:border-zinc-800 hover:bg-[#FDFCF9] dark:hover:bg-zinc-800/50 transition-colors cursor-pointer ${
-                      !notification.notifications_is_read
-                        ? "bg-[#FFF9E6] dark:bg-zinc-800/30"
-                        : ""
+                      !notification.notifications_is_read && notification.notifications_type === 'LEGAL_PARAM_CHANGE'
+                        ? 'bg-red-50/50 dark:bg-red-900/10'
+                        : !notification.notifications_is_read
+                          ? 'bg-[#FFF9E6] dark:bg-zinc-800/30'
+                          : ''
                     }`}
                     onClick={() => {
                       if (!notification.notifications_is_read) {
@@ -129,13 +131,16 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     }}
                   >
                     <div className="flex items-start space-x-3">
-                      <div
-                        className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                          !notification.notifications_is_read
-                            ? "bg-blue-500"
-                            : "bg-gray-300 dark:bg-zinc-600"
-                        }`}
-                      />
+                      {notification.notifications_type === 'LEGAL_PARAM_CHANGE'
+                        ? <ShieldExclamationIcon className="w-4 h-4 text-red-500 flex-shrink-0 mt-1" />
+                        : <div
+                            className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                              !notification.notifications_is_read
+                                ? "bg-blue-500"
+                                : "bg-gray-300 dark:bg-zinc-600"
+                            }`}
+                          />
+                      }
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-[#4A5D3A] dark:text-zinc-100 truncate">
