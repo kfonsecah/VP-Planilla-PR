@@ -3,6 +3,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { CreateLegalParamDto, VpgLegalParam } from '../model/VpgLegalParam';
 import { LegalParamSet } from '../types/payroll.types';
+import { NotificationService } from './NotificationService';
 
 export class LegalParamService {
   /**
@@ -217,6 +218,27 @@ export class LegalParamService {
         createdBy: userId,
         updatedBy: null,
       },
+    });
+
+    // Resolve acting user display name (best-effort)
+    const actingUser = await prisma.vpg_users.findFirst({
+      where: { user_id: parseInt(userId, 10) },
+      select: { user_first_name: true, user_last_name: true },
+    });
+    const actingUserName = actingUser
+      ? `${actingUser.user_first_name} ${actingUser.user_last_name}`
+      : userId;
+
+    // Fire-and-forget legal param alert — must not block the param save
+    NotificationService.createLegalParamAlert(
+      data.key,
+      existing ? existing.value.toString() : '',
+      data.value.toString(),
+      newValidFrom,
+      parseInt(userId, 10),
+      actingUserName,
+    ).catch((err: unknown) => {
+      console.error('[LegalParamService.upsertParam] Failed to create legal param alert:', err);
     });
 
     return created as VpgLegalParam;

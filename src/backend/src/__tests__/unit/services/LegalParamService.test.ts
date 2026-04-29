@@ -2,6 +2,13 @@ import { PrismaClient } from '@prisma/client';
 import { mockDeep } from 'jest-mock-extended';
 import { Decimal } from '@prisma/client/runtime/library';
 import { LegalParamService } from '../../../service/LegalParamService';
+import { NotificationService } from '../../../service/NotificationService';
+
+jest.mock('../../../service/NotificationService', () => ({
+  NotificationService: {
+    createLegalParamAlert: jest.fn().mockResolvedValue(undefined),
+  },
+}));
 
 jest.mock('../../../lib/prisma', () => {
   const mock = mockDeep<PrismaClient>();
@@ -30,6 +37,7 @@ const makeParam = (overrides: Partial<Record<string, unknown>> = {}) => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  (NotificationService.createLegalParamAlert as jest.Mock).mockResolvedValue(undefined);
 });
 
 describe('LegalParamService', () => {
@@ -205,6 +213,88 @@ describe('LegalParamService', () => {
 
       expect(prisma.vpgLegalParam.update).not.toHaveBeenCalled();
       expect(prisma.vpgLegalParam.create).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('upsertParam — notification hook', () => {
+    it('calls createLegalParamAlert with correct params after successful save', async () => {
+      prisma.vpgLegalParam.findFirst.mockResolvedValue(null);
+      const newParam = makeParam({ id: 'brand-new', value: new Decimal('1.5') });
+      prisma.vpgLegalParam.create.mockResolvedValue(newParam as any);
+      
+      prisma.vpg_users.findFirst.mockResolvedValue({
+        user_first_name: 'Juan',
+        user_last_name: 'Pérez',
+      } as any);
+
+      await LegalParamService.upsertParam(
+        {
+          key: 'OT_FACTOR',
+          value: 1.5,
+          description: 'OT',
+          category: 'OVERTIME',
+          validFrom: new Date('2026-01-01'),
+        },
+        '42',
+      );
+
+      expect(NotificationService.createLegalParamAlert).toHaveBeenCalledWith(
+        'OT_FACTOR',
+        '',
+        '1.5',
+        new Date('2026-01-01'),
+        42,
+        'Juan Pérez'
+      );
+    });
+
+    it('does not throw if createLegalParamAlert rejects', async () => {
+      prisma.vpgLegalParam.findFirst.mockResolvedValue(null);
+      prisma.vpgLegalParam.create.mockResolvedValue(makeParam() as any);
+      
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      (NotificationService.createLegalParamAlert as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      await expect(LegalParamService.upsertParam(
+        {
+          key: 'OT_FACTOR',
+          value: 1.5,
+          description: 'OT',
+          category: 'OVERTIME',
+          validFrom: new Date('2026-01-01'),
+        },
+        '42',
+      )).resolves.toBeDefined();
+
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+
+    it('passes existing record value as oldValue', async () => {
+      const existing = makeParam({ value: new Decimal('2.50') });
+      prisma.vpgLegalParam.findFirst.mockResolvedValue(existing as any);
+      prisma.vpgLegalParam.update.mockResolvedValue({} as any);
+      prisma.vpgLegalParam.create.mockResolvedValue(makeParam() as any);
+      
+      await LegalParamService.upsertParam(
+        {
+          key: 'HOLIDAY_MANDATORY_FACTOR',
+          value: 2.0,
+          description: 'Holiday',
+          category: 'WORKDAY',
+          validFrom: new Date('2026-01-01'),
+        },
+        '42',
+      );
+
+      expect(NotificationService.createLegalParamAlert).toHaveBeenCalledWith(
+        'HOLIDAY_MANDATORY_FACTOR',
+        '2.5',
+        '2',
+        new Date('2026-01-01'),
+        42,
+        expect.any(String)
+      );
     });
   });
 });

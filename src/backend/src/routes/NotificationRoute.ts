@@ -65,6 +65,16 @@ router.post('/', asyncHandler(NotificationController.createNotification));
  *     description: Retrieve paginated notifications for the authenticated user
  *     parameters:
  *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filter by notification type (e.g., LEGAL_PARAM_CHANGE)
+ *       - in: query
+ *         name: unacknowledged
+ *         schema:
+ *           type: boolean
+ *         description: If true with type=LEGAL_PARAM_CHANGE, returns only unacknowledged alerts
+ *       - in: query
  *         name: page
  *         schema:
  *           type: integer
@@ -81,6 +91,8 @@ router.post('/', asyncHandler(NotificationController.createNotification));
  *         description: Notifications retrieved successfully
  *       '401':
  *         description: Unauthorized
+ *       '400':
+ *         description: Invalid notification type filter
  */
 router.get('/', asyncHandler(NotificationController.getNotifications));
 
@@ -155,6 +167,40 @@ router.put('/:id/read', asyncHandler(NotificationController.markAsRead));
  *         description: Unauthorized
  */
 router.put('/read-all', asyncHandler(NotificationController.markAllAsRead));
+
+/**
+ * @route   PATCH /api/notifications/:id/acknowledge
+ * @desc    Mark a legal param alert notification as acknowledged (admin only)
+ * @access  Private — admin only
+ */
+/**
+ * @swagger
+ * /api/notifications/{id}/acknowledge:
+ *   patch:
+ *     tags:
+ *       - Notifications
+ *     summary: Acknowledge a legal param alert
+ *     description: Mark a LEGAL_PARAM_CHANGE notification as acknowledged. Admin only.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Notification ID
+ *     responses:
+ *       '200':
+ *         description: Notification acknowledged
+ *       '400':
+ *         description: Invalid notification ID
+ *       '403':
+ *         description: Not an admin
+ *       '404':
+ *         description: Notification not found or already acknowledged
+ *       '401':
+ *         description: Unauthorized
+ */
+router.patch('/:id/acknowledge', asyncHandler(NotificationController.acknowledgeNotification));
 
 /**
  * @route   DELETE /api/notifications/:id

@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 /**
  * Notification model interface matching the Prisma vpg_notifications model.
  */
@@ -10,6 +12,10 @@ export interface Notification {
   notifications_is_read: boolean;
   notifications_created_at: Date;
   notifications_version: number;
+  notifications_requires_acknowledgment: boolean;
+  notifications_acknowledged_by: number | null;
+  notifications_acknowledged_at: Date | null;
+  notifications_metadata: Prisma.JsonValue | null;
 }
 
 /**
@@ -20,7 +26,8 @@ export type NotificationType =
   | 'payment_processed'
   | 'employee_action'
   | 'system'
-  | 'report_generated';
+  | 'report_generated'
+  | 'LEGAL_PARAM_CHANGE';
 
 /**
  * Input for creating a new notification.
@@ -30,4 +37,9 @@ export interface CreateNotificationInput {
   title: string;
   message: string;
   type: NotificationType;
+}
+
+export interface LegalParamAlertNotification extends Notification {
+  notifications_type: 'LEGAL_PARAM_CHANGE';
+  notifications_requires_acknowledgment: true;
 }

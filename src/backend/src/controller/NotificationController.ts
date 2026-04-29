@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import { NotificationService } from '../service/NotificationService';
 import { CreateNotificationInput } from '../model/Notification';
 
+const VALID_NOTIFICATION_TYPES = [
+  'LEGAL_PARAM_CHANGE', 'payroll_generated', 'payment_processed',
+  'employee_action', 'system', 'report_generated',
+] as const;
+
 export class NotificationController {
   /**
    * Creates a new notification.
@@ -34,22 +39,27 @@ export class NotificationController {
    */
   static async getNotifications(req: Request, res: Response): Promise<void> {
     const userId = (req.user as { user_id: number }).user_id;
+    const typeFilter = req.query.type as string | undefined;
+    const unacknowledged = req.query.unacknowledged === 'true';
+
+    // Validate type filter if provided
+    if (typeFilter && !VALID_NOTIFICATION_TYPES.includes(typeFilter as typeof VALID_NOTIFICATION_TYPES[number])) {
+      res.status(400).json({ success: false, error: 'Invalid notification type filter' });
+      return;
+    }
+
+    // Special case: legal param alerts filter
+    if (typeFilter === 'LEGAL_PARAM_CHANGE' && unacknowledged) {
+      const alerts = await NotificationService.getUnacknowledgedLegalParamAlerts(userId);
+      res.status(200).json({ success: true, data: alerts, total: alerts.length });
+      return;
+    }
+
+    // Default: paginated notifications (existing behavior)
     const page = parseInt(req.query.page as string, 10) || 1;
     const limit = parseInt(req.query.limit as string, 10) || 20;
-
-    const result = await NotificationService.getNotificationsByUserId(
-      userId,
-      page,
-      limit
-    );
-
-    res.status(200).json({
-      success: true,
-      data: result.data,
-      total: result.total,
-      page,
-      limit,
-    });
+    const result = await NotificationService.getNotificationsByUserId(userId, page, limit);
+    res.status(200).json({ success: true, data: result.data, total: result.total, page, limit });
   }
 
   /**
@@ -135,6 +145,34 @@ export class NotificationController {
         success: false,
         error: 'Notification not found or access denied',
       });
+    }
+  }
+
+  /**
+   * Marks a legal param alert notification as acknowledged.
+   * Accessible by admin and payroll_manager roles.
+   * PATCH /notifications/:id/acknowledge
+   */
+  static async acknowledgeNotification(req: Request, res: Response): Promise<void> {
+    const notificationId = parseInt(req.params.id as string, 10);
+    const userRole = (req.user as { user_id: number; user_role: string }).user_role;
+    const userId = (req.user as { user_id: number; user_role: string }).user_id;
+
+    if (userRole !== 'admin' && userRole !== 'payroll_manager') {
+      res.status(403).json({ success: false, error: 'Sin permisos para marcar alertas como revisadas' });
+      return;
+    }
+    if (isNaN(notificationId)) {
+      res.status(400).json({ success: false, error: 'Invalid notification ID' });
+      return;
+    }
+
+    try {
+      await NotificationService.acknowledgeNotification(notificationId, userId);
+      res.status(200).json({ success: true });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al marcar notificación como revisada';
+      res.status(404).json({ success: false, error: message });
     }
   }
 }

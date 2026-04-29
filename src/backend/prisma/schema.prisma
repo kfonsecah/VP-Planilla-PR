@@ -453,7 +453,8 @@ model vpg_users {
   user_last_login   DateTime?           @db.Timestamp(6)
   vpg_audit_logs                   vpg_audit_logs[]
   vpg_report_logs                  vpg_report_logs[]
-  vpg_notifications                vpg_notifications[]
+  vpg_notifications                vpg_notifications[]               @relation("NotificationOwner")
+  vpg_notifications_acknowledged   vpg_notifications[]               @relation("NotificationAcknowledger")
   vpg_clock_import_sessions        vpg_clock_import_sessions[]
   vpg_clock_log_adjustments        vpg_clock_log_adjustments[]
   vpg_payrolls_approved            vpg_payrolls[]
@@ -474,7 +475,12 @@ model vpg_notifications {
   notifications_is_read    Boolean   @default(false)
   notifications_created_at DateTime  @default(now()) @db.Timestamp(6)
   notifications_version    Int       @default(1)
-  vpg_users                vpg_users @relation(fields: [notifications_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_notifications_users_24")
+  notifications_requires_acknowledgment Boolean   @default(false)
+  notifications_acknowledged_by         Int?
+  notifications_acknowledged_at         DateTime? @db.Timestamp(6)
+  notifications_metadata                Json?
+  vpg_users_acknowledged                vpg_users? @relation("NotificationAcknowledger", fields: [notifications_acknowledged_by], references: [user_id], onDelete: SetNull, onUpdate: NoAction)
+  vpg_users                vpg_users @relation("NotificationOwner", fields: [notifications_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_vpg_notifications_users_24")
 
   @@index([notifications_user_id], map: "idx_vpg_notifications_user_id")
   @@index([notifications_is_read], map: "idx_vpg_notifications_is_read")
