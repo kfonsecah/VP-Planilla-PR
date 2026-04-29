@@ -93,3 +93,6 @@ Texto del modal:
 - El `vpg_audit_logs` solo registra `password_confirmed: true/false` — nunca la contraseña
 - Fallar la contraseña 5 veces consecutivas no bloquea la cuenta (no es el scope de esta fase)
 - `npx tsc --noEmit` y `next lint` pasan
+- **Backlog / Futuro:**
+  - Rate limiting para el endpoint de confirmación (prevenir fuerza bruta)
+  - Registro de `last_failed_confirmation` en el perfil de usuario

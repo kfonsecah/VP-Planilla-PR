@@ -16,7 +16,7 @@
 | 59 | Tarifa Mínima Global (Opcional) | PAY-24 | 2 | Completed |
 | 60 | Advertencia de Tarifa Mínima en Planilla | PAY-25 | 3 | Completed |
 | 61 | Alertas Persistentes Parámetros Legales | PAY-26 | Completed | 2026-04-29 |
-| 62 | Confirmación Contraseña Params Críticos | PAY-27 | 2 | Not Started |
+| 62 | Confirmación Contraseña Params Críticos | PAY-27 | 3 | Planning Complete |
 | 63 | Panel Admin Parámetros Legales UI | PAY-28 | 5 | Not Started |
 | 64 | Snapshot de Params en Planilla Cerrada | PAY-29 | 3 | Not Started |
 | 65 | Proyección de Aguinaldo en UI | PAY-30 | 4 | Not Started |
