@@ -55,7 +55,9 @@ Exceptions:
 | Body | 14px (text-sm) | 400 (regular) | 1.5 |
 | Label / caption | 12px (text-xs) | 400 (regular) | 1.5 |
 | Heading (card/section) | 14px (text-sm) | 600 (semibold) | 1.2 |
-| Display (page title) | 24px (text-2xl) | 700 (bold) | 1.2 |
+| Display (page title) | 24px (text-2xl) | 600 (semibold) | 1.2 |
+
+Weights declared: 400 (regular), 600 (semibold). Maximum two weights per design contract. The Display role uses 600/semibold — consistent with the heaviest heading weight used in `NotificationPanel.tsx`.
 
 Source: Consistent with `main/page.tsx` and `NotificationPanel.tsx` patterns. Deviations require explicit justification.
 
@@ -111,7 +113,7 @@ Location: `src/frontend/src/components/LegalParamAlertBanner.tsx`
 
 **Behavior:**
 - Collapse/expand: chevron toggle, no page navigation
-- "Marcar como revisado": calls `PATCH /notifications/:id/acknowledge`, then refetches; button shows spinner during request
+- "Marcar como revisado": calls `PATCH /notifications/:id/acknowledge`, then refetches; button shows spinner during request. Button style follows `configuracion/empresa/page.tsx` primary button pattern: `bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold px-6 py-2.5 shadow-md shadow-green-600/20` — disabled state: `bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none`.
 - Dismiss (×): hides locally for the session only — does NOT mark as acknowledged
 - Admin-only: `acknowledged_by` button hidden for `payroll_manager` role
 
@@ -127,10 +129,12 @@ Location: inline JSX in `src/frontend/src/app/pages/configuracion/empresa/page.t
 
 **Visual:**
 ```
-<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full">
+<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-semibold uppercase px-2 py-1 rounded-full">
   DESACTIVADO — Riesgo legal
 </span>
 ```
+
+Size: `text-xs` (12px) — matches `ClockLogStatusBadge.tsx` and `EmployeeCard.tsx` badge pattern. Padding: `px-2` (8px) `py-1` (4px) — both on the declared spacing scale.
 
 No animation. Renders conditionally when parameter value is falsy.
 
@@ -174,10 +178,10 @@ No CTA — informational only. Dismissible with × (session-only).
 | Banner title (generic) | "Parámetro legal modificado: [nombre legible]" |
 | Banner subtitle | "[nombre] fue modificado por [usuario] el [fecha]. Valor anterior: [X] → Nuevo valor: [Y]." |
 | Draft payrolls warning (appended) | "ATENCIÓN: Existen [N] planillas en estado BORRADOR que deben recalcularse." |
-| Risk suffix — MIN_WAGE_CHECK | "Verificación de salario mínimo DESACTIVADA. Las planillas no validarán cumplimiento del Decreto MTSS." |
+| Risk suffix — MIN_WAGE_CHECK_ENABLED | "Verificación de salario mínimo DESACTIVADA. Las planillas no validarán cumplimiento del Decreto MTSS." |
 | Risk suffix — OT_FACTOR | "El multiplicador de horas extra es inferior al mínimo legal (1.5×). Riesgo de incumplimiento Art. 139 CT." |
-| Risk suffix — HOLIDAY_MANDATORY | "El multiplicador de feriado obligatorio es inferior al mínimo legal (2.0×). Riesgo de incumplimiento Art. 148 CT." |
-| Risk suffix — HOLIDAY_TRIPLE | "El multiplicador de feriado triple es inferior al mínimo legal (3.0×). Riesgo de incumplimiento Art. 148 CT." |
+| Risk suffix — HOLIDAY_MANDATORY_FACTOR | "El multiplicador de feriado obligatorio es inferior al mínimo legal (2.0×). Riesgo de incumplimiento Art. 148 CT." |
+| Risk suffix — HOLIDAY_TRIPLE_FACTOR | "El multiplicador de feriado triple es inferior al mínimo legal (3.0×). Riesgo de incumplimiento Art. 148 CT." |
 | Risk suffix — CCSS | "Los porcentajes de CCSS no corresponden a los valores legales vigentes. Riesgo de incumplimiento ante la CCSS." |
 | DESACTIVADO badge label | "DESACTIVADO — Riesgo legal" |
 | Bell icon aria-label | "Notificaciones — N alertas legales sin revisar" (when legal alerts exist) |
@@ -186,7 +190,7 @@ No CTA — informational only. Dismissible with × (session-only).
 | Error — acknowledge fails | "No se pudo marcar como revisado. Intenta de nuevo." (sonner toast.error) |
 | Success — acknowledge | "Alerta marcada como revisada." (sonner toast.success) |
 
-Source: All risk suffix messages verbatim from `61-CONTEXT.md` message table. CTA labels follow existing button patterns in the project (Spanish verb + noun).
+Source: All risk suffix messages verbatim from `61-CONTEXT.md` message table. Parameter key names (HOLIDAY_MANDATORY_FACTOR, HOLIDAY_TRIPLE_FACTOR, MIN_WAGE_CHECK_ENABLED) match exact keys from CONTEXT.md. CTA labels follow existing button patterns in the project (Spanish verb + noun).
 
 ---
 
@@ -224,7 +228,7 @@ Source: All risk suffix messages verbatim from `61-CONTEXT.md` message table. CT
 The banner sits between the dashboard page header and the stats grid:
 ```
 [Page header: "Dashboard"]
-[LegalParamAlertBanner — only if alerts exist]  ← new
+[LegalParamAlertBanner — only if alerts exist]  <- new
 [Stats grid: 4 cards]
 [Main grid: calendar + sidebar]
 ```
@@ -270,6 +274,7 @@ No third-party registry components introduced in this phase. All new components 
 | Bell badge pattern | `Header.tsx` lines 108–113 — red-500 badge |
 | Risk messages (verbatim) | `61-CONTEXT.md` message table |
 | Banner placement | `main/page.tsx` structure — between page header and stats grid |
+| Primary button style | `configuracion/empresa/page.tsx` lines 200–215 — bg-green-600 hover:bg-green-700 pattern |
 
 ---
 
