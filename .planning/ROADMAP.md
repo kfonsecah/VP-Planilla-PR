@@ -171,7 +171,7 @@
 1. PATCH /legal-params/OT_FACTOR sin confirmationPassword retorna 400.
 2. Con contraseña incorrecta retorna 403 y el valor no cambia en BD.
 3. Con contraseña correcta guarda el valor y registra password_confirmed:true en vpg_audit_logs.
-**Status:** Not Started
+**Status:** Completed (2026-04-29)
 
 ### Phase 63: Panel Admin Parámetros Legales UI
 **Goal:** Página dedicada /pages/configuracion/parametros-legales/ para ver, editar e historializar todos los parámetros legales.
@@ -181,7 +181,14 @@
 2. Editar un param crítico abre PasswordConfirmModal antes de guardar.
 3. Non-admin recibe redirect/403.
 4. Modal de historial muestra timeline de cambios de un parámetro.
-**Status:** Not Started
+**Status:** Completed (2026-04-29)
+
+**Plans:** 5 plans (all complete)
+- [x] 63-01-PLAN.md — Wave 1: Backend endpoints GET /active + POST bulk (Wave 1)
+- [x] 63-02-PLAN.md — Wave 2: LegalParamCard + página base con acordeones (Wave 2)
+- [x] 63-03-PLAN.md — Wave 3: LegalParamDrawer + integración PasswordConfirmModal (Wave 3)
+- [x] 63-04-PLAN.md — Wave 4: LegalParamHistoryModal + MinWageBulkUpdateModal (Wave 4)
+- [x] 63-05-PLAN.md — Wave 5: FeatureFlagToggle + enlace Sidebar (Wave 5)
 
 ### Phase 64: Snapshot de Params en Planilla Cerrada
 **Goal:** Cada planilla aprobada captura en BD los valores exactos de los parámetros legales vigentes en su período para trazabilidad CCSS/MTSS.
