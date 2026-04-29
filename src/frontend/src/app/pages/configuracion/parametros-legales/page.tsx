@@ -10,7 +10,8 @@ import { LegalParamDrawer } from '@/components/LegalParamDrawer';
 import { LegalParamHistoryModal } from '@/components/LegalParamHistoryModal';
 import { MinWageBulkUpdateModal } from '@/components/MinWageBulkUpdateModal';
 import { useAuth } from '@/hooks/useAuth';
-import { ShieldExclamationIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ShieldExclamationIcon, ArrowPathIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 const CATEGORY_NAMES: Record<string, string> = {
   WORKDAY: 'Jornada Laboral',
@@ -39,14 +40,11 @@ export default function ParametrosLegalesPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await LegalParamService.getActiveParams();
-      if (res.success && res.data) {
-        setParams(res.data);
-      } else {
-        setError('Error al cargar los parámetros legales');
-      }
+      const data = await LegalParamService.getActiveParams();
+      setParams(data || []);
     } catch (err: unknown) {
-      setError((err as Error).message || 'Ocurrió un error inesperado');
+      console.error('Error loading params:', err);
+      setError('Error al cargar los parámetros legales');
     } finally {
       setLoading(false);
     }
@@ -107,6 +105,14 @@ export default function ParametrosLegalesPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
+      <Link
+        href="/pages/configuracion"
+        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-200 transition-colors mb-6 group"
+      >
+        <ChevronLeftIcon className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span className="text-sm font-medium">Volver a Configuración</span>
+      </Link>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-100">Parámetros Legales</h1>
         <p className="text-zinc-400 mt-2">

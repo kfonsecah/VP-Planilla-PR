@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { CalendarDaysIcon, ClockIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, ClockIcon, BriefcaseIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 export default function ConfiguracionDashboard() {
   const settingsCards = [
@@ -19,8 +19,14 @@ export default function ConfiguracionDashboard() {
     {
       title: 'Feriados',
       description: 'Administre los días feriados, reglas de pago obligatorio y tiempo extra.',
-      href: '/pages/configuracion/feriados',
-      icon: <CalendarDaysIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+      icon: <CalendarDaysIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />,
+      href: '/pages/configuracion/feriados'
+    },
+    {
+      title: 'Parámetros Legales',
+      description: 'Administre constantes legales, factores de cálculo y salarios mínimos.',
+      icon: <ShieldCheckIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />,
+      href: '/pages/configuracion/parametros-legales'
     }
   ];
 
@@ -35,7 +41,7 @@ export default function ConfiguracionDashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {settingsCards.map((card) => (
             <Link key={card.href} href={card.href} className="block group">
               <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 hover:shadow-md transition-all duration-200 hover:border-green-500/50">

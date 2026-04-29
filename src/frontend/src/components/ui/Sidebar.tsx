@@ -73,6 +73,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       icon: "/images/layout/settings.png", 
       text: "Configuración",
       subItems: [
+        { href: '/pages/configuracion/empresa', text: 'Configuración Laboral' },
         { href: '/pages/configuracion/ventanas', text: 'Ventanas de Tiempo' },
         { href: '/pages/configuracion/feriados', text: 'Feriados' },
         ...(user?.role === 'admin' || user?.role === 'payroll_manager'

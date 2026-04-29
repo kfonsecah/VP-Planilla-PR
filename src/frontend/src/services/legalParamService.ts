@@ -40,11 +40,11 @@ export const LegalParamService = {
     return http.patch(`/legal-params/${key}`, data);
   },
 
-  getActiveParams: async (): Promise<{ success: boolean; data?: LegalParam[] }> => {
+  getActiveParams: async (): Promise<LegalParam[]> => {
     return http.get(`/legal-params/active`);
   },
 
-  getParamHistory: async (key: string): Promise<{ success: boolean; data?: LegalParam[] }> => {
+  getParamHistory: async (key: string): Promise<LegalParam[]> => {
     return http.get(`/legal-params/history/${key}`);
   },
 
