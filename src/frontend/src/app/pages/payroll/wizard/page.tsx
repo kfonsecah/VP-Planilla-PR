@@ -162,9 +162,16 @@ export default function PayrollWizardPage() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = (result as any)?.data ?? result;
-      setCalcResult(data);
+
+      // Reemplazar empleados con datos de DB para que emp.id = payroll_employee_id
+      // desde el primer guardado, evitando el mismatch de IDs al ajustar horas.
+      const freshEmployees = await PayrollService.getPayrollEmployees(currentId!);
+      const normalizedData = { ...data, employees: freshEmployees };
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setCalculationData(data as any);
+      setCalcResult(normalizedData as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setCalculationData(normalizedData as any);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al calcular la planilla';
       setCalcError(msg);
@@ -598,9 +605,8 @@ export default function PayrollWizardPage() {
                   employeeName={emp.name ?? emp.employeeName ?? emp.employee_name ?? 'Empleado'}
                   currentData={normalizedData}
                   onClose={() => setAdjustingEmpId(null)}
-                  onSave={() => {
-                    // Refresh calculation from DB to show updated manual adjustments
-                    refreshPayrollData();
+                  onSave={async () => {
+                    await refreshPayrollData();
                   }}
                 />
               );

@@ -33,7 +33,7 @@ interface PayrollEmployeeAdjustModalProps {
   employeeName: string;
   currentData: CurrentData;
   onClose: () => void;
-  onSave: (override: OverrideFormData) => void;
+  onSave: (override: OverrideFormData) => Promise<void>;
 }
 
 export default function PayrollEmployeeAdjustModal({
@@ -72,7 +72,7 @@ export default function PayrollEmployeeAdjustModal({
     try {
       await PayrollService.saveEmployeeOverride(payrollId, employeeId, data);
       toast.success(`Ajuste guardado para ${employeeName}`);
-      onSave(data);
+      await onSave(data);
       handleClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Error al guardar ajuste');
