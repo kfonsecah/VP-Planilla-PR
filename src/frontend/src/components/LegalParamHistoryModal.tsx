@@ -23,12 +23,8 @@ export const LegalParamHistoryModal: React.FC<LegalParamHistoryModalProps> = ({
       setLoading(true);
       setError(null);
       LegalParamService.getParamHistory(paramKey)
-        .then((res) => {
-          if (res.success && res.data) {
-            setHistory(res.data);
-          } else {
-            setError('Error al cargar historial');
-          }
+        .then((data: LegalParam[]) => {
+          setHistory(data ?? []);
         })
         .catch((err) => {
           setError(err.message || 'Ocurrió un error inesperado');
