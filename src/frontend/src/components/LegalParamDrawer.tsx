@@ -58,6 +58,13 @@ export const LegalParamDrawer: React.FC<LegalParamDrawerProps> = ({
     }
   }, [isOpen, param, reset]);
 
+  const handleClose = () => {
+    setIsConfirming(false);
+    setPendingData(null);
+    setPasswordError(undefined);
+    onClose();
+  };
+
   const onFormSubmit = (data: EditFormData) => {
     if (readOnly || !param) return;
     if (param.isCritical) {
@@ -103,7 +110,7 @@ export const LegalParamDrawer: React.FC<LegalParamDrawerProps> = ({
     <>
       <div
         className="fixed inset-0 bg-black/50 z-40 transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
       />
       <div className="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 border-l border-zinc-800 shadow-2xl z-50 flex flex-col transform transition-transform duration-300">
         <div className="flex justify-between items-center p-6 border-b border-zinc-800">
@@ -111,7 +118,7 @@ export const LegalParamDrawer: React.FC<LegalParamDrawerProps> = ({
             Editar Parámetro
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-zinc-400 hover:text-zinc-200 p-2 rounded-full hover:bg-zinc-800 transition-colors"
           >
             <XMarkIcon className="w-6 h-6" />
@@ -176,7 +183,7 @@ export const LegalParamDrawer: React.FC<LegalParamDrawerProps> = ({
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/50 flex justify-end gap-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="px-4 py-2 rounded-lg text-zinc-300 hover:bg-zinc-800 transition-colors"
             >
               Cancelar
