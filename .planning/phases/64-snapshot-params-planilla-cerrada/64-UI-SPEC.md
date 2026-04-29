@@ -42,7 +42,7 @@ Declared values (multiples of 4):
 | 3xl | 64px | Page-level spacing |
 
 **Specific to Phase 64:**
-- Table cell padding: `px-4 py-3` (md + sm)
+- Table cell padding: `px-4 py-4` (md + md)
 - Section container padding: `p-6` (lg)
 - Collapse toggle margin: `mb-4` (md)
 - Row gap between table rows: `border-b border-zinc-200 dark:border-zinc-800`
@@ -129,9 +129,9 @@ Exceptions: None
 ### Table Structure
 - **Container:** `w-full overflow-x-auto` (responsive scrolling on mobile)
 - **Header Row:** `bg-zinc-100 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700`
-- **Header Cell:** `px-4 py-3 text-left text-xs font-medium text-zinc-700 dark:text-zinc-300 uppercase tracking-wider`
+- **Header Cell:** `px-4 py-4 text-left text-xs font-medium text-zinc-700 dark:text-zinc-300 uppercase tracking-wider`
 - **Body Rows:** Alternating `bg-white dark:bg-zinc-900/50` and `bg-zinc-50 dark:bg-zinc-900`
-- **Body Cell:** `px-4 py-3 text-sm text-theme-primary dark:text-zinc-100 border-b border-zinc-200 dark:border-zinc-800`
+- **Body Cell:** `px-4 py-4 text-sm text-theme-primary dark:text-zinc-100 border-b border-zinc-200 dark:border-zinc-800`
 - **Parameter Name (Column 1):** `font-medium text-theme-primary dark:text-white`
 - **Value (Column 2):** `font-bold text-[#4A5D3A] dark:text-white`
 - **Date (Column 3):** `text-xs text-zinc-600 dark:text-zinc-400`
