@@ -327,7 +327,7 @@ export class PayrollService {
       ...paramsAtPeriodStart.map((p) => ({
         payroll_id: payrollId,
         param_key: p.key,
-        param_value: p.value,
+        param_value: p.value.toString(),
         param_valid_from: p.validFrom,
         source_decree: p.source_decree,
       })),
@@ -404,7 +404,7 @@ export class PayrollService {
       payroll: this.mapToPayroll(payroll),
       snapshot: snapshot.map((s) => ({
         ...s,
-        param_value: s.param_value.toString(),
+        param_value: s.param_value,
       })),
     };
   }
@@ -543,6 +543,9 @@ export class PayrollService {
    * @param employeeId - The ID of the employee
    * @param year - The year for which to calculate aguinaldo (the year ending Nov 30)
    * @returns Promise<{ total: number; months: number; promedio: number }>
+   */
+  /**
+   * @deprecated Use AguinaldoService.calculateAccruedAguinaldo instead.
    */
   static async calculateAguinaldo(
     employeeId: number,
