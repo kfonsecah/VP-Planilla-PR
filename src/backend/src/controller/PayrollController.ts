@@ -277,15 +277,19 @@ export class PayrollController {
    * GET /payroll/aguinaldo/:employeeId/:year
    * @param req - Express request object
    * @param res - Express response object
-   * @returns Promise<Response> - HTTP response with aguinaldo calculation or error
+   * @returns Promise<Response> - HTTP response with aguinaldo calculation or error      
    */
   static async calculateAguinaldo(req: Request, res: Response) {
     try {
       const employeeId = Number(req.params.employeeId);
       const year = Number(req.params.year);
-      
-      const result = await PayrollService.calculateAguinaldo(employeeId, year);
-      
+
+      // Note: AguinaldoService.calculateAccruedAguinaldo uses a reference date
+      // instead of just a year to determine the fiscal period.
+      // Reference date is set to Nov 30 of target year to cover the full fiscal period.
+      const asOfDate = new Date(year, 10, 30); 
+      const result = await AguinaldoService.calculateAccruedAguinaldo(employeeId, asOfDate);
+
       res.json({
         success: true,
         data: result
@@ -297,8 +301,7 @@ export class PayrollController {
         error: error.message || "Failed to calculate aguinaldo"
       });
     }
-  }
-  /**
+  }  /**
    * Save per-employee hours/deduction override for a payroll
    * PATCH /payroll/:id/employee/:empId/override
    * @param req - Express request object
