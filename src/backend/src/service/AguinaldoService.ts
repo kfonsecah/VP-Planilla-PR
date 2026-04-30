@@ -22,10 +22,9 @@ export class AguinaldoService {
 
     const payrolls = await prisma.vpg_payrolls.findMany({
       where: {
-        payrolls_period_start: { gte: periodStart },
-        payrolls_period_end: { lte: periodEnd },
+        payrolls_period_end: { gte: periodStart, lte: periodEnd },
         payrolls_status: { in: ['APROBADA', 'PAGADA'] },
-        vpg_payroll_employee: { some: { payroll_employee_employee_id: employeeId } }
+        vpg_payroll_employee: { some: { payroll_employee_employee_id: employeeId } }     
       },
       include: { vpg_payroll_employee: { where: { payroll_employee_employee_id: employeeId } } }
     });
@@ -34,13 +33,13 @@ export class AguinaldoService {
     payrolls.forEach(p => p.vpg_payroll_employee.forEach(e => totalGross += Number(e.payroll_employee_gross_salary || 0)));
 
     const accrued = Math.round((totalGross / 12) * 100) / 100;
-    
-    // Projection logic
-    const msElapsed = Math.max(0, asOfDate.getTime() - periodStart.getTime());
-    const monthsCompleted = Math.round(msElapsed / (1000 * 60 * 60 * 24 * 30.44));
-    
-    const projectedAnnual = monthsCompleted > 0 ? Math.round(((totalGross / monthsCompleted) * 12 / 12) * 100) / 100 : 0;
 
+    // Projection logic - Using more precise month calculation (IN-03)
+    const msElapsed = Math.max(0, asOfDate.getTime() - periodStart.getTime());
+    const monthsElapsed = msElapsed / (1000 * 60 * 60 * 24 * 365 / 12);
+    const monthsCompleted = Math.round(monthsElapsed);
+
+    const projectedAnnual = monthsElapsed > 0.1 ? Math.round(((totalGross / monthsElapsed) * 12 / 12) * 100) / 100 : 0;
     return { 
       accrued, 
       projectedAnnual, 
@@ -90,8 +89,7 @@ export class AguinaldoService {
       where: {
         vpg_payrolls: {
           payrolls_id: { not: payrollId },
-          payrolls_period_start: { gte: fiscalStart },
-          payrolls_period_end: { lte: fiscalEnd },
+          payrolls_period_end: { gte: fiscalStart, lte: fiscalEnd },
           payrolls_status: { in: ['APROBADA', 'PAGADA'] }
         },
         payroll_employee_employee_id: { in: employeeIds }
