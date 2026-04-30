@@ -17,6 +17,7 @@ import { EmployeeProfileData } from '@/hooks/useEmployeeProfile';
 import { ClockAlias } from '@/services/clockAliasService';
 import { Vacation } from '@/services/vacationsService';
 import { getStatusBadgeConfig } from '@/utils/employeeUtils';
+import AguinaldoCard from '@/components/AguinaldoCard';
 
 interface ProfileSummaryTabProps {
   employee: EmployeeProfileData;
@@ -219,6 +220,9 @@ const ProfileSummaryTab: React.FC<ProfileSummaryTabProps> = ({
           )}
         </div>
       </div>
+
+      {/* ── Tarjeta: Aguinaldo Acumulado ── */}
+      <AguinaldoCard employeeId={employee.id} />
     </div>
   );
 };
