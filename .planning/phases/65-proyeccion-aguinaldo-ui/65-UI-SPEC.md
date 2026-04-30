@@ -50,8 +50,8 @@ Exceptions: None. All spacing follows 4px grid.
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body (default) | 14px | 400 (regular) | 1.5 |
-| Label/caption | 12px | 500 (semibold) | 1.4 |
-| Subheading | 16px | 600 (semibold) | 1.4 |
+| Label/caption | 12px | 400 (regular) | 1.4 |
+| Subheading | 16px | 700 (bold) | 1.4 |
 | Heading/Display | 20px | 700 (bold) | 1.2 |
 
 Font families apply globally via Tailwind extend. No additional declarations needed per component.
@@ -82,7 +82,7 @@ Font families apply globally via Tailwind extend. No additional declarations nee
 
 Accent is **NOT** used for:
 - All interactive elements (only primary actions)
-- Body text emphasis (use semibold weight instead)
+- Body text emphasis (use bold weight instead)
 - Informational badges (use neutral/secondary only)
 
 ---
@@ -99,8 +99,8 @@ Accent is **NOT** used for:
 
 **Layout (flex column):**
 1. **Header row (flex between):**
-   - Left: "Aguinaldo acumulado" (font-semibold, 16px, verde-primary)
-   - Right: "Acumulado a [DD/MM/YYYY]" (caption, 12px, text-zinc-500)
+   - Left: "Aguinaldo acumulado" (font-bold, 16px, verde-primary)
+   - Right: "Acumulado a [DD/MM/YYYY]" (caption, 12px, text-zinc-500, regular weight)
 
 2. **Amount display:**
    - Large amount: "₡[cantidad]" (20px, bold, #1F2937)
@@ -114,11 +114,11 @@ Accent is **NOT** used for:
 
 4. **Metadata row (grid 2 cols, gap-lg):**
    - Col 1: 
-     - Label: "Basado en" (caption, zinc-500)
-     - Value: "[N] planillas aprobadas" (14px, zinc-800)
+     - Label: "Basado en" (caption, 12px, zinc-500, regular weight)
+     - Value: "[N] planillas aprobadas" (14px, zinc-800, regular weight)
    - Col 2:
-     - Label: "Proyección" (caption, zinc-500)
-     - Value: "₡[proyectado al 20 dic]" (14px, verde-secondary)
+     - Label: "Proyección" (caption, 12px, zinc-500, regular weight)
+     - Value: "₡[proyectado al 20 dic]" (14px, verde-secondary, regular weight)
 
 **States:**
 - Default: as above
@@ -133,7 +133,7 @@ Accent is **NOT** used for:
 **Location:** PayrollWizardStep3 employee table
 
 **Column header:**
-- "Aguinaldo acum." (12px caption, semibold, zinc-500, centered)
+- "Aguinaldo acum." (12px caption, bold, zinc-500, centered)
 - Tooltip on hover: "Acumulado antes de esta planilla. Al aprobar se agregará [monto]"
 
 **Column cells (per employee):**
@@ -164,15 +164,15 @@ Accent is **NOT** used for:
 
 2. **Stat blocks (grid 2 cols, gap-md):**
    - Block 1:
-     - Label: "Generado en esta planilla" (caption, 12px, verde-secondary)
+     - Label: "Generado en esta planilla" (caption, 12px, verde-secondary, regular weight)
      - Value: "₡[suma de thisPayrollContribution]" (20px, bold, verde-primary)
    - Block 2:
-     - Label: "Total acumulado al aprobar" (caption, 12px, verde-secondary)
+     - Label: "Total acumulado al aprobar" (caption, 12px, verde-secondary, regular weight)
      - Value: "₡[suma de totalAccruedWithThis]" (20px, bold, verde-primary)
 
 3. **Info row (small, italic):**
    - "Estos montos serán capturados en vpg_payroll_param_snapshots para trazabilidad CCSS."
-   - Font: 12px, zinc-600 dark:zinc-400
+   - Font: 12px, zinc-600 dark:zinc-400, regular weight
 
 **Visibility:**
 - Always visible if aguinaldo data loaded successfully
