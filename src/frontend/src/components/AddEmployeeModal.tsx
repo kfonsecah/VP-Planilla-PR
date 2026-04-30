@@ -49,6 +49,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       employee_hire_date: '',
       employee_gender: '',
       employee_required_hours_biweekly: '',
+      shift_type: 'USE_ENTERPRISE_DEFAULT',
     }
   });
 
@@ -244,6 +245,32 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                         className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500" 
                       />
                       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Ejemplo: 104 horas para medio tiempo, 208 para tiempo completo</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Jornada de trabajo</label>
+                      <Controller
+                        name="shift_type"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value || 'USE_ENTERPRISE_DEFAULT'}
+                            selectedLabel={
+                              field.value === 'DIURNA' ? 'Jornada diurna (8h/día)' :
+                              field.value === 'MIXTA' ? 'Jornada mixta (7h/día)' :
+                              field.value === 'NOCTURNA' ? 'Jornada nocturna (6h/día)' :
+                              'Default de empresa'
+                            }
+                            onValueChange={field.onChange}
+                            className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+                          >
+                            <SelectItem value="USE_ENTERPRISE_DEFAULT">Default de empresa</SelectItem>
+                            <SelectItem value="DIURNA">Jornada diurna (8h/día)</SelectItem>
+                            <SelectItem value="MIXTA">Jornada mixta (7h/día)</SelectItem>
+                            <SelectItem value="NOCTURNA">Jornada nocturna (6h/día)</SelectItem>
+                          </Select>
+                        )}
+                      />
                     </div>
 
                     <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-4">

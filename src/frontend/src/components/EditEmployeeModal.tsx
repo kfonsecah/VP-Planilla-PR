@@ -31,6 +31,7 @@ interface RawEmployeeData {
   hire_date?: string;
   gender?: string;
   required_hours_biweekly?: string;
+  shift_type?: string;
 }
 
 interface EditEmployeeModalProps {
@@ -73,6 +74,7 @@ const { register, control, handleSubmit, formState: { errors, isSubmitting }, re
       employee_hire_date: '',
       employee_gender: '',
       employee_required_hours_biweekly: '',
+      shift_type: 'USE_ENTERPRISE_DEFAULT',
     }
   });
 
@@ -121,6 +123,7 @@ const { register, control, handleSubmit, formState: { errors, isSubmitting }, re
       employee_hire_date: employeeData.hire_date ? new Date(employeeData.hire_date).toISOString().split('T')[0] : '',
       employee_gender: employeeData.gender || '',
       employee_required_hours_biweekly: employeeData.required_hours_biweekly || '',
+      shift_type: employeeData.shift_type || 'USE_ENTERPRISE_DEFAULT',
     });
     
     // Force-set position after reset to ensure it survives validation
@@ -332,6 +335,32 @@ const { register, control, handleSubmit, formState: { errors, isSubmitting }, re
                             className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100 placeholder-zinc-500" 
                           />
                           <p className="mt-1 text-xs text-zinc-500">Ejemplo: 104h medio tiempo, 208h tiempo completo</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Jornada de trabajo</label>
+                          <Controller
+                            name="shift_type"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                value={field.value || 'USE_ENTERPRISE_DEFAULT'}
+                                selectedLabel={
+                                  field.value === 'DIURNA' ? 'Jornada diurna (8h/día)' :
+                                  field.value === 'MIXTA' ? 'Jornada mixta (7h/día)' :
+                                  field.value === 'NOCTURNA' ? 'Jornada nocturna (6h/día)' :
+                                  'Default de empresa'
+                                }
+                                onValueChange={field.onChange}
+                                className="border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
+                              >
+                                <SelectItem value="USE_ENTERPRISE_DEFAULT">Default de empresa</SelectItem>
+                                <SelectItem value="DIURNA">Jornada diurna (8h/día)</SelectItem>
+                                <SelectItem value="MIXTA">Jornada mixta (7h/día)</SelectItem>
+                                <SelectItem value="NOCTURNA">Jornada nocturna (6h/día)</SelectItem>
+                              </Select>
+                            )}
+                          />
                         </div>
 
                         <div>
