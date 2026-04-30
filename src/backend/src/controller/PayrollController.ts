@@ -91,6 +91,9 @@ export class PayrollController {
   static async getPayrollSnapshot(req: Request, res: Response) {
     try {
       const payrollId = Number(req.params.id);
+      if (!Number.isInteger(payrollId) || payrollId <= 0) {
+        return res.status(400).json({ success: false, error: 'ID de planilla inválido' });
+      }
       const result = await PayrollService.getPayrollWithSnapshot(payrollId);
       res.json({
         success: true,
