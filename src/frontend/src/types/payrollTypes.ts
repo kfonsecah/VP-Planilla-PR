@@ -31,6 +31,7 @@ export interface EmployeePayroll {
   weeklyRestHours: number;
   weeklyRestPay: number;
   overtimePay: number;
+  shift_type?: string;
   grossSalary: number;
   totalDeductions: number;
   netSalary: number;

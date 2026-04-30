@@ -44,6 +44,7 @@ export interface EmployeePayroll {
   weeklyRestHours: number;  // proportional rest hours (e.g. 14.77 for 96-reg-hr period)
   weeklyRestPay: number;
   overtimePay: number;      // Pay for overtime hours (× 1.5 multiplier)
+  shift_type?: string;      // Resolved shift type for display/audit
 
   grossSalary: number;
   totalDeductions: number;

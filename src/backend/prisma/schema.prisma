@@ -113,6 +113,13 @@ enum ShiftType {
   NOCTURNA
 }
 
+enum EmployeeShiftType {
+  USE_ENTERPRISE_DEFAULT
+  DIURNA
+  MIXTA
+  NOCTURNA
+}
+
 model vpg_clock_logs {
   clock_logs_id                Int                       @id @default(autoincrement())
   clock_logs_employee_id       Int
@@ -247,6 +254,7 @@ model vpg_employees {
   employee_required_hours_biweekly Decimal?                      @db.Decimal(5, 2)
   employee_gender                  String?                       @db.VarChar(20)
   employee_phone                   String?                       @db.VarChar(20)
+  employee_shift_type              EmployeeShiftType             @default(USE_ENTERPRISE_DEFAULT)
   employee_version                 Int                           @default(1)
   vpg_bonuses                      vpg_bonuses[]
   vpg_branch_employee              vpg_branch_employee[]         @ignore

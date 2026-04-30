@@ -4,13 +4,13 @@ milestone: v1.7
 milestone_name: milestone
 status: executing
 last_updated: "2026-04-30T00:05:00.000Z"
-last_activity: 2026-04-29 -- Phase 65 (Proyección de Aguinaldo en UI) completed
+last_activity: 2026-04-30 -- Phase 66 (Jornadas Mixtas y Nocturnas) completed
 progress:
-  total_phases: 17
-  completed_phases: 12
-  total_plans: 41
-  completed_plans: 31
-  percent: 76
+  total_phases: 18
+  completed_phases: 13
+  total_plans: 45
+  completed_plans: 35
+  percent: 77
 ---
 
 # Project State — VP-Planilla
@@ -28,9 +28,9 @@ Milestone: v1.7 IN PROGRESS
 Phase: 64 — NOT STARTED
 Plan: 0 of 3
 Status: Ready to plan/execute Phase 64
-Last activity: 2026-04-29 -- Completed Phase 65 (Proyección de Aguinaldo en UI)
+Last activity: 2026-04-30 -- Completed Phase 66 (Jornadas Mixtas y Nocturnas)
 
-Progress: [####################] 100% (12 phases complete, Phase 65 complete)
+Progress: [####################] 100% (13 phases complete, Phase 66 complete)
 
 ## v1.7 Phase Map
 
@@ -48,6 +48,7 @@ Progress: [####################] 100% (12 phases complete, Phase 65 complete)
 | 63 | Panel Admin Parámetros Legales UI | PAY-28 | ✅ Complete |
 | 64 | Snapshot de Params en Planilla Cerrada | PAY-29 | ⏳ Not Started |
 | 65 | Proyección de Aguinaldo en UI | PAY-30 | ✅ Complete |
+| 66 | Jornadas Mixtas y Nocturnas | PAY-31 | ✅ Complete |
 
 ## v1.6 Phase Map (Audit Refinement)
 

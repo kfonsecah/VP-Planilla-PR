@@ -42,12 +42,22 @@ const extractEmployeeFields = (emp: Record<string, unknown>, idx: number) => {
   const totalDeductions = Number(emp.deductions ?? emp.totalDeductions ?? emp.total_deductions ?? 0);
   const bonuses = Number(emp.bonuses ?? emp.total_bonuses ?? 0);
   const netSalary = Number(emp.net ?? emp.netSalary ?? emp.net_salary ?? 0);
+  const shift_type = String(emp.shift_type || '');
   const deductionsBreakdown = (emp.deductionsBreakdown || emp.deductions_breakdown || []) as Array<Record<string, unknown>>;
-  return { hours, regularHours, overtimeHours, scheduledHours, missingHours, weeklyRestHours, weeklyRestPay, overtimePay, employeeName, employeeId, identification, position, grossSalary, totalDeductions, bonuses, netSalary, deductionsBreakdown };
+  return { hours, regularHours, overtimeHours, scheduledHours, missingHours, weeklyRestHours, weeklyRestPay, overtimePay, employeeName, employeeId, identification, position, grossSalary, totalDeductions, bonuses, netSalary, shift_type, deductionsBreakdown };
 };
 
 export default function PayrollResults({ data, onCreate }: PayrollResultsProps) {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  const getShiftLabel = (type: string) => {
+    switch (type) {
+      case 'DIURNA': return 'Jornada: Diurna (8h/día)';
+      case 'MIXTA': return 'Jornada: Mixta (7h/día)';
+      case 'NOCTURNA': return 'Jornada: Nocturna (6h/día)';
+      default: return '';
+    }
+  };
 
   // Cast data to a workable type
   const payrollData = (data || {}) as Record<string, unknown>;
@@ -453,7 +463,17 @@ export default function PayrollResults({ data, onCreate }: PayrollResultsProps) 
                                 <ChevronRightIcon className="w-4 h-4 text-green-700" />
                               )}
                               <div>
-                                <div className="text-sm font-medium text-zinc-700 dark:text-white">{employeeName}</div>
+                                <div 
+                                  className="text-sm font-medium text-zinc-700 dark:text-white"
+                                  title={getShiftLabel(shift_type)}
+                                >
+                                  {employeeName}
+                                  {shift_type && shift_type !== 'DIURNA' && (
+                                    <span className="ml-1 text-[10px] bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-1 rounded border border-zinc-200 dark:border-zinc-700">
+                                      {shift_type.charAt(0)}
+                                    </span>
+                                  )}
+                                </div>
                                 {identification && (
                                   <div className="text-xs text-zinc-500 dark:text-zinc-400">{identification}</div>
                                 )}

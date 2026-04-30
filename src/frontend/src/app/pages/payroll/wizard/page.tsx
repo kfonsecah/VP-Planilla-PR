@@ -45,7 +45,7 @@ export default function PayrollWizardPage() {
     reset,
   } = usePayrollWizard();
 
-  const { data: aguinaldoData } = useAguinaldoSummary(payrollId);
+  const { data: aguinaldoData, refetch: refetchAguinaldo } = useAguinaldoSummary(payrollId);
 
   // ── Step 1 state ──────────────────────────────────────────────────────────
   const [dateStart, setDateStart] = useState('');
@@ -175,6 +175,9 @@ export default function PayrollWizardPage() {
       setCalcResult(normalizedData as any);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setCalculationData(normalizedData as any);
+      
+      // Refrescar datos de aguinaldo después del cálculo para poblar la columna en Step 3
+      await refetchAguinaldo();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al calcular la planilla';
       setCalcError(msg);
@@ -199,9 +202,11 @@ export default function PayrollWizardPage() {
       setCalcResult(newResult as any);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setCalculationData(newResult as any);
-      
-      toast.success('Datos actualizados');
-    } catch {
+
+      // Refrescar también aguinaldo por si el ajuste manual cambió el salario bruto
+      await refetchAguinaldo();
+
+      toast.success('Datos actualizados');    } catch {
       toast.error('Error al refrescar datos de la planilla');
     }
   }, [payrollId, calcResult, setCalcResult, setCalculationData]);
