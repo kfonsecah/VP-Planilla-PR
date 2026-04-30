@@ -1,17 +1,23 @@
-import { MinuteRoundingPolicy } from '@prisma/client';
+import { MinuteRoundingPolicy, ShiftType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { CreateLegalParamDto, VpgLegalParam } from '../model/VpgLegalParam';
 import { LegalParamSet } from '../types/payroll.types';
 import { NotificationService } from './NotificationService';
 
+export const DEFAULT_MIN_WAGE_RATE = 1529.62;
+
 export class LegalParamService {
   /**
    * Get the mapped LegalParamSet at a given date.
    * Throws an error if critical parameters are missing from the DB.
    * @param date - Target date
+   * @param shiftType - Type of shift (DIURNA, MIXTA, NOCTURNA)
    */
-  static async getParamSetAtDate(date: Date): Promise<LegalParamSet> {
+  static async getParamSetAtDate(
+    date: Date,
+    shiftType: ShiftType = ShiftType.DIURNA
+  ): Promise<LegalParamSet> {
     const rawParams = await this.getParamsAtDate(date);
 
     // Cargar política de redondeo desde la configuración de la empresa
@@ -19,7 +25,7 @@ export class LegalParamService {
       select: { enterprise_minute_rounding_policy: true }
     });
     const roundingPolicy = enterprise?.enterprise_minute_rounding_policy ?? MinuteRoundingPolicy.EXACT;
-    
+
     const getParamValue = (key: string): number => {
       const val = rawParams[key];
       if (val === undefined || val === null) {
@@ -28,9 +34,13 @@ export class LegalParamService {
       return Number(val);
     };
 
+    const shiftTypeName = shiftType.toUpperCase(); // 'DIURNA' | 'MIXTA' | 'NOCTURNA'
+    const dailyKey = `WORKDAY_${shiftTypeName}_DAILY`;
+    const weeklyKey = `WORKDAY_${shiftTypeName}_WEEKLY`;
+
     return {
-      regularHoursPerDay: 8, // TODO: Phase 66
-      regularHoursPerWeek: 48, // TODO: Phase 66
+      regularHoursPerDay: getParamValue(dailyKey),
+      regularHoursPerWeek: getParamValue(weeklyKey),
       otFactor: getParamValue('OT_FACTOR'),
       holidayMandatoryFactor: getParamValue('HOLIDAY_MANDATORY_FACTOR'),
       holidayTripleFactor: getParamValue('HOLIDAY_TRIPLE_FACTOR'),
@@ -48,7 +58,7 @@ export class LegalParamService {
    * @returns The Decimal value, or null if no active parameter exists
    * @throws Error if the Prisma query fails
    */
-  static async getParam(key: string, date: Date = new Date()): Promise<Decimal | null> {
+  static async getParam(key: string, date: Date = new Date()): Promise<Decimal | null> {    
     const param = await LegalParamService.getParamAtDate(key, date);
     return param?.value ?? null;
   }
@@ -64,7 +74,7 @@ export class LegalParamService {
     if (param && param.value) {
       return Number(param.value);
     }
-    return 1529.62;
+    return DEFAULT_MIN_WAGE_RATE;
   }
 
   /**
@@ -75,21 +85,21 @@ export class LegalParamService {
    * @returns The VpgLegalParam record, or null if not found
    * @throws Error if the Prisma query fails
    */
-  static async getParamAtDate(key: string, date: Date): Promise<VpgLegalParam | null> {
+  static async getParamAtDate(key: string, date: Date): Promise<VpgLegalParam | null> {     
     const param = await prisma.vpgLegalParam.findFirst({
       where: {
         key,
         validFrom: { lte: date },
         isActive: true,
       },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
     return param ?? null;
   }
 
   /**
-   * Get all active parameters as a key→value map at a given date.
-   * Deduplicates by key — only the most recent validFrom record per key is included.
+   * Get all active parameters as a key–value map at a given date.
+   * Deduplicates by key — only the most recent validFrom record per key is included.     
    * @param date - Target date
    * @returns Record<string, Decimal> mapping each key to its effective value
    * @throws Error if the Prisma query fails
@@ -100,7 +110,7 @@ export class LegalParamService {
         validFrom: { lte: date },
         isActive: true,
       },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
     const recent: Record<string, VpgLegalParam> = {};
@@ -121,7 +131,7 @@ export class LegalParamService {
 
   /**
    * Get all active parameters at a given date, across all categories.
-   * Deduplicates by key — only the most recent validFrom record per key is included.
+   * Deduplicates by key — only the most recent validFrom record per key is included.     
    * @param date - Target date; defaults to today
    * @returns Array of active VpgLegalParam records
    */
@@ -131,7 +141,7 @@ export class LegalParamService {
         validFrom: { lte: date },
         isActive: true,
       },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
     const recent: Record<string, VpgLegalParam> = {};
@@ -151,7 +161,7 @@ export class LegalParamService {
    */
   static async getAllParams(): Promise<VpgLegalParam[]> {
     const params = await prisma.vpgLegalParam.findMany({
-      orderBy: [{ key: 'asc' }, { validFrom: 'desc' }],
+      orderBy: [{ key: 'asc' }, { validFrom: 'desc' }, { createdAt: 'desc' }],
     });
     return params as VpgLegalParam[];
   }
@@ -159,7 +169,7 @@ export class LegalParamService {
   /**
    * Get all active parameters for a specific category at a given date.
    * Returns only the most recent record per key within that category.
-   * @param category - Category name (WORKDAY | OVERTIME | CCSS | MIN_WAGE | FEATURE_FLAG)
+   * @param category - Category name (WORKDAY | OVERTIME | CCSS | MIN_WAGE | FEATURE_FLAG)  
    * @param date - Target date; defaults to today
    * @returns Array of active VpgLegalParam records for the category (one per key)
    * @throws Error if the Prisma query fails
@@ -174,7 +184,7 @@ export class LegalParamService {
         validFrom: { lte: date },
         isActive: true,
       },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
     const recent: Record<string, VpgLegalParam> = {};
@@ -196,7 +206,7 @@ export class LegalParamService {
   static async getParamHistory(key: string): Promise<VpgLegalParam[]> {
     const params = await prisma.vpgLegalParam.findMany({
       where: { key },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
     return params as VpgLegalParam[];
   }
@@ -215,7 +225,7 @@ export class LegalParamService {
 
     const existing = await tx.vpgLegalParam.findFirst({
       where: { key: data.key, isActive: true, validUntil: null },
-      orderBy: { validFrom: 'desc' },
+      orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }],
     });
 
     if (existing) {
@@ -272,7 +282,7 @@ export class LegalParamService {
    * transaction so that the param upsert and audit log are atomic.
    * @param data - DTO with key, value, category, description, validFrom, isCritical, source_decree
    * @param userId - JWT user ID of the admin performing the action
-   * @param options.passwordVerified - Only set to true when password has been verified by
+   * @param options.passwordVerified - Only set to true when password has been verified by  
    *   AuthService.verifyPasswordForUser. Direct service callers and background jobs default
    *   to false (no enforcement).
    * @returns The newly created VpgLegalParam record
@@ -290,7 +300,7 @@ export class LegalParamService {
     });
 
     // Fire-and-forget legal param alert — MUST remain OUTSIDE the prisma.$transaction block.
-    // NotificationService.createLegalParamAlert cannot participate in the DB transaction;
+    // NotificationService.createLegalParamAlert cannot participate in the DB transaction;  
     // keeping it outside preserves the fire-and-forget semantics and prevents the notification
     // failure from rolling back a valid param save.
     const actingUser = await prisma.vpg_users.findFirst({
@@ -318,7 +328,7 @@ export class LegalParamService {
   }
 
   /**
-   * Bulk updates minimum wages. Iterates over updates and calls _upsertParamTx internally
+   * Bulk updates minimum wages. Iterates over updates and calls _upsertParamTx internally  
    * within a single transaction to ensure atomicity.
    */
   static async bulkUpsertMinWages(
@@ -331,14 +341,14 @@ export class LegalParamService {
     const results = await prisma.$transaction(async (tx) => {
       const txResults: VpgLegalParam[] = [];
       for (const update of updates) {
-        // En lugar de getParamAtDate con la fecha actual, buscar el registro más reciente
+        // En lugar de getParamAtDate con la fecha actual, buscar el registro más reciente 
         const current = await tx.vpgLegalParam.findFirst({
           where: { key: update.key, isActive: true },
-          orderBy: { validFrom: 'desc' }
+          orderBy: [{ validFrom: 'desc' }, { createdAt: 'desc' }]
         });
-        const description = current?.description || `Salario Mínimo ${update.key}`;
+        const description = current?.description || `Salario Mínimo ${update.key}`;        
         const isCritical = current?.isCritical ?? false;
-        
+
         const newParam = await this._upsertParamTx(tx, {
           key: update.key,
           value: update.value,
@@ -348,12 +358,12 @@ export class LegalParamService {
           isCritical,
           source_decree
         }, userId, { passwordVerified });
-        
+
         txResults.push(newParam);
       }
       return txResults;
     });
-    
+
     // Disparar notificaciones fuera de la tx
     const actingUser = await prisma.vpg_users.findFirst({
       where: { user_id: parseInt(userId, 10) },
@@ -365,11 +375,11 @@ export class LegalParamService {
 
     for (const res of results) {
        NotificationService.createLegalParamAlert(
-         res.key, 
-         '', 
-         res.value.toString(), 
-         validFrom, 
-         parseInt(userId, 10), 
+         res.key,
+         '',
+         res.value.toString(),
+         validFrom,
+         parseInt(userId, 10),
          actingUserName
        ).catch(console.error);
     }
