@@ -5,7 +5,6 @@ import { calculateGrossSalary, countWorkingDaysInPeriod, calculateScheduledHours
 import { DayWork } from '../types/payroll.types';
 import { LegalParamService } from './LegalParamService';
 import { AuditLogsService } from './AuditLogsService';
-import { VpgPayrollParamSnapshot } from '../model/VpgPayrollParamSnapshot';
 
 export class PayrollService {
   /**
