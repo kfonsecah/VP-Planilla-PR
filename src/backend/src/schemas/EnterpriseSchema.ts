@@ -8,6 +8,9 @@ export const updateEnterpriseSchema = z.object({
   enterprise_is_commercial_activity: z.boolean().optional(),
   enterprise_ordinary_shift_type: z.nativeEnum(ShiftType).optional(),
   enterprise_pay_unworked_holidays: z.boolean().optional(),
+  enterprise_aguinaldo_period_start_month: z.number().int().min(1).max(12).optional(),
+  enterprise_aguinaldo_period_start_day: z.number().int().min(1).max(31).optional(),
+  enterprise_aguinaldo_payment_deadline_day: z.number().int().min(1).max(31).optional(),
 });
 
 export type UpdateEnterpriseInput = z.infer<typeof updateEnterpriseSchema>;

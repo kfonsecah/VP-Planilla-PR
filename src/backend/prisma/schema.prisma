@@ -281,11 +281,14 @@ model vpg_enterprise {
   enterprise_image                     Bytes
   enterprise_creation_date             DateTime                @db.Date
   enterprise_version                   Int                     @default(1)
-  enterprise_minute_rounding_policy       MinuteRoundingPolicy @default(EXACT)
-  enterprise_rounding_policy_acknowledged Boolean              @default(false)
-  enterprise_is_commercial_activity       Boolean              @default(true)
-  enterprise_ordinary_shift_type          ShiftType            @default(DIURNA)
-  enterprise_pay_unworked_holidays        Boolean              @default(true)
+  enterprise_minute_rounding_policy         MinuteRoundingPolicy @default(EXACT)
+  enterprise_rounding_policy_acknowledged   Boolean              @default(false)
+  enterprise_is_commercial_activity         Boolean              @default(true)
+  enterprise_ordinary_shift_type            ShiftType            @default(DIURNA)
+  enterprise_pay_unworked_holidays          Boolean              @default(true)
+  enterprise_aguinaldo_period_start_month   Int                  @default(12)
+  enterprise_aguinaldo_period_start_day     Int                  @default(1)
+  enterprise_aguinaldo_payment_deadline_day Int                  @default(20)
   vpg_enterprise_branch                vpg_enterprise_branch[] @ignore
 }
 

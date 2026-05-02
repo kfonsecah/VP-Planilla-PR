@@ -7,6 +7,12 @@ export interface AguinaldoAccrual {
   payrollsIncluded: number;
 }
 
+export interface AguinaldoConfig {
+  periodStartMonth: number;    // 1-12, default 12 (December)
+  periodStartDay: number;      // 1-31, default 1
+  paymentDeadlineDay: number;  // 1-31: show prior period until this day of payment month
+}
+
 export interface AguinaldoSummaryRow {
   employeeId: number;
   employeeName: string;

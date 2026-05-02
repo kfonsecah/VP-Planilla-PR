@@ -1,40 +1,87 @@
 import { prisma } from '../lib/prisma';
-import { AguinaldoAccrual, AguinaldoSummaryRow } from '../model/AguinaldoAccrual';
+import { AguinaldoAccrual, AguinaldoConfig, AguinaldoSummaryRow } from '../model/AguinaldoAccrual';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class AguinaldoService {
   /**
+   * Loads the aguinaldo fiscal period configuration from enterprise settings.
+   * Falls back to Costa Rica defaults (Dec 1 – Nov 30, deadline day 20) if not set.
+   * @returns AguinaldoConfig
+   */
+  static async getAguinaldoConfig(): Promise<AguinaldoConfig> {
+    const enterprise = await prisma.vpg_enterprise.findFirst({
+      select: {
+        enterprise_aguinaldo_period_start_month: true,
+        enterprise_aguinaldo_period_start_day: true,
+        enterprise_aguinaldo_payment_deadline_day: true,
+      }
+    });
+    return {
+      periodStartMonth: enterprise?.enterprise_aguinaldo_period_start_month ?? 12,
+      periodStartDay: enterprise?.enterprise_aguinaldo_period_start_day ?? 1,
+      paymentDeadlineDay: enterprise?.enterprise_aguinaldo_payment_deadline_day ?? 20,
+    };
+  }
+
+  /**
+   * Determines the fiscal period boundaries for a given reference date and config.
+   * During the payment month, shows the prior period until paymentDeadlineDay (grace period).
+   *
+   * @param asOfDate Reference date
+   * @param config Aguinaldo period configuration
+   * @returns { periodStart, periodEnd } — full fiscal year boundaries
+   */
+  static getFiscalPeriod(asOfDate: Date, config: AguinaldoConfig): { periodStart: Date; periodEnd: Date } {
+    const { periodStartMonth, periodStartDay, paymentDeadlineDay } = config;
+    const month0 = periodStartMonth - 1; // convert to 0-indexed
+    const year = asOfDate.getFullYear();
+
+    const isPaymentMonth = asOfDate.getMonth() === month0;
+    const usePriorPeriod = isPaymentMonth && asOfDate.getDate() <= paymentDeadlineDay;
+
+    let anchorYear: number;
+    if (isPaymentMonth && !usePriorPeriod) {
+      anchorYear = year;            // post-deadline: new period just started
+    } else if (isPaymentMonth && usePriorPeriod) {
+      anchorYear = year - 1;        // grace period: show the period that just ended
+    } else if (asOfDate.getMonth() < month0) {
+      anchorYear = year - 1;        // before payment month: period started last year
+    } else {
+      anchorYear = year;            // after payment month: period started this year
+    }
+
+    const periodStart = new Date(anchorYear, month0, periodStartDay);
+    // Period end = day before next period starts (works correctly when periodStartDay=1 via day-0 trick)
+    const periodEnd = new Date(anchorYear + 1, month0, periodStartDay - 1);
+
+    return { periodStart, periodEnd };
+  }
+
+  /**
    * Calculates the accrued aguinaldo for an employee as of a specific date.
-   * Costa Rica Labor Law: Dec 1 of prior year to Nov 30 of current year.
-   * 
+   * Fiscal period boundaries are driven by enterprise configuration.
+   *
    * @param employeeId The employee ID
    * @param asOfDate The reference date (defaults to now)
    * @returns AguinaldoAccrual details
    */
   static async calculateAccruedAguinaldo(employeeId: number, asOfDate: Date = new Date()): Promise<AguinaldoAccrual> {
-    const year = asOfDate.getFullYear();
-    // Period: Dec 1 (Prior Year) -> Nov 30 (Current Year)
-    // If we are in Dec, the "Current Year" for aguinaldo purposes is the one that just started.
-    // WR-01: Implement grace period until Dec 20th to show previous fiscal year.
-    const isDecember = asOfDate.getMonth() === 11;
-    const dayOfMonth = asOfDate.getDate();
-    const usePriorPeriod = isDecember && dayOfMonth <= 20;
+    const [config, employee] = await Promise.all([
+      AguinaldoService.getAguinaldoConfig(),
+      prisma.vpg_employees.findUnique({
+        where: { employee_id: employeeId },
+        select: { employee_hire_date: true }
+      })
+    ]);
 
-    const periodStart = new Date(isDecember && !usePriorPeriod ? year : year - 1, 11, 1); // Dec 1
-    const periodEndMax = new Date(isDecember && !usePriorPeriod ? year + 1 : year, 10, 30); // Nov 30
+    const { periodStart, periodEnd: periodEndMax } = AguinaldoService.getFiscalPeriod(asOfDate, config);
     const periodEnd = asOfDate < periodEndMax ? asOfDate : periodEndMax;
-
-    // WR-02: Get employee hire date to improve projection accuracy
-    const employee = await prisma.vpg_employees.findUnique({
-      where: { employee_id: employeeId },
-      select: { employee_hire_date: true }
-    });
 
     const payrolls = await prisma.vpg_payrolls.findMany({
       where: {
         payrolls_period_end: { gte: periodStart, lte: periodEnd },
         payrolls_status: { in: ['APROBADA', 'PAGADA'] },
-        vpg_payroll_employee: { some: { payroll_employee_employee_id: employeeId } }     
+        vpg_payroll_employee: { some: { payroll_employee_employee_id: employeeId } }
       },
       include: { vpg_payroll_employee: { where: { payroll_employee_employee_id: employeeId } } }
     });
@@ -44,62 +91,50 @@ export class AguinaldoService {
 
     const accrued = Math.round((totalGross / 12) * 100) / 100;
 
-    // Projection logic - Using more precise month calculation and hire date (WR-02)
+    // Projection: use hire date as effective start if the employee joined mid-period (WR-02)
     const hireDate = (employee?.employee_hire_date as Date | null) || periodStart;
     const effectiveStart = hireDate > periodStart ? hireDate : periodStart;
-    
+
     const msElapsed = Math.max(0, asOfDate.getTime() - effectiveStart.getTime());
     const actualMonthsWorked = msElapsed / (1000 * 60 * 60 * 24 * 365 / 12);
     const monthsCompleted = Math.round(actualMonthsWorked);
 
-    // IN-01: Simplified redundant math (* 12 / 12 removed)
     const projectedAnnual = actualMonthsWorked > 0.1 ? Math.round((totalGross / actualMonthsWorked) * 100) / 100 : 0;
-    return { 
-      accrued, 
-      projectedAnnual, 
-      periodStart, 
-      periodEnd, 
-      monthsCompleted, 
-      payrollsIncluded: payrolls.length 
-    };
+
+    return { accrued, projectedAnnual, periodStart, periodEnd, monthsCompleted, payrollsIncluded: payrolls.length };
   }
 
   /**
    * Generates an aguinaldo summary for all employees in a specific payroll.
+   * Uses the same fiscal period config as calculateAccruedAguinaldo to ensure consistency.
    * Uses bulk groupBy optimization to avoid N+1 queries.
-   * 
+   *
    * @param payrollId The payroll ID to analyze
    * @returns Array of summary rows
    * @throws Error if payroll not found
    */
   static async getAguinaldoSummaryForPayroll(payrollId: number): Promise<AguinaldoSummaryRow[]> {
-    const payroll = await prisma.vpg_payrolls.findUnique({
-      where: { payrolls_id: payrollId },
-      include: { 
-        vpg_payroll_employee: { 
-          include: { 
-            vpg_employees: true 
-          } 
-        } 
-      }
-    });
-    
+    const [payroll, config] = await Promise.all([
+      prisma.vpg_payrolls.findUnique({
+        where: { payrolls_id: payrollId },
+        include: { vpg_payroll_employee: { include: { vpg_employees: true } } }
+      }),
+      AguinaldoService.getAguinaldoConfig()
+    ]);
+
     if (!payroll) throw new Error('Planilla no encontrada');
 
-    const pStart = payroll.payrolls_period_start;
-    const isDec = pStart.getMonth() === 11;
-    const fiscalStart = new Date(isDec ? pStart.getFullYear() : pStart.getFullYear() - 1, 11, 1);
-    const fiscalEnd = new Date(isDec ? pStart.getFullYear() + 1 : pStart.getFullYear(), 10, 30);
+    const { periodStart: fiscalStart, periodEnd: fiscalEnd } = AguinaldoService.getFiscalPeriod(
+      payroll.payrolls_period_start,
+      config
+    );
 
     const employeeIds = payroll.vpg_payroll_employee.map(e => e.payroll_employee_employee_id);
 
-    // BULK QUERY: Get all prior gross salaries for these employees in this fiscal period
-    // Exclude the current payrollId to get "before this payroll" amount
+    // BULK QUERY: prior gross salaries for these employees in this fiscal period
     const priorSalaries = await prisma.vpg_payroll_employee.groupBy({
       by: ['payroll_employee_employee_id'],
-      _sum: { 
-        payroll_employee_gross_salary: true 
-      },
+      _sum: { payroll_employee_gross_salary: true },
       where: {
         vpg_payrolls: {
           payrolls_id: { not: payrollId },
@@ -112,7 +147,7 @@ export class AguinaldoService {
 
     const salaryMap = new Map(
       priorSalaries.map(s => [
-        s.payroll_employee_employee_id, 
+        s.payroll_employee_employee_id,
         Number((s._sum.payroll_employee_gross_salary as Decimal | null) || 0)
       ])
     );
@@ -120,7 +155,7 @@ export class AguinaldoService {
     return payroll.vpg_payroll_employee.map(empRow => {
       const priorGross = salaryMap.get(empRow.payroll_employee_employee_id) || 0;
       const thisGross = Number(empRow.payroll_employee_gross_salary || 0);
-      
+
       return {
         employeeId: empRow.payroll_employee_employee_id,
         employeeName: `${empRow.vpg_employees?.employee_first_name} ${empRow.vpg_employees?.employee_last_name}`,
