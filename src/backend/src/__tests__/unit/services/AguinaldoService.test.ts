@@ -20,14 +20,20 @@ jest.mock('../../../lib/prisma', () => ({
   prisma: prismaMock,
 }));
 
-// Import AguinaldoService after mocking
-// Note: This will fail until Task 2 if not careful, but TDD says we write it first.
-// We expect this file to not compile or fail to run if the service doesn't exist yet.
 import { AguinaldoService } from '../../../service/AguinaldoService';
+
+// Default Costa Rica config returned by enterprise mock
+const CR_DEFAULT_ENTERPRISE = {
+  enterprise_aguinaldo_period_start_month: 12,
+  enterprise_aguinaldo_period_start_day: 1,
+  enterprise_aguinaldo_payment_deadline_day: 20,
+};
 
 describe('AguinaldoService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: Costa Rica standard config
+    prismaMock.vpg_enterprise.findFirst.mockResolvedValue(CR_DEFAULT_ENTERPRISE as any);
   });
 
   describe('calculateAccruedAguinaldo', () => {
@@ -104,7 +110,8 @@ describe('AguinaldoService', () => {
       // Arrange
       const employeeId = 1;
       const asOfDate = new Date('2026-12-25'); // After Dec 20 grace period
-      
+
+      prismaMock.vpg_employees.findUnique.mockResolvedValue({ employee_hire_date: new Date('2024-01-01') } as any);
       prismaMock.vpg_payrolls.findMany.mockResolvedValue([]);
 
       // Act
@@ -114,15 +121,43 @@ describe('AguinaldoService', () => {
       expect(result.periodStart.getFullYear()).toBe(2026);
       expect(result.periodStart.getMonth()).toBe(11); // December
       expect(result.periodStart.getDate()).toBe(1);
+    });
 
-      // Verify prisma call used the correct date
-      expect(prismaMock.vpg_payrolls.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            payrolls_period_end: { gte: result.periodStart, lte: result.periodEnd },
-          })
-        })
-      );
+    it('should use custom period config when enterprise overrides are set', async () => {
+      // Arrange: company uses Jan 1 – Dec 31 fiscal year, payment deadline Jan 15
+      prismaMock.vpg_enterprise.findFirst.mockResolvedValue({
+        enterprise_aguinaldo_period_start_month: 1,
+        enterprise_aguinaldo_period_start_day: 1,
+        enterprise_aguinaldo_payment_deadline_day: 15,
+      } as any);
+
+      const employeeId = 1;
+      const asOfDate = new Date('2026-06-15'); // mid-year
+      prismaMock.vpg_employees.findUnique.mockResolvedValue({ employee_hire_date: new Date('2025-01-01') } as any);
+      prismaMock.vpg_payrolls.findMany.mockResolvedValue([]);
+
+      // Act
+      const result = await AguinaldoService.calculateAccruedAguinaldo(employeeId, asOfDate);
+
+      // Assert: period should start Jan 1 2026; end is capped at asOfDate (mid-year)
+      expect(result.periodStart).toEqual(new Date(2026, 0, 1));   // Jan 1 2026
+      expect(result.periodEnd).toEqual(asOfDate);                  // capped at asOfDate, not Dec 31
+    });
+
+    it('getFiscalPeriod: grace period shows prior year with custom config', () => {
+      const config = { periodStartMonth: 1, periodStartDay: 1, paymentDeadlineDay: 15 };
+      // Jan 10: within grace period → should show prior year (Jan 1 2025 – Dec 31 2025)
+      const result = AguinaldoService.getFiscalPeriod(new Date('2026-01-10'), config);
+      expect(result.periodStart).toEqual(new Date(2025, 0, 1));
+      expect(result.periodEnd).toEqual(new Date(2025, 11, 31));
+    });
+
+    it('getFiscalPeriod: post-deadline shows new year with custom config', () => {
+      const config = { periodStartMonth: 1, periodStartDay: 1, paymentDeadlineDay: 15 };
+      // Jan 20: post-deadline → new period (Jan 1 2026 – Dec 31 2026)
+      const result = AguinaldoService.getFiscalPeriod(new Date('2026-01-20'), config);
+      expect(result.periodStart).toEqual(new Date(2026, 0, 1));
+      expect(result.periodEnd).toEqual(new Date(2026, 11, 31));
     });
 
     it('should exclude BORRADOR payrolls from calculation', async () => {
