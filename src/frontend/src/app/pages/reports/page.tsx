@@ -1,762 +1,141 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { ReportsService } from '@/services/reportsService';
-import {
-  OfficialReportType,
-  PayrollEmployeeReportRow,
-  PayrollReportDataset,
-  ReportDispatchSummary,
-  ReportLogEntry,
-  ReportTargetSummary,
-  ReportablePayrollSummary,
-  ReportsDashboardData,
-} from '@/types/reports';
-import {
-  DocumentArrowUpIcon,
-  EnvelopeIcon,
-  ShieldCheckIcon,
-  UserGroupIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  BuildingOffice2Icon,
-  ArrowPathIcon,
-  ClockIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { EnvelopeIcon, DocumentChartBarIcon, ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Select, SelectItem } from '@/components/ui/Select';
+import { usePayrollSelector } from './hooks/usePayrollSelector';
+import { usePayslipDispatch } from './hooks/usePayslipDispatch';
+import { useOfficialReports } from './hooks/useOfficialReports';
+import { PayslipTab } from './components/PayslipTab';
+import { ReportsTab } from './components/ReportsTab';
 
-const REPORT_LABELS: Record<OfficialReportType, string> = {
-  CCSS: 'CCSS · Seguridad Social',
-  HACIENDA: 'Hacienda · DGTD',
-};
+type Tab = 'payslips' | 'reports';
 
-const currencyFormatter = new Intl.NumberFormat('es-CR', {
-  style: 'currency',
-  currency: 'CRC',
-});
+const TABS: { id: Tab; label: string; icon: React.FC<{ className?: string }> }[] = [
+  { id: 'payslips', label: 'Comprobantes de pago', icon: EnvelopeIcon },
+  { id: 'reports', label: 'Reportes oficiales', icon: DocumentChartBarIcon },
+];
 
-const formatCurrency = (value?: number | null) =>
-  typeof value === 'number' ? currencyFormatter.format(value) : '₡0.00';
-
-const formatDate = (value?: string | null) => {
-  if (!value) return '-';
-  try {
-    return new Date(value).toLocaleDateString('es-CR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  } catch {
-    return value;
-  }
-};
-
-const getLogBadgeClasses = (status?: string) => {
-  if (status === 'SENT') return 'bg-green-100 text-green-700 border-green-200';
-  if (status === 'FAILED') return 'bg-red-100 text-red-700 border-red-200';
-  return 'bg-zinc-100 text-zinc-700 border-zinc-200';
-};
-
-const matchesTerm = (employee: PayrollEmployeeReportRow, normalizedTerm: string): boolean => {
-  const searchableFields = [
-    employee.fullName,
-    employee.email,
-    employee.nationalId,
-    employee.socialSecurityCode,
-  ];
-  
-  return searchableFields
-    .filter(Boolean)
-    .some((value) => value!.toLowerCase().includes(normalizedTerm));
-};
-
-const filterEmployees = (
-  employees: PayrollEmployeeReportRow[],
-  term: string
-) => {
-  if (!term) return employees;
-  const normalized = term.toLowerCase();
-  return employees.filter((employee) => matchesTerm(employee, normalized));
-};
-
-const buildToggledSelection = (
-  allSelected: boolean,
-  currentSelection: number[],
-  filtered: { employeeId: number }[]
-): number[] => {
-  if (allSelected) {
-    return currentSelection.filter((id) => !filtered.some((e) => e.employeeId === id));
-  }
-  const idsToAdd = filtered.map((e) => e.employeeId).filter((id) => !currentSelection.includes(id));
-  return [...currentSelection, ...idsToAdd];
-};
-
-const applyReportTypeToggle = (prev: OfficialReportType[], type: OfficialReportType): OfficialReportType[] => {
-  if (prev.includes(type)) {
-    if (prev.length === 1) return prev;
-    return prev.filter((value) => value !== type);
-  }
-  return [...prev, type];
-};
-
-const validateSendReports = (
-  selectedPayrollId: number | null,
-  dataset: PayrollReportDataset | null,
-  selectedEmployees: number[],
-  reportTypes: OfficialReportType[]
-): string | null => {
-  if (!selectedPayrollId || !dataset) return 'Debes elegir una planilla para enviar los comprobantes.';
-  if (selectedEmployees.length === 0) return 'Selecciona al menos un empleado para enviar los reportes.';
-  if (reportTypes.length === 0) return 'Debes seleccionar al menos un tipo de reporte.';
-  return null;
-};
-
-const validateDownloadPdf = (
-  selectedPayrollId: number | null,
-  dataset: PayrollReportDataset | null,
-  selectedEmployees: number[]
-): string | null => {
-  if (!selectedPayrollId || !dataset) return 'Debes elegir una planilla para descargar los comprobantes.';
-  if (selectedEmployees.length === 0) return 'Selecciona al menos un empleado para generar el comprobante.';
-  return null;
-};
-
-const parseCcEmails = (ccInput: string): string[] => {
-  return ccInput
-    .split(',')
-    .map((value) => value.trim())
-    .filter((value) => value && value.includes('@'));
-};
-
-const ERROR_MESSAGES = {
-  dashboardLoad: 'No se pudo cargar el dashboard de reportes',
-  datasetLoad: 'No se pudo cargar la planilla seleccionada',
-  sendReports: 'No se pudo enviar los reportes',
-  downloadPdf: 'No se pudo generar el PDF de comprobantes',
-} as const;
-
-const getErrorMessage = (error: unknown, key: keyof typeof ERROR_MESSAGES): string => {
-  return error instanceof Error ? error.message : ERROR_MESSAGES[key];
-};
-
-const handleLoadDatasetError = (setError: (e: string | null) => void) => {
-  return (error: unknown) => {
-    setError(error instanceof Error ? error.message : ERROR_MESSAGES.datasetLoad);
-    toast.error(ERROR_MESSAGES.datasetLoad);
-  };
-};
-
-const loadDashboard = async (
-  setDashboard: (data: ReportsDashboardData) => void,
-  setError: (error: string | null) => void,
-  setSelectedPayrollId: (id: number) => void,
-  selectedPayrollId: number | null
-) => {
-  setError(null);
-  try {
-    const data = await ReportsService.getDashboard();
-    setDashboard(data);
-    if (!selectedPayrollId && data.payrolls.length > 0) {
-      setSelectedPayrollId(data.payrolls[0].id);
-    }
-  } catch (error) {
-    setError(error instanceof Error ? error.message : ERROR_MESSAGES.dashboardLoad);
-    toast.error(ERROR_MESSAGES.dashboardLoad);
-  }
-};
-
-const fetchPayrollData = async (payrollId: number) => {
-  const [datasetResponse, logsResponse] = await Promise.all([
-    ReportsService.getPayrollDataset(payrollId),
-    ReportsService.getPayrollLogs(payrollId),
-  ]);
-  return { datasetResponse, logsResponse };
-};
-
-const refreshDataset = async (
-  payrollId: number,
-  setDataset: (data: PayrollReportDataset) => void,
-  setLogs: (logs: ReportLogEntry[]) => void,
-  setSelectedEmployees: (ids: number[]) => void,
-  setLoadingDataset: (loading: boolean) => void,
-  setError: (error: string | null) => void
-) => {
-  setLoadingDataset(true);
-  setError(null);
-  try {
-    const { datasetResponse, logsResponse } = await fetchPayrollData(payrollId);
-    setDataset(datasetResponse);
-    setLogs(logsResponse);
-    setSelectedEmployees(datasetResponse.employees.map((e) => e.employeeId));
-  } catch (error) {
-    handleLoadDatasetError(setError)(error);
-  } finally {
-    setLoadingDataset(false);
-  }
-};
-
-const handleSendReportsAction = async (
-  ccInput: string,
-  selectedPayrollId: number,
-  selectedEmployees: number[],
-  reportTypes: OfficialReportType[],
-  customMessage: string,
-  setDispatchSummary: (s: ReportDispatchSummary | null) => void,
-  setSending: (s: boolean) => void,
-  setDataset: (d: PayrollReportDataset) => void,
-  setLogs: (l: ReportLogEntry[]) => void,
-  setSelectedEmployees: (e: number[]) => void,
-  setLoadingDataset: (l: boolean) => void,
-  setError: (e: string | null) => void,
-  setDashboard: (d: ReportsDashboardData) => void,
-  setSelectedPayrollId: (id: number) => void
-) => {
-  const cc = parseCcEmails(ccInput);
-  setSending(true);
-  try {
-    const response = await ReportsService.sendReports({
-      payrollId: selectedPayrollId,
-      employeeIds: selectedEmployees,
-      reportTypes,
-      cc,
-      customMessage: customMessage.trim() || undefined,
-    });
-    setDispatchSummary(response);
-    toast.success(
-      `Se procesaron ${response.requested} colaboradores (${response.sent} enviados, ${response.failed} fallidos).`
-    );
-    await refreshDataset(selectedPayrollId, setDataset, setLogs, setSelectedEmployees, setLoadingDataset, setError);
-    await loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId);
-  } catch (error: unknown) {
-    console.error(error);
-    const message = getErrorMessage(error, 'sendReports');
-    toast.error(message);
-  } finally {
-    setSending(false);
-  }
-};
-
-const handleDownloadPdfAction = async (
-  selectedPayrollId: number,
-  selectedEmployees: number[],
-  setDownloadingPdf: (d: boolean) => void
-) => {
-  setDownloadingPdf(true);
-  try {
-    const { blob, fileName } = await ReportsService.downloadPaymentReceiptsPdf({
-      payrollId: selectedPayrollId,
-      employeeIds: selectedEmployees,
-    });
-
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    window.URL.revokeObjectURL(url);
-
-    toast.success(
-      selectedEmployees.length === 1
-        ? 'Se descargó el comprobante del empleado seleccionado.'
-        : 'Se descargó un único PDF con todos los comprobantes seleccionados.'
-    );
-  } catch (error: unknown) {
-    console.error(error);
-    const message = getErrorMessage(error, 'downloadPdf');
-    toast.error(message);
-  } finally {
-    setDownloadingPdf(false);
-  }
-};
-
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export default function ReportsPage() {
-  const [dashboard, setDashboard] = useState<ReportsDashboardData | null>(null);
-  const [selectedPayrollId, setSelectedPayrollId] = useState<number | null>(null);
-  const [dataset, setDataset] = useState<PayrollReportDataset | null>(null);
-  const [logs, setLogs] = useState<ReportLogEntry[]>([]);
-  const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
-  const [reportTypes, setReportTypes] = useState<OfficialReportType[]>(['CCSS', 'HACIENDA']);
-  const [ccInput, setCcInput] = useState('');
-  const [customMessage, setCustomMessage] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loadingDataset, setLoadingDataset] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const [dispatchSummary, setDispatchSummary] = useState<ReportDispatchSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>('payslips');
 
-  useEffect(() => {
-    loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { payrolls, selectedId, setSelectedId, selected, isLoading: loadingPayrolls, error: selectorError, reload: reloadPayrolls } = usePayrollSelector();
 
-  useEffect(() => {
-    if (selectedPayrollId) {
-      refreshDataset(selectedPayrollId, setDataset, setLogs, setSelectedEmployees, setLoadingDataset, setError);
-    }
-  }, [selectedPayrollId]);
+  const { employees, isLoading: loadingPayslips, error: payslipError, reload: reloadPayslips, resend, download, sent, failed, noEmail } = usePayslipDispatch(selectedId);
 
-  const currentPayroll = useMemo<ReportablePayrollSummary | undefined>(() => {
-    if (!dashboard || !selectedPayrollId) return undefined;
-    return dashboard.payrolls.find((payroll) => payroll.id === selectedPayrollId);
-  }, [dashboard, selectedPayrollId]);
+  const { history, isLoadingHistory, isGenerating, error: reportsError, generate, reloadHistory } = useOfficialReports(selectedId);
 
-  const filteredEmployees = useMemo(() => {
-    if (!dataset) return [];
-    return filterEmployees(dataset.employees, searchTerm);
-  }, [dataset, searchTerm]);
-
-  const allSelected =
-    filteredEmployees.length > 0 &&
-    filteredEmployees.every((employee) => selectedEmployees.includes(employee.employeeId));
-
-  const toggleEmployeeSelection = (employeeId: number) => {
-    const isSelected = selectedEmployees.includes(employeeId);
-    if (isSelected) {
-      setSelectedEmployees((prev) => prev.filter((id) => id !== employeeId));
-    } else {
-      setSelectedEmployees((prev) => [...prev, employeeId]);
-    }
+  const handleReload = () => {
+    reloadPayslips();
+    if (activeTab === 'reports') reloadHistory();
   };
 
-  const toggleSelectAll = () => {
-    if (!dataset) return;
-    setSelectedEmployees(buildToggledSelection(allSelected, selectedEmployees, filteredEmployees));
-  };
-
-  const toggleReportType = (type: OfficialReportType) => {
-    setReportTypes((prev) => applyReportTypeToggle(prev, type));
-  };
-
-  const handleSendReports = async () => {
-    const validationError = validateSendReports(selectedPayrollId, dataset, selectedEmployees, reportTypes);
-    if (validationError) {
-      toast.warning(validationError);
-      return;
-    }
-    const payrollId = selectedPayrollId as number;
-    await handleSendReportsAction(
-      ccInput,
-      payrollId,
-      selectedEmployees,
-      reportTypes,
-      customMessage,
-      setDispatchSummary,
-      setSending,
-      setDataset,
-      setLogs,
-      setSelectedEmployees,
-      setLoadingDataset,
-      setError,
-      setDashboard,
-      setSelectedPayrollId
-    );
-  };
-
-  const handleDownloadReceiptsPdf = async () => {
-    const validationError = validateDownloadPdf(selectedPayrollId, dataset, selectedEmployees);
-    if (validationError) {
-      toast.warning(validationError);
-      return;
-    }
-    const payrollId = selectedPayrollId as number;
-    await handleDownloadPdfAction(payrollId, selectedEmployees, setDownloadingPdf);
-  };
-
-  const renderEmployeeRow = (employee: PayrollEmployeeReportRow) => {
-    const isSelected = selectedEmployees.includes(employee.employeeId);
-    return (
-      <tr key={employee.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
-        <td className="px-4 py-3">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => toggleEmployeeSelection(employee.employeeId)}
-          />
-        </td>
-        <td className="px-4 py-3">
-          <p className="font-semibold">{employee.fullName}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{employee.position || 'Sin puesto'}</p>
-        </td>
-        <td className="px-4 py-3">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">{employee.email || 'Sin correo'}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-500">CCSS: {employee.socialSecurityCode || 'N/A'}</p>
-        </td>
-        <td className="px-4 py-3 text-right">{formatCurrency(employee.grossSalary)}</td>
-        <td className="px-4 py-3 text-right">{formatCurrency(employee.totalDeductions)}</td>
-        <td className="px-4 py-3 text-right font-semibold text-zinc-800 dark:text-zinc-100">
-          {formatCurrency(employee.netSalary)}
-        </td>
-        <td className="px-4 py-3">
-          {employee.lastDispatch ? (
-            <div className="text-xs text-zinc-600 dark:text-zinc-400">
-              <p className="font-semibold text-zinc-800 dark:text-zinc-100">{employee.lastDispatch.type}</p>
-              <p>{formatDate(employee.lastDispatch.generated_at)}</p>
-              <span
-                className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
-                  employee.lastDispatch.status
-                )}`}
-              >
-                {employee.lastDispatch.status}
-              </span>
-            </div>
-          ) : (
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">Sin registros</span>
-          )}
-        </td>
-      </tr>
-    );
-  };
-
-  const renderDispatchResult = (result: { employeeId: number; employeeName: string; status: string; detail: string }) => (
-    <div key={`${result.employeeId}-${result.status}-${result.detail}`} className="border-b border-zinc-200 dark:border-zinc-700 py-2 last:border-0">
-      <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{result.employeeName}</p>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">{result.detail}</p>
-      <span
-        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-          result.status === 'sent'
-            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-            : result.status === 'failed'
-            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-            : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
-        }`}
-      >
-        {result.status.toUpperCase()}
-      </span>
-    </div>
-  );
-
-  const renderReportTarget = (target: ReportTargetSummary) => (
-    <div
-      key={target.id}
-      className="flex flex-col gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
-    >
-      <div className="flex items-center gap-2">
-        <ShieldCheckIcon className="h-5 w-5 text-green-600" />
-        <span className="font-semibold text-zinc-800 dark:text-zinc-100">{target.institution}</span>
-      </div>
-      <div className="text-sm text-zinc-600 dark:text-zinc-400">
-        <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{target.endpoint_url}</p>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{target.contact_email}</p>
-      </div>
-    </div>
-  );
+  const error = selectorError ?? payslipError ?? reportsError;
 
   return (
     <div className="h-full overflow-auto bg-zinc-100 dark:bg-zinc-950 p-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
+
+        {/* Header */}
         <header className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">Reportes oficiales</p>
-              <h1 className="mt-1 text-3xl font-bold text-zinc-800 dark:text-zinc-100">Envío de comprobantes</h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Genera y envía los comprobantes en formato XML para CCSS y Hacienda con un clic.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2">
-                <UserGroupIcon className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                  {dataset?.payroll.total_employees ?? 0} colaboradores
-                </span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2">
-                <DocumentArrowUpIcon className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Generación XML</span>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Módulo de reportes</p>
+          <h1 className="mt-1 text-3xl font-bold text-zinc-800 dark:text-zinc-100">Reportes y comprobantes</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Gestiona los comprobantes de pago de los colaboradores y genera reportes oficiales.
+          </p>
         </header>
 
         {/* Error Banner */}
         {error && (
-          <div className="overflow-auto rounded-lg border border-red-200 dark:border-red-800">
-            <div className="bg-red-50 dark:bg-red-950/50 p-6 text-center">
-              <ExclamationTriangleIcon className="w-10 h-10 mx-auto mb-3 text-red-500 dark:text-red-400" />
-              <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">Error al cargar datos</p>
-              <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
-              <button
-                onClick={() => loadDashboard(setDashboard, setError, setSelectedPayrollId, selectedPayrollId)}
-                className="flex items-center gap-2 mx-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <ArrowPathIcon className="w-4 h-4" />
-                Reintentar
-              </button>
-            </div>
+          <div className="flex items-center gap-3 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-4">
+            <ExclamationTriangleIcon className="h-5 w-5 text-red-500 dark:text-red-400 shrink-0" />
+            <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+            <button
+              onClick={() => { reloadPayrolls(); handleReload(); }}
+              className="flex items-center gap-1.5 rounded-lg border border-red-300 dark:border-red-700 px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition"
+            >
+              <ArrowPathIcon className="h-3.5 w-3.5" />
+              Reintentar
+            </button>
           </div>
         )}
 
-        <section className="grid gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm lg:grid-cols-4">
-          <div className="lg:col-span-2">
+        {/* Payroll Selector */}
+        <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm sm:flex-row sm:items-end sm:gap-4">
+          <div className="flex-1">
             <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-              Planilla disponible
+              Planilla (solo PAGADAS)
             </label>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+              Selecciona la planilla cuyos comprobantes y reportes quieres gestionar.
+            </p>
             <Select
-              value={selectedPayrollId ? String(selectedPayrollId) : ''}
-              onValueChange={(value) => setSelectedPayrollId(Number(value))}
-              placeholder={!dashboard ? 'Cargando planillas...' : 'Seleccionar planilla'}
-              className="mt-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-100"
+              value={selectedId ? String(selectedId) : ''}
+              onValueChange={(v) => setSelectedId(Number(v))}
+              placeholder={loadingPayrolls ? 'Cargando planillas…' : payrolls.length === 0 ? 'Sin planillas pagadas' : 'Seleccionar planilla'}
+              selectedLabel={selected?.label}
+              disabled={loadingPayrolls || payrolls.length === 0}
             >
-              {dashboard?.payrolls.map((payroll) => (
-                <SelectItem key={payroll.id} value={String(payroll.id)}>
-                  {payroll.label}
+              {payrolls.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.label}
                 </SelectItem>
               ))}
             </Select>
-            {currentPayroll && (
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Último envío: {currentPayroll.last_sent_at ? formatDate(currentPayroll.last_sent_at) : 'Nunca'} ·{' '}
-                {currentPayroll.last_sent_type || 'Sin tipo'}
-              </p>
-            )}
           </div>
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-400">Monto neto</p>
-            <p className="mt-1 text-2xl font-semibold text-zinc-800 dark:text-zinc-100">
-              {formatCurrency(dataset?.payroll.total_net)}
-            </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">Periodo {formatDate(dataset?.payroll.period_start)} – {formatDate(dataset?.payroll.period_end)}</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-400">Reporte</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {(['CCSS', 'HACIENDA'] as OfficialReportType[]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => toggleReportType(type)}
-                  className={`rounded-lg border px-3 py-1 text-xs font-semibold transition ${
-                    reportTypes.includes(type)
-                      ? 'border-green-600 bg-green-600 text-white'
-                      : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                  }`}
-                >
-                  {REPORT_LABELS[type]}
-                </button>
-              ))}
+          {selected && (
+            <div className="flex gap-4 text-sm text-zinc-500 dark:text-zinc-400 pb-1">
+              <span>
+                Periodo:{' '}
+                <span className="font-semibold text-zinc-700 dark:text-zinc-200">{selected.label}</span>
+              </span>
             </div>
-          </div>
-        </section>
+          )}
+        </div>
 
-        <section className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
-                <DocumentArrowUpIcon className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                  {selectedEmployees.length} empleados seleccionados
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <input
-                  placeholder="Buscar por nombre, correo o cédula"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:border-green-600 dark:focus:border-zinc-500 focus:outline-none"
-                />
-                <button
-                  onClick={toggleSelectAll}
-                  className="rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:border-green-600 dark:hover:border-zinc-500"
-                >
-                  {allSelected ? 'Quitar selección' : 'Seleccionar visibles'}
-                </button>
-              </div>
-            </div>
+        {/* Tab Navigation */}
+        <div className="flex gap-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1 shadow-sm">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+                activeTab === id
+                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </button>
+          ))}
+        </div>
 
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
-              {loadingDataset ? (
-                <div className="p-6 space-y-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-4 px-4 py-3 animate-pulse">
-                      <div className="w-4 h-4 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                        <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                      </div>
-                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                      <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700 text-sm text-zinc-700 dark:text-white">
-                    <thead className="bg-zinc-50 dark:bg-zinc-800">
-                      <tr>
-                        <th className="px-4 py-3">
-                          <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} />
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">Colaborador</th>
-                        <th className="px-4 py-3 text-left font-semibold">Contacto</th>
-                        <th className="px-4 py-3 text-right font-semibold">Bruto</th>
-                        <th className="px-4 py-3 text-right font-semibold">Deducciones</th>
-                        <th className="px-4 py-3 text-right font-semibold">Neto</th>
-                        <th className="px-4 py-3 text-left font-semibold">Último envío</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-                      {filteredEmployees.map(renderEmployeeRow)}
-                      {filteredEmployees.length === 0 && (
-                        <tr>
-                          <td colSpan={7} className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                            No hay colaboradores que coincidan con la búsqueda
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Tab Content */}
+        {activeTab === 'payslips' && (
+          <PayslipTab
+            employees={employees}
+            isLoading={loadingPayslips}
+            error={payslipError}
+            sent={sent}
+            failed={failed}
+            noEmail={noEmail}
+            onResend={resend}
+            onDownload={download}
+            onReload={reloadPayslips}
+            hasPayrollSelected={selectedId !== null}
+          />
+        )}
 
-          <div className="flex flex-col gap-4">
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <EnvelopeIcon className="h-6 w-6 text-green-600" />
-                <div>
-                  <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Configuración del envío</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Personaliza los destinatarios y notas.</p>
-                </div>
-              </div>
-              <div className="mt-4 space-y-3">
-                <div>
-                  <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">
-                    Copia (CC) opcional
-                  </label>
-                  <input
-                    value={ccInput}
-                    onChange={(event) => setCcInput(event.target.value)}
-                    placeholder="separa varios correos con coma"
-                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:border-green-600 dark:focus:border-zinc-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">
-                    Mensaje personalizado
-                  </label>
-                  <textarea
-                    value={customMessage}
-                    onChange={(event) => setCustomMessage(event.target.value)}
-                    rows={3}
-                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:border-green-600 dark:focus:border-zinc-500 focus:outline-none"
-                    placeholder="Mensaje breve que acompañará el correo..."
-                  />
-                </div>
-                <button
-                  disabled={downloadingPdf || sending || selectedEmployees.length === 0}
-                  onClick={handleDownloadReceiptsPdf}
-                  className={`mb-2 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition ${
-                    downloadingPdf || sending || selectedEmployees.length === 0
-                      ? 'bg-zinc-400'
-                      : 'bg-green-600 hover:bg-green-500'
-                  }`}
-                >
-                  {downloadingPdf ? (
-                    <>
-                      <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                      Generando PDF...
-                    </>
-                  ) : (
-                    <>
-                      <ArrowDownTrayIcon className="h-5 w-5" />
-                      {selectedEmployees.length === 1 ? 'Descargar comprobante PDF' : 'Descargar comprobantes PDF'}
-                    </>
-                  )}
-                </button>
-
-                <button
-                  disabled={sending || downloadingPdf || selectedEmployees.length === 0}
-                  onClick={handleSendReports}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition ${
-                    sending || downloadingPdf || selectedEmployees.length === 0
-                      ? 'bg-zinc-400 dark:bg-zinc-600'
-                      : 'bg-green-600 dark:bg-zinc-800 hover:bg-green-500 dark:hover:bg-zinc-700'
-                  }`}
-                >
-                  {sending ? (
-                    <>
-                      <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <DocumentArrowUpIcon className="h-5 w-5" />
-                      Enviar comprobantes por correo
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
-              <div className="mb-3 flex items-center gap-2">
-                <BuildingOffice2Icon className="h-5 w-5 text-green-600" />
-                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Destinos oficiales</p>
-              </div>
-              <div className="flex flex-col gap-3">
-                {dashboard?.targets.length
-                  ? dashboard.targets.map(renderReportTarget)
-                  : (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Configure los entes receptores en la base de datos para mostrar sus contactos aquí.
-                    </p>
-                  )}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
-              <div className="mb-3 flex items-center gap-2">
-                <ClockIcon className="h-5 w-5 text-green-600" />
-                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Últimos envíos</p>
-              </div>
-              <div className="flex max-h-64 flex-col gap-3 overflow-y-auto pr-2">
-                {logs.length === 0 && (
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Sin historial para esta planilla.</p>
-                )}
-                {logs.map((log) => (
-                  <div key={log.id} className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 p-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-zinc-800 dark:text-zinc-100">{log.type}</span>
-                      <span className="text-zinc-500 dark:text-zinc-400">{formatDate(log.generated_at)}</span>
-                    </div>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{log.employeeName || 'Empleado'}</p>
-                    <span
-                      className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${getLogBadgeClasses(
-                        log.status
-                      )}`}
-                    >
-                      {log.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {dispatchSummary && (
-              <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
-                <div className="mb-2 flex items-center gap-2">
-                  {dispatchSummary.failed === 0 ? (
-                    <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600" />
-                  )}
-                  <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Resumen del último envío</p>
-                </div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {dispatchSummary.sent} enviados · {dispatchSummary.failed} fallidos
-                </p>
-                <div className="mt-3 max-h-32 overflow-y-auto pr-1">
-                  {dispatchSummary.results.map(renderDispatchResult)}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
+        {activeTab === 'reports' && (
+          <ReportsTab
+            payrollId={selectedId}
+            history={history}
+            isLoadingHistory={isLoadingHistory}
+            isGenerating={isGenerating}
+            onGenerate={generate}
+          />
+        )}
       </div>
     </div>
   );

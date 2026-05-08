@@ -279,6 +279,50 @@ router.patch(
 router.get("/payroll/:id/aguinaldo-summary", asyncHandler(PayrollController.getAguinaldoSummary));
 
 /**
+ * @swagger
+ * /api/payrolls/{payrollId}/payslip/{employeeId}/pdf:
+ *   get:
+ *     tags:
+ *       - Payroll
+ *     summary: Download payslip PDF for an employee
+ *     description: Generates and streams the payslip PDF for a specific employee in a payroll. PDF is generated in memory and never stored to disk.
+ *     parameters:
+ *       - in: path
+ *         name: payrollId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Payroll ID
+ *       - in: path
+ *         name: employeeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Employee ID
+ *     responses:
+ *       '200':
+ *         description: PDF file stream
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       '400':
+ *         description: Invalid IDs
+ *       '403':
+ *         description: Insufficient permissions (requires admin or analyst role)
+ *       '404':
+ *         description: Payroll or employee not found in payroll
+ *       '500':
+ *         description: PDF generation failed
+ */
+router.get(
+  '/payrolls/:payrollId/payslip/:employeeId/pdf',
+  AuthMiddleware.requireRole(['admin', 'analyst']),
+  asyncHandler(PayrollController.downloadPayslipPdf)
+);
+
+/**
  * @route   POST /payrolls/:id/resend-payslip/:employeeId
  * @desc    Resend payslip PDF to a specific employee (admin/analyst only)
  * @access  Private — admin, analyst

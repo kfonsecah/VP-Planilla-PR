@@ -144,6 +144,43 @@ export const PayrollService = {
     }
   },
 
+  async resendPayslip(payrollId: number, employeeId: number): Promise<{ success: boolean; message: string }> {
+    try {
+      return (await http.post(`/payrolls/${payrollId}/resend-payslip/${employeeId}`, {})) as { success: boolean; message: string };
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Error al reenviar comprobante');
+    }
+  },
+
+  /**
+   * Download the payslip PDF for an employee and trigger a browser file download.
+   * Uses http.raw to handle the binary PDF response.
+   * @param payrollId - ID of the payroll
+   * @param employeeId - ID of the employee
+   */
+  async downloadPayslipPdf(payrollId: number, employeeId: number): Promise<void> {
+    const res = await http.raw(`/payrolls/${payrollId}/payslip/${employeeId}/pdf`, { method: 'GET' });
+    if (!res.ok) {
+      let message = `Error ${res.status} al descargar comprobante`;
+      try {
+        const data = await res.json() as { error?: string };
+        if (data.error) message = data.error;
+      } catch { /* ignore parse error */ }
+      throw new Error(message);
+    }
+    const blob = await res.blob();
+    const disposition = res.headers.get('Content-Disposition') ?? '';
+    const match = disposition.match(/filename="([^"]+)"/);
+    const filename = match?.[1] ?? `comprobante-${payrollId}-${employeeId}.pdf`;
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   /**
    * Get payroll parameter snapshot captured at approval time.
    * Returns empty snapshot for payrolls approved before Phase 64.

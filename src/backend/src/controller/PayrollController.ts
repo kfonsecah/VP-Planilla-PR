@@ -3,6 +3,7 @@ import { PayrollService } from "../service/PayrollService";
 import { AuditLogsService } from "../service/AuditLogsService";
 import { AguinaldoService } from "../service/AguinaldoService";
 import { PayslipDispatchService } from "../service/PayslipDispatchService";
+import { PayslipDownloadService } from "../service/PayslipDownloadService";
 
 export class PayrollController {
   /**
@@ -208,6 +209,37 @@ export class PayrollController {
         success: false,
         error: error.message || "Failed to mark payroll as paid"
       });
+    }
+  }
+
+  /**
+   * Download the payslip PDF for a single employee on demand.
+   * GET /payrolls/:payrollId/payslip/:employeeId/pdf
+   * @param req - Express request with payrollId and employeeId in params
+   * @param res - Express response — streams PDF buffer or JSON error
+   * @returns Promise<void>
+   */
+  static async downloadPayslipPdf(req: Request, res: Response): Promise<void> {
+    const payrollId = parseInt(String(req.params.payrollId), 10);
+    const employeeId = parseInt(String(req.params.employeeId), 10);
+
+    if (isNaN(payrollId) || isNaN(employeeId)) {
+      res.status(400).json({ success: false, error: 'IDs de planilla o empleado inválidos' });
+      return;
+    }
+
+    try {
+      const { buffer, filename } = await PayslipDownloadService.generatePayslipBuffer(payrollId, employeeId);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(buffer);
+    } catch (error: any) {
+      if (error?.statusCode === 404) {
+        res.status(404).json({ success: false, error: error.message });
+        return;
+      }
+      console.error(`[PayslipDownload] Error generando comprobante payrollId=${payrollId} employeeId=${employeeId}:`, error);
+      res.status(500).json({ success: false, error: 'No se pudo generar el comprobante' });
     }
   }
 
