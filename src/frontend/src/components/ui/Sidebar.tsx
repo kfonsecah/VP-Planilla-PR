@@ -22,12 +22,12 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       text: "Empleados"
     },
     {
-      href: "/pages/attendance",
+      href: "/pages/clock-logs",
       icon: "/images/layout/attendance.png",
       text: "Registro de asistencia",
       subItems: [
-        { href: '/pages/attendance', text: 'Validar marcas' },
         { href: '/pages/clock-logs', text: 'Dashboard y corrección' },
+        { href: '/pages/attendance', text: 'Validar marcas' },
       ]
     },
     {
