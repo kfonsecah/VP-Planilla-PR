@@ -20,9 +20,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { PayrollService, Payroll, PayrollEmployee, ParamSnapshot } from '@/services/payrollService';
 import { PayrollParamSnapshotSection } from '@/components/PayrollParamSnapshotSection';
+import { useAguinaldoSummary } from '@/hooks/useAguinaldoSummary';
 import { formatCRC } from '@/utils/number';
 import { useModal } from '@/hooks/useModal';
 import { toast } from 'sonner';
+import { BanknotesIcon } from '@heroicons/react/24/outline';
 
 export default function PayrollDetailPage() {
   const pathname = usePathname();
@@ -35,6 +37,10 @@ export default function PayrollDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [snapshots, setSnapshots] = useState<ParamSnapshot[]>([]);
   const [snapshotsLoading, setSnapshotsLoading] = useState(false);
+  const [showAguinaldo, setShowAguinaldo] = useState(false);
+  const { data: aguinaldoSummary, isLoading: aguinaldoLoading } = useAguinaldoSummary(
+    showAguinaldo ? payrollId : null
+  );
 
   useEffect(() => {
     const parts = pathname?.split('/') || [];
@@ -726,6 +732,62 @@ export default function PayrollDetailPage() {
               isLoading={snapshotsLoading}
             />
           )}
+
+          {/* Aguinaldo acumulado (informativo) */}
+          <div className="mt-6 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <button
+              onClick={() => setShowAguinaldo(v => !v)}
+              className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors rounded-xl"
+            >
+              <div className="flex items-center gap-3">
+                <BanknotesIcon className="w-5 h-5 text-[#4A5D3A] dark:text-green-400" />
+                <div>
+                  <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Aguinaldo acumulado</p>
+                  <p className="text-xs text-zinc-400">Impacto de esta planilla en el aguinaldo de cada colaborador</p>
+                </div>
+              </div>
+              <ChevronDownIcon className={`w-5 h-5 text-zinc-400 transition-transform ${showAguinaldo ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showAguinaldo && (
+              <div className="border-t border-zinc-100 dark:border-zinc-800">
+                {aguinaldoLoading ? (
+                  <div className="p-6 text-center">
+                    <ArrowPathIcon className="w-5 h-5 animate-spin text-zinc-400 mx-auto mb-2" />
+                    <p className="text-xs text-zinc-400">Calculando...</p>
+                  </div>
+                ) : aguinaldoSummary && aguinaldoSummary.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-zinc-50 dark:bg-zinc-800/50">
+                          <th className="text-left px-6 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">Colaborador</th>
+                          <th className="text-right px-6 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">Acumulado antes</th>
+                          <th className="text-right px-6 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">Esta planilla</th>
+                          <th className="text-right px-6 py-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">Total acumulado</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                        {aguinaldoSummary.map(row => (
+                          <tr key={row.employeeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
+                            <td className="px-6 py-3 text-zinc-700 dark:text-zinc-200 font-medium">{row.employeeName}</td>
+                            <td className="px-6 py-3 text-right text-zinc-500 dark:text-zinc-400">{formatCRC(row.accruedBeforeThisPayroll)}</td>
+                            <td className="px-6 py-3 text-right text-zinc-600 dark:text-zinc-300">+{formatCRC(row.thisPayrollContribution)}</td>
+                            <td className="px-6 py-3 text-right font-semibold text-[#4A5D3A] dark:text-green-400">{formatCRC(row.totalAccruedWithThis)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="px-6 py-3 text-xs text-zinc-400 border-t border-zinc-100 dark:border-zinc-800">
+                      Fecha límite de pago: <strong>20 de diciembre</strong>. Solo planillas PAGADA cuentan para el aguinaldo legal.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="px-6 py-5 text-sm text-zinc-400">No hay datos de aguinaldo disponibles.</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <modal.ModalComponent />

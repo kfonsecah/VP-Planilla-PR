@@ -59,6 +59,11 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       ]
     },
     {
+      href: "/pages/aguinaldo",
+      icon: "/images/layout/payroll.png",
+      text: "Aguinaldo"
+    },
+    {
       href: "/pages/branches/list",
       icon: "/images/layout/settings.png",
       text: "Sucursales"

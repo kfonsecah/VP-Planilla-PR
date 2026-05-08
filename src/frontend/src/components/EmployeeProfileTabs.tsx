@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export type ProfileTab = 'resumen' | 'planillas' | 'eventos' | 'documentos';
+export type ProfileTab = 'resumen' | 'planillas' | 'eventos' | 'documentos' | 'aguinaldo';
 
 interface EmployeeProfileTabsProps {
   activeTab: ProfileTab;
@@ -14,6 +14,7 @@ const tabs: { key: ProfileTab; label: string }[] = [
   { key: 'planillas', label: 'Planillas' },
   { key: 'eventos', label: 'Eventos' },
   { key: 'documentos', label: 'Documentos' },
+  { key: 'aguinaldo', label: 'Aguinaldo' },
 ];
 
 /**

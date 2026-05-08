@@ -97,12 +97,12 @@ describe('AguinaldoService', () => {
       const result = await AguinaldoService.calculateAccruedAguinaldo(employeeId, asOfDate);
 
       // Assert
-      // Total Gross: 200,000
+      // Total ordinary salary: 200,000 (no overtime/bonuses in mock)
       // Accrued: 200,000 / 12 = 16666.67
-      // Months Worked: ~2 (61 days / 30.41 avg days per month = 2.0054)
-      // Average Salary (Projected): 200,000 / 2.0054 = 99726.78
+      // Projected (quincenal default, 24 periods/year):
+      //   (200,000 / 2 periods) * 24 / 12 = 200,000
       expect(result.accrued).toBe(16666.67);
-      expect(result.projectedAnnual).toBe(99726.78);
+      expect(result.projectedAnnual).toBe(200000);
       expect(result.monthsCompleted).toBe(2);
     });
 

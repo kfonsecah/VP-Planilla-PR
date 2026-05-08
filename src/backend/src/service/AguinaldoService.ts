@@ -1,6 +1,24 @@
 import { prisma } from '../lib/prisma';
-import { AguinaldoAccrual, AguinaldoConfig, AguinaldoSummaryRow } from '../model/AguinaldoAccrual';
+import {
+  AguinaldoAccrual,
+  AguinaldoConfig,
+  AguinaldoSummaryRow,
+  AguinaldoProjectionEmployee,
+  AguinaldoProjectionResponse,
+} from '../model/AguinaldoAccrual';
 import { Decimal } from '@prisma/client/runtime/library';
+
+/** Returns the number of payroll periods per year given a period_type string */
+function periodsPerYearFrom(periodType: string): number {
+  return periodType === 'mensual' ? 12 : 24;
+}
+
+/** Derives the most frequent periodsPerYear from a list of period_type strings (defaults to 24) */
+function dominantPeriodsPerYear(periodTypes: string[]): number {
+  if (periodTypes.length === 0) return 24;
+  const mensualCount = periodTypes.filter(t => t === 'mensual').length;
+  return mensualCount > periodTypes.length - mensualCount ? 12 : 24;
+}
 
 export class AguinaldoService {
   /**
@@ -58,8 +76,27 @@ export class AguinaldoService {
   }
 
   /**
+   * Computes the ISO date string for the payment deadline following a fiscal period end.
+   * @param periodEnd Last day of the fiscal period
+   * @param config Aguinaldo configuration
+   * @returns ISO date string (YYYY-MM-DD)
+   */
+  static getPaymentDeadline(periodEnd: Date, config: AguinaldoConfig): string {
+    const month0 = config.periodStartMonth - 1;
+    // Deadline falls in the payment month that immediately follows periodEnd
+    const deadlineYear =
+      config.periodStartMonth <= periodEnd.getMonth() + 1
+        ? periodEnd.getFullYear() + 1
+        : periodEnd.getFullYear();
+    return new Date(deadlineYear, month0, config.paymentDeadlineDay)
+      .toISOString()
+      .split('T')[0];
+  }
+
+  /**
    * Calculates the accrued aguinaldo for an employee as of a specific date.
-   * Fiscal period boundaries are driven by enterprise configuration.
+   * Base: ordinary salary only (gross − overtime − bonuses), PAGADA payrolls only.
+   * Formula: sum(ordinary) / 12 — always divides by 12 (proportionality is automatic).
    *
    * @param employeeId The employee ID
    * @param asOfDate The reference date (defaults to now)
@@ -86,28 +123,195 @@ export class AguinaldoService {
       include: { vpg_payroll_employee: { where: { payroll_employee_employee_id: employeeId } } }
     });
 
-    let totalGross = 0;
-    payrolls.forEach(p => p.vpg_payroll_employee.forEach(e => totalGross += Number(e.payroll_employee_gross_salary || 0)));
+    // Sum ORDINARY salary: gross − overtime − bonuses (legal base for aguinaldo)
+    let totalOrdinarySalary = 0;
+    payrolls.forEach(p =>
+      p.vpg_payroll_employee.forEach(e => {
+        const gross   = Number(e.payroll_employee_gross_salary   || 0);
+        const overtime = Number(e.payroll_employee_overtime_pay  || 0);
+        const bonuses  = Number(e.payroll_employee_bonuses       || 0);
+        totalOrdinarySalary += gross - overtime - bonuses;
+      })
+    );
 
-    const accrued = Math.round((totalGross / 12) * 100) / 100;
+    // Aguinaldo = sum(salarios ordinarios) / 12  — always divide by 12
+    const accrued = Math.round((totalOrdinarySalary / 12) * 100) / 100;
 
-    // Projection: use hire date as effective start if the employee joined mid-period (WR-02)
+    // Determine periods-per-year from the actual payroll period types
+    const periodTypes = payrolls.map(p => p.payrolls_period_type);
+    const ppy = dominantPeriodsPerYear(periodTypes);
+
+    // Projection: extrapolate to a full year at the current average rate
+    const projectedAnnual =
+      payrolls.length > 0
+        ? Math.round(((totalOrdinarySalary / payrolls.length) * ppy / 12) * 100) / 100
+        : 0;
+
+    // Months completed (informational, based on hire date or period start)
     const hireDate = (employee?.employee_hire_date as Date | null) || periodStart;
     const effectiveStart = hireDate > periodStart ? hireDate : periodStart;
-
     const msElapsed = Math.max(0, asOfDate.getTime() - effectiveStart.getTime());
     const actualMonthsWorked = msElapsed / (1000 * 60 * 60 * 24 * 365 / 12);
     const monthsCompleted = Math.round(actualMonthsWorked);
 
-    const projectedAnnual = actualMonthsWorked > 0.1 ? Math.round((totalGross / actualMonthsWorked) * 100) / 100 : 0;
+    return {
+      accrued,
+      projectedAnnual,
+      totalOrdinarySalary: Math.round(totalOrdinarySalary * 100) / 100,
+      periodsPerYear: ppy,
+      periodStart,
+      periodEnd,
+      monthsCompleted,
+      payrollsIncluded: payrolls.length,
+    };
+  }
 
-    return { accrued, projectedAnnual, periodStart, periodEnd, monthsCompleted, payrollsIncluded: payrolls.length };
+  /**
+   * Generates an aguinaldo projection for all active employees (or a single one).
+   * Uses PAGADA payrolls only and ordinary salary as the legal base.
+   *
+   * @param employeeId Optional — filter to a single employee
+   * @param fiscalYear Optional — fiscal year anchor (defaults to current year)
+   * @returns AguinaldoProjectionResponse
+   */
+  static async getProjection(employeeId?: number, fiscalYear?: number): Promise<AguinaldoProjectionResponse> {
+    const config = await AguinaldoService.getAguinaldoConfig();
+
+    // Build reference date: Nov 30 of the target fiscal year (or today)
+    const asOfDate = fiscalYear
+      ? new Date(fiscalYear, config.periodStartMonth - 2, 30)  // month before period start, day 30
+      : new Date();
+    const { periodStart, periodEnd: periodEndMax } = AguinaldoService.getFiscalPeriod(asOfDate, config);
+    const periodEnd = asOfDate < periodEndMax ? asOfDate : periodEndMax;
+
+    const paymentDeadline = AguinaldoService.getPaymentDeadline(periodEndMax, config);
+
+    // Fetch active employees
+    const employees = await prisma.vpg_employees.findMany({
+      where: {
+        ...(employeeId ? { employee_id: employeeId } : {}),
+        employee_fired: false,
+        employee_status: { in: ['A', 'V'] },
+      },
+      select: {
+        employee_id: true,
+        employee_first_name: true,
+        employee_last_name: true,
+        employee_hire_date: true,
+      },
+      orderBy: [{ employee_last_name: 'asc' }, { employee_first_name: 'asc' }],
+    });
+
+    if (employees.length === 0) {
+      return {
+        fiscalPeriodStart: periodStart.toISOString().split('T')[0],
+        fiscalPeriodEnd: periodEndMax.toISOString().split('T')[0],
+        paymentDeadline,
+        periodsPerYear: 24,
+        employees: [],
+        summary: { totalEmployees: 0, totalAguinaldoAccumulated: 0, totalProjectedFullYear: 0 },
+      };
+    }
+
+    const employeeIds = employees.map(e => e.employee_id);
+
+    // Bulk: sum gross, overtime, bonuses per employee in this fiscal period (PAGADA only)
+    const [paySums, periodTypeSample] = await Promise.all([
+      prisma.vpg_payroll_employee.groupBy({
+        by: ['payroll_employee_employee_id'],
+        _sum: {
+          payroll_employee_gross_salary: true,
+          payroll_employee_overtime_pay: true,
+          payroll_employee_bonuses: true,
+        },
+        _count: { payroll_employee_id: true },
+        where: {
+          payroll_employee_employee_id: { in: employeeIds },
+          vpg_payrolls: {
+            payrolls_period_end: { gte: periodStart, lte: periodEnd },
+            payrolls_status: { in: ['APROBADA', 'PAGADA'] },
+          },
+        },
+      }),
+      // Determine dominant period type across payrolls in this fiscal window
+      prisma.vpg_payrolls.groupBy({
+        by: ['payrolls_period_type'],
+        _count: { payrolls_id: true },
+        where: {
+          payrolls_period_end: { gte: periodStart, lte: periodEnd },
+          payrolls_status: { in: ['APROBADA', 'PAGADA'] },
+        },
+        orderBy: { _count: { payrolls_id: 'desc' } },
+        take: 1,
+      }),
+    ]);
+
+    // Note: includes APROBADA + PAGADA — most CR payrolls stay APROBADA in practice
+    const ppy = periodTypeSample.length > 0
+      ? periodsPerYearFrom(periodTypeSample[0].payrolls_period_type)
+      : 24;
+
+    const payMap = new Map(
+      paySums.map(s => [
+        s.payroll_employee_employee_id,
+        {
+          gross:    Number((s._sum.payroll_employee_gross_salary   as Decimal | null) ?? 0),
+          overtime: Number((s._sum.payroll_employee_overtime_pay   as Decimal | null) ?? 0),
+          bonuses:  Number((s._sum.payroll_employee_bonuses        as Decimal | null) ?? 0),
+          count:    s._count.payroll_employee_id,
+        },
+      ])
+    );
+
+    const employeeRows: AguinaldoProjectionEmployee[] = employees.map(emp => {
+      const pay = payMap.get(emp.employee_id);
+      const totalOrdinarySalary = pay
+        ? Math.round((pay.gross - pay.overtime - pay.bonuses) * 100) / 100
+        : 0;
+      const periodsIncluded = pay?.count ?? 0;
+      const aguinaldoAccumulated = Math.round((totalOrdinarySalary / 12) * 100) / 100;
+      const projectedFullYear =
+        periodsIncluded > 0
+          ? Math.round(((totalOrdinarySalary / periodsIncluded) * ppy / 12) * 100) / 100
+          : 0;
+
+      return {
+        employeeId: emp.employee_id,
+        employeeName: `${emp.employee_first_name} ${emp.employee_last_name}`.trim(),
+        hireDate: (emp.employee_hire_date as Date).toISOString().split('T')[0],
+        periodsIncluded,
+        totalOrdinarySalary,
+        aguinaldoAccumulated,
+        projectedFullYear,
+        isComplete: periodsIncluded >= ppy,
+      };
+    });
+
+    const totalAguinaldoAccumulated = Math.round(
+      employeeRows.reduce((s, r) => s + r.aguinaldoAccumulated, 0) * 100
+    ) / 100;
+    const totalProjectedFullYear = Math.round(
+      employeeRows.reduce((s, r) => s + r.projectedFullYear, 0) * 100
+    ) / 100;
+
+    return {
+      fiscalPeriodStart: periodStart.toISOString().split('T')[0],
+      fiscalPeriodEnd: periodEndMax.toISOString().split('T')[0],
+      paymentDeadline,
+      periodsPerYear: ppy,
+      employees: employeeRows,
+      summary: {
+        totalEmployees: employeeRows.length,
+        totalAguinaldoAccumulated,
+        totalProjectedFullYear,
+      },
+    };
   }
 
   /**
    * Generates an aguinaldo summary for all employees in a specific payroll.
-   * Uses the same fiscal period config as calculateAccruedAguinaldo to ensure consistency.
-   * Uses bulk groupBy optimization to avoid N+1 queries.
+   * Uses PAGADA prior payrolls + ordinary salary base (gross − overtime − bonuses).
+   * Uses bulk groupBy to avoid N+1 queries.
    *
    * @param payrollId The payroll ID to analyze
    * @returns Array of summary rows
@@ -131,39 +335,48 @@ export class AguinaldoService {
 
     const employeeIds = payroll.vpg_payroll_employee.map(e => e.payroll_employee_employee_id);
 
-    // BULK QUERY: prior gross salaries for these employees in this fiscal period
+    // BULK QUERY: prior ordinary salaries for these employees in this fiscal period (PAGADA only)
     const priorSalaries = await prisma.vpg_payroll_employee.groupBy({
       by: ['payroll_employee_employee_id'],
-      _sum: { payroll_employee_gross_salary: true },
+      _sum: {
+        payroll_employee_gross_salary: true,
+        payroll_employee_overtime_pay: true,
+        payroll_employee_bonuses: true,
+      },
       where: {
         vpg_payrolls: {
           payrolls_id: { not: payrollId },
           payrolls_period_end: { gte: fiscalStart, lte: fiscalEnd },
-          payrolls_status: { in: ['APROBADA', 'PAGADA'] }
+          payrolls_status: { in: ['APROBADA', 'PAGADA'] },
         },
         payroll_employee_employee_id: { in: employeeIds }
       }
     });
 
     const salaryMap = new Map(
-      priorSalaries.map(s => [
-        s.payroll_employee_employee_id,
-        Number((s._sum.payroll_employee_gross_salary as Decimal | null) || 0)
-      ])
+      priorSalaries.map(s => {
+        const gross    = Number((s._sum.payroll_employee_gross_salary  as Decimal | null) ?? 0);
+        const overtime = Number((s._sum.payroll_employee_overtime_pay  as Decimal | null) ?? 0);
+        const bonuses  = Number((s._sum.payroll_employee_bonuses       as Decimal | null) ?? 0);
+        return [s.payroll_employee_employee_id, gross - overtime - bonuses];
+      })
     );
 
     return payroll.vpg_payroll_employee.map(empRow => {
-      const priorGross = salaryMap.get(empRow.payroll_employee_employee_id) || 0;
-      const thisGross = Number(empRow.payroll_employee_gross_salary || 0);
+      const priorOrdinary = salaryMap.get(empRow.payroll_employee_employee_id) ?? 0;
+      const gross    = Number(empRow.payroll_employee_gross_salary  || 0);
+      const overtime = Number(empRow.payroll_employee_overtime_pay  || 0);
+      const bonuses  = Number(empRow.payroll_employee_bonuses       || 0);
+      const thisOrdinary = gross - overtime - bonuses;
 
       return {
         employeeId: empRow.payroll_employee_employee_id,
         employeeName: `${empRow.vpg_employees?.employee_first_name} ${empRow.vpg_employees?.employee_last_name}`,
-        accruedBeforeThisPayroll: Math.round((priorGross / 12) * 100) / 100,
-        thisPayrollContribution: Math.round((thisGross / 12) * 100) / 100,
-        totalAccruedWithThis: Math.round(((priorGross + thisGross) / 12) * 100) / 100,
+        accruedBeforeThisPayroll: Math.round((priorOrdinary / 12) * 100) / 100,
+        thisPayrollContribution:  Math.round((thisOrdinary   / 12) * 100) / 100,
+        totalAccruedWithThis:     Math.round(((priorOrdinary + thisOrdinary) / 12) * 100) / 100,
         periodStart: fiscalStart,
-        periodEnd: fiscalEnd
+        periodEnd:   fiscalEnd,
       };
     });
   }

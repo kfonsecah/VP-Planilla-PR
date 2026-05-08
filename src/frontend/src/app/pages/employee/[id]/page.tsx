@@ -2,17 +2,19 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeftIcon, ArrowPathIcon, ExclamationTriangleIcon, UserCircleIcon, NoSymbolIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, ArrowPathIcon, ExclamationTriangleIcon, UserCircleIcon, NoSymbolIcon, BanknotesIcon, CalendarDaysIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import useEmployeeProfile from '@/hooks/useEmployeeProfile';
 import EmployeeProfileTabs, { ProfileTab } from '@/components/EmployeeProfileTabs';
 import ProfileSummaryTab from '@/components/ProfileSummaryTab';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import DismissEmployeeModal from '@/components/DismissEmployeeModal';
 import { usePositions } from '@/hooks/usePositions';
+import { useAguinaldo } from '@/hooks/useAguinaldo';
 import { updateEmployee, fireEmployee } from '@/services/employeeService';
 import { EmployeeFormData } from '@/types/employee';
 import { toast } from 'sonner';
 import { getStatusBadgeConfig } from '@/utils/employeeUtils';
+import { formatCRC } from '@/utils/number';
 
 /**
  * Página de perfil completo de un empleado
@@ -26,6 +28,7 @@ const EmployeeProfilePage: React.FC = () => {
 
   const { employee, aliases, vacations, isLoading, error, refresh } = useEmployeeProfile(employeeId);
   const { data: positions, isLoading: positionsLoading } = usePositions();
+  const { data: aguinaldoData, isLoading: aguinaldoLoading, error: aguinaldoError } = useAguinaldo(employeeId);
 
   const [activeTab, setActiveTab] = useState<ProfileTab>('resumen');
   const [showEditModal, setShowEditModal] = useState(false);
@@ -241,6 +244,96 @@ const EmployeeProfilePage: React.FC = () => {
             <p className="text-sm text-zinc-400 dark:text-zinc-500">
               Documentos próximamente
             </p>
+          </div>
+        )}
+
+        {activeTab === 'aguinaldo' && (
+          <div className="space-y-4">
+            {aguinaldoLoading && (
+              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
+                <ArrowPathIcon className="w-6 h-6 animate-spin text-zinc-400 mx-auto mb-2" />
+                <p className="text-sm text-zinc-400">Calculando aguinaldo...</p>
+              </div>
+            )}
+            {aguinaldoError && (
+              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-red-200 dark:border-red-800 p-6 text-center">
+                <ExclamationTriangleIcon className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                <p className="text-sm text-red-500">{aguinaldoError}</p>
+              </div>
+            )}
+            {aguinaldoData && !aguinaldoLoading && (
+              <>
+                {/* Period info */}
+                <div className="flex flex-wrap gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-5 py-3 text-sm text-amber-800 dark:text-amber-300">
+                  <span className="flex items-center gap-1.5">
+                    <CalendarDaysIcon className="w-4 h-4" />
+                    Período fiscal:&nbsp;
+                    <strong>{new Date(aguinaldoData.periodStart + 'T00:00:00').toLocaleDateString('es-CR', { year: 'numeric', month: 'short', day: 'numeric' })}</strong>
+                    &nbsp;—&nbsp;
+                    <strong>{new Date(aguinaldoData.periodEnd + 'T00:00:00').toLocaleDateString('es-CR', { year: 'numeric', month: 'short', day: 'numeric' })}</strong>
+                  </span>
+                  <span className="hidden sm:block text-amber-400">|</span>
+                  <span>Fecha límite de pago: <strong>20 de diciembre</strong></span>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Planillas incluidas</p>
+                    <p className="text-2xl font-bold text-zinc-700 dark:text-zinc-100">
+                      {aguinaldoData.payrollsIncluded}
+                    </p>
+                    <p className="text-xs text-zinc-400 mt-1">de {aguinaldoData.periodsPerYear} esperadas</p>
+                  </div>
+                  <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Salario ordinario del período</p>
+                    <p className="text-xl font-bold text-zinc-700 dark:text-zinc-100">
+                      {formatCRC(aguinaldoData.totalOrdinarySalary)}
+                    </p>
+                  </div>
+                  <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BanknotesIcon className="w-4 h-4 text-[#4A5D3A] dark:text-green-400" />
+                      <p className="text-xs text-zinc-400 uppercase tracking-wider">Aguinaldo acumulado</p>
+                    </div>
+                    <p className="text-2xl font-bold text-[#4A5D3A] dark:text-green-400">
+                      {formatCRC(aguinaldoData.accrued)}
+                    </p>
+                  </div>
+                  <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                    <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Proyección si el salario se mantiene igual</p>
+                    <p className="text-xl font-bold text-zinc-700 dark:text-zinc-100">
+                      {formatCRC(aguinaldoData.projectedAnnual)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+                  <div className="flex items-center justify-between mb-2 text-sm">
+                    <span className="text-zinc-500 dark:text-zinc-400">Progreso del período fiscal</span>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-200">
+                      {aguinaldoData.payrollsIncluded} / {aguinaldoData.periodsPerYear} planillas
+                    </span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#4A5D3A] dark:bg-green-500 transition-all"
+                      style={{ width: `${Math.min(100, (aguinaldoData.payrollsIncluded / aguinaldoData.periodsPerYear) * 100)}%` }}
+                    />
+                  </div>
+                  {aguinaldoData.payrollsIncluded >= aguinaldoData.periodsPerYear ? (
+                    <p className="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                      <CheckCircleIcon className="w-3.5 h-3.5" /> Período completo
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-xs text-zinc-400 flex items-center gap-1">
+                      <ClockIcon className="w-3.5 h-3.5" /> Período en curso
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

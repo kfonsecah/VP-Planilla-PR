@@ -437,7 +437,7 @@ export class PayrollController {
       }
 
       const result = await AguinaldoService.getAguinaldoSummaryForPayroll(payrollId);
-      
+
       res.json({
         success: true,
         data: result
@@ -447,6 +447,37 @@ export class PayrollController {
       res.status(500).json({
         success: false,
         error: error.message || "Failed to get aguinaldo summary"
+      });
+    }
+  }
+
+  /**
+   * Get aguinaldo projection for all active employees (or a single one).
+   * GET /api/aguinaldo/projection?employeeId=&fiscalYear=
+   * @param req - Express request object
+   * @param res - Express response object
+   * @returns Promise<Response>
+   */
+  static async getAguinaldoProjection(req: Request, res: Response) {
+    try {
+      const employeeId = req.query.employeeId ? Number(req.query.employeeId) : undefined;
+      const fiscalYear  = req.query.fiscalYear  ? Number(req.query.fiscalYear)  : undefined;
+
+      if (employeeId !== undefined && isNaN(employeeId)) {
+        return res.status(400).json({ success: false, error: "employeeId inválido" });
+      }
+      if (fiscalYear !== undefined && isNaN(fiscalYear)) {
+        return res.status(400).json({ success: false, error: "fiscalYear inválido" });
+      }
+
+      const result = await AguinaldoService.getProjection(employeeId, fiscalYear);
+
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      console.error("Failed to get aguinaldo projection:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message || "Failed to get aguinaldo projection",
       });
     }
   }
