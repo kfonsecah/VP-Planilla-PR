@@ -172,3 +172,23 @@ select:-webkit-autofill:focus {
   caret-color: var(--color-text-primary);
   transition: background-color 9999s ease-in-out 0s;
 }
+
+/* Custom Animations for Payroll Wizard */
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 1s linear infinite;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-progress {
+  animation: progress 3s ease-in-out infinite;
+}
