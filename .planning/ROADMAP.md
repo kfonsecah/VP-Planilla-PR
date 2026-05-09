@@ -23,6 +23,16 @@
 | 66 | Soporte Jornadas Mixtas y Nocturnas | PAY-31 | 4 | Planning Complete (4 plans) |
 
 
+### Phase 67: Implementar tabs funcionales en el perfil de empleado: Planillas, Eventos Laborales, Documentos y otros tabs con datos reales y acciones completas
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 66
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 67 to break down)
+
 ---
 
 ## Phase Details

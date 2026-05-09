@@ -15,7 +15,7 @@ export class EmployeeController {
 
     // Map frontend fields to Employee model fields
     const employeeData = {
-      name: rawData.employee_first_name || rawData.name,
+      first_name: rawData.employee_first_name || rawData.first_name || rawData.name,
       last_name: rawData.employee_last_name || rawData.last_name,
       middle_name: rawData.employee_middle_name || rawData.middle_name || '',
       national_id: rawData.employee_national_id || rawData.national_id || '',

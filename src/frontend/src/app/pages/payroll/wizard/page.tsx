@@ -852,16 +852,16 @@ export default function PayrollWizardPage() {
                               </td>
                               <td className="px-4 py-5">
                                 <p className="font-bold text-zinc-800 dark:text-zinc-100">{emp.name ?? emp.employeeName ?? emp.employee_name}</p>
-                                <p className="text-[10px] text-zinc-400 font-medium">{(emp as Record<string, unknown>).position_name as string || emp.position || 'ID: ' + empId}</p>
+                                <p className="text-[10px] text-zinc-400 font-medium">{emp.position_name || emp.position || 'ID: ' + empId}</p>
                               </td>
                               <td className="px-4 py-5 text-right">
                                 <div className="flex flex-col items-end">
-                                  <span className="font-bold text-zinc-700 dark:text-zinc-300">{(Number(emp.regularHours ?? (emp as Record<string, unknown>).regular_hours ?? 0) + Number(emp.overtimeHours ?? (emp as Record<string, unknown>).overtime_hours ?? 0)).toFixed(1)}h</span>
-                                  <span className="text-[10px] text-zinc-400">R: {Number(emp.regularHours ?? (emp as Record<string, unknown>).regular_hours ?? 0).toFixed(1)} | E: {Number(emp.overtimeHours ?? (emp as Record<string, unknown>).overtime_hours ?? 0).toFixed(1)}</span>
+                                  <span className="font-bold text-zinc-700 dark:text-zinc-300">{(Number(emp.regularHours ?? emp.regular_hours ?? 0) + Number(emp.overtimeHours ?? emp.overtime_hours ?? 0)).toFixed(1)}h</span>
+                                  <span className="text-[10px] text-zinc-400">R: {Number(emp.regularHours ?? emp.regular_hours ?? 0).toFixed(1)} | E: {Number(emp.overtimeHours ?? emp.overtime_hours ?? 0).toFixed(1)}</span>
                                 </div>
                               </td>
                               <td className="px-4 py-5 text-right font-medium text-zinc-600 dark:text-zinc-400">
-                                ₡{Number(emp.totalDeductions ?? (emp as Record<string, unknown>).total_deductions ?? 0).toLocaleString('es-CR')}
+                                ₡{Number(emp.totalDeductions ?? emp.total_deductions ?? 0).toLocaleString('es-CR')}
                               </td>
                               <td className="px-4 py-5 text-right">
                                 {(() => {
@@ -878,7 +878,7 @@ export default function PayrollWizardPage() {
                               </td>
                               <td className="px-4 py-5 text-right">
                                 <p className="text-base font-black text-zinc-900 dark:text-white">
-                                  ₡{Number(emp.netSalary ?? (emp as Record<string, unknown>).net_salary ?? 0).toLocaleString('es-CR')}
+                                  ₡{Number(emp.netSalary ?? emp.net_salary ?? 0).toLocaleString('es-CR')}
                                 </p>
                               </td>
                               <td className="px-4 py-5 text-center">
@@ -950,14 +950,15 @@ export default function PayrollWizardPage() {
         )}
         {/* ── Adjust Modal (Global to escape overflows) ──────────────────── */}
         {adjustingEmpId !== null && payrollId !== null && (() => {
-          const calcEmployees = calculationData?.employees ?? [];
-          const emp = calcEmployees.find((e) => Number(e.id ?? e.employeeId ?? e.employee_id) === adjustingEmpId);
+          const emp = calcResult?.employees.find(
+            (e) => Number(e.id ?? e.employee_id ?? e.employeeId) === adjustingEmpId
+          );
           if (!emp) return null;
           const normalizedData = {
-            regularHours: Number((emp as any).regular_hours ?? emp.regularHours ?? 0),
-            overtimeHours: Number((emp as any).overtime_hours ?? emp.overtimeHours ?? 0),
-            weeklyRestHours: Number((emp as any).weekly_rest_hours ?? emp.weeklyRestHours ?? 0),
-            totalDeductions: Number((emp as any).total_deductions ?? emp.totalDeductions ?? 0),
+            regularHours: Number(emp.regularHours ?? emp.regular_hours ?? 0),
+            overtimeHours: Number(emp.overtimeHours ?? emp.overtime_hours ?? 0),
+            weeklyRestHours: Number(emp.weeklyRestHours ?? emp.weekly_rest_hours ?? 0),
+            totalDeductions: Number(emp.totalDeductions ?? emp.total_deductions ?? 0),
           };
 
           return (

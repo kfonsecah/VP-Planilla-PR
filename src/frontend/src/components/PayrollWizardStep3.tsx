@@ -128,15 +128,15 @@ export default function PayrollWizardStep3({
             </div>
             <div className="space-y-1">
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Total Bruto</p>
-              <p className="text-2xl font-bold">₡{formatCRC(totalGross)}</p>
+              <p className="text-2xl font-bold">{formatCRC(totalGross)}</p>
             </div>
             <div className="space-y-1">
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Deducciones</p>
-              <p className="text-2xl font-bold">₡{formatCRC(totalGross - totalNet)}</p>
+              <p className="text-2xl font-bold">{formatCRC(totalGross - totalNet)}</p>
             </div>
             <div className="space-y-1">
               <p className="text-green-400 text-[10px] font-black uppercase tracking-widest">Neto Total</p>
-              <p className="text-3xl font-black text-green-400">₡{formatCRC(totalNet)}</p>
+              <p className="text-3xl font-black text-green-400">{formatCRC(totalNet)}</p>
             </div>
           </div>
 
@@ -170,11 +170,11 @@ export default function PayrollWizardStep3({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50">
                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Generado en esta planilla</p>
-                <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">₡{formatCRC(aguinaldoTotals.this)}</p>
+                <p className="text-3xl font-black text-zinc-800 dark:text-zinc-100">{formatCRC(aguinaldoTotals.this)}</p>
               </div>
               <div className="p-5 rounded-2xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
                 <p className="text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-400 mb-2">Total acumulado proyectado</p>
-                <p className="text-3xl font-black text-green-700 dark:text-green-300">₡{formatCRC(aguinaldoTotals.total)}</p>
+                <p className="text-3xl font-black text-green-700 dark:text-green-300">{formatCRC(aguinaldoTotals.total)}</p>
               </div>
             </div>
 

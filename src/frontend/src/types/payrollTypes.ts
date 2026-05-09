@@ -52,7 +52,12 @@ export interface EmployeePayroll {
   regular_hours?: number;
   overtime_hours?: number;
   weekly_rest_hours?: number;
+  weekly_rest_pay?: number;
+  overtime_pay?: number;
+  gross_salary?: number;
+  net_salary?: number;
   total_deductions?: number;
+  is_manually_adjusted?: boolean;
 }
 
 export interface PayrollSummary {

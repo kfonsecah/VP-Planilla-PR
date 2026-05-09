@@ -83,6 +83,10 @@ Progress: [####################] 100% (13 phases complete, Phase 66 complete)
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 67 added: Implementar tabs funcionales en el perfil de empleado: Planillas, Eventos Laborales, Documentos y otros tabs con datos reales y acciones completas
+
 ### Tests
 
 - Backend: 546+ tests (Jest).

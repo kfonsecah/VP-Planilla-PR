@@ -83,6 +83,7 @@ const LaborEventModal: React.FC<Props> = ({
   laborEventCatalog,
   onPreviewChange,
   initialDates,
+  onDelete,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
