@@ -29,7 +29,7 @@ export default function AguinaldoPage() {
   const years = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
       <div className="px-6 py-6 max-w-screen-2xl mx-auto">
 
         {/* Header */}

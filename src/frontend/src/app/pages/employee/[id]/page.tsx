@@ -75,7 +75,7 @@ const EmployeeProfilePage: React.FC = () => {
   // ── Loading skeleton ──
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
         <div className="px-8 py-6 max-w-screen-2xl mx-auto">
           <div className="h-8 w-40 bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse mb-6" />
           <div className="flex items-center gap-5 mb-6">
@@ -99,7 +99,7 @@ const EmployeeProfilePage: React.FC = () => {
   // ── Error state ──
   if (error || !employee) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
         <div className="px-8 py-6 max-w-screen-2xl mx-auto">
           <button
             onClick={() => router.push('/pages/employee/list')}
@@ -146,7 +146,7 @@ const EmployeeProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
       <div className="px-8 py-6 max-w-screen-2xl mx-auto">
 
         {/* ── Back button ── */}

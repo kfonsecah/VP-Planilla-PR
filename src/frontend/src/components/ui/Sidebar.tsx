@@ -31,7 +31,7 @@ export default function Sidebar({ onClose, onLogoutClick, isLoggingOut = false }
       ]
     },
     {
-      href: "/pages/payroll",
+      href: "/pages/payroll/wizard",
       icon: "/images/layout/payroll.png",
       text: "Cálculo de planillas",
       subItems: [

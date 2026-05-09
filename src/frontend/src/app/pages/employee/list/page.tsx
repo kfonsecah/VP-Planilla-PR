@@ -51,7 +51,7 @@ const EmployeeListPage: React.FC = () => {
   } = useEmployeeList();
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
       <div className="px-8 py-6 max-w-screen-2xl mx-auto">
 
         {/* ── Page header ── */}

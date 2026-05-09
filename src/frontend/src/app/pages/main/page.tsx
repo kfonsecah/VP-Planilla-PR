@@ -134,7 +134,7 @@ const Home: React.FC = () => {
   ];
 
   const quickActions = [
-    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll", color: "bg-green-600 hover:bg-green-500" },
+    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll/wizard", color: "bg-green-600 hover:bg-green-500" },
     { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500" },
     { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500" },
     { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500" },

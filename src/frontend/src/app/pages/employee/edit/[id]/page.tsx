@@ -96,7 +96,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
         <div className="p-6">
           {/* Header skeleton */}
           <div className="flex items-center justify-between mb-6">
@@ -179,7 +179,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+      <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
@@ -215,7 +215,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#121212]">
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
