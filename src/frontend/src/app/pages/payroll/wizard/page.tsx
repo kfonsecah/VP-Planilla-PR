@@ -652,16 +652,35 @@ export default function PayrollWizardPage() {
             </div>
 
             {isCalculating ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-6">
+              <div className="flex flex-col items-center justify-center py-28 gap-8 animate-in fade-in zoom-in duration-500">
                 <div className="relative">
-                  <div className="w-16 h-16 border-4 border-green-100 dark:border-green-900/20 border-t-green-600 rounded-full animate-spin" />
+                  {/* Outer Glow */}
+                  <div className="absolute inset-[-20px] bg-green-500/10 dark:bg-green-500/5 rounded-full blur-2xl animate-pulse" />
+                  
+                  {/* Rotating Layers */}
+                  <div className="w-24 h-24 border-[3px] border-transparent border-t-green-600 border-r-green-600/30 rounded-full animate-spin" />
+                  <div className="absolute inset-2 w-20 h-20 border-[3px] border-transparent border-b-zinc-900 dark:border-b-zinc-100 border-l-zinc-900/30 dark:border-l-zinc-100/30 rounded-full animate-spin-reverse" />
+                  
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <SparklesIcon className="w-6 h-6 text-green-600" />
+                    <div className="bg-white dark:bg-zinc-900 rounded-full p-3 shadow-xl border border-zinc-100 dark:border-zinc-800">
+                      <SparklesIcon className="w-8 h-8 text-green-600" />
+                    </div>
                   </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold text-zinc-800 dark:text-zinc-100">Procesando cálculos...</p>
-                  <p className="text-sm text-zinc-400">Aplicando leyes laborales y deducciones CCSS</p>
+                
+                <div className="text-center space-y-3">
+                  <div className="relative inline-block">
+                    <p className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tight">
+                      Procesando cálculos
+                      <span className="inline-flex w-8 text-left animate-pulse">...</span>
+                    </p>
+                    <div className="absolute -bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 animate-pulse" />
+                  </div>
+                </div>
+
+                {/* Simulated Progress Bar */}
+                <div className="w-64 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700 shadow-inner">
+                  <div className="h-full bg-green-600 rounded-full animate-progress" style={{ width: '40%' }} />
                 </div>
               </div>
             ) : calcError ? (
