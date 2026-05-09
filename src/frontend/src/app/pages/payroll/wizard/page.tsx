@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePayrollWizard } from '@/hooks/usePayrollWizard';
@@ -11,9 +11,10 @@ import { getEmployees } from '@/services/employeeService';
 import { Tooltip } from '@/components/ui/Tooltip';
 import PayrollWizardStep3 from '@/components/PayrollWizardStep3';
 import PayrollEmployeeAdjustModal from '@/components/PayrollEmployeeAdjustModal';
+import EmployeePayrollBreakdown from '@/components/EmployeePayrollBreakdown';
 import type { Employee } from '@/types/employee';
-import type { PayrollCalculationResult, EmployeePayroll } from '@/types/payrollTypes';
-import type { CalculationResult, CalculationEmployee, DeductionBreakdown } from '@/types/payrollWizard';
+import type { PayrollCalculationResult, EmployeePayroll, DeductionBreakdown, Inconsistency } from '@/types/payrollTypes';
+import type { CalculationResult, CalculationEmployee, DeductionBreakdown as WizardDeductionBreakdown } from '@/types/payrollWizard';
 import { 
   CalendarIcon, 
   UserGroupIcon, 
@@ -25,6 +26,7 @@ import {
   ExclamationCircleIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
+import { formatDateDisplay } from '@/utils/formatters';
 
 type PeriodType = 'quincenal' | 'mensual' | 'rango_libre';
 
@@ -79,6 +81,9 @@ export default function PayrollWizardPage() {
   });
   const [selectedQuincena, setSelectedQuincena] = useState<1 | 2 | null>(null);
 
+  const dateStartRef = useRef<HTMLInputElement>(null);
+  const dateEndRef = useRef<HTMLInputElement>(null);
+
   // ── Step 2 state ──────────────────────────────────────────────────────────
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -90,6 +95,15 @@ export default function PayrollWizardPage() {
   const [calcError, setCalcError] = useState<string | null>(null);
   const [calcResult, setCalcResult] = useState<PayrollCalculationResult | null>(null);
   const [adjustingEmpId, setAdjustingEmpId] = useState<number | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<number | string>>(new Set());
+
+  // Stores transient nomination data (not persisted to DB) keyed by employee_id
+  const nominationTransientRef = useRef<Map<number, {
+    baseHourlySalary: number;
+    deductionsBreakdown: DeductionBreakdown[];
+    inconsistencies: Inconsistency[];
+    generalMessages: string[];
+  }>>(new Map());
 
   // ── Load employees when entering Step 2 ──────────────────────────────────
   useEffect(() => {
@@ -107,6 +121,48 @@ export default function PayrollWizardPage() {
     handleCalculate();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
+
+  // Auto-expand employees with inconsistencies when results arrive
+  useEffect(() => {
+    if (!calcResult) return;
+    const ids = new Set<number | string>(
+      calcResult.employees
+        .filter(e => Array.isArray(e.inconsistencies) && e.inconsistencies.length > 0)
+        .map(e => (e.id ?? e.employee_id ?? Number(e.employeeId)) as number | string)
+        .filter(Boolean)
+    );
+    setExpandedIds(ids);
+  }, [calcResult]);
+
+  // Reset expand state when leaving step 3
+  useEffect(() => {
+    if (currentStep !== 3) setExpandedIds(new Set());
+  }, [currentStep]);
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  const mergeWithTransientData = useCallback((freshEmployees: unknown[]): EmployeePayroll[] => {
+    return freshEmployees.map(fresh => {
+      const f = fresh as Record<string, unknown>;
+      const empId = Number(f.employee_id ?? f.id);
+      const transient = nominationTransientRef.current.get(empId);
+      return {
+        ...f,
+        baseHourlySalary: transient?.baseHourlySalary ?? Number(f.baseHourlySalary ?? 0),
+        deductionsBreakdown: (transient?.deductionsBreakdown ?? f.deductionsBreakdown ?? []) as DeductionBreakdown[],
+        inconsistencies: (transient?.inconsistencies ?? f.inconsistencies ?? []) as Inconsistency[],
+        generalMessages: (transient?.generalMessages ?? f.generalMessages ?? []) as string[],
+      } as EmployeePayroll;
+    });
+  }, []);
+
+  const toggleExpand = useCallback((id: number | string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
@@ -187,14 +243,14 @@ export default function PayrollWizardPage() {
         deductions: (emp.deductionsBreakdown ?? []).map(d => ({
           type: d.type,
           amount: d.amount
-        })) as DeductionBreakdown[],
+        })) as WizardDeductionBreakdown[],
         inconsistencies: (emp.inconsistencies ?? []).map(i => typeof i === 'string' ? i : i.message)
       };
     });
 
     return {
       period: {
-        label: `${res.period.startDate} – ${res.period.endDate}`,
+        label: `${formatDateDisplay(res.period.startDate)} – ${formatDateDisplay(res.period.endDate)}`,
         start: res.period.startDate,
         end: res.period.endDate
       },
@@ -232,8 +288,21 @@ export default function PayrollWizardPage() {
         selectedEmployeeIds,
       );
 
+      // Persist transient nomination data (not stored in DB) for merge after refresh
+      nominationTransientRef.current.clear();
+      result.employees.forEach(calc => {
+        const empId = Number(calc.employeeId ?? calc.employee_id ?? calc.id);
+        if (!empId) return;
+        nominationTransientRef.current.set(empId, {
+          baseHourlySalary: calc.baseHourlySalary ?? 0,
+          deductionsBreakdown: calc.deductionsBreakdown ?? [],
+          inconsistencies: calc.inconsistencies ?? [],
+          generalMessages: calc.generalMessages ?? [],
+        });
+      });
+
       const freshEmployees = await PayrollService.getPayrollEmployees(currentId!);
-      const normalizedData: PayrollCalculationResult = { ...result, employees: freshEmployees as any };
+      const normalizedData: PayrollCalculationResult = { ...result, employees: mergeWithTransientData(freshEmployees) };
 
       setCalcResult(normalizedData);
       setCalculationData(mapToWizardResult(normalizedData));
@@ -251,10 +320,10 @@ export default function PayrollWizardPage() {
     if (payrollId === null) return;
     try {
       const updatedEmployees = await PayrollService.getPayrollEmployees(payrollId);
-      
+
       const newResult: PayrollCalculationResult = {
         ...(calcResult as PayrollCalculationResult),
-        employees: [...updatedEmployees] as any
+        employees: mergeWithTransientData(updatedEmployees),
       };
       
       setCalcResult(newResult);
@@ -467,30 +536,42 @@ export default function PayrollWizardPage() {
                       <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 px-1">
                         Fecha Inicio
                       </label>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                      <div 
+                        className="relative group cursor-pointer"
+                        onClick={() => periodType === 'rango_libre' && dateStartRef.current?.showPicker()}
+                      >
+                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-hover:text-green-500 transition-colors z-10" />
                         <input
+                          ref={dateStartRef}
                           type="date"
                           value={dateStart}
                           onChange={(e) => setDateStart(e.target.value)}
-                          readOnly={periodType !== 'rango_libre'}
-                          className={`${INPUT_CLASSES} pl-12`}
+                          className="absolute inset-0 w-full h-full opacity-0 z-0 pointer-events-none"
                         />
+                        <div className={`${INPUT_CLASSES} pl-12 flex items-center min-h-[45px] text-zinc-800 dark:text-zinc-100 ${periodType !== 'rango_libre' ? 'opacity-70 cursor-default' : ''}`}>
+                          {dateStart ? formatDateDisplay(dateStart) : <span className="text-zinc-400">Seleccionar fecha</span>}
+                        </div>
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 px-1">
                         Fecha Fin
                       </label>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+                      <div 
+                        className="relative group cursor-pointer"
+                        onClick={() => periodType === 'rango_libre' && dateEndRef.current?.showPicker()}
+                      >
+                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-hover:text-green-500 transition-colors z-10" />
                         <input
+                          ref={dateEndRef}
                           type="date"
                           value={dateEnd}
                           onChange={(e) => setDateEnd(e.target.value)}
-                          readOnly={periodType !== 'rango_libre'}
-                          className={`${INPUT_CLASSES} pl-12`}
+                          className="absolute inset-0 w-full h-full opacity-0 z-0 pointer-events-none"
                         />
+                        <div className={`${INPUT_CLASSES} pl-12 flex items-center min-h-[45px] text-zinc-800 dark:text-zinc-100 ${periodType !== 'rango_libre' ? 'opacity-70 cursor-default' : ''}`}>
+                          {dateEnd ? formatDateDisplay(dateEnd) : <span className="text-zinc-400">Seleccionar fecha</span>}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -737,74 +818,107 @@ export default function PayrollWizardPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-zinc-50 dark:bg-zinc-900/50 text-left border-b border-zinc-200 dark:border-zinc-800">
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px]">Colaborador</th>
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Horas</th>
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Deducciones</th>
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Aguinaldo</th>
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Neto a Pagar</th>
-                        <th className="px-6 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-center">Estado</th>
-                        <th className="px-6 py-4"></th>
+                        <th className="w-10 px-3 py-4" />
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px]">Colaborador</th>
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Horas</th>
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Deducciones</th>
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Aguinaldo</th>
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-right">Neto a Pagar</th>
+                        <th className="px-4 py-4 font-bold text-zinc-500 uppercase tracking-widest text-[10px] text-center">Estado</th>
+                        <th className="px-4 py-4" />
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                    <tbody>
                       {calcEmployees.map((emp, i) => {
                         const inconsistencies = Array.isArray(emp.inconsistencies) ? emp.inconsistencies : [];
                         const hasIssues = inconsistencies.length > 0;
-                        const empId = emp.id ?? emp.employee_id ?? emp.employeeId ?? i;
-                        
+                        const empId = emp.id ?? emp.employee_id ?? Number(emp.employeeId) ?? i;
+                        const isExpanded = expandedIds.has(empId as number | string);
+                        const rowBorder = hasIssues
+                          ? 'border-l-2 border-amber-400 dark:border-amber-500'
+                          : '';
+
                         return (
-                          <tr key={empId} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors group">
-                            <td className="px-6 py-5">
-                              <p className="font-bold text-zinc-800 dark:text-zinc-100">{emp.name ?? emp.employeeName ?? emp.employee_name}</p>
-                              <p className="text-[10px] text-zinc-400 font-medium">{(emp as any).position_name || emp.position || 'ID: ' + empId}</p>
-                            </td>
-                            <td className="px-6 py-5 text-right">
-                              <div className="flex flex-col items-end">
-                                <span className="font-bold text-zinc-700 dark:text-zinc-300">{(Number(emp.regularHours ?? (emp as any).regular_hours ?? 0) + Number(emp.overtimeHours ?? (emp as any).overtime_hours ?? 0)).toFixed(1)}h</span>
-                                <span className="text-[10px] text-zinc-400">R: {Number(emp.regularHours ?? (emp as any).regular_hours ?? 0).toFixed(1)} | E: {Number(emp.overtimeHours ?? (emp as any).overtime_hours ?? 0).toFixed(1)}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-5 text-right font-medium text-zinc-600 dark:text-zinc-400">
-                              ₡{Number(emp.totalDeductions ?? (emp as any).total_deductions ?? 0).toLocaleString('es-CR')}
-                            </td>
-                            <td className="px-6 py-5 text-right">
-                              {(() => {
-                                const agui = aguinaldoData.find(a => a.employeeId === Number(emp.employee_id ?? emp.id ?? emp.employeeId));
-                                if (!agui) return <span className="text-zinc-300">—</span>;
-                                return (
-                                  <Tooltip content={`Acumulado total: ₡${agui.totalAccruedWithThis.toLocaleString('es-CR')}`}>
-                                    <span className="text-zinc-700 dark:text-zinc-300 font-medium cursor-help hover:text-green-600 transition-colors underline decoration-dotted underline-offset-4">
-                                      ₡{agui.thisPayrollContribution.toLocaleString('es-CR')}
-                                    </span>
-                                  </Tooltip>
-                                );
-                              })()}
-                            </td>
-                            <td className="px-6 py-5 text-right">
-                              <p className="text-base font-black text-zinc-900 dark:text-white">
-                                ₡{Number(emp.netSalary ?? (emp as any).net_salary ?? 0).toLocaleString('es-CR')}
-                              </p>
-                            </td>
-                            <td className="px-6 py-5 text-center">
-                              {hasIssues ? (
-                                <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase">
-                                  Audit
-                                </span>
-                              ) : (
-                                <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black uppercase">
-                                  Clean
-                                </span>
+                          <React.Fragment key={empId}>
+                            <tr
+                              className={`border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors group cursor-pointer select-none ${rowBorder}`}
+                              onClick={() => toggleExpand(empId as number | string)}
+                            >
+                              {/* Chevron */}
+                              <td className="w-10 px-3 py-5 text-center">
+                                <ChevronRightIcon
+                                  className={`w-4 h-4 text-zinc-400 transition-transform duration-200 mx-auto ${isExpanded ? 'rotate-90' : ''}`}
+                                />
+                              </td>
+                              <td className="px-4 py-5">
+                                <p className="font-bold text-zinc-800 dark:text-zinc-100">{emp.name ?? emp.employeeName ?? emp.employee_name}</p>
+                                <p className="text-[10px] text-zinc-400 font-medium">{(emp as Record<string, unknown>).position_name as string || emp.position || 'ID: ' + empId}</p>
+                              </td>
+                              <td className="px-4 py-5 text-right">
+                                <div className="flex flex-col items-end">
+                                  <span className="font-bold text-zinc-700 dark:text-zinc-300">{(Number(emp.regularHours ?? (emp as Record<string, unknown>).regular_hours ?? 0) + Number(emp.overtimeHours ?? (emp as Record<string, unknown>).overtime_hours ?? 0)).toFixed(1)}h</span>
+                                  <span className="text-[10px] text-zinc-400">R: {Number(emp.regularHours ?? (emp as Record<string, unknown>).regular_hours ?? 0).toFixed(1)} | E: {Number(emp.overtimeHours ?? (emp as Record<string, unknown>).overtime_hours ?? 0).toFixed(1)}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-5 text-right font-medium text-zinc-600 dark:text-zinc-400">
+                                ₡{Number(emp.totalDeductions ?? (emp as Record<string, unknown>).total_deductions ?? 0).toLocaleString('es-CR')}
+                              </td>
+                              <td className="px-4 py-5 text-right">
+                                {(() => {
+                                  const agui = aguinaldoData.find(a => a.employeeId === Number(emp.employee_id ?? emp.id ?? emp.employeeId));
+                                  if (!agui) return <span className="text-zinc-300">—</span>;
+                                  return (
+                                    <Tooltip content={`Acumulado total: ₡${agui.totalAccruedWithThis.toLocaleString('es-CR')}`}>
+                                      <span className="text-zinc-700 dark:text-zinc-300 font-medium cursor-help hover:text-green-600 transition-colors underline decoration-dotted underline-offset-4">
+                                        ₡{agui.thisPayrollContribution.toLocaleString('es-CR')}
+                                      </span>
+                                    </Tooltip>
+                                  );
+                                })()}
+                              </td>
+                              <td className="px-4 py-5 text-right">
+                                <p className="text-base font-black text-zinc-900 dark:text-white">
+                                  ₡{Number(emp.netSalary ?? (emp as Record<string, unknown>).net_salary ?? 0).toLocaleString('es-CR')}
+                                </p>
+                              </td>
+                              <td className="px-4 py-5 text-center">
+                                {hasIssues ? (
+                                  <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider">
+                                    Revisión
+                                  </span>
+                                ) : (
+                                  <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-wider">
+                                    Validado
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-5">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setAdjustingEmpId(Number(empId)); }}
+                                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                </button>
+                              </td>
+                            </tr>
+                            <AnimatePresence initial={false}>
+                              {isExpanded && (
+                                <tr key={`breakdown-${empId}`}>
+                                  <td colSpan={8} className="p-0">
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: 'auto', opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                      style={{ overflow: 'hidden' }}
+                                    >
+                                      <EmployeePayrollBreakdown employee={emp} />
+                                    </motion.div>
+                                  </td>
+                                </tr>
                               )}
-                            </td>
-                            <td className="px-6 py-5">
-                              <button
-                                onClick={() => setAdjustingEmpId(Number(empId))}
-                                className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all opacity-0 group-hover:opacity-100"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                              </button>
-                            </td>
-                          </tr>
+                            </AnimatePresence>
+                          </React.Fragment>
                         );
                       })}
                     </tbody>

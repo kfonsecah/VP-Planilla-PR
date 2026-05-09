@@ -23,15 +23,13 @@ export const useLaborEvents = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchEvents = async () => {
-    const cached = readCache<EmployeeLaborEvent[]>(CACHE_KEY);
-    if (cached) { setEvents(cached); return; }
     setIsLoading(true);
     setError(null);
     try {
       const data = await LaborEventsService.getAllLaborEvents();
       setCatalog((data.laborEvents as LaborEvent[]) || []);
+      
       const employeeEvents = data.employeeEvents || [];
-
       const mapped = (employeeEvents as ApiLaborEvent[]).map(ev => ({
         id: ev.id,
         employee_id: ev.employee_labor_event_employee_id || ev.employee_id,

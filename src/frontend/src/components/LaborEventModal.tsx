@@ -22,6 +22,7 @@ interface Props {
   laborEventCatalog: LaborEvent[];
   onPreviewChange?: (preview: Partial<EmployeeLaborEvent> | null) => void;
   initialDates?: { start?: Date; end?: Date } | null;
+  onDelete?: (id: number) => Promise<void>;
 }
 
 const PAY_BEHAVIOR_BANNER: Record<LaborEventPayBehavior, { icon: string; color: string; message: (ev: LaborEvent) => string }> = {
@@ -200,6 +201,18 @@ const LaborEventModal: React.FC<Props> = ({
   const inputClasses = 'w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all';
   const labelClasses = 'block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5';
 
+  const handleDelete = async () => {
+    if (!event || !onDelete) return;
+    if (window.confirm('¿Estás seguro de que deseas eliminar este evento?')) {
+      try {
+        await onDelete(event.id);
+        onClose();
+      } catch (err) {
+        console.error('Error deleting event:', err);
+      }
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -368,30 +381,44 @@ const LaborEventModal: React.FC<Props> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-zinc-100 dark:border-zinc-800 px-6 py-4 flex items-center justify-end gap-3 bg-zinc-50 dark:bg-zinc-800/50">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="px-5 py-2.5 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-                    disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={handleSubmit(onFormSubmit)}
-                    className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      event ? 'Actualizar evento' : 'Guardar evento'
+                <div className="border-t border-zinc-100 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-zinc-50 dark:bg-zinc-800/50">
+                  <div>
+                    {event && (
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                        disabled={isSubmitting}
+                      >
+                        Eliminar Evento
+                      </button>
                     )}
-                  </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="px-5 py-2.5 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+                      disabled={isSubmitting}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      onClick={handleSubmit(onFormSubmit)}
+                      className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        event ? 'Actualizar evento' : 'Guardar evento'
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </MotionDiv>

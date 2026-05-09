@@ -242,6 +242,7 @@ const LaborEventsPage: React.FC = () => {
         laborEventCatalog={catalog}
         initialDates={modalInitialDates}
         onPreviewChange={setPreviewEvent}
+        onDelete={deleteAssignment}
       />
 
       <HolidaysManagementModal

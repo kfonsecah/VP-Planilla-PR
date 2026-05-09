@@ -46,3 +46,24 @@ export const normalizeDateInput = (value: string): string => {
   // Fallback: return empty or raw truncated to 10
   return value.slice(0, 10);
 };
+
+/**
+ * Formatea una fecha para visualización ejecutiva en formato "DD mes YYYY"
+ * Ejemplo: "04 mayo 2026"
+ * @param dateString - Fecha en formato string (ISO/YYYY-MM-DD) o Date object
+ * @param includeYear - Si debe incluir el año (default true)
+ * @returns String formateado "04 mayo 2026"
+ */
+export const formatDateDisplay = (dateString: string | Date | null | undefined, includeYear = true): string => {
+  if (!dateString) return '—';
+  
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '—';
+  
+  // Usamos UTC para evitar problemas de desfase por zona horaria
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = date.toLocaleString('es-CR', { month: 'long', timeZone: 'UTC' }).toLowerCase();
+  const year = date.getUTCFullYear();
+  
+  return includeYear ? `${day} ${month} ${year}` : `${day} ${month}`;
+};

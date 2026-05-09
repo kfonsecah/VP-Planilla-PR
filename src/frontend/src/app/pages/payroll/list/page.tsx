@@ -18,6 +18,7 @@ import { usePayroll } from '@/hooks/usePayroll';
 import { PayrollService, Payroll } from '@/services/payrollService';
 import { useModal } from '@/hooks/useModal';
 import { toast } from 'sonner';
+import { formatDateDisplay } from '@/utils/formatters';
 
 export default function PayrollListPage() {
   const { getAllPayrolls, isLoading, error } = usePayroll();
@@ -92,16 +93,7 @@ export default function PayrollListPage() {
   };
 
   const formatDate = (date: string | Date | undefined | null) => {
-    if (!date) return '—';
-    try {
-      return new Date(date).toLocaleDateString('es-CR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return String(date);
-    }
+    return formatDateDisplay(date);
   };
 
   const getPayrollTypeName = (type: number | undefined) => {

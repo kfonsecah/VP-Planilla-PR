@@ -20,6 +20,7 @@ import { formatSalary } from '@/utils/employeeUtils';
 
 import useEmployeeTable from '@/hooks/useEmployeeTable';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { formatDateDisplay } from '@/utils/formatters';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -248,7 +249,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                     </span>
                     {isFired && employee.exit_date && (
                       <p className="mt-1 text-xs text-red-400 dark:text-red-400">
-                        Salida: {new Date(employee.exit_date).toLocaleDateString('es-CR')}
+                        Salida: {formatDateDisplay(employee.exit_date)}
                       </p>
                     )}
                   </td>

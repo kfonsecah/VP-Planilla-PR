@@ -13,6 +13,7 @@ import {
 import { PayrollService } from '@/services/payrollService';
 import { useAguinaldoSummary } from '@/hooks/useAguinaldoSummary';
 import { formatCRC } from '@/utils/number';
+import { formatDateDisplay } from '@/utils/formatters';
 import type { CalculationResult } from '@/types/payrollWizard';
 
 interface PayrollWizardStep3Props {
@@ -183,7 +184,7 @@ export default function PayrollWizardStep3({
                 Estos montos serán respaldados en el snapshot legal de la planilla para cumplimiento de auditoría CCSS. 
                 {aguinaldoPeriod && (
                   <span className="font-bold ml-1 text-zinc-700 dark:text-zinc-300">
-                    Ciclo: {new Date(aguinaldoPeriod.start + 'T00:00:00').toLocaleDateString('es-CR')} al {new Date(aguinaldoPeriod.end + 'T00:00:00').toLocaleDateString('es-CR')}
+                    Ciclo: {formatDateDisplay(aguinaldoPeriod.start)} al {formatDateDisplay(aguinaldoPeriod.end)}
                   </span>
                 )}
               </p>

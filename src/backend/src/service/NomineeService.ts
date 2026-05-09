@@ -19,7 +19,6 @@ import {
   PayrollCalculationResult,
   LegalParamSet,
 } from "../types/payroll.types";
-import { Decimal } from "@prisma/client/runtime/library";
 import { MinuteRoundingPolicy, EmployeeShiftType, ShiftType } from "@prisma/client";
 
 // Re-export types so existing consumers importing from NomineeService continue to work
@@ -895,117 +894,6 @@ export class NomineeService {
     return start1 <= end2 && end1 >= start2;
   }
 
-  /**
-   * Get the hire date for an employee
-   * @param employeeId - The ID of the employee
-   * @returns  Promise<Date | null> - Returns the employee hired date, if not found returns null
-   */
-  static async getHiredDate(employeeId: number): Promise<Date | null> {
-    const employee = await prisma.vpg_employees.findUnique({
-      where: {
-        employee_id: employeeId,
-      },
-    });
-
-    const hiredDate = employee?.employee_hire_date;
-
-    return hiredDate ?? null;
-  }
-
-  /**
-   * Get the payrolls ID from the date the employee is Hired
-   * @param hired_date Date from employee hired
-   * @returns Promise<number[] | null> Returns a list of payrolls id, if not returns null
-   */
-  static async payrollsInPeriod(
-    start_date: Date,
-    end_date: Date,
-  ): Promise<number[] | null> {
-    const period = await prisma.vpg_payrolls.findMany({
-      where: {
-        payrolls_period_end: {
-          gte: start_date,
-          lte: end_date,
-        },
-      },
-      select: {
-        payrolls_id: true,
-      },
-      orderBy: {
-        payrolls_period_end: "asc",
-      },
-    });
-
-    return period.map((p) => p.payrolls_id);
-  }
-
-  static async getSalaries(
-    employeeID: number,
-    payroll_ids: number[],
-  ): Promise<Decimal[] | null> {
-    if (payroll_ids.length === 0) {
-      return [];
-    }
-    const salaries = await prisma.vpg_payroll_employee.findMany({
-      where: {
-        payroll_employee_employee_id: employeeID,
-        payroll_employee_payroll_id: {
-          in: payroll_ids,
-        },
-      },
-      select: {
-        payroll_employee_net_salary: true,
-      },
-    });
-
-    return salaries.map((s) => s.payroll_employee_net_salary);
-  }
-
-  static async aguinaldo(
-    employeeID: number,
-    start_date: Date,
-    end_date: Date,
-  ) {
-    const hired_date = await this.getHiredDate(employeeID);
-    let payrollIds: number[] = [];
-
-    if (!hired_date) {
-      return null;
-    }
-
-    const effectiveStartDate = new Date(start_date);
-    effectiveStartDate.setFullYear(effectiveStartDate.getFullYear() + 1);
-    payrollIds = hired_date <= effectiveStartDate
-      ? (await this.payrollsInPeriod(start_date, end_date)) ?? []
-      : [];
-
-    const salaries = (await this.getSalaries(employeeID, payrollIds)) ?? [];
-
-    const aguinaldo = PayrollUtils.averageOfSalaries(
-      salaries.map((s: Decimal) => s.toNumber()),
-    );
-
-    return aguinaldo;
-  }
-
-  static async aguinaldoForEmployees(
-    employeeIds: number[],
-    start_date: Date,
-    end_date: Date,
-  ): Promise<Array<{ employeeId: number; aguinaldo: number | null; message: string }>> {
-    const results: Array<{ employeeId: number; aguinaldo: number | null; message: string }> = [];
-
-    for (const id of employeeIds) {
-      const value = await this.aguinaldo(id, start_date, end_date);
-      results.push({
-        employeeId: id,
-        aguinaldo: value,
-        message: value === null ? "Sin fecha de contratación o no elegible" : "OK",
-      });
-    }
-
-    return results;
-  }
   private static groupByEmployee<T>(
     items: T[],
     getEmployeeId: (item: T) => number

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { NomineeService } from "../service/NomineeService";
+import { AguinaldoService } from "../service/AguinaldoService";
 import { error } from "console";
 
 export class NomineeController {
@@ -168,10 +169,15 @@ export class NomineeController {
         });
       }
 
-      const resultados = await NomineeService.aguinaldoForEmployees(
-        ids,
-        start,
-        end,
+      const resultados = await Promise.all(
+        ids.map(async (id: number) => {
+          try {
+            const result = await AguinaldoService.calculateAccruedAguinaldo(id, end);
+            return { employeeId: id, aguinaldo: result.accrued, message: "OK" };
+          } catch {
+            return { employeeId: id, aguinaldo: null, message: "Error al calcular aguinaldo" };
+          }
+        })
       );
 
       return res.status(200).json({

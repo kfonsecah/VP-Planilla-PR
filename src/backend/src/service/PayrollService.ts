@@ -197,15 +197,52 @@ export class PayrollService {
               employee_last_name: true,
               employee_middle_name: true,
               employee_national_id: true,
-              vpg_positions: { select: { position_name: true } },
+              vpg_positions: { select: { position_name: true, position_base_salary: true } },
             },
           },
         },
       });
 
+      // Bulk-fetch per-payroll deductions for all employees in this payroll
+      const employeeIds = rows.map(r => r.payroll_employee_employee_id);
+      const deductionRows = await prisma.vpg_employee_deductions.findMany({
+        where: {
+          employee_deductions_payroll_id: payrollId,
+          employee_deductions_employee_id: { in: employeeIds },
+        },
+        include: {
+          vpg_deductions: {
+            select: { deductions_name: true, deductions_percentage: true, deductions_fixed_amount: true },
+          },
+        },
+      });
+
+      const deductionsByEmployee = new Map<number, typeof deductionRows>();
+      for (const d of deductionRows) {
+        const empId = d.employee_deductions_employee_id;
+        if (!deductionsByEmployee.has(empId)) deductionsByEmployee.set(empId, []);
+        deductionsByEmployee.get(empId)!.push(d);
+      }
+
       return rows.map((row) => {
         const totalHours = Number(row.payroll_employee_total_hours) || 0;
         const overtimeHours = Number(row.payroll_employee_overtime_hours) || 0;
+
+        const empDeductions = deductionsByEmployee.get(row.payroll_employee_employee_id) ?? [];
+        const deductionsBreakdown = empDeductions.map(d => {
+          const name = d.vpg_deductions?.deductions_name ?? 'Deducción';
+          const pct = d.vpg_deductions?.deductions_percentage != null
+            ? Number(d.vpg_deductions.deductions_percentage) : 0;
+          const fixed = d.vpg_deductions?.deductions_fixed_amount != null
+            ? Number(d.vpg_deductions.deductions_fixed_amount) : 0;
+          const type: 'fixed' | 'percent' = pct > 0 ? 'percent' : 'fixed';
+          return {
+            code: name.replace(/\s+/g, '_').toUpperCase(),
+            type,
+            amount: Number(d.employee_deductions_amount),
+            message: `${name}: ${type === 'percent' ? `${pct}%` : `₡${fixed}`}`,
+          };
+        });
 
         return {
           id: row.payroll_employee_id,
@@ -214,6 +251,7 @@ export class PayrollService {
           employee_name: `${row.vpg_employees.employee_first_name} ${row.vpg_employees.employee_last_name}${row.vpg_employees.employee_middle_name ? ' ' + row.vpg_employees.employee_middle_name : ''}`.trim(),
           employee_identification: row.vpg_employees.employee_national_id,
           position_name: row.vpg_employees.vpg_positions?.position_name,
+          baseHourlySalary: Number(row.vpg_employees.vpg_positions?.position_base_salary || 0),
           total_hours: totalHours,
           regular_hours: Math.max(0, totalHours - overtimeHours),
           overtime_hours: overtimeHours,
@@ -225,7 +263,8 @@ export class PayrollService {
           total_deductions: Number(row.payroll_employee_total_deductions) || 0,
           net_salary: Number(row.payroll_employee_net_salary) || 0,
           version: row.payroll_employee_version,
-          is_manually_adjusted: !!row.payroll_employee_is_manually_adjusted
+          is_manually_adjusted: !!row.payroll_employee_is_manually_adjusted,
+          deductionsBreakdown,
         };
       });
     } catch (error) {
@@ -542,60 +581,6 @@ export class PayrollService {
     });
     
     return this.mapToPayroll(updated);
-  }
-
-  /**
-   * Calculate aguinaldo proportional for an employee
-   * Based on Costa Rica Labor Code Article 196
-   * Period: December 1 to November 30
-   * Formula: (sum of gross salaries) / 12
-   * @param employeeId - The ID of the employee
-   * @param year - The year for which to calculate aguinaldo (the year ending Nov 30)
-   * @returns Promise<{ total: number; months: number; promedio: number }>
-   */
-  /**
-   * @deprecated Use AguinaldoService.calculateAccruedAguinaldo instead.
-   */
-  static async calculateAguinaldo(
-    employeeId: number,
-    year: number
-  ): Promise<{ total: number; months: number; promedio: number }> {
-    const periodStart = new Date(`${year - 1}-12-01`);
-    const periodEnd = new Date(`${year}-11-30`);
-    
-    // Get all payrolls in the period with status APROBADA or PAGADA
-    const payrolls = await prisma.vpg_payrolls.findMany({
-      where: {
-        payrolls_period_end: { gte: periodStart, lte: periodEnd },
-        payrolls_status: { in: [PayrollStatus.APROBADA, PayrollStatus.PAGADA] }
-      },
-      include: {
-        vpg_payroll_employee: {
-          where: { payroll_employee_employee_id: employeeId }
-        }
-      }
-    });
-    
-    // Sum gross salaries
-    let totalGross = 0;
-    let monthsWithSalary = 0;
-    
-    for (const payroll of payrolls) {
-      for (const emp of payroll.vpg_payroll_employee) {
-        const gross = Number(emp.payroll_employee_gross_salary || 0);
-        totalGross += gross;
-        if (gross > 0) monthsWithSalary++;
-      }
-    }
-    
-    // Aguinaldo formula: sum / 12 (even for partial years)
-    const aguinaldo = totalGross / 12;
-    
-    return {
-      total: aguinaldo,
-      months: monthsWithSalary,
-      promedio: monthsWithSalary > 0 ? totalGross / monthsWithSalary : 0
-    };
   }
 
   /**
