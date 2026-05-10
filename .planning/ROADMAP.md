@@ -28,13 +28,14 @@
 **Goal:** Convertir los tabs `Planillas`, `Eventos` y `Documentos` del perfil de empleado de placeholders vacíos a vistas funcionales con datos reales, acciones completas (descargar comprobante, asignar/eliminar eventos, CRUD básico de documentos) y diseño consistente con la implementación existente del tab Aguinaldo. Sin nuevas migraciones de Prisma — la tabla `vpg_employee_documents` ya existe en la migración inicial.
 **Requirements**: 67-TAB-01..67-TAB-13 (functional behaviors verified per `67-VALIDATION.md`)
 **Depends on:** Phase 66
+**Status:** Completed
 **Plans:** 4 plans
 
 Plans:
-- [ ] 67-01-PLAN.md — Wave 1: Backend EmployeeDocumentService + routes + unit tests (independent)
-- [ ] 67-02-PLAN.md — Wave 1: Backend getPayrollsByEmployee + getLaborEventsByEmployee + missing DELETE assignment route + tests (independent)
-- [ ] 67-03-PLAN.md — Wave 2: Frontend types + services + 3 hooks (depends on 67-01, 67-02)
-- [ ] 67-04-PLAN.md — Wave 3: Frontend tabs + EmployeeDocumentModal + page.tsx integration (depends on 67-03)
+- [x] 67-01-PLAN.md — Wave 1: Backend EmployeeDocumentService + routes + unit tests (independent)
+- [x] 67-02-PLAN.md — Wave 1: Backend getPayrollsByEmployee + getLaborEventsByEmployee + missing DELETE assignment route + tests (independent)
+- [x] 67-03-PLAN.md — Wave 2: Frontend types + services + 3 hooks (depends on 67-01, 67-02)
+- [x] 67-04-PLAN.md — Wave 3: Frontend tabs + EmployeeDocumentModal + page.tsx integration (depends on 67-03)
 
 ---
 
