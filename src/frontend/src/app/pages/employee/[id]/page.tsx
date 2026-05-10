@@ -6,6 +6,9 @@ import { ArrowLeftIcon, ArrowPathIcon, ExclamationTriangleIcon, UserCircleIcon, 
 import useEmployeeProfile from '@/hooks/useEmployeeProfile';
 import EmployeeProfileTabs, { ProfileTab } from '@/components/EmployeeProfileTabs';
 import ProfileSummaryTab from '@/components/ProfileSummaryTab';
+import EmployeePayrollsTab from '@/components/EmployeePayrollsTab';
+import EmployeeEventsTab from '@/components/EmployeeEventsTab';
+import EmployeeDocumentsTab from '@/components/EmployeeDocumentsTab';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import DismissEmployeeModal from '@/components/DismissEmployeeModal';
 import { usePositions } from '@/hooks/usePositions';
@@ -224,27 +227,18 @@ const EmployeeProfilePage: React.FC = () => {
         )}
 
         {activeTab === 'planillas' && (
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
-            <p className="text-sm text-zinc-400 dark:text-zinc-500">
-              Historial de planillas próximamente
-            </p>
-          </div>
+          <EmployeePayrollsTab employeeId={employeeId} />
         )}
 
         {activeTab === 'eventos' && (
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
-            <p className="text-sm text-zinc-400 dark:text-zinc-500">
-              Eventos laborales próximamente
-            </p>
-          </div>
+          <EmployeeEventsTab
+            employeeId={employeeId}
+            currentEmployee={{ id: employee.id, name: fullName }}
+          />
         )}
 
         {activeTab === 'documentos' && (
-          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 text-center">
-            <p className="text-sm text-zinc-400 dark:text-zinc-500">
-              Documentos próximamente
-            </p>
-          </div>
+          <EmployeeDocumentsTab employeeId={employeeId} />
         )}
 
         {activeTab === 'aguinaldo' && (
