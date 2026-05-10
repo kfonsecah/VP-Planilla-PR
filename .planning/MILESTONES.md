@@ -22,6 +22,7 @@
 **Goal:** Refinar la experiencia de usuario en la auditoría de marcas y asegurar la persistencia de configuraciones críticas.
 **Phases completed:** 5 phases (49-53)
 **Status:** Archived
+**Archive:** `.planning/milestones/v1.6-ROADMAP.md`
 
 ---
 
@@ -101,3 +102,20 @@
 **Archive:** `.planning/milestones/v1.2-ROADMAP.md`
 
 ---
+
+## v1.1 — Calidad, UI Moderna y Cobertura de Tests (Shipped: 2026-04-02)
+
+**Phases completed:** 6 phases (9-14)
+**Timeline:** 2026-03-27 → 2026-04-02
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.1-ROADMAP.md`
+
+---
+
+## v1.0 — Estabilización y Completitud (Shipped: 2026-03-27)
+
+**Phases completed:** 8 phases (1-8)
+**Timeline:** 2026-03-25 → 2026-03-27
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.0-ROADMAP.md`
+
