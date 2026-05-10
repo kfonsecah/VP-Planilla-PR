@@ -12,15 +12,15 @@ This milestone addresses the technical debt and planning inconsistencies accumul
 - **ENV-01.4**: Verify `npm test` passes in backend (Gate 2).
 
 ### 2.2 Payroll Wizard Refactoring (WIZ-01)
-- **WIZ-01.1**: Decompose `src/frontend/src/app/pages/payroll/wizard/page.tsx` into smaller, focused sub-components (one per step).
-- **WIZ-01.2**: Remove all occurrences of `any` casting in Step 3 (calculation summary).
-- **WIZ-01.3**: Fix all React Hook dependency warnings in wizard components.
-- **WIZ-01.4**: Ensure consistent error handling across all wizard steps.
+- [x] **WIZ-01.1**: Decompose `src/frontend/src/app/pages/payroll/wizard/page.tsx` into smaller, focused sub-components (one per step).
+- [x] **WIZ-01.2**: Remove all occurrences of `any` casting in Step 3 (calculation summary).
+- [x] **WIZ-01.3**: Fix all React Hook dependency warnings in wizard components.
+- [x] **WIZ-01.4**: Ensure consistent error handling across all wizard steps.
 
 ### 2.3 Type Safety & Code Quality (QUAL-01)
-- **QUAL-01.1**: Resolve all linting warnings in `src/frontend/src/app/pages/payroll/wizard/`.
-- **QUAL-01.2**: Audit `src/backend/src/utils/payrollUtils.ts` for any remaining hardcoded literals related to legal parameters.
-- **QUAL-01.3**: Ensure JSDoc is present and accurate for all new methods in v1.7 services.
+- [x] **QUAL-01.1**: Resolve all linting warnings in `src/frontend/src/app/pages/payroll/wizard/`.
+- [ ] **QUAL-01.2**: Audit `src/backend/src/utils/payrollUtils.ts` for any remaining hardcoded literals related to legal parameters.
+- [ ] **QUAL-01.3**: Ensure JSDoc is present and accurate for all new methods in v1.7 services.
 
 ## 3. Planning & Documentation Requirements
 

@@ -7,6 +7,7 @@ export interface Employee {
   name: string;
   email?: string;
   position: string;
+  position_name?: string;
   salary: number;
   status: EmployeeStatus;
   fired?: boolean;

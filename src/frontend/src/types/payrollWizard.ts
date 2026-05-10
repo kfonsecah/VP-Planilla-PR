@@ -6,8 +6,12 @@ export interface DeductionBreakdown {
 export interface CalculationEmployee {
   id: number;
   name: string;
+  position_name?: string;
   grossSalary: number;
   netSalary: number;
+  regularHours: number;
+  overtimeHours: number;
+  totalDeductions: number;
   deductions: DeductionBreakdown[];
   inconsistencies?: string[];
 }

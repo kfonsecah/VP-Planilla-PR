@@ -8,7 +8,7 @@ import { PayrollService } from '@/services/payrollService';
 import { getEmployees } from '@/services/employeeService';
 import PayrollPeriodCard from '@/components/PayrollPeriodCard';
 import PayrollWizardStep2 from '@/components/PayrollWizardStep2';
-import PayrollWizardStep3 from '@/components/PayrollWizardStep3';
+import Step4Approve from '@/app/pages/payroll/wizard/steps/Step4Approve';
 import DatePicker from '@/components/DatePicker';
 import AguinaldoResults from '@/components/AguinaldoResults';
 import { useLegalParamAlerts } from '@/hooks/useLegalParamAlerts';
@@ -307,7 +307,7 @@ export default function PayrollWizard() {
 
       {/* Step 3: Approve (quincenal only) */}
       {currentStep === 3 && calculationData && payrollId && !isAguinaldo && (
-        <PayrollWizardStep3
+        <Step4Approve
           payrollId={payrollId}
           calculationData={calculationData}
           onApprove={handleApprove}

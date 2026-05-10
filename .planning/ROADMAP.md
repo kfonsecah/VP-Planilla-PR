@@ -21,11 +21,11 @@
   - [x] 68-01-PLAN.md — Repair node_modules and verify base state
   - [x] 68-02-PLAN.md — Synchronize MILESTONES.md and ROADMAP.md
   - [x] 68-03-PLAN.md — Audit and verify resolved debug sessions
-- [ ] **Phase 69: Wizard Refactor**
-  - [ ] 69-01-PLAN.md — Decompose Step 1 (Period Selection)
-  - [ ] 69-02-PLAN.md — Decompose Step 2 (Employee Selection)
-  - [ ] 69-03-PLAN.md — Decompose Step 3 (Calculation & Review)
-  - [ ] 69-04-PLAN.md — Orchestrator Wiring & Quality Audit
+- [x] **Phase 69: Wizard Refactor**
+  - [x] 69-01-PLAN.md — Decompose Step 1 (Period Selection)
+  - [x] 69-02-PLAN.md — Decompose Step 2 (Employee Selection)
+  - [x] 69-03-PLAN.md — Decompose Step 3 (Calculation & Review)
+  - [x] 69-04-PLAN.md — Orchestrator Wiring & Quality Audit
 - [ ] **Phase 70: Quality Audit**
   - [ ] 70-01-PLAN.md — Audit payrollUtils.ts and Legal Engine
   - [ ] 70-02-PLAN.md — Final full system verification (TSC + Tests)
