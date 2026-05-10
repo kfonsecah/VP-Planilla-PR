@@ -31,6 +31,15 @@ export function usePayrollWizard() {
   const [minWageCheckEnabled, setMinWageCheckEnabled] = useState<number | null>(null);
   const [globalMinWageRate, setGlobalMinWageRate] = useState<number | null>(null);
 
+  // Step 1 state
+  const [dateStart, setDateStart] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  const [selectedQuincena, setSelectedQuincena] = useState<1 | 2 | null>(null);
+
   useEffect(() => {
     const fetchParams = async () => {
       try {
@@ -47,6 +56,38 @@ export function usePayrollWizard() {
     };
 
     fetchParams();
+  }, []);
+
+  const formatDate = (d: Date): string => {
+    return d.toISOString().split('T')[0];
+  };
+
+  const getMonthBounds = (year: number, month: number): { start: string; end: string } => {
+    const start = new Date(year, month, 1);
+    const end = new Date(year, month + 1, 0);
+    return { start: formatDate(start), end: formatDate(end) };
+  };
+
+  const applyQuincenaPreset = useCallback((half: 1 | 2) => {
+    setSelectedQuincena(half);
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    if (half === 1) {
+      setDateStart(formatDate(new Date(year, month, 1)));
+      setDateEnd(formatDate(new Date(year, month, 15)));
+    } else {
+      setDateStart(formatDate(new Date(year, month, 16)));
+      setDateEnd(formatDate(new Date(year, month + 1, 0)));
+    }
+  }, []);
+
+  const applyMonthPreset = useCallback((ym: string) => {
+    const [y, m] = ym.split('-').map(Number);
+    const bounds = getMonthBounds(y, m - 1);
+    setDateStart(bounds.start);
+    setDateEnd(bounds.end);
+    setSelectedMonth(ym);
   }, []);
 
   const selectPeriod = useCallback((period: {
@@ -84,6 +125,10 @@ export function usePayrollWizard() {
     setPeriodType('quincenal');
     setMinWageCheckEnabled(null);
     setGlobalMinWageRate(null);
+    setDateStart('');
+    setDateEnd('');
+    setSelectedQuincena(null);
+    setSelectedMonth(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
   }, []);
 
   return {
@@ -99,6 +144,16 @@ export function usePayrollWizard() {
     setMinWageCheckEnabled,
     globalMinWageRate,
     setGlobalMinWageRate,
+    dateStart,
+    setDateStart,
+    dateEnd,
+    setDateEnd,
+    selectedMonth,
+    setSelectedMonth,
+    selectedQuincena,
+    setSelectedQuincena,
+    applyQuincenaPreset,
+    applyMonthPreset,
     selectPeriod,
     goToStep,
     setCalculationData: setCalculationDataState,
