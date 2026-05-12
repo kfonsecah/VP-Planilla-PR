@@ -106,4 +106,44 @@ export const ReportsService = {
       fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
     };
   },
+
+  async downloadD151Report(year: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/hacienda/d151/${year}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar reporte D-151 (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get('content-disposition') || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `hacienda_d151_${year}.csv`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
+
+  async downloadAnnualSalarySummary(year: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/hacienda/annual-salary/${year}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar resumen anual (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get('content-disposition') || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `resumen_anual_salarios_${year}.xlsx`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
 };

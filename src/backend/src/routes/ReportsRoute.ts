@@ -37,4 +37,14 @@ router.get(
   asyncHandler(ReportsController.downloadINSReport)
 );
 
+router.get(
+  "/reports/hacienda/d151/:year",
+  asyncHandler(ReportsController.downloadD151Report)
+);
+
+router.get(
+  "/reports/hacienda/annual-salary/:year",
+  asyncHandler(ReportsController.downloadAnnualSalarySummary)
+);
+
 export default router;

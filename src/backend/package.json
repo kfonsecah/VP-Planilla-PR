@@ -31,7 +31,9 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.5.0",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.3.1",
     "handlebars": "^4.7.8",
@@ -44,6 +46,7 @@
     "resend": "^6.10.0",
     "swagger-jsdoc": "^6.2.8",
     "typescript": "^5.8.3",
+    "xmlbuilder2": "^4.0.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {

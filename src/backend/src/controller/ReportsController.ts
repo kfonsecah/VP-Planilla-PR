@@ -191,4 +191,45 @@ export class ReportsController {
       res.status(500).json({ success: false, message });
     }
   }
+
+  static async downloadD151Report(req: Request, res: Response) {
+    const year = Number(req.params.year);
+    if (Number.isNaN(year) || year < 2000 || year > 2100) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Año inválido" });
+    }
+
+    try {
+      const { filename, content } = await ReportsService.generateHaciendaD151CSV(year);
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+      res.send(content);
+    } catch (error) {
+      console.error("Failed to generate D-151 report:", error);
+      const message = error instanceof Error ? error.message : "No se pudo generar el reporte D-151";
+      res.status(500).json({ success: false, message });
+    }
+  }
+
+  static async downloadAnnualSalarySummary(req: Request, res: Response) {
+    const year = Number(req.params.year);
+    if (Number.isNaN(year) || year < 2000 || year > 2100) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Año inválido" });
+    }
+
+    try {
+      const { filename, buffer } = await ReportsService.generateAnnualSalarySummaryExcel(year);
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+      res.setHeader("Content-Length", buffer.length);
+      res.send(buffer);
+    } catch (error) {
+      console.error("Failed to generate annual salary summary:", error);
+      const message = error instanceof Error ? error.message : "No se pudo generar el resumen anual";
+      res.status(500).json({ success: false, message });
+    }
+  }
 }

@@ -4,13 +4,13 @@ milestone: v1.9
 milestone_name: Advanced Reporting & Hacienda Prep
 status: In Progress
 last_updated: "2026-05-12T12:15:00.000Z"
-last_activity: "2026-05-12 -- Completed Phase 71 Plan 03: Institutional Export UI."
+last_activity: "2026-05-12 -- Completed Phase 72: Hacienda Export Formats."
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 3
-  percent: 42
+  completed_plans: 5
+  percent: 66
 ---
 
 # Project State — VP-Planilla
@@ -28,12 +28,12 @@ Milestone: v1.9 — Advanced Reporting & Hacienda Prep
 Status: In Progress.
 Last activity: 2026-05-12 -- Completed Phase 71 Plan 03: Institutional Export UI.
 
-Progress: [████░░░░░░] 42%
+Progress: [██████░░░░] 66%
 
 ## Active Phases
 
 - [x] Phase 71: CCSS/INS Detailed Reporting (completed 2026-05-12)
-- [ ] Phase 72: Hacienda Export Formats (D-151)
+- [x] Phase 72: Hacienda Export Formats (D-151) (completed 2026-05-12)
 - [ ] Phase 73: Data Integrity & Analytics
 
 ## Critical Issues

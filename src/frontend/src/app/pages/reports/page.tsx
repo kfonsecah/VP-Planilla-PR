@@ -28,10 +28,14 @@ export default function ReportsPage() {
     isLoadingHistory,
     isGenerating,
     isDownloading,
+    isDownloadingD151,
+    isDownloadingAnnualSalary,
     error: reportsError,
     generate,
     downloadCCSS,
     downloadINS,
+    downloadD151,
+    downloadAnnualSalary,
     reloadHistory,
   } = useOfficialReports(selectedId);
 
@@ -144,9 +148,13 @@ export default function ReportsPage() {
             isLoadingHistory={isLoadingHistory}
             isGenerating={isGenerating}
             isDownloading={isDownloading}
+            isDownloadingD151={isDownloadingD151}
+            isDownloadingAnnualSalary={isDownloadingAnnualSalary}
             onGenerate={generate}
             onDownloadCCSS={downloadCCSS}
             onDownloadINS={downloadINS}
+            onDownloadD151={downloadD151}
+            onDownloadAnnualSalary={downloadAnnualSalary}
           />
         )}
       </div>
