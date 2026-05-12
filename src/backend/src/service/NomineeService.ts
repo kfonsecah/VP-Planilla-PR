@@ -187,6 +187,7 @@ export class NomineeService {
                 payroll_employee_gross_salary: employee.grossSalary,
                 payroll_employee_total_deductions: employee.totalDeductions,
                 payroll_employee_net_salary: employee.netSalary,
+                payroll_employee_worked_days: employee.workedDays,
                 payroll_employee_version: existing.payroll_employee_version + 1,
               },
             });
@@ -210,6 +211,7 @@ export class NomineeService {
               payroll_employee_gross_salary: employee.grossSalary,
               payroll_employee_total_deductions: employee.totalDeductions,
               payroll_employee_net_salary: employee.netSalary,
+              payroll_employee_worked_days: employee.workedDays,
               payroll_employee_version: 1,
             },
           });
@@ -391,6 +393,7 @@ export class NomineeService {
             positionId: employee.position_id?.toString() || "0",
             baseHourlySalary: 0,
             days: [],
+            workedDays: 0,
             grossSalary: 0,
             totalDeductions: 0,
             netSalary: 0,
@@ -495,6 +498,7 @@ export class NomineeService {
             positionId: employee.position_id?.toString() || "0",
       baseHourlySalary: 0,
       days: [],
+      workedDays: 0,
       // Hour breakdown (populated after processDailyWork)
       scheduledHours: 0,
       regularHours: 0,
@@ -566,6 +570,11 @@ export class NomineeService {
 
       employeePayroll.days = dailyWork.days;
       employeePayroll.inconsistencies = dailyWork.inconsistencies;
+
+      // Count worked days (any day with hours > 0 or is vacation)
+      employeePayroll.workedDays = dailyWork.days.filter(
+        day => day.hoursWorked > 0 || day.isVacation
+      ).length;
 
       // Scheduled (required) hours for the period
       // Use employee's configured hours if available, otherwise calculate from period

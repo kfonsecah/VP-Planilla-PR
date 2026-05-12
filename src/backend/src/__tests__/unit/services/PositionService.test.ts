@@ -17,6 +17,8 @@ const mockPrismaPosition = {
   position_name: 'Developer',
   position_description: 'Software developer',
   position_base_salary: mockDecimal,
+  position_occupation_code: '0101',
+  position_risk_class: 'IV',
   position_version: 1,
 };
 
@@ -38,6 +40,8 @@ describe('PositionService', () => {
       expect(result!.id).toBe(1);
       expect(result!.name).toBe('Developer');
       expect(result!.base_salary).toBe(1500.00);
+      expect(result!.occupation_code).toBe('0101');
+      expect(result!.risk_class).toBe('IV');
       expect(result!.version).toBe(1);
       expect(prisma.vpg_positions.findUnique).toHaveBeenCalledWith({
         where: { position_id: 1 },
@@ -85,6 +89,8 @@ describe('PositionService', () => {
         name: 'Developer',
         description: 'Software developer',
         base_salary: 1500.00,
+        occupation_code: '0101',
+        risk_class: 'IV',
       };
 
       const result = await PositionService.createPosition(input);
@@ -92,10 +98,14 @@ describe('PositionService', () => {
       expect(result.id).toBe(1);
       expect(result.name).toBe('Developer');
       expect(result.base_salary).toBe(1500.00);
+      expect(result.occupation_code).toBe('0101');
+      expect(result.risk_class).toBe('IV');
       expect(prisma.vpg_positions.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           position_name: 'Developer',
           position_base_salary: 1500.00,
+          position_occupation_code: '0101',
+          position_risk_class: 'IV',
           position_version: 1,
         }),
       });
@@ -108,12 +118,28 @@ describe('PositionService', () => {
       // findUnique is called internally by getPositionById after updateMany
       prisma.vpg_positions.findUnique.mockResolvedValue(mockPrismaPosition);
 
-      const input = { id: 1, name: 'Senior Developer', description: 'Senior software developer', base_salary: 2000, version: 1 };
+      const input = { 
+        id: 1, 
+        name: 'Senior Developer', 
+        description: 'Senior software developer', 
+        base_salary: 2000, 
+        occupation_code: '0101',
+        risk_class: 'IV',
+        version: 1 
+      };
 
       const result = await PositionService.updatePosition(input);
 
       expect(result).not.toBeNull();
       expect(result!.id).toBe(1);
+      expect(prisma.vpg_positions.updateMany).toHaveBeenCalledWith({
+        where: { position_id: 1, position_version: 1 },
+        data: expect.objectContaining({
+          position_name: 'Senior Developer',
+          position_occupation_code: '0101',
+          position_risk_class: 'IV',
+        }),
+      });
     });
 
     it('should return null when updateMany returns count=0 (version mismatch)', async () => {
