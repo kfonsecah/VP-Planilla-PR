@@ -36,6 +36,7 @@ export interface EmployeePayroll {
   positionId: string;
   baseHourlySalary: number;
   days: DayWork[];
+  workedDays: number;
 
   // Hour breakdown
   scheduledHours: number;   // Mon–Sat days in period × 8  (required hours)

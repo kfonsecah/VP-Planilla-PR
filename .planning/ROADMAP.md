@@ -15,15 +15,15 @@
 
 **Goal:** Provide specialized reporting for CCSS/INS and prepare official export formats for Hacienda (D-151).
 
-**Plans:** 3 plans
+**Plans:** 7 plans total
 
 ### Phases
-- [ ] **Phase 71: CCSS/INS Detailed Reporting** [REP-71]
+- [x] **Phase 71: CCSS/INS Detailed Reporting** [REP-71] (completed 2026-05-12)
   - [x] 71-01-PLAN.md — Schema update & Metadata (INS codes, Risk Class, Worked Days)
   - [x] 71-02-PLAN.md — CCSS/INS CSV Generation logic in ReportsService
-  - [ ] 71-03-PLAN.md — Institutional Reports UI in Reports Page
+  - [x] 71-03-PLAN.md — Institutional Reports UI in Reports Page
 - [ ] **Phase 72: Hacienda Export Formats (D-151)**
-  - [ ] 72-01-PLAN.md — D-151 XML/CSV Generation
+  - [ ] 72-01-PLAN.md — D-151 CSV Generation Logic
   - [ ] 72-02-PLAN.md — Annual Salary Summary Export
 - [ ] **Phase 73: Data Integrity & Analytics**
   - [ ] 73-01-PLAN.md — Data Integrity Dashboard
