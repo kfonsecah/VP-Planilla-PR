@@ -43,6 +43,8 @@ The INS report is used to calculate the insurance premium based on occupational 
 - Add fields to the Position management form for INS metadata.
 
 ## Verification Plan
-- Cross-reference CSV totals with payroll summary totals.
-- Verify CSV column ordering matches SICERE/INS standard templates.
-- Ensure manual adjustments in the wizard are reflected in these reports.
+## Open Questions (RESOLVED)
+- **Q: Should vacation days be counted as worked days for CCSS?**
+  - **A:** Yes. According to SICERE standards, any paid day (worked or vacation) must be reported in the days count.
+- **Q: Are INS occupation codes standardized in the DB?**
+  - **A:** No, they are currently missing. We will add a string field for the code and an enum for risk class to `vpg_positions`.
