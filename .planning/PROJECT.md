@@ -8,11 +8,11 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.9 IN PROGRESS — 2026-05-11)
+## Current State (v1.9 SHIPPED — 2026-05-13)
 
-Milestone v1.9 focuses on Advanced Reporting for social security (CCSS/INS) and preparing official export formats for Hacienda (D-151).
+Milestone v1.9 is complete. The system now supports specialized institutional reporting and data integrity auditing. Next focus: Advanced Analytics and Performance.
 
-**Current milestone:** v1.9 — Advanced Reporting & Hacienda Prep
+**Next Milestone:** v1.10 — Advanced Analytics & Performance Tuning
 
 ## Context
 
@@ -20,9 +20,19 @@ Milestone v1.9 focuses on Advanced Reporting for social security (CCSS/INS) and 
 - **Arquitectura:** Route → Controller → Service → Prisma (backend) / Page → Hook → Service → http.ts (frontend)
 - **Dominio:** Semana laboral lunes–sábado · 8h regulares/día · 1.5× hasta 10h · 2× sobre 10h · descanso semanal 0.5×
 - **Legal Engine:** Dynamic parameters (OT, CCSS, Workday) via `vpg_legal_params` + historical snapshots.
-- **Tests:** 561+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 566+ passing.
+- **Tests:** 573+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 578+ passing.
 
 ## History
+
+<details>
+<summary>v1.9 SHIPPED (2026-05-13) — Advanced Reporting & Hacienda Prep</summary>
+
+- Institutional Metadata & Logic: Positions now store INS codes and risk classes; worked days calculated automatically per period.
+- Regulatory Exports: Implementation of official CSV formats for CCSS (SICERE), INS (Riesgos), and Hacienda (D-151).
+- Data Integrity Engine: Rule-based engine with 7 core validations for IDs, positions, calculations, and clock logs.
+- Analytics Dashboard: Visual health scoring and severity-grouped integrity alerts for administrative governance.
+
+</details>
 
 <details>
 <summary>v1.8 SHIPPED (2026-05-11) — Stabilization & Planning Sync</summary>

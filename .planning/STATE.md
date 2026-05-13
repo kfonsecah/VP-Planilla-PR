@@ -5,6 +5,15 @@ milestone_name: Advanced Reporting & Hacienda Prep
 status: completed
 last_updated: "2026-05-13T00:30:29.169Z"
 last_activity: "2026-05-12 -- Completed Phase 73 Plan 02: Milestone Audit & Closure."
+
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-05-13:
+
+| Category | Item | Status |
+|----------|------|--------|
+| quick_task | 260404-o3p-implementar-sessionstorage-cache-en-hook | missing |
+
 progress:
   total_phases: 6
   completed_phases: 6
