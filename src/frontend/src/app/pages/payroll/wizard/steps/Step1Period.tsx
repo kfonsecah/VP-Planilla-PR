@@ -7,7 +7,7 @@ import {
   ExclamationCircleIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { usePayrollWizard } from '@/hooks/usePayrollWizard';
+import { usePayrollWizardContext } from '@/contexts/PayrollWizardContext';
 import { formatDateDisplay } from '@/utils/formatters';
 
 const CARD_CLASSES = "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden transition-all duration-300";
@@ -30,7 +30,7 @@ export default function Step1Period() {
     applyMonthPreset,
     selectPeriod,
     goToStep,
-  } = usePayrollWizard();
+  } = usePayrollWizardContext();
 
   const dateStartRef = useRef<HTMLInputElement>(null);
   const dateEndRef = useRef<HTMLInputElement>(null);

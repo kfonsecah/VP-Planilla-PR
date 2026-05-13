@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePayrollWizard } from '@/hooks/usePayrollWizard';
+import { usePayrollWizardContext } from '@/contexts/PayrollWizardContext';
 import { useAguinaldoSummary } from '@/hooks/useAguinaldoSummary';
 import { Tooltip } from '@/components/ui/Tooltip';
 import EmployeePayrollBreakdown from '@/components/EmployeePayrollBreakdown';
@@ -35,7 +35,7 @@ export default function Step3Review() {
     expandedIds,
     setExpandedIds,
     toggleExpand,
-  } = usePayrollWizard();
+  } = usePayrollWizardContext();
 
   const { data: aguinaldoData, refetch: refetchAguinaldo } = useAguinaldoSummary(payrollId);
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { usePayrollWizard } from '@/hooks/usePayrollWizard';
+import { PayrollWizardProvider, usePayrollWizardContext } from '@/contexts/PayrollWizardContext';
 import Step1Period from './steps/Step1Period';
 import Step2Employees from './steps/Step2Employees';
 import Step3Review from './steps/Step3Review';
@@ -21,14 +21,14 @@ const STEPS = [
   { label: 'Aprobar', icon: CheckCircleIcon }
 ] as const;
 
-export default function PayrollWizardPage() {
+function PayrollWizardInner() {
   const {
     currentStep,
     calculationData,
     payrollId,
     goToStep,
     handleApprove,
-  } = usePayrollWizard();
+  } = usePayrollWizardContext();
 
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
@@ -135,5 +135,13 @@ export default function PayrollWizardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PayrollWizardPage() {
+  return (
+    <PayrollWizardProvider>
+      <PayrollWizardInner />
+    </PayrollWizardProvider>
   );
 }

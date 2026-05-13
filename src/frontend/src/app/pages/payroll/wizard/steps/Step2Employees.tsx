@@ -10,7 +10,7 @@ import {
   ArrowLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
-import { usePayrollWizard } from '@/hooks/usePayrollWizard';
+import { usePayrollWizardContext } from '@/contexts/PayrollWizardContext';
 import { getEmployees } from '@/services/employeeService';
 import { Tooltip } from '@/components/ui/Tooltip';
 
@@ -36,7 +36,7 @@ export default function Step2Employees() {
     setFilterText,
     toggleAll,
     toggleEmployee
-  } = usePayrollWizard();
+  } = usePayrollWizardContext();
 
   // ── Load employees when entering Step 2 ──────────────────────────────────
   useEffect(() => {
