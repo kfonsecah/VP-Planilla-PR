@@ -13,8 +13,8 @@
 
 ## 3. Developer Experience (DX)
 
-- [ ] **DX-01**: Configurar Husky y Commitlint para forzar Conventional Commits en el repositorio.
-- [ ] **DX-02**: Integrar `prisma-dbml-generator` en `schema.prisma` para generación automática de diagramas de base de datos (DBML).
+- [x] **DX-01**: Configurar Husky y Commitlint para forzar Conventional Commits en el repositorio.
+- [x] **DX-02**: Integrar `prisma-dbml-generator` en `schema.prisma` para generación automática de diagramas de base de datos (DBML).
 
 ## Future Requirements (Deferred)
 
@@ -35,5 +35,5 @@
 | OBS-03 | Phase 76 | Pending |
 | SEC-01 | Phase 75 | Pending |
 | SEC-02 | Phase 75 | Pending |
-| DX-01  | Phase 74 | Pending |
-| DX-02  | Phase 74 | Pending |
+| DX-01  | Phase 74 | Complete |
+| DX-02  | Phase 74 | Complete |

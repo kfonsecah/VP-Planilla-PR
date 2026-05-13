@@ -122,6 +122,12 @@ Milestone v1.9 is complete. The system now supports specialized institutional re
 
 </details>
 
+## Technical Documentation
+
+- **Database Schema (ERD):** Automatically generated in DBML format at `src/backend/prisma/dbml/schema.dbml`. Can be updated manually with `npm run dbml` in the backend.
+- **API Reference:** Available via Swagger/Scalar at `/api-docs` when the backend is running.
+- **Service Layer:** 100% JSDoc coverage for all core services in `src/backend/src/service/`.
+
 ## Out of Scope
 
 - Multitenancy / múltiples empresas — requiere rediseño del schema

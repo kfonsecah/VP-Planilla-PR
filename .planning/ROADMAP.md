@@ -30,7 +30,9 @@
 **Success Criteria** (what must be TRUE):
   1. Los commits que no sigan la convención "Conventional Commits" son rechazados por Git.
   2. La ejecución de un comando (ej. `npm run dbml`) genera un archivo DBML actualizado basado en el schema de Prisma.
-**Plans**: TBD
+**Plans**: 2 plans
+- [x] 74-01-PLAN.md — Configure Husky and Commitlint at root.
+- [ ] 74-02-PLAN.md — Integrate prisma-dbml-generator in backend.
 
 ### Phase 75: Security & API Hardening
 **Goal**: Asegurar la integridad de la API contra ataques de polución de parámetros y asegurar estabilidad en Express 5 mediante normalización global.
@@ -56,6 +58,6 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 74. Standards & Git Hygiene | 0/1 | Not started | - |
+| 74. Standards & Git Hygiene | 1/2 | In Progress|  |
 | 75. Security & API Hardening | 0/1 | Not started | - |
 | 76. Error Observability & Tracing | 0/1 | Not started | - |

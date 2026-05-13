@@ -37,7 +37,8 @@ async function main() {
         user_email: 'ken@example.com',
         user_first_name: 'Ken',
         user_last_name: 'UAT',
-        user_is_active: true
+        user_middle_name: '',
+        user_national_id: '000000000'
       }
     });
     console.log(`User '${username}' created with password 'ken01' and role 'admin'.`);
