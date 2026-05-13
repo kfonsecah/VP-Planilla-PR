@@ -10,9 +10,19 @@ Calcular y generar planillas correctas conforme a la ley laboral costarricense, 
 
 ## Current State (v1.9 SHIPPED — 2026-05-13)
 
-Milestone v1.9 is complete. The system now supports specialized institutional reporting and data integrity auditing. Next focus: Advanced Analytics and Performance.
+Milestone v1.9 is complete. The system now supports specialized institutional reporting and data integrity auditing. Next focus: Production Hardening & Developer Experience.
 
-**Next Milestone:** v1.10 — Advanced Analytics & Performance Tuning
+**Next Milestone:** v1.10 — Production Hardening & Developer Experience
+
+## Current Milestone: v1.10 — Production Hardening & Developer Experience
+
+**Goal:** Agregar observabilidad de errores, protección contra HPP, estandarización de commits y documentación de DBML para mayor robustez y mantenibilidad.
+
+**Target features:**
+- Integración de Sentry en Backend (Express) y Frontend (Next.js).
+- Protección contra HTTP Parameter Pollution (HPP).
+- Estandarización del historial de Git con Commits Convencionales.
+- Generación automática de documentación del schema (DBML) desde Prisma.
 
 ## Context
 
