@@ -81,6 +81,7 @@ const ReportsTabComponent: React.FC<Props> = ({
           <button
             disabled={downloadDisabled}
             onClick={onDownloadCCSS}
+            data-testid="download-ccss-btn"
             className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
               downloadDisabled
                 ? 'border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/50 cursor-not-allowed'
@@ -99,6 +100,7 @@ const ReportsTabComponent: React.FC<Props> = ({
           <button
             disabled={downloadDisabled}
             onClick={onDownloadINS}
+            data-testid="download-ins-btn"
             className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
               downloadDisabled
                 ? 'border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/50 cursor-not-allowed'
@@ -117,6 +119,7 @@ const ReportsTabComponent: React.FC<Props> = ({
           <button
             disabled={isDownloadingD151}
             onClick={() => onDownloadD151(selectedYear)}
+            data-testid="download-d151-btn"
             className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
               isDownloadingD151
                 ? 'border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/50 cursor-not-allowed'
@@ -135,6 +138,7 @@ const ReportsTabComponent: React.FC<Props> = ({
           <button
             disabled={isDownloadingAnnualSalary}
             onClick={() => onDownloadAnnualSalary(selectedYear)}
+            data-testid="download-annual-salary-btn"
             className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
               isDownloadingAnnualSalary
                 ? 'border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/50 cursor-not-allowed'

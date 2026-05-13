@@ -130,12 +130,12 @@ export default function PositionsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-100">Cód. Ocupación (INS)</label>
-                <input {...methods.register('occupation_code')} placeholder="P.ej. 0101" className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg text-zinc-800 dark:text-zinc-100" />
+                <input {...methods.register('occupation_code')} data-testid="position-occupation-code-input" placeholder="P.ej. 0101" className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg text-zinc-800 dark:text-zinc-100" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-100">Clase Riesgo</label>
-                <input {...methods.register('risk_class')} placeholder="P.ej. IV" className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg text-zinc-800 dark:text-zinc-100" />
+                <input {...methods.register('risk_class')} data-testid="position-risk-class-input" placeholder="P.ej. IV" className="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg text-zinc-800 dark:text-zinc-100" />
               </div>
             </div>
 

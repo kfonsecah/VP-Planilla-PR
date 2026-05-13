@@ -27,6 +27,7 @@ export default function IntegrityPage() {
         <button
           onClick={runAudit}
           disabled={isLoading || isAuditing}
+          data-testid="run-integrity-audit-btn"
           className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95"
         >
           <RefreshCcw className={`w-4 h-4 ${isAuditing ? 'animate-spin' : ''}`} />
@@ -55,7 +56,7 @@ export default function IntegrityPage() {
           <div className="lg:col-span-1 space-y-6">
             <IntegrityHealthScore score={data.healthScore} />
             
-            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div data-testid="integrity-summary" className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <History className="w-4 h-4" />
                 Resumen de Auditoría

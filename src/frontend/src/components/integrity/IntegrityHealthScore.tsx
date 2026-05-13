@@ -17,7 +17,7 @@ export const IntegrityHealthScore: React.FC<IntegrityHealthScoreProps> = ({ scor
   else if (score < 85) colorClass = 'text-amber-500';
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-2xl shadow-sm border border-slate-200">
+    <div data-testid="integrity-health-score" className="flex flex-col items-center justify-center p-8 bg-white rounded-2xl shadow-sm border border-slate-200">
       <h3 className="text-sm font-semibold text-slate-500 mb-6 uppercase tracking-wider">Salud de Integridad</h3>
       
       <div className="relative inline-flex items-center justify-center">

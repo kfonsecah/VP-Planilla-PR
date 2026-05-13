@@ -148,10 +148,10 @@ const Home: React.FC = () => {
   ];
 
   const quickActions = [
-    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll/wizard", color: "bg-green-600 hover:bg-green-500" },
-    { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500" },
-    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500" },
-    { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500" },
+    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll/wizard", color: "bg-green-600 hover:bg-green-500", testId: "quick-action-payroll" },
+    { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500", testId: "quick-action-reports" },
+    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500", testId: "quick-action-attendance" },
+    { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500", testId: "quick-action-clock-logs" },
   ];
 
   const renderCalendarDays = () => {
@@ -298,6 +298,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
+                  data-testid={action.testId}
                   className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
@@ -318,6 +319,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
+                  data-testid={action.testId}
                   className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>

@@ -37,10 +37,11 @@ export const IntegrityAlertList: React.FC<IntegrityAlertListProps> = ({ alerts }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="integrity-alert-list">
       {alerts.map((alert) => (
         <div 
           key={alert.code} 
+          data-testid={`integrity-alert-${alert.code}`}
           className="flex items-start p-4 bg-white rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md"
         >
           <div className="mt-1 mr-4">
