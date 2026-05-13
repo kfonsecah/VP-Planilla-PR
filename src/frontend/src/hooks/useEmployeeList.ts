@@ -340,6 +340,7 @@ const useEmployeeList = () => {
       const createdObj = created as RawEmployee;
       setRawEmployees((prev) => [...prev, createdObj]);
       invalidateCache('vp_employees_cache'); // so next mount re-fetches
+      toast.success('Empleado añadido correctamente');
       return created;
     } catch (error) {
       console.error('Error creating employee', error);
