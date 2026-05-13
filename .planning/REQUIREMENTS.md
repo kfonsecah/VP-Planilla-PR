@@ -9,7 +9,7 @@
 ## 2. Security (SEC)
 
 - [ ] **SEC-01**: Implementar middleware `hpp` en Express para protección contra HTTP Parameter Pollution.
-- [ ] **SEC-02**: Auditar y refactorizar controladores que muten `req.query` para usar Zod (evitando el crash de Express 5).
+- [ ] **SEC-02**: Implementar un middleware global de normalización de `req.query` para mitigar riesgos de Express 5 y HPP, convirtiendo parámetros múltiples en valores únicos (last-value-wins). La refactorización con Zod se difiere a deuda técnica.
 
 ## 3. Developer Experience (DX)
 
@@ -30,10 +30,10 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| OBS-01 | — | Pending |
-| OBS-02 | — | Pending |
-| OBS-03 | — | Pending |
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| DX-01  | — | Pending |
-| DX-02  | — | Pending |
+| OBS-01 | Phase 76 | Pending |
+| OBS-02 | Phase 76 | Pending |
+| OBS-03 | Phase 76 | Pending |
+| SEC-01 | Phase 75 | Pending |
+| SEC-02 | Phase 75 | Pending |
+| DX-01  | Phase 74 | Pending |
+| DX-02  | Phase 74 | Pending |
