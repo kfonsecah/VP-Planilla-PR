@@ -1,11 +1,13 @@
 # Milestones
 
-## v1.9 — Advanced Reporting & Hacienda Prep (Completed: 2026-05-12)
+## v1.9 — Advanced Reporting & Hacienda Prep (Completed: 2026-05-13)
 
 **Goal:** Provide specialized reporting for CCSS/INS and prepare official export formats for Hacienda (D-151).
 **Phases:** 71-73
+**Plans:** 7 total
 **Status:** ✅ Completed
-**Timeline:** 2026-05-11 → 2026-05-12
+**Timeline:** 2026-05-11 → 2026-05-13
+**Archive:** `.planning/milestones/v1.9-ROADMAP.md`
 
 **Key accomplishments:**
 1. **CCSS/INS Reporting**: Implemented specialized CSV exports for institutional reporting, including mandatory risk classes and worked day counts.

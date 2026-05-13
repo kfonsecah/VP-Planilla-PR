@@ -2,11 +2,42 @@
 
 ---
 
+## Milestone: v1.9 — Advanced Reporting & Hacienda Prep
+
+**Shipped:** 2026-05-13
+**Phases:** 3 (71-73) | **Plans:** 7 | **Timeline:** 3 days (2026-05-11 → 2026-05-13)
+
+### What Was Built
+1. **Institutional Metadata & Logic**: Added positions metadata for INS occupation codes and risk classes; implemented automated worked days calculation for CCSS compliance.
+2. **Regulatory Export Formats**: Official CSV exports for CCSS (SICERE), INS (Riesgos del Trabajo), and Hacienda D-151 (Annual Aggregation).
+3. **Annual Salary Summary**: Excel export for annual employee tax summaries using `exceljs`.
+4. **Data Integrity Engine**: Rule-based auditing system with 7 core rules (ID formats, calculation drift, orphan logs, snapshot validation).
+5. **Integrity Dashboard**: Real-time visual health scoring and severity-grouped alert system for HR managers.
+
+### What Worked
+- **Rule-based Audit Pattern**: The `IntegrityService` proved highly effective at surface-level debt detection that would otherwise be hidden in the DB.
+- **Metadata Separation**: Storing institutional codes in positions rather than hardcoding in reports keeps the system flexible for different organizational structures.
+- **TDD for Reporting**: Writing tests for the CSV generation logic first ensured that the institutional formats (headers, escaping, ID stripping) were correct before the UI was even built.
+
+### What Was Inefficient
+- **ExcelJS Learning Curve**: Handling complex headers and styling in ExcelJS required more time than initially projected for the Annual Salary Summary.
+- **Permission Granularity**: Initially implemented integrity endpoints as globally accessible; had to backtrack to add proper RBAC (ADMIN/HR_MANAGER only) mid-phase.
+
+### Patterns Established
+- **Official Export Service Pattern**: ReportsService is now the canonical home for all regulatory data extraction, keeping controllers light and exports testable.
+- **Integrity Alerting Pattern**: Severity-based alerts (CRITICAL/WARNING/INFO) for data debt provides a clear roadmap for administrative cleanup.
+
+### Key Lessons
+- **Data Integrity as a Feature**: Building a "Self-Audit" dashboard is not just tech debt management; it's a high-value feature for clients who need to guarantee payroll accuracy to regulatory bodies.
+- **institutional specs change**: SICERE/INS specs are strict. Keeping the generation logic isolated in pure service methods makes it easy to update when institutional formats inevitably change.
+
+---
+
 ## Milestone: v1.8 — Stabilization & Planning Sync
 
 **Shipped:** 2026-05-11
 **Phases:** 3 (68-70) | **Plans:** 9 | **Timeline:** 2 days (2026-05-10 → 2026-05-11)
-
+...
 ### What went well?
 1. **Engine Flexibility**: The Payroll and Aguinaldo engines are now 100% parameterizable. Hardcoded literals have been eliminated, allowing the system to adapt to different labor policies without code changes.
 2. **Modular Architecture**: The `PayrollWizard` refactor significantly reduced the complexity of the frontend payroll flow, making it easier to maintain and extend.
