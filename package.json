@@ -1,0 +1,30 @@
+{
+  "name": "vp-planilla",
+  "version": "1.0.0",
+  "description": "Sistema de planilla (nómina) para Costa Rica. Maneja empleados, períodos de planilla, cálculo de horas y horas extra según ley laboral costarricense, deducciones CCSS, y generación de reportes oficiales.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AleLeonMarin/VP-Planilla.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AleLeonMarin/VP-Planilla/issues"
+  },
+  "homepage": "https://github.com/AleLeonMarin/VP-Planilla#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "husky": "^9.1.7"
+  }
+}

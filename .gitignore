@@ -4,6 +4,11 @@
 # utility, General (OS/IDE/temp). Generated files are never tracked.
 # ============================================================================
 
+# ===== ROOT CONFIGURATION =====
+# Root dependencies (Husky, Commitlint, CI)
+node_modules/
+package-lock.json
+
 # ===== BACKEND (Node.js / TypeScript) =====
 # Compiled TypeScript output — regenerate with: cd src/backend && npm run build
 src/backend/dist/
