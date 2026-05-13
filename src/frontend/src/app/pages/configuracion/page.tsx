@@ -27,6 +27,12 @@ export default function ConfiguracionDashboard() {
       description: 'Administre constantes legales, factores de cálculo y salarios mínimos.',
       icon: <ShieldCheckIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />,
       href: '/pages/configuracion/parametros-legales'
+    },
+    {
+      title: 'Integridad de Datos',
+      description: 'Supervise la calidad de la información, detecte anomalías y ejecute auditorías.',
+      icon: <ShieldCheckIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
+      href: '/pages/configuracion/integridad'
     }
   ];
 
