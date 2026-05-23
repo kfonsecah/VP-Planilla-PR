@@ -1,5 +1,23 @@
 # Milestones
 
+## v1.10 — Production Hardening & Developer Experience (Completed: 2026-05-22)
+
+**Goal:** Agregar observabilidad de errores, protección contra HPP, estandarización de commits y documentación automática del schema para mayor robustez y mantenibilidad.
+**Phases:** 74-76
+**Plans:** 4 total
+**Status:** ✅ Completed
+**Timeline:** 2026-05-13 → 2026-05-22
+**Archive:** `.planning/milestones/v1.10-ROADMAP.md`
+**Known deferred items at close:** 1 (see STATE.md Deferred Items)
+
+**Key accomplishments:**
+1. **Conventional Commits Enforcement:** Husky + Commitlint configured at repo root — non-compliant commit messages are rejected at hook time, ensuring a clean, parseable git history.
+2. **Auto-generated DB Documentation:** `prisma-markdown` integrated as a Prisma generator — `npm run dbml` produces a full Markdown ER diagram from the live schema.
+3. **HPP Protection + Express 5 Query Safety:** `hpp` middleware + `Object.defineProperty`-based query normalization applied globally before all routes, neutralizing parameter pollution attacks and Express 5 mutation risks.
+4. **Full-stack Error Observability:** Sentry integrated in both Express backend (`--import ./instrument.js`) and Next.js 15 frontend (`instrumentation.ts`) with distributed tracing linking client and server spans.
+
+---
+
 ## v1.9 — Advanced Reporting & Hacienda Prep (Completed: 2026-05-13)
 
 **Goal:** Provide specialized reporting for CCSS/INS and prepare official export formats for Hacienda (D-151).

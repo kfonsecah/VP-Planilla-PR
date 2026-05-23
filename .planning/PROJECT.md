@@ -8,21 +8,15 @@ Sistema de planilla (nómina) para Costa Rica. Maneja el ciclo completo: emplead
 
 Calcular y generar planillas correctas conforme a la ley laboral costarricense, con datos seguros y auditables.
 
-## Current State (v1.9 SHIPPED — 2026-05-13)
+## Current State (v1.10 SHIPPED — 2026-05-22)
 
-Milestone v1.9 is complete. The system now supports specialized institutional reporting and data integrity auditing. Next focus: Production Hardening & Developer Experience.
+Milestone v1.10 is complete. The system now has full-stack error observability (Sentry), HTTP Parameter Pollution protection, Conventional Commits enforcement, and auto-generated DB documentation. Next focus: planning v1.11.
 
-**Next Milestone:** v1.10 — Production Hardening & Developer Experience
-
-## Current Milestone: v1.10 — Production Hardening & Developer Experience
-
-**Goal:** Agregar observabilidad de errores, protección contra HPP, estandarización de commits y documentación de DBML para mayor robustez y mantenibilidad.
-
-**Target features:**
-- Integración de Sentry en Backend (Express) y Frontend (Next.js).
-- Protección contra HTTP Parameter Pollution (HPP).
-- Estandarización del historial de Git con Commits Convencionales.
-- Generación automática de documentación del schema (DBML) desde Prisma.
+**Shipped in v1.10:**
+- Sentry full-stack (backend `--import` + frontend `instrumentation.ts`) with distributed tracing.
+- HPP middleware + global `req.query` normalization (Express 5 safe).
+- Husky + Commitlint enforcing Conventional Commits at root.
+- `prisma-markdown` auto-generating schema docs via `npm run dbml`.
 
 ## Context
 
@@ -30,9 +24,19 @@ Milestone v1.9 is complete. The system now supports specialized institutional re
 - **Arquitectura:** Route → Controller → Service → Prisma (backend) / Page → Hook → Service → http.ts (frontend)
 - **Dominio:** Semana laboral lunes–sábado · 8h regulares/día · 1.5× hasta 10h · 2× sobre 10h · descanso semanal 0.5×
 - **Legal Engine:** Dynamic parameters (OT, CCSS, Workday) via `vpg_legal_params` + historical snapshots.
-- **Tests:** 573+ backend tests (Jest) + 5 Java tests (JUnit 5). Total: 578+ passing.
+- **Tests:** 578 backend tests (Jest) + 5 Java tests (JUnit 5). Total: 583+ passing.
 
 ## History
+
+<details>
+<summary>v1.10 SHIPPED (2026-05-22) — Production Hardening & Developer Experience</summary>
+
+- Conventional Commits Enforcement: Husky + Commitlint configured at root; non-compliant messages rejected at commit time.
+- Auto-generated DB Docs: `prisma-markdown` integrated as Prisma generator; `npm run dbml` produces full Markdown ER diagram.
+- HPP Protection + Express 5 Safety: `hpp` + `Object.defineProperty` query normalization applied globally before all routes.
+- Full-stack Observability: Sentry in backend (`--import instrument.js`) and Next.js frontend (`instrumentation.ts`) with distributed tracing + tunnel route.
+
+</details>
 
 <details>
 <summary>v1.9 SHIPPED (2026-05-13) — Advanced Reporting & Hacienda Prep</summary>
@@ -154,4 +158,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-11 after v1.8 milestone shipped*
+*Last updated: 2026-05-22 after v1.10 milestone shipped*

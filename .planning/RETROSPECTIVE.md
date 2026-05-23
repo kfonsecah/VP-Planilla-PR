@@ -2,6 +2,43 @@
 
 ---
 
+## Milestone: v1.10 — Production Hardening & Developer Experience
+
+**Shipped:** 2026-05-22
+**Phases:** 3 (74-76) | **Plans:** 4 | **Timeline:** 9 days (2026-05-13 → 2026-05-22)
+
+### What Was Built
+1. **Conventional Commits Enforcement**: Husky + Commitlint at root — scoped commit messages enforced via `commit-msg` hook. Non-compliant commits rejected instantly.
+2. **Auto-generated DB Documentation**: `prisma-markdown` generator produces full Markdown ER diagram on every `prisma generate`. Replaces manual DBML approach.
+3. **HPP Protection + Express 5 Query Safety**: Global `querySecurityMiddleware` combining `normalizeQuery` (last-value-wins via `Object.defineProperty`) + `hpp` whitelist applied before all routes.
+4. **Full-stack Sentry Observability**: Backend via `--import instrument.js`, frontend via `instrumentation.ts`. Distributed tracing links client and server spans. Ad-blocker bypass via `tunnelRoute`.
+
+### What Worked
+- **`--import` pattern for Sentry**: Loading `instrument.js` before any module ensures OpenTelemetry hooks are set before Express even loads — zero risk of missing early errors.
+- **`Object.defineProperty` shadow for Express 5**: Avoids direct mutation of the frozen `req.query` getter introduced in Express 5, solving a hard-to-debug class of errors cleanly.
+- **Audit before close**: Running `/gsd-audit-milestone` before `/gsd-complete-milestone` caught 5 stale REQUIREMENTS.md checkboxes and the STATE.md inconsistency about Phase 76 — would have gone into the archive as misleading data otherwise.
+
+### What Was Inefficient
+- **No VERIFICATION.md for any phase**: All 3 phases executed without generating formal verification reports. The integration checker had to serve as a substitute during the audit. This pattern risks drift between what's planned and what's shipped.
+- **STATE.md not updated after Phase 76**: Phase 76 was executed and completed but STATE.md still showed it as "planned" until the audit caught it. Tracking state inline during execution is fragile.
+- **Stale REQUIREMENTS.md checkboxes**: SEC-01/02 and OBS-01/02/03 remained unchecked even after the phases completed. The traceability table diverged from reality.
+
+### Patterns Established
+- **Middleware ordering contract**: `[normalizeQuery, preventParameterPollution]` → routes → `Sentry.setupExpressErrorHandler`. This order is now canonical and must be preserved.
+- **Sentry tunnel route**: `/monitoring-tunnel` in `next.config.ts` is the standard for all future Sentry frontend configs.
+- **`prisma-markdown` over `prisma-dbml-generator`**: Established as the Prisma 6-compatible doc generator. The `npm run dbml` script is the standard doc update workflow.
+
+### Key Lessons
+- Verification steps (VERIFICATION.md) are not optional — without them, the audit phase does significantly more work reconstructing confidence from first principles.
+- Small hardening milestones (4 plans) close fast but still generate meaningful technical decisions worth recording.
+- Always update STATE.md immediately after each phase execution, not at milestone close.
+
+### Cost Observations
+- Sessions: ~3 focused sessions
+- Notable: Parallel integration checking (spawned agent) saved ~15 min vs sequential manual file reading.
+
+---
+
 ## Milestone: v1.9 — Advanced Reporting & Hacienda Prep
 
 **Shipped:** 2026-05-13
