@@ -23,7 +23,21 @@ export default function ReportsPage() {
 
   const { employees, isLoading: loadingPayslips, error: payslipError, reload: reloadPayslips, resend, download, sent, failed, noEmail } = usePayslipDispatch(selectedId);
 
-  const { history, isLoadingHistory, isGenerating, error: reportsError, generate, reloadHistory } = useOfficialReports(selectedId);
+  const {
+    history,
+    isLoadingHistory,
+    isGenerating,
+    isDownloading,
+    isDownloadingD151,
+    isDownloadingAnnualSalary,
+    error: reportsError,
+    generate,
+    downloadCCSS,
+    downloadINS,
+    downloadD151,
+    downloadAnnualSalary,
+    reloadHistory,
+  } = useOfficialReports(selectedId);
 
   const handleReload = () => {
     reloadPayslips();
@@ -133,7 +147,14 @@ export default function ReportsPage() {
             history={history}
             isLoadingHistory={isLoadingHistory}
             isGenerating={isGenerating}
+            isDownloading={isDownloading}
+            isDownloadingD151={isDownloadingD151}
+            isDownloadingAnnualSalary={isDownloadingAnnualSalary}
             onGenerate={generate}
+            onDownloadCCSS={downloadCCSS}
+            onDownloadINS={downloadINS}
+            onDownloadD151={downloadD151}
+            onDownloadAnnualSalary={downloadAnnualSalary}
           />
         )}
       </div>

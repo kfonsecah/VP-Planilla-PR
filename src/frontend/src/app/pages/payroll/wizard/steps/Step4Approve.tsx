@@ -16,19 +16,19 @@ import { formatCRC } from '@/utils/number';
 import { formatDateDisplay } from '@/utils/formatters';
 import type { CalculationResult } from '@/types/payrollWizard';
 
-interface PayrollWizardStep3Props {
+interface Step4ApproveProps {
   payrollId: number;
   calculationData: CalculationResult;
   onApprove: (payrollId: number) => Promise<void>;
   onBack: () => void;
 }
 
-export default function PayrollWizardStep3({
+export default function Step4Approve({
   payrollId,
   calculationData,
   onApprove,
   onBack,
-}: PayrollWizardStep3Props) {
+}: Step4ApproveProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,9 +37,9 @@ export default function PayrollWizardStep3({
 
   const aguinaldoTotals = useMemo(() => {
     return {
-      prev: aguinaldoData.reduce((sum, r) => sum + r.accruedBeforeThisPayroll, 0),
-      this: aguinaldoData.reduce((sum, r) => sum + r.thisPayrollContribution, 0),
-      total: aguinaldoData.reduce((sum, r) => sum + r.totalAccruedWithThis, 0),
+      prev: (aguinaldoData || []).reduce((sum, r) => sum + r.accruedBeforeThisPayroll, 0),
+      this: (aguinaldoData || []).reduce((sum, r) => sum + r.thisPayrollContribution, 0),
+      total: (aguinaldoData || []).reduce((sum, r) => sum + r.totalAccruedWithThis, 0),
     };
   }, [aguinaldoData]);
 
@@ -209,7 +209,7 @@ export default function PayrollWizardStep3({
 
             <div className="mb-8">
               <label className="block text-center text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-4">
-                Escribe <span className="text-zinc-900 dark:text-white">"APROBAR"</span> para continuar
+                Escribe <span className="text-zinc-900 dark:text-white">&quot;APROBAR&quot;</span> para continuar
               </label>
               <input
                 type="text"

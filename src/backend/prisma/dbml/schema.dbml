@@ -1,0 +1,601 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table vpg_audit_logs {
+  audit_logs_id Int [pk, increment]
+  audit_logs_user_id Int [not null]
+  audit_logs_action String [not null]
+  audit_logs_entity String [not null]
+  audit_logs_entity_id Int [not null]
+  audit_logs_timestamp DateTime [not null]
+  audit_logs_details String
+  vpg_users vpg_users [not null]
+}
+
+Table vpg_bonuses {
+  bonuses_id Int [pk, increment]
+  bonuses_employee_id Int [not null]
+  bonuses_payroll_id Int [not null]
+  bonuses_year Int [not null]
+  bonuses_month Int [not null]
+  bonuses_description String [not null]
+  bonuses_amount Decimal [not null]
+  bonuses_granted_at DateTime [not null]
+  bonuses_version Int [not null, default: 1]
+  vpg_employees vpg_employees [not null]
+  vpg_payrolls vpg_payrolls [not null]
+}
+
+Table vpg_branches {
+  branch_id Int [pk, increment]
+  branch_name String [not null]
+  branch_location String [not null]
+  branch_version Int [not null, default: 1]
+}
+
+Table vpg_clock_logs {
+  clock_logs_id Int [pk, increment]
+  clock_logs_employee_id Int [not null]
+  clock_logs_timestamp DateTime [not null]
+  clock_logs_log_type ClockLogType [not null]
+  clock_logs_remarks String
+  clock_logs_status ClockLogStatus [not null, default: 'pending']
+  clock_logs_source ClockLogSource [not null, default: 'manual']
+  clock_logs_version Int [not null, default: 1]
+  clock_logs_import_session_id Int
+  vpg_employees vpg_employees [not null]
+  vpg_clock_import_sessions vpg_clock_import_sessions
+  vpg_clock_log_adjustments vpg_clock_log_adjustments [not null]
+
+  indexes {
+    (clock_logs_employee_id, clock_logs_timestamp, clock_logs_log_type) [unique]
+  }
+}
+
+Table vpg_clock_log_adjustments {
+  adjustment_id Int [pk, increment]
+  adjustment_clock_log_id Int
+  adjustment_employee_id Int [not null]
+  adjustment_type ClockLogAdjustmentType [not null]
+  adjustment_original_timestamp DateTime
+  adjustment_new_timestamp DateTime
+  adjustment_log_type ClockLogType [not null]
+  adjustment_justification String [not null]
+  adjustment_status ClockLogAdjustmentStatus [not null, default: 'ACTIVE']
+  adjustment_created_by Int [not null]
+  adjustment_created_at DateTime [default: `now()`, not null]
+  adjustment_version Int [not null, default: 1]
+  vpg_clock_logs vpg_clock_logs
+  vpg_employees vpg_employees [not null]
+  vpg_users vpg_users [not null]
+}
+
+Table vpg_clock_aliases {
+  aliases_id Int [pk, increment]
+  aliases_employee_id Int [not null]
+  aliases_name String [not null]
+  aliases_created_at DateTime [default: `now()`, not null]
+  aliases_version Int [not null, default: 1]
+  vpg_employees vpg_employees [not null]
+
+  indexes {
+    (aliases_employee_id, aliases_name) [unique]
+  }
+}
+
+Table vpg_clock_import_sessions {
+  import_sessions_id Int [pk, increment]
+  import_sessions_started_at DateTime [default: `now()`, not null]
+  import_sessions_completed_at DateTime
+  import_sessions_source ClockLogSource [not null]
+  import_sessions_status String [not null, default: 'pending']
+  import_sessions_total_records Int [not null, default: 0]
+  import_sessions_created_count Int [not null, default: 0]
+  import_sessions_skipped_count Int [not null, default: 0]
+  import_sessions_anomaly_count Int [not null, default: 0]
+  import_sessions_created_by Int [not null]
+  vpg_clock_logs vpg_clock_logs [not null]
+  vpg_users vpg_users [not null]
+}
+
+Table vpg_deductions {
+  deductions_id Int [pk, increment]
+  deductions_name String [not null]
+  deductions_description String [not null]
+  deductions_percentage Decimal
+  deductions_fixed_amount Decimal
+  deductions_version Int [not null, default: 1]
+  vpg_deductions_per_employee vpg_deductions_per_employee [not null]
+  vpg_employee_deductions vpg_employee_deductions [not null]
+}
+
+Table vpg_employee_documents {
+  employee_documents_id Int [pk, increment]
+  employee_documents_employee_id Int [not null]
+  employee_documents_file_path String [not null]
+  employee_documents_document_type String [not null]
+  employee_documents_uploaded_at DateTime [not null]
+  vpg_employees vpg_employees [not null]
+}
+
+Table vpg_employee_labor_event {
+  employee_labor_event_id Int [pk, increment]
+  employee_labor_event_employee_id Int [not null]
+  employee_labor_event_labor_event_id Int [not null]
+  employee_labor_event_start_date DateTime [not null]
+  employee_labor_event_end_date DateTime
+  employee_labor_event_status String [not null]
+  employee_labor_event_version Int [not null, default: 1]
+  vpg_employees vpg_employees [not null]
+  vpg_labor_events vpg_labor_events [not null]
+}
+
+Table vpg_employees {
+  employee_id Int [pk, increment]
+  employee_first_name String [not null]
+  employee_last_name String [not null]
+  employee_middle_name String [not null]
+  employee_national_id String [not null]
+  employee_social_code String [not null]
+  employee_email String [not null]
+  employee_position_id Int [not null]
+  employee_hire_date DateTime [not null]
+  employee_exit_date DateTime
+  employee_fired Boolean [not null, default: false]
+  employee_status String [not null]
+  employee_required_hours_biweekly Decimal
+  employee_gender String
+  employee_phone String
+  employee_shift_type EmployeeShiftType [not null, default: 'USE_ENTERPRISE_DEFAULT']
+  employee_version Int [not null, default: 1]
+  vpg_bonuses vpg_bonuses [not null]
+  vpg_clock_logs vpg_clock_logs [not null]
+  vpg_clock_log_adjustments vpg_clock_log_adjustments [not null]
+  vpg_clock_aliases vpg_clock_aliases [not null]
+  vpg_deductions_per_employee vpg_deductions_per_employee [not null]
+  vpg_employee_deductions vpg_employee_deductions [not null]
+  vpg_employee_documents vpg_employee_documents [not null]
+  vpg_employee_labor_event vpg_employee_labor_event [not null]
+  vpg_positions vpg_positions [not null]
+  vpg_payroll_employee vpg_payroll_employee [not null]
+  vpg_vacations vpg_vacations [not null]
+}
+
+Table vpg_enterprise {
+  enterprise_id Int [pk, increment]
+  enterprise_name String [not null]
+  enterprise_image Bytes [not null]
+  enterprise_creation_date DateTime [not null]
+  enterprise_version Int [not null, default: 1]
+  enterprise_minute_rounding_policy MinuteRoundingPolicy [not null, default: 'EXACT']
+  enterprise_rounding_policy_acknowledged Boolean [not null, default: false]
+  enterprise_is_commercial_activity Boolean [not null, default: true]
+  enterprise_ordinary_shift_type ShiftType [not null, default: 'DIURNA']
+  enterprise_pay_unworked_holidays Boolean [not null, default: true]
+  enterprise_aguinaldo_period_start_month Int [not null, default: 12]
+  enterprise_aguinaldo_period_start_day Int [not null, default: 1]
+  enterprise_aguinaldo_payment_deadline_day Int [not null, default: 20]
+}
+
+Table vpg_labor_events {
+  labor_events_id Int [pk, increment]
+  labor_events_name String [not null]
+  labor_events_description String [not null]
+  labor_events_version Int [not null, default: 1]
+  labor_event_pay_behavior LaborEventPayBehavior [not null, default: 'NO_PAY']
+  labor_event_max_paid_days Int
+  labor_event_pay_percentage Decimal
+  vpg_employee_labor_event vpg_employee_labor_event [not null]
+}
+
+Table vpg_mail_server_settings {
+  mail_server_settings_id Int [pk, increment]
+  mail_server_settings_host String [not null]
+  mail_server_settings_port Int [not null]
+  mail_server_settings_username String [not null]
+  mail_server_settings_password String [not null]
+  mail_server_settings_from_address String [not null]
+  mail_server_settings_use_ssl Boolean [not null]
+  mail_server_settings_use_tls Boolean [not null]
+  mail_server_settings_version Int [not null, default: 1]
+}
+
+Table vpg_payroll_employee {
+  payroll_employee_id Int [pk, increment]
+  payroll_employee_payroll_id Int [not null]
+  payroll_employee_employee_id Int [not null]
+  payroll_employee_total_hours Decimal
+  payroll_employee_overtime_hours Decimal
+  payroll_employee_overtime_pay Decimal
+  payroll_employee_weekly_rest_hours Decimal
+  payroll_employee_weekly_rest_pay Decimal
+  payroll_employee_bonuses Decimal
+  payroll_employee_gross_salary Decimal [not null]
+  payroll_employee_total_deductions Decimal [not null]
+  payroll_employee_net_salary Decimal [not null]
+  payroll_employee_worked_days Int [not null, default: 0]
+  payroll_employee_version Int [not null, default: 1]
+  payroll_employee_hours_override Decimal
+  payroll_employee_overtime_override Decimal
+  payroll_employee_weekly_rest_override Decimal
+  payroll_employee_deductions_override Decimal
+  payroll_employee_is_manually_adjusted Boolean [not null, default: false]
+  vpg_employees vpg_employees [not null]
+  vpg_payrolls vpg_payrolls [not null]
+}
+
+Table vpg_payroll_types {
+  payroll_types_id Int [pk, increment]
+  payroll_types_name String [not null]
+  payroll_types_description String [not null]
+  payroll_types_version Int [not null, default: 1]
+  vpg_payrolls vpg_payrolls [not null]
+}
+
+Table vpg_payrolls {
+  payrolls_id Int [pk, increment]
+  payrolls_payroll_type_id Int [not null]
+  payrolls_period_start DateTime [not null]
+  payrolls_period_end DateTime [not null]
+  payrolls_payment_date DateTime [not null]
+  payrolls_status PayrollStatus [not null]
+  payrolls_period_type String [not null, default: 'quincenal']
+  payrolls_approved_by Int
+  payrolls_approved_at DateTime
+  payrolls_notes String
+  payrolls_reopened_at DateTime
+  payrolls_reopen_reason String
+  payrolls_version Int [not null, default: 1]
+  vpg_bonuses vpg_bonuses [not null]
+  vpg_employee_deductions vpg_employee_deductions [not null]
+  vpg_payroll_employee vpg_payroll_employee [not null]
+  vpg_payroll_types vpg_payroll_types [not null]
+  vpg_users vpg_users
+  vpg_payroll_recalculations vpg_payroll_recalculations [not null]
+  vpgPayrollParamSnapshots vpg_payroll_param_snapshots [not null]
+}
+
+Table vpg_payroll_param_snapshots {
+  id String [pk]
+  payroll_id Int [not null]
+  param_key String [not null]
+  param_value String [not null]
+  param_valid_from DateTime [not null]
+  source_decree String
+  captured_at DateTime [default: `now()`, not null]
+  payroll vpg_payrolls [not null]
+
+  indexes {
+    (payroll_id, param_key) [unique]
+  }
+}
+
+Table vpg_payroll_recalculations {
+  recalc_id Int [pk, increment]
+  recalc_payroll_id Int [not null]
+  recalc_reason String [not null]
+  recalc_timestamp DateTime [default: `now()`, not null]
+  recalc_created_by Int [not null]
+  recalc_data_snapshot Json [not null]
+  vpg_payrolls vpg_payrolls [not null]
+  vpg_users vpg_users [not null]
+}
+
+Table vpg_positions {
+  position_id Int [pk, increment]
+  position_name String [not null]
+  position_description String [not null]
+  position_base_salary Decimal [not null]
+  position_occupation_code String
+  position_risk_class String
+  position_version Int [not null, default: 1]
+  vpg_employees vpg_employees [not null]
+}
+
+Table vpg_report_logs {
+  report_logs_id Int [pk, increment]
+  report_logs_report_type String [not null]
+  report_logs_generated_by Int [not null]
+  report_logs_generated_at DateTime [not null]
+  report_logs_period_start DateTime [not null]
+  report_logs_period_end DateTime [not null]
+  report_logs_file_path String [not null]
+  report_logs_status String [not null]
+  report_logs_version Int [not null, default: 1]
+  vpg_users vpg_users [not null]
+  vpg_report_versions vpg_report_versions [not null]
+}
+
+Table vpg_report_targets {
+  report_targets_id Int [pk, increment]
+  report_targets_institution String [not null]
+  report_targets_endpoint_url String [not null]
+  report_targets_auth_token String [not null]
+  report_targets_contact_email String [not null]
+  report_targets_version Int [not null, default: 1]
+}
+
+Table vpg_report_versions {
+  report_versions_id Int [pk, increment]
+  report_versions_report_log_id Int [not null]
+  report_versions_created_at DateTime [not null]
+  report_versions_file_path String [not null]
+  report_versions_remarks String
+  vpg_report_logs vpg_report_logs [not null]
+}
+
+Table vpg_users {
+  user_id Int [pk, increment]
+  user_first_name String [not null]
+  user_last_name String [not null]
+  user_middle_name String [not null]
+  user_national_id String [not null]
+  user_email String [not null]
+  user_username String [not null]
+  user_password String [not null]
+  user_role String [not null]
+  user_version Int [not null, default: 1]
+  user_last_login DateTime
+  vpg_audit_logs vpg_audit_logs [not null]
+  vpg_report_logs vpg_report_logs [not null]
+  vpg_notifications vpg_notifications [not null]
+  vpg_notifications_acknowledged vpg_notifications [not null]
+  vpg_clock_import_sessions vpg_clock_import_sessions [not null]
+  vpg_clock_log_adjustments vpg_clock_log_adjustments [not null]
+  vpg_payrolls_approved vpg_payrolls [not null]
+  vpg_payroll_recalculations vpg_payroll_recalculations [not null]
+}
+
+Table vpg_notifications {
+  notifications_id Int [pk, increment]
+  notifications_user_id Int [not null]
+  notifications_title String [not null]
+  notifications_message String [not null]
+  notifications_type String [not null]
+  notifications_is_read Boolean [not null, default: false]
+  notifications_created_at DateTime [default: `now()`, not null]
+  notifications_version Int [not null, default: 1]
+  notifications_requires_acknowledgment Boolean [not null, default: false]
+  notifications_acknowledged_by Int
+  notifications_acknowledged_at DateTime
+  notifications_metadata Json
+  vpg_users_acknowledged vpg_users
+  vpg_users vpg_users [not null]
+}
+
+Table vpg_employee_deductions {
+  employee_deductions_employee_id Int [not null]
+  employee_deductions_deduction_id Int [not null]
+  employee_deductions_payroll_id Int [not null]
+  employee_deductions_year Int [not null]
+  employee_deductions_month Int [not null]
+  employee_deductions_amount Decimal [not null]
+  employee_deductions_version Int [not null, default: 1]
+  vpg_deductions vpg_deductions [not null]
+  vpg_employees vpg_employees [not null]
+  vpg_payrolls vpg_payrolls [not null]
+
+  indexes {
+    (employee_deductions_employee_id, employee_deductions_deduction_id, employee_deductions_payroll_id) [pk]
+  }
+}
+
+Table vpg_vacations {
+  vacations_id Int [pk, increment]
+  vacations_employee_id Int [not null]
+  vacations_start_date DateTime [not null]
+  vacations_end_date DateTime [not null]
+  vacations_total_days Int
+  vacations_paid Boolean [default: true]
+  vacations_status String [default: 'Aprobado']
+  vacations_version Int [not null, default: 1]
+  vpg_employees vpg_employees [not null]
+}
+
+Table vpg_deductions_per_employee {
+  deductions_per_employee_employee_id Int [not null]
+  deductions_per_employee_deduction_id Int [not null]
+  deductions_per_employee_version Int [not null, default: 1]
+  vpg_deductions vpg_deductions [not null]
+  vpg_employees vpg_employees [not null]
+
+  indexes {
+    (deductions_per_employee_employee_id, deductions_per_employee_deduction_id) [pk]
+  }
+
+  Note: 'The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.'
+}
+
+Table vpg_token_blocklist {
+  blocklist_id Int [pk, increment]
+  blocklist_token String [not null]
+  blocklist_expires DateTime [not null]
+  blocklist_created DateTime [default: `now()`, not null]
+}
+
+Table vpg_password_change_request {
+  pcr_id Int [pk, increment]
+  pcr_user_id Int [not null]
+  pcr_code String [not null]
+  pcr_expires DateTime [not null]
+  pcr_used Boolean [not null, default: false]
+  pcr_created DateTime [default: `now()`, not null]
+}
+
+Table vpg_company_holidays {
+  company_holidays_id Int [pk, increment]
+  company_holidays_name String [not null]
+  company_holidays_date DateTime [not null]
+  company_holidays_is_mandatory Boolean [not null, default: false]
+  company_holidays_is_triple Boolean [not null, default: false]
+  company_holidays_status String [not null, default: 'active']
+  company_holidays_version Int [not null, default: 1]
+}
+
+Table vpg_time_windows {
+  time_window_id Int [pk, increment]
+  company_id Int [not null]
+  time_window_name String [not null]
+  time_window_type String [not null]
+  time_window_start_hour String [not null]
+  time_window_end_hour String [not null]
+  time_window_active Boolean [not null, default: true]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Table vpg_day_confirmations {
+  confirmation_id Int [pk, increment]
+  employee_id Int [not null]
+  confirmation_date DateTime [not null]
+  confirmed_by Int [not null]
+  confirmation_notes String
+  created_at DateTime [default: `now()`, not null]
+
+  indexes {
+    (employee_id, confirmation_date) [unique]
+  }
+}
+
+Table vpg_legal_params {
+  id String [pk]
+  key String [not null]
+  value Decimal [not null]
+  description String [not null]
+  category String [not null]
+  validFrom DateTime [not null]
+  validUntil DateTime
+  isActive Boolean [not null, default: true]
+  isCritical Boolean [not null, default: false]
+  source_decree String
+  createdBy String [not null]
+  updatedBy String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Enum ClockLogType {
+  IN
+  OUT
+}
+
+Enum ClockLogStatus {
+  pending
+  valid
+  anomaly
+  corrected
+  orphan
+}
+
+Enum ClockLogSource {
+  java_import
+  excel_import
+  manual
+  device
+}
+
+Enum ClockLogAdjustmentType {
+  ADD
+  EDIT
+  VOID
+}
+
+Enum ClockLogAdjustmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+Enum PayrollStatus {
+  BORRADOR
+  APROBADA
+  PAGADA
+}
+
+Enum MinuteRoundingPolicy {
+  EXACT
+  ALWAYS_UP
+  NEAREST_QUARTER
+}
+
+Enum ShiftType {
+  DIURNA
+  MIXTA
+  NOCTURNA
+}
+
+Enum EmployeeShiftType {
+  USE_ENTERPRISE_DEFAULT
+  DIURNA
+  MIXTA
+  NOCTURNA
+}
+
+Enum LaborEventPayBehavior {
+  FULL_PAY
+  PARTIAL_PAY
+  NO_PAY
+  EXTERNAL_PAY
+}
+
+Ref: vpg_audit_logs.audit_logs_user_id > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_bonuses.bonuses_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_bonuses.bonuses_payroll_id > vpg_payrolls.payrolls_id [delete: No Action]
+
+Ref: vpg_clock_logs.clock_logs_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_clock_logs.clock_logs_import_session_id > vpg_clock_import_sessions.import_sessions_id [delete: Set Null]
+
+Ref: vpg_clock_log_adjustments.adjustment_clock_log_id > vpg_clock_logs.clock_logs_id [delete: No Action]
+
+Ref: vpg_clock_log_adjustments.adjustment_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_clock_log_adjustments.adjustment_created_by > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_clock_aliases.aliases_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_clock_import_sessions.import_sessions_created_by > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_employee_documents.employee_documents_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_employee_labor_event.employee_labor_event_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_employee_labor_event.employee_labor_event_labor_event_id > vpg_labor_events.labor_events_id [delete: No Action]
+
+Ref: vpg_employees.employee_position_id > vpg_positions.position_id [delete: No Action]
+
+Ref: vpg_payroll_employee.payroll_employee_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_payroll_employee.payroll_employee_payroll_id > vpg_payrolls.payrolls_id [delete: No Action]
+
+Ref: vpg_payrolls.payrolls_payroll_type_id > vpg_payroll_types.payroll_types_id [delete: No Action]
+
+Ref: vpg_payrolls.payrolls_approved_by > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_payroll_param_snapshots.payroll_id > vpg_payrolls.payrolls_id
+
+Ref: vpg_payroll_recalculations.recalc_payroll_id > vpg_payrolls.payrolls_id [delete: No Action]
+
+Ref: vpg_payroll_recalculations.recalc_created_by > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_report_logs.report_logs_generated_by > vpg_users.user_id [delete: No Action]
+
+Ref: vpg_report_versions.report_versions_report_log_id > vpg_report_logs.report_logs_id [delete: No Action]
+
+Ref: vpg_notifications.notifications_acknowledged_by > vpg_users.user_id [delete: Set Null]
+
+Ref: vpg_notifications.notifications_user_id > vpg_users.user_id [delete: Set Null]
+
+Ref: vpg_employee_deductions.employee_deductions_deduction_id > vpg_deductions.deductions_id [delete: No Action]
+
+Ref: vpg_employee_deductions.employee_deductions_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_employee_deductions.employee_deductions_payroll_id > vpg_payrolls.payrolls_id [delete: No Action]
+
+Ref: vpg_vacations.vacations_employee_id > vpg_employees.employee_id [delete: No Action]
+
+Ref: vpg_deductions_per_employee.deductions_per_employee_deduction_id > vpg_deductions.deductions_id [delete: No Action]
+
+Ref: vpg_deductions_per_employee.deductions_per_employee_employee_id > vpg_employees.employee_id [delete: No Action]

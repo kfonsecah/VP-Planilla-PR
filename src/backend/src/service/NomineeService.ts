@@ -187,6 +187,7 @@ export class NomineeService {
                 payroll_employee_gross_salary: employee.grossSalary,
                 payroll_employee_total_deductions: employee.totalDeductions,
                 payroll_employee_net_salary: employee.netSalary,
+                payroll_employee_worked_days: employee.workedDays,
                 payroll_employee_version: existing.payroll_employee_version + 1,
               },
             });
@@ -210,6 +211,7 @@ export class NomineeService {
               payroll_employee_gross_salary: employee.grossSalary,
               payroll_employee_total_deductions: employee.totalDeductions,
               payroll_employee_net_salary: employee.netSalary,
+              payroll_employee_worked_days: employee.workedDays,
               payroll_employee_version: 1,
             },
           });
@@ -391,6 +393,7 @@ export class NomineeService {
             positionId: employee.position_id?.toString() || "0",
             baseHourlySalary: 0,
             days: [],
+            workedDays: 0,
             grossSalary: 0,
             totalDeductions: 0,
             netSalary: 0,
@@ -457,10 +460,22 @@ export class NomineeService {
   }
 
   /**
-   * Calculate payroll for a single employee
+   * Calculate payroll for a single employee.
+   * Internal method that aggregates all data sources (logs, vacations, events, bonuses)
+   * and computes the final financial totals.
+   *
    * @param employee - Employee data
    * @param startDate - Start date of the period
    * @param endDate - End date of the period
+   * @param employeeClockLogs - Filtered logs for this employee
+   * @param employeeVacations - Approved vacations for this employee
+   * @param employeeLaborEvents - Active labor events (incapacities, etc.)
+   * @param employeeBonuses - Valid bonuses for this employee
+   * @param employeeDeductions - Assigned deductions with details
+   * @param positionsMap - Map of all positions for salary lookup
+   * @param holidays - Global holiday list
+   * @param params - Effective legal parameters (divisor, factors, etc.)
+   * @param effectiveShift - Optional shift override
    * @returns Promise<EmployeePayroll> - Complete payroll data for the employee
    */
   private async calculateEmployeePayroll(
@@ -483,6 +498,7 @@ export class NomineeService {
             positionId: employee.position_id?.toString() || "0",
       baseHourlySalary: 0,
       days: [],
+      workedDays: 0,
       // Hour breakdown (populated after processDailyWork)
       scheduledHours: 0,
       regularHours: 0,
@@ -554,6 +570,11 @@ export class NomineeService {
 
       employeePayroll.days = dailyWork.days;
       employeePayroll.inconsistencies = dailyWork.inconsistencies;
+
+      // Count worked days (any day with hours > 0 or is vacation)
+      employeePayroll.workedDays = dailyWork.days.filter(
+        day => day.hoursWorked > 0 || day.isVacation
+      ).length;
 
       // Scheduled (required) hours for the period
       // Use employee's configured hours if available, otherwise calculate from period
@@ -691,13 +712,17 @@ export class NomineeService {
   }
 
   /**
-   * Process daily work including clock logs and vacations
-   * @param clockLogs - Employee clock logs for the period
-   * @param vacations - Employee vacations for the period
+   * Process daily work including clock logs, vacations, and labor events.
+   * Maps linear logs and external events into a day-by-day structural breakdown.
+   *
+   * @param clockPairs - Pre-paired employee clock logs (valid/orphan/anomaly)
+   * @param vacations - Approved vacations overlapping the period
+   * @param laborEvents - Active labor events (incapacities, etc.)
    * @param startDate - Start date of the period
    * @param endDate - End date of the period
-   * @param employeeName - Employee name for messages
-   * @returns Object with processed days and inconsistencies
+   * @param employeeName - Employee name for descriptive messages
+   * @param params - Legal parameter set (rounding, shift hours)
+   * @returns Object with processed days and identified inconsistencies
    */
   private processDailyWork(
     clockPairs: any[],
@@ -830,12 +855,14 @@ export class NomineeService {
   }
 
   /**
-   * Calculate daily worked hours from clock logs
-   * @param dayClockLogs - Clock logs for a specific day
-   * @param dateStr - Date string for messages
+   * Calculate daily worked hours from clock log pairs.
+   * Applies minute rounding policy and flags inconsistencies.
+   *
+   * @param dayPairs - Paired marks for a specific day
+   * @param dateStr - ISO date string for logging/messages
    * @param employeeName - Employee name for messages
-   * @param policy - MinuteRoundingPolicy to apply
-   * @returns Object with calculated hours and messages
+   * @param policy - MinuteRoundingPolicy to apply (EXACT, 15_MIN, etc.)
+   * @returns Object with calculated hours, messages, and inconsistency flag
    */
   private calculateDailyHours(
     dayPairs: any[],

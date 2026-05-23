@@ -139,7 +139,7 @@ export class AuthService {
   }
 
   /**
-   * Genera un JWT token para el usuario
+   * Genera un JWT access token para el usuario
    */
   static issueAccessToken(user: Pick<AuthenticatedUser, 'id' | 'username' | 'role'>): string {
     const payload = {
@@ -154,6 +154,53 @@ export class AuthService {
     };
 
     return jwt.sign(payload, secret, options) as string;
+  }
+
+  /**
+   * Genera un JWT refresh token para el usuario (expiración larga, secret separado)
+   * @param user - Datos mínimos del usuario autenticado
+   * @returns Refresh token firmado con JWT_REFRESH_SECRET
+   */
+  static issueRefreshToken(user: Pick<AuthenticatedUser, 'id' | 'username' | 'role'>): string {
+    const payload = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      type: 'refresh',
+    };
+
+    const secret = env.JWT_REFRESH_SECRET ?? env.JWT_SECRET + ':refresh';
+    const options: jwt.SignOptions = {
+      expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
+    };
+
+    return jwt.sign(payload, secret, options) as string;
+  }
+
+  /**
+   * Verifica un refresh token y retorna su payload decodificado
+   * @param token - Refresh token a verificar
+   * @returns Payload decodificado con id, username, role y exp
+   * @throws TokenExpiredError si expiró, Error genérico si es inválido o no es refresh token
+   */
+  static verifyRefreshToken(token: string): { id: number; username?: string; role?: string; exp: number } {
+    try {
+      const secret = env.JWT_REFRESH_SECRET ?? env.JWT_SECRET + ':refresh';
+      const decoded = jwt.verify(token, secret) as { id: number; username?: string; role?: string; exp: number; type?: string };
+
+      if (decoded.type !== 'refresh') {
+        throw new Error('Token inválido');
+      }
+
+      return decoded;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'TokenExpiredError') {
+        const tokenExpiredError = new Error('Token expirado');
+        tokenExpiredError.name = 'TokenExpiredError';
+        throw tokenExpiredError;
+      }
+      throw new Error('Token inválido');
+    }
   }
 
   /**

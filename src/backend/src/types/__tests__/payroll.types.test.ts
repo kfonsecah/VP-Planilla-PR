@@ -13,7 +13,12 @@ describe('Payroll Types', () => {
       ccssObreroSalud: 0.055,
       ccssObrerosPension: 0.04,
       ccssObreroBP: 0.01,
-      minuteRoundingPolicy: MinuteRoundingPolicy.ALWAYS_UP
+      minuteRoundingPolicy: MinuteRoundingPolicy.ALWAYS_UP,
+      workingDaysPerWeek: 6,
+      weeklyRestNumerator: 8,
+      weeklyRestDenominator: 104,
+      weeklyRestMultiplier: 2,
+      aguinaldoDivisor: 12,
     };
     
     expect(params.minuteRoundingPolicy).toBe(MinuteRoundingPolicy.ALWAYS_UP);

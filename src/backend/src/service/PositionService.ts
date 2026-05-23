@@ -24,6 +24,8 @@ export class PositionService {
       base_salary: prismaPosition.position_base_salary
         .toDecimalPlaces(2)
         .toNumber(),
+      occupation_code: prismaPosition.position_occupation_code || undefined,
+      risk_class: prismaPosition.position_risk_class || undefined,
       version: prismaPosition.position_version,
     };
 
@@ -45,6 +47,8 @@ export class PositionService {
       base_salary: prismaPosition.position_base_salary
         .toDecimalPlaces(2)
         .toNumber(),
+      occupation_code: prismaPosition.position_occupation_code || undefined,
+      risk_class: prismaPosition.position_risk_class || undefined,
       version: prismaPosition.position_version,
     }));
   }
@@ -62,6 +66,8 @@ export class PositionService {
         position_name: position.name,
         position_description: position.description,
         position_base_salary: position.base_salary,
+        position_occupation_code: position.occupation_code,
+        position_risk_class: position.risk_class,
         position_version: 1,
       },
     });
@@ -73,6 +79,8 @@ export class PositionService {
       base_salary: prismaPosition.position_base_salary
         .toDecimalPlaces(2)
         .toNumber(),
+      occupation_code: prismaPosition.position_occupation_code || undefined,
+      risk_class: prismaPosition.position_risk_class || undefined,
       version: prismaPosition.position_version,
     };
   }
@@ -91,6 +99,8 @@ export class PositionService {
         position_name: position.name,
         position_description: position.description,
         position_base_salary: position.base_salary,
+        position_occupation_code: position.occupation_code,
+        position_risk_class: position.risk_class,
         position_version: position.version + 1,
       },
     });

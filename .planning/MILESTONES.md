@@ -1,10 +1,63 @@
 # Milestones
 
-## v1.6 — Mejoras en Auditoría de Marcas y UX (In Progress)
+## v1.10 — Production Hardening & Developer Experience (Completed: 2026-05-22)
+
+**Goal:** Agregar observabilidad de errores, protección contra HPP, estandarización de commits y documentación automática del schema para mayor robustez y mantenibilidad.
+**Phases:** 74-76
+**Plans:** 4 total
+**Status:** ✅ Completed
+**Timeline:** 2026-05-13 → 2026-05-22
+**Archive:** `.planning/milestones/v1.10-ROADMAP.md`
+**Known deferred items at close:** 1 (see STATE.md Deferred Items)
+
+**Key accomplishments:**
+1. **Conventional Commits Enforcement:** Husky + Commitlint configured at repo root — non-compliant commit messages are rejected at hook time, ensuring a clean, parseable git history.
+2. **Auto-generated DB Documentation:** `prisma-markdown` integrated as a Prisma generator — `npm run dbml` produces a full Markdown ER diagram from the live schema.
+3. **HPP Protection + Express 5 Query Safety:** `hpp` middleware + `Object.defineProperty`-based query normalization applied globally before all routes, neutralizing parameter pollution attacks and Express 5 mutation risks.
+4. **Full-stack Error Observability:** Sentry integrated in both Express backend (`--import ./instrument.js`) and Next.js 15 frontend (`instrumentation.ts`) with distributed tracing linking client and server spans.
+
+---
+
+## v1.9 — Advanced Reporting & Hacienda Prep (Completed: 2026-05-13)
+
+**Goal:** Provide specialized reporting for CCSS/INS and prepare official export formats for Hacienda (D-151).
+**Phases:** 71-73
+**Plans:** 7 total
+**Status:** ✅ Completed
+**Timeline:** 2026-05-11 → 2026-05-13
+**Archive:** `.planning/milestones/v1.9-ROADMAP.md`
+
+**Key accomplishments:**
+1. **CCSS/INS Reporting**: Implemented specialized CSV exports for institutional reporting, including mandatory risk classes and worked day counts.
+2. **Hacienda D-151 Preparation**: Implemented annual salary aggregation and export formats (CSV/Excel) required for Costa Rican tax compliance.
+3. **Data Integrity Dashboard**: Built a robust rule engine and visualization tool to detect payroll drift, clock-log anomalies, and metadata gaps.
+
+---
+
+## v1.8 — Stabilization & Planning Sync (Completed: 2026-05-11)
+
+**Goal:** Resolve technical debt, fix environment issues, and synchronize planning documents.
+**Phases:** 68-70
+**Status:** ✅ Completed
+**Timeline:** 2026-05-10 → 2026-05-11
+
+---
+
+## v1.7 — Robustez y Parámetros Legales (Shipped: 2026-05-09)
+
+**Goal:** Transformar el motor de cálculo en un sistema dinámico y auditable mediante vpg_legal_params y snapshots históricos.
+**Phases completed:** 14 phases (54-67)
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.7-ROADMAP.md`
+
+---
+
+## v1.6 — Mejoras en Auditoría de Marcas y UX (Shipped: 2026-04-26)
 
 **Goal:** Refinar la experiencia de usuario en la auditoría de marcas y asegurar la persistencia de configuraciones críticas.
-**Phases:** 49-52
-**Status:** In Progress
+**Phases completed:** 5 phases (49-53)
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.6-ROADMAP.md`
 
 ---
 
@@ -84,3 +137,20 @@
 **Archive:** `.planning/milestones/v1.2-ROADMAP.md`
 
 ---
+
+## v1.1 — Calidad, UI Moderna y Cobertura de Tests (Shipped: 2026-04-02)
+
+**Phases completed:** 6 phases (9-14)
+**Timeline:** 2026-03-27 → 2026-04-02
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.1-ROADMAP.md`
+
+---
+
+## v1.0 — Estabilización y Completitud (Shipped: 2026-03-27)
+
+**Phases completed:** 8 phases (1-8)
+**Timeline:** 2026-03-25 → 2026-03-27
+**Status:** Archived
+**Archive:** `.planning/milestones/v1.0-ROADMAP.md`
+

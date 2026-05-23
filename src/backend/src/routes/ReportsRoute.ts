@@ -28,4 +28,23 @@ router.post(
   asyncHandler(ReportsController.downloadPaymentReceiptsPdf)
 );
 
+router.get(
+  "/reports/institutional/ccss/:id",
+  asyncHandler(ReportsController.downloadCCSSReport)
+);
+router.get(
+  "/reports/institutional/ins/:id",
+  asyncHandler(ReportsController.downloadINSReport)
+);
+
+router.get(
+  "/reports/hacienda/d151/:year",
+  asyncHandler(ReportsController.downloadD151Report)
+);
+
+router.get(
+  "/reports/hacienda/annual-salary/:year",
+  asyncHandler(ReportsController.downloadAnnualSalarySummary)
+);
+
 export default router;

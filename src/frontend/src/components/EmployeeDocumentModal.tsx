@@ -45,10 +45,12 @@ const EmployeeDocumentModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
   useEffect(() => {
     if (!isOpen) return;
     reset({ file_path: '', document_type: '' });
+    let timerId: ReturnType<typeof setTimeout> | undefined;
     if (modalRef.current) {
       const first = modalRef.current.querySelector('input') as HTMLInputElement | null;
-      if (first) setTimeout(() => first.focus(), 100);
+      if (first) timerId = setTimeout(() => first.focus(), 100);
     }
+    return () => clearTimeout(timerId);
   }, [isOpen, reset]);
 
   const handleFormSubmit = async (data: DocumentFormData) => {

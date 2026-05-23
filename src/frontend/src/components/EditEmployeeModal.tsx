@@ -141,17 +141,20 @@ const { register, control, handleSubmit, formState: { errors, isSubmitting }, re
     });
     
     // Force-set position after reset to ensure it survives validation
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       setValue('employee_position_id', targetPos, { shouldValidate: false });
     }, 0);
+    return () => clearTimeout(timerId);
   }, [isOpen, employeeData, reset, setValue]);
   
   useEffect(() => {
     if (!isOpen) return;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
     if (modalRef.current) {
       const firstInput = modalRef.current.querySelector('input, select, textarea') as HTMLElement;
-      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+      if (firstInput) timerId = setTimeout(() => firstInput.focus(), 100);
     }
+    return () => clearTimeout(timerId);
   }, [isOpen]);
 
   const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };

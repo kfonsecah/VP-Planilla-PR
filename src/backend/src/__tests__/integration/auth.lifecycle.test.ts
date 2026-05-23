@@ -60,7 +60,7 @@ describe('Auth lifecycle integration: login → refresh → logout → reuse den
 
     (jwt.verify as jest.Mock).mockImplementation((token: string) => {
       if (token === 'refresh-token-valid') {
-        return { id: 1, username: 'admin', role: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 };
+        return { id: 1, username: 'admin', role: 'admin', exp: Math.floor(Date.now() / 1000) + 3600, type: 'refresh' };
       }
 
       if (token === 'access-token' || token === 'access-token-new') {

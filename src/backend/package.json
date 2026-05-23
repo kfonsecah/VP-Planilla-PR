@@ -7,10 +7,12 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint .",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --import ./instrument.js src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "db:reset": "tsx src/scripts/resetDb.ts"
+    "start": "node --import ./instrument.js dist/index.js",
+    "db:reset": "tsx src/scripts/resetDb.ts",
+    "dbml": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -22,20 +24,26 @@
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "@scalar/express-api-reference": "^0.8.16",
+    "@sentry/node": "^10.53.1",
+    "@sentry/profiling-node": "^10.53.1",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/hpp": "^0.2.7",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^24.10.15",
     "@types/nodemailer": "^7.0.11",
     "@types/swagger-jsdoc": "^6.0.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.5.0",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.3.1",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^8.0.1",
@@ -44,6 +52,7 @@
     "resend": "^6.10.0",
     "swagger-jsdoc": "^6.2.8",
     "typescript": "^5.8.3",
+    "xmlbuilder2": "^4.0.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -59,10 +68,12 @@
     "jest-html-reporters": "^3.1.7",
     "jest-mock-extended": "^3.0.5",
     "prisma": "^6.14.0",
+    "prisma-markdown": "3.0.1",
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.2",
     "tsx": "^4.20.6"
   },
+  "packageManager": "pnpm@11.1.1",
   "overrides": {
     "fsevents": "^2.3.3",
     "chokidar": "^3.5.3"

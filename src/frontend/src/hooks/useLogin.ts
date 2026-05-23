@@ -36,8 +36,6 @@ export const useLogin = (modalActions?: { showError: (title: string, message: st
   // Usar las funciones de modal pasadas como parámetro, o crear instancia local como fallback
   const fallbackModal = useModal();
   const showError = modalActions?.showError || fallbackModal.showError;
-  const showSuccess = modalActions?.showSuccess || fallbackModal.showSuccess;
-
   const validateCredentials = (username: string, password: string): boolean => {
     if (!username.trim() || !password.trim()) {
       setError("Por favor completa tanto tu usuario como tu contraseña.");

@@ -107,6 +107,7 @@ export class LaborEventsService {
 
   /**
    * Get all employee labor event assignments (with catalog relation included).
+   * @returns Array of all employee labor event assignments
    */
   static async getAllEmployeeLaborEvents(): Promise<EmployeeLaborEvent[]> {
     const prismaEvents = await prisma.vpg_employee_labor_event.findMany({
@@ -190,6 +191,8 @@ export class LaborEventsService {
 
   /**
    * Delete an employee labor event assignment by id.
+   * @param id - The ID of the employee labor event to delete
+   * @returns The deleted assignment or null if not found
    */
   static async deleteEmployeeLaborEvent(id: number): Promise<EmployeeLaborEvent | null> {
     try {

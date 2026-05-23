@@ -4,6 +4,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { roundToMoney } from "../utils/payrollUtils";
 import { env } from '../config/env';
+import ExcelJS from 'exceljs';
 
 const REPORT_TYPES = ["CCSS", "HACIENDA"] as const;
 const STORAGE_ROOT = env.REPORTS_OUTPUT_DIR;
@@ -412,6 +413,354 @@ export class ReportsService {
       }
       return dto;
     });
+  }
+
+  /**
+   * Generates a CCSS (SICERE) compliant CSV report for a specific payroll.
+   * @param payrollId The ID of the payroll to process.
+   * @returns filename and CSV content.
+   * @throws Error if payroll is not found.
+   */
+  static async generateCCSSReportCSV(payrollId: number): Promise<{ filename: string; content: string }> {
+    const payroll = await prisma.vpg_payrolls.findUnique({
+      where: { payrolls_id: payrollId },
+    });
+
+    if (!payroll) {
+      throw new Error("Planilla no encontrada");
+    }
+
+    const data = await prisma.vpg_payroll_employee.findMany({
+      where: { payroll_employee_payroll_id: payrollId },
+      include: {
+        vpg_employees: true,
+      },
+      orderBy: {
+        vpg_employees: {
+          employee_last_name: 'asc'
+        }
+      }
+    });
+
+    const rows = data.map((row) => {
+      const emp = row.vpg_employees;
+      return [
+        "1", // Default to National ID type
+        emp.employee_national_id,
+        this.buildEmployeeName(emp.employee_first_name, emp.employee_last_name, emp.employee_middle_name),
+        row.payroll_employee_gross_salary.toFixed(2),
+        row.payroll_employee_worked_days.toString(),
+        (Number(row.payroll_employee_overtime_pay) || 0).toFixed(2),
+        emp.employee_social_code || "",
+      ];
+    });
+
+    const headers = [
+      "Tipo Identificación",
+      "Identificación",
+      "Nombre Completo",
+      "Salario Bruto",
+      "Días Trabajados",
+      "Pago Horas Extra",
+      "Código Asegurado",
+    ];
+
+    const content = this.generateCSV(headers, rows);
+    const filename = `CCSS_SICERE_Payroll_${payrollId}_${Date.now()}.csv`;
+
+    return { filename, content };
+  }
+
+  /**
+   * Generates an INS (Riesgos del Trabajo) compliant CSV report for a specific payroll.
+   * @param payrollId The ID of the payroll to process.
+   * @returns filename and CSV content.
+   * @throws Error if payroll is not found.
+   */
+  static async generateINSReportCSV(payrollId: number): Promise<{ filename: string; content: string }> {
+    const payroll = await prisma.vpg_payrolls.findUnique({
+      where: { payrolls_id: payrollId },
+    });
+
+    if (!payroll) {
+      throw new Error("Planilla no encontrada");
+    }
+
+    const data = await prisma.vpg_payroll_employee.findMany({
+      where: { payroll_employee_payroll_id: payrollId },
+      include: {
+        vpg_employees: {
+          include: {
+            vpg_positions: true,
+          },
+        },
+      },
+      orderBy: {
+        vpg_employees: {
+          employee_last_name: 'asc'
+        }
+      }
+    });
+
+    const rows = data.map((row) => {
+      const emp = row.vpg_employees;
+      const pos = emp.vpg_positions;
+      return [
+        emp.employee_national_id,
+        this.buildEmployeeName(emp.employee_first_name, emp.employee_last_name, emp.employee_middle_name),
+        pos.position_occupation_code || "",
+        pos.position_risk_class || "",
+        row.payroll_employee_gross_salary.toFixed(2),
+      ];
+    });
+
+    const headers = [
+      "Identificación",
+      "Nombre Completo",
+      "Código Ocupación",
+      "Clase Riesgo",
+      "Salario Bruto",
+    ];
+
+    const content = this.generateCSV(headers, rows);
+    const filename = `INS_RT_Payroll_${payrollId}_${Date.now()}.csv`;
+
+    return { filename, content };
+  }
+
+  /**
+   * Generates a Hacienda D-151 compliant CSV report for a specific year.
+   * Aggregates payments made to employees within that year.
+   * @param year The year to report.
+   * @returns filename and CSV content.
+   */
+  static async generateHaciendaD151CSV(year: number): Promise<{ filename: string; content: string }> {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31, 23, 59, 59);
+
+    const data = await prisma.vpg_payroll_employee.findMany({
+      where: {
+        vpg_payrolls: {
+          payrolls_payment_date: {
+            gte: startDate,
+            lte: endDate,
+          },
+          payrolls_status: 'PAGADA',
+        },
+      },
+      include: {
+        vpg_employees: true,
+      },
+    });
+
+    // Aggregate by employee
+    const aggregation = new Map<number, { 
+      nationalId: string, 
+      fullName: string, 
+      totalGross: number 
+    }>();
+
+    for (const row of data) {
+      const emp = row.vpg_employees;
+      const existing = aggregation.get(emp.employee_id) || {
+        nationalId: emp.employee_national_id.replace(/-/g, ''),
+        fullName: this.buildEmployeeName(emp.employee_first_name, emp.employee_last_name, emp.employee_middle_name),
+        totalGross: 0,
+      };
+      existing.totalGross += Number(row.payroll_employee_gross_salary);
+      aggregation.set(emp.employee_id, existing);
+    }
+
+    const rows = Array.from(aggregation.values())
+      .sort((a, b) => a.fullName.localeCompare(b.fullName))
+      .map((item) => [
+        "1", // Tipo Identificación: 1 for physical
+        item.nationalId,
+        item.fullName,
+        item.totalGross.toFixed(roundToMoney(2) === 2 ? 2 : 2), // Keep 2 decimals
+        "SP", // Código de Operación: Servicios Profesionales (typical for D-151)
+      ]);
+
+    const headers = [
+      "Tipo Identificación",
+      "Identificación",
+      "Nombre / Razón Social",
+      "Monto Acumulado",
+      "Código de Operación",
+    ];
+
+    const content = this.generateCSV(headers, rows);
+    const filename = `Hacienda_D151_${year}_${Date.now()}.csv`;
+
+    return { filename, content };
+  }
+
+  /**
+   * Generates an Annual Salary Summary Excel report for a specific year.
+   * Aggregates Gross, CCSS, ISR, and Net by employee.
+   * @param year The year to report.
+   * @returns filename and Excel buffer.
+   */
+  static async generateAnnualSalarySummaryExcel(year: number): Promise<{ filename: string; buffer: Buffer }> {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31, 23, 59, 59);
+
+    const data = await prisma.vpg_payroll_employee.findMany({
+      where: {
+        vpg_payrolls: {
+          payrolls_payment_date: {
+            gte: startDate,
+            lte: endDate,
+          },
+          payrolls_status: 'PAGADA',
+        },
+      },
+      include: {
+        vpg_employees: true,
+      },
+    });
+
+    const employeeIds = Array.from(new Set(data.map(row => row.payroll_employee_employee_id)));
+
+    const deductionsData = employeeIds.length > 0 
+      ? await prisma.vpg_employee_deductions.findMany({
+          where: {
+            employee_deductions_employee_id: { in: employeeIds },
+            vpg_payrolls: {
+              payrolls_payment_date: {
+                gte: startDate,
+                lte: endDate,
+              },
+              payrolls_status: 'PAGADA',
+            }
+          },
+          include: {
+            vpg_deductions: true
+          }
+        })
+      : [];
+
+    // Aggregate by employee
+    const aggregation = new Map<number, { 
+      nationalId: string, 
+      fullName: string, 
+      totalGross: number,
+      totalCCSS: number,
+      totalISR: number,
+      totalOthers: number,
+      totalNet: number
+    }>();
+
+    for (const row of data) {
+      const emp = row.vpg_employees;
+      const existing = aggregation.get(emp.employee_id) || {
+        nationalId: emp.employee_national_id,
+        fullName: this.buildEmployeeName(emp.employee_first_name, emp.employee_last_name, emp.employee_middle_name),
+        totalGross: 0,
+        totalCCSS: 0,
+        totalISR: 0,
+        totalOthers: 0,
+        totalNet: 0
+      };
+      existing.totalGross += Number(row.payroll_employee_gross_salary);
+      existing.totalNet += Number(row.payroll_employee_net_salary);
+      aggregation.set(emp.employee_id, existing);
+    }
+
+    for (const ded of deductionsData) {
+      const existing = aggregation.get(ded.employee_deductions_employee_id);
+      if (!existing) continue;
+
+      const dedName = ded.vpg_deductions?.deductions_name || '';
+      const amount = Number(ded.employee_deductions_amount);
+
+      const category = this.categorizeDeduction(dedName);
+      if (category === 'CCSS') {
+        existing.totalCCSS += amount;
+      } else if (category === 'ISR') {
+        existing.totalISR += amount;
+      } else {
+        existing.totalOthers += amount;
+      }
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(`Resumen Anual ${year}`);
+
+    const enterprise = await this.getEnterpriseProfile();
+
+    worksheet.addRow([enterprise.name]);
+    worksheet.addRow(['Resumen Anual de Salarios']);
+    worksheet.addRow([`Año: ${year}`]);
+    worksheet.addRow([]);
+
+    const headers = [
+      'Identificación',
+      'Nombre Completo',
+      'Salario Bruto',
+      'CCSS Obrero',
+      'ISR / Renta',
+      'Otras Deducciones',
+      'Salario Neto'
+    ];
+
+    const headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true };
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' }
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    const items = Array.from(aggregation.values())
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+
+    for (const item of items) {
+      worksheet.addRow([
+        item.nationalId,
+        item.fullName,
+        roundToMoney(item.totalGross),
+        roundToMoney(item.totalCCSS),
+        roundToMoney(item.totalISR),
+        roundToMoney(item.totalOthers),
+        roundToMoney(item.totalNet)
+      ]);
+    }
+
+    // Adjust column widths
+    worksheet.columns.forEach((column) => {
+      let maxLength = 0;
+      column.eachCell!({ includeEmpty: true }, (cell) => {
+        const columnLength = cell.value ? cell.value.toString().length : 10;
+        if (columnLength > maxLength) {
+          maxLength = columnLength;
+        }
+      });
+      column.width = maxLength < 12 ? 12 : maxLength + 2;
+    });
+
+    const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    const filename = `Resumen_Anual_Salarios_${year}_${Date.now()}.xlsx`;
+
+    return { filename, buffer };
+  }
+
+  /**
+   * Helper to generate a CSV string from headers and rows.
+   */
+  private static generateCSV(headers: string[], rows: string[][]): string {
+    const escape = (val: string) => `"${val.replace(/"/g, '""')}"`;
+    const headerLine = headers.map(escape).join(",");
+    const rowLines = rows.map((row) => row.map(escape).join(","));
+    return [headerLine, ...rowLines].join("\n");
   }
 
   static async sendReports(input: SendReportsInput): Promise<ReportDispatchSummary> {
@@ -870,5 +1219,30 @@ export class ReportsService {
       payrollId: this.extractPayrollIdFromPath(log.report_logs_file_path) ?? undefined,
       employeeId,
     };
+  }
+
+  /**
+   * Categorizes a deduction based on its name using a keyword-based mapping.
+   * This is more robust than simple single-word inclusion as it handles multiple variants
+   * and can be easily expanded without changing the database schema.
+   */
+  private static categorizeDeduction(name: string): 'CCSS' | 'ISR' | 'OTHER' {
+    const n = name.toUpperCase();
+    
+    // Configuration-driven keywords for CCSS (Social Security)
+    const CCSS_KEYWORDS = ['CCSS', 'C.C.S.S.', 'CAJA', 'SICERE', 'SEM', 'IVM', 'SOCIAL SECURITY'];
+    
+    // Configuration-driven keywords for ISR (Income Tax / Hacienda)
+    const ISR_KEYWORDS = ['ISR', 'I.S.R.', 'RENTA', 'HACIENDA', 'IMPUESTO'];
+
+    if (CCSS_KEYWORDS.some(key => n.includes(key))) {
+      return 'CCSS';
+    }
+
+    if (ISR_KEYWORDS.some(key => n.includes(key))) {
+      return 'ISR';
+    }
+
+    return 'OTHER';
   }
 }

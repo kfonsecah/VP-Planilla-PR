@@ -70,6 +70,7 @@ export default function PayrollWizardStep2({
       )}
 
       {/* Reuse existing PayrollResults component */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <PayrollResults data={data as any} onCreate={onConfirm} />
     </div>
   );

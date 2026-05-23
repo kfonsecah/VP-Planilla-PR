@@ -2,6 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "./dbml/schema.md"
+  title    = "VP-Planilla DB"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -347,6 +353,7 @@ model vpg_payroll_employee {
   payroll_employee_gross_salary      Decimal       @db.Decimal(10, 2)
   payroll_employee_total_deductions  Decimal       @db.Decimal(10, 2)
   payroll_employee_net_salary        Decimal       @db.Decimal(10, 2)
+  payroll_employee_worked_days       Int           @default(0)
   payroll_employee_version              Int           @default(1)
   // Columnas de ajuste manual por el jefe antes de aprobar la planilla
   payroll_employee_hours_override       Decimal?      @db.Decimal(10, 2)
@@ -433,6 +440,8 @@ model vpg_positions {
   position_name        String          @db.VarChar(50)
   position_description String
   position_base_salary Decimal         @db.Decimal(10, 2)
+  position_occupation_code String?     @db.VarChar(20)
+  position_risk_class      String?     @db.VarChar(10)
   position_version     Int             @default(1)
   vpg_employees        vpg_employees[]
 }

@@ -1,6 +1,6 @@
 {
   "mode": "stable",
-  "model_profile": "sonnet",
+  "model_profile": "balanced",
   "commit_docs": true,
   "parallelization": true,
   "search_gitignored": false,

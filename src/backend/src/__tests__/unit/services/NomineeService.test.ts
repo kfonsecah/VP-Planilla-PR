@@ -63,6 +63,11 @@ describe('NomineeService', () => {
       ccssObreroBP: 1.0,
       minuteRoundingPolicy: MinuteRoundingPolicy.EXACT,
       globalMinWageRate: 1529.62,
+      workingDaysPerWeek: 6,
+      weeklyRestNumerator: 8,
+      weeklyRestDenominator: 104,
+      weeklyRestMultiplier: 2,
+      aguinaldoDivisor: 12,
     });
   });
 
@@ -105,6 +110,11 @@ describe('NomineeService', () => {
       ccssObreroBP: 0.01,
       minuteRoundingPolicy: MinuteRoundingPolicy.EXACT,
       globalMinWageRate: 1529.62,
+      workingDaysPerWeek: 6,
+      weeklyRestNumerator: 8,
+      weeklyRestDenominator: 104,
+      weeklyRestMultiplier: 2,
+      aguinaldoDivisor: 12,
     });
 
     beforeEach(() => {

@@ -26,6 +26,7 @@ import { useModal } from '@/hooks/useModal';
 import { toast } from 'sonner';
 import { BanknotesIcon } from '@heroicons/react/24/outline';
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export default function PayrollDetailPage() {
   const pathname = usePathname();
   const modal = useModal();

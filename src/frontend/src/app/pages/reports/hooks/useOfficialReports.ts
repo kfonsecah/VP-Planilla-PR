@@ -7,6 +7,9 @@ export const useOfficialReports = (payrollId: number | null) => {
   const [history, setHistory] = useState<ReportLogEntry[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState<'CCSS' | 'HACIENDA' | null>(null);
+  const [isDownloading, setIsDownloading] = useState<'CCSS' | 'INS' | null>(null);
+  const [isDownloadingD151, setIsDownloadingD151] = useState(false);
+  const [isDownloadingAnnualSalary, setIsDownloadingAnnualSalary] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadHistory = useCallback(async () => {
@@ -52,5 +55,101 @@ export const useOfficialReports = (payrollId: number | null) => {
     [payrollId, loadHistory]
   );
 
-  return { history, isLoadingHistory, isGenerating, error, generate, reloadHistory: loadHistory };
+  const downloadCCSS = useCallback(async () => {
+    if (!payrollId) return;
+    setIsDownloading('CCSS');
+    try {
+      const { blob, fileName } = await ReportsService.downloadCCSSReport(payrollId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Reporte CCSS descargado exitosamente');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al descargar reporte CCSS';
+      toast.error(msg);
+    } finally {
+      setIsDownloading(null);
+    }
+  }, [payrollId]);
+
+  const downloadINS = useCallback(async () => {
+    if (!payrollId) return;
+    setIsDownloading('INS');
+    try {
+      const { blob, fileName } = await ReportsService.downloadINSReport(payrollId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Reporte INS descargado exitosamente');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al descargar reporte INS';
+      toast.error(msg);
+    } finally {
+      setIsDownloading(null);
+    }
+  }, [payrollId]);
+
+  const downloadD151 = useCallback(async (year: number) => {
+    setIsDownloadingD151(true);
+    try {
+      const { blob, fileName } = await ReportsService.downloadD151Report(year);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Reporte D-151 descargado exitosamente');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al descargar reporte D-151';
+      toast.error(msg);
+    } finally {
+      setIsDownloadingD151(false);
+    }
+  }, []);
+
+  const downloadAnnualSalary = useCallback(async (year: number) => {
+    setIsDownloadingAnnualSalary(true);
+    try {
+      const { blob, fileName } = await ReportsService.downloadAnnualSalarySummary(year);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Resumen anual descargado exitosamente');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al descargar resumen anual';
+      toast.error(msg);
+    } finally {
+      setIsDownloadingAnnualSalary(false);
+    }
+  }, []);
+
+  return {
+    history,
+    isLoadingHistory,
+    isGenerating,
+    isDownloading,
+    isDownloadingD151,
+    isDownloadingAnnualSalary,
+    error,
+    generate,
+    downloadCCSS,
+    downloadINS,
+    downloadD151,
+    downloadAnnualSalary,
+    reloadHistory: loadHistory,
+  };
 };

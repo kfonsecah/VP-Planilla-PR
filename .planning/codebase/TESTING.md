@@ -1,129 +1,108 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-04-09
+**Analysis Date:** 2026-05-09
 
 ## Test Framework
 
 **Runner:**
-- Jest `^29.7.0` in both backend and frontend (`src/backend/package.json`, `src/frontend/package.json`).
-- Backend config: `src/backend/jest.config.js` (Node environment, `ts-jest`).
-- Frontend config: `src/frontend/jest.config.js` (Next.js Jest wrapper, JSDOM).
+- **Backend:** Jest ^29.7.0
+- **Frontend:** Jest ^29.7.0 (configured with Next.js)
 
 **Assertion Library:**
-- Jest `expect` + `@testing-library/jest-dom` matchers (`src/frontend/jest.setup.js`, `src/frontend/src/__tests__/jest.d.ts`).
+- Jest (expect)
 
 **Run Commands:**
 ```bash
-cd src/backend && npm test              # Run backend tests
-cd src/backend && npm run test:watch    # Backend watch mode
-cd src/backend && npm run test:coverage # Backend coverage report
+# Backend
+cd src/backend && npm test             # Run all tests
+cd src/backend && npm run test:watch   # Watch mode
+cd src/backend && npm run test:coverage # Coverage report
 
-cd src/frontend && npm test             # Run frontend tests
+# Frontend
+cd src/frontend && npm test            # Run all tests
 ```
 
 ## Test File Organization
 
 **Location:**
-- Use separate `__tests__` directories instead of co-located tests:
-  - Backend: `src/backend/src/__tests__/unit/`, `src/backend/src/__tests__/integration/`, `src/backend/src/__tests__/setup/`
-  - Frontend: `src/frontend/src/__tests__/components/`, `src/frontend/src/__tests__/hooks/`, `src/frontend/src/__tests__/pages/`, `src/frontend/src/__tests__/services/`
+- **Backend Unit Tests:** `src/backend/src/__tests__/unit/` (often mirroring `src/` structure).
+- **Backend Integration Tests:** `src/backend/src/__tests__/integration/`.
+- **Frontend Tests:** `src/frontend/src/__tests__/` (hooks, services, and components).
 
 **Naming:**
-- Use `*.test.ts` and `*.test.tsx` (for example `src/backend/src/__tests__/unit/services/EmployeeService.test.ts`, `src/frontend/src/__tests__/pages/clock-logs/page.test.tsx`).
-
-**Structure:**
-```
-src/backend/src/__tests__/
-  setup/prisma-mock.ts
-  unit/
-    services/*.test.ts
-    controller/*.test.ts
-    utils/*.test.ts
-  integration/*.integration.test.ts
-
-src/frontend/src/__tests__/
-  components/*.test.tsx
-  hooks/*.test.ts
-  pages/**/*.test.tsx
-  services/*.test.ts
-```
+- `*.test.ts` or `*.test.tsx` (e.g., `NomineeService.test.ts`).
 
 ## Test Structure
 
 **Suite Organization:**
 ```typescript
-// Pattern used in src/backend/src/__tests__/unit/services/EmployeeService.test.ts
-describe('EmployeeService', () => {
+import { NomineeService } from '../../service/NomineeService';
+
+const service = new NomineeService();
+
+describe('NomineeService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('createEmployee', () => {
-    it('should create an employee with all fields', async () => {
-      // arrange
-      // act
-      // assert
-    });
+  it('should calculate payroll correctly', async () => {
+    // Arrange
+    // Act
+    // Assert
   });
 });
 ```
 
 **Patterns:**
-- Setup pattern: use `beforeEach` to reset all mocks and restub defaults (`src/backend/src/__tests__/unit/services/AuthService.test.ts`, `src/frontend/src/__tests__/hooks/useClockLogs.test.ts`).
-- Teardown pattern: implicit via Jest + mock resets (`clearMocks/resetMocks/restoreMocks` enabled in `src/backend/jest.config.js`).
-- Assertion pattern: prefer response-shape assertions and call contract assertions (`toHaveBeenCalledWith`, `expect.objectContaining`) as seen in `src/backend/src/__tests__/unit/controller/ClockLogsController.test.ts` and `src/frontend/src/__tests__/services/clockLogsService.test.ts`.
+- **Setup pattern:** `beforeEach` to reset mocks and establish common mock return values.
+- **Teardown pattern:** `jest.clearAllMocks()` or `jest.resetAllMocks()`.
+- **Assertion pattern:** `expect(result).toBe(...)`, `expect(mock).toHaveBeenCalledWith(...)`.
 
 ## Mocking
 
-**Framework:** Jest mocks (`jest.mock`, `jest.fn`) + `jest-mock-extended` for Prisma deep mocks.
+**Framework:**
+- `jest` (built-in)
+- `jest-mock-extended` (especially for Prisma deep mocking)
 
 **Patterns:**
 ```typescript
-// Backend Prisma module mocking pattern
-// src/backend/src/__tests__/unit/services/EmployeeService.test.ts
-jest.mock('../../../lib/prisma', () => {
+import { PrismaClient } from '@prisma/client';
+import { mockDeep } from 'jest-mock-extended';
+
+jest.mock('../../lib/prisma', () => {
   const mock = mockDeep<PrismaClient>();
   return { prisma: mock };
 });
 
-// Frontend service dependency mocking pattern
-// src/frontend/src/__tests__/services/clockLogsService.test.ts
-jest.mock('@/services/http', () => ({
-  http: { get: jest.fn(), post: jest.fn(), patch: jest.fn(), raw: jest.fn() },
-}));
+const { prisma } = require('../../lib/prisma');
 ```
 
 **What to Mock:**
-- Mock DB/client boundaries in unit tests (Prisma client in backend service tests: `src/backend/src/__tests__/unit/services/*.test.ts`).
-- Mock service dependencies when testing controllers/hooks/pages (for example `ClockLogsService` in `src/backend/src/__tests__/unit/controller/ClockLogsController.test.ts`, `useClockLogs` in `src/frontend/src/__tests__/pages/clock-logs/page.test.tsx`).
-- Mock third-party auth/crypto utilities for deterministic auth tests (bcrypt and jsonwebtoken in `src/backend/src/__tests__/unit/services/AuthService.test.ts`).
+- Database calls (via `prisma` mock).
+- External service dependencies (e.g., `EmployeeService` when testing `NomineeService`).
+- Timers or dates when testing time-sensitive logic.
 
 **What NOT to Mock:**
-- Do not mock internal pure utility logic when unit-testing the utility itself (for example `normalizeLogType` behavior verified directly in `src/backend/src/__tests__/unit/utils/clockLogNormalization.test.ts`).
-- Do not mock HTTP middleware stack in integration route tests; exercise real Express app wiring with `supertest` (`src/backend/src/__tests__/integration/payroll.integration.test.ts`).
+- Pure utility functions (e.g., `payrollUtils.ts`).
+- Data Transformation Objects (DTOs).
 
 ## Fixtures and Factories
 
 **Test Data:**
+Standard objects defined within the test file or setup in `beforeEach`.
 ```typescript
-// Factory/helper pattern from src/backend/src/__tests__/unit/services/EmployeeService.test.ts
-function makeEmployee(input: Partial<Employee> = {}): Employee {
-  return {
-    id: 1,
-    name: 'Juan Carlos',
-    // ...defaults
-    ...input,
-  };
-}
+const startDate = new Date('2026-02-01T00:00:00Z');
+const employees = [{ id: 1, name: 'Employee 1', ... }];
 ```
 
 **Location:**
-- Keep shared setup helpers under `src/backend/src/__tests__/setup/` (for example `prisma-mock.ts`).
-- Keep scenario-specific fixtures inside each test file as `const mock...` objects (backend and frontend test files).
+Currently co-located within test files or in `__tests__/fixtures` if shared (though many tests define their own).
 
 ## Coverage
 
-**Requirements:** None enforced (no global thresholds detected in `src/backend/jest.config.js` or `src/frontend/jest.config.js`).
+**Requirements:**
+- Coverage is monitored via `npm run test:coverage`.
+- No strict global enforcement threshold found, but critical logic (like `payrollUtils.ts` and `NomineeService.ts`) has extensive coverage.
 
 **View Coverage:**
 ```bash
@@ -133,51 +112,38 @@ cd src/backend && npm run test:coverage
 ## Test Types
 
 **Unit Tests:**
-- Primary testing style for backend services/controllers and frontend services/hooks/components.
-- Backend unit examples:
-  - `src/backend/src/__tests__/unit/services/EmployeeService.test.ts`
-  - `src/backend/src/__tests__/unit/controller/ClockLogsController.test.ts`
-- Frontend unit examples:
-  - `src/frontend/src/__tests__/services/clockLogsService.test.ts`
-  - `src/frontend/src/__tests__/components/ClockLogStatusBadge.test.tsx`
+- Focus on isolated service logic.
+- Extensive mocking of all I/O and dependencies.
+- Referenced by Phase/Requirement IDs (e.g., `NomineeService.Phase54.test.ts`).
 
 **Integration Tests:**
-- Use `supertest` against actual Express app import (`src/backend/src/__tests__/integration/payroll.integration.test.ts`).
-- Current focus is route/auth behavior and HTTP response contract.
+- Test lifecycle flows (e.g., `auth.lifecycle.test.ts`, `payroll.integration.test.ts`).
+- Test multiple layers working together.
 
 **E2E Tests:**
-- Not used (no Playwright/Cypress config detected).
+- Playwright infrastructure detected (`.playwright-cli` folder) but not extensively used in the main `src/` tree tests.
 
 ## Common Patterns
 
 **Async Testing:**
-```typescript
-// Backend async rejection assertion
-// src/backend/src/__tests__/unit/services/EmployeeService.test.ts
-await expect(EmployeeService.createEmployee(input)).rejects.toThrow('DB error');
-
-// Frontend async UI assertion
-// src/frontend/src/__tests__/components/ClockLogDetailModal.test.tsx
-await waitFor(() => {
-  expect(mockedClockLogsService.updateClockLogStatus).toHaveBeenCalledWith(
-    mockLog.id,
-    'corrected',
-    'Valid justification text'
-  );
-});
-```
+- Standard `async/await` in test blocks.
+- `expect(promise).resolves` or `await expect(promise).rejects.toThrow()`.
 
 **Error Testing:**
 ```typescript
-// HTTP/controller error contract checks
-// src/backend/src/__tests__/unit/controller/ClockLogsController.test.ts
-await controller.getStats(req, res);
-expect(res.status).toHaveBeenCalledWith(400);
-expect(res.json).toHaveBeenCalledWith(
-  expect.objectContaining({ error: expect.any(String) })
-);
+it('should throw error if params are missing', async () => {
+  await expect(service.getClockLogs(req as any, res as any))
+    .rejects.toThrow('initDate and endDate are required');
+});
 ```
+
+## Special Cases: Java Utility
+
+**Status:**
+- Documentation (`GEMINI.md`) mentions a Java clock-log parser in `src/Java/` as a standalone utility.
+- Currently, no `.java` files were found in the `src/` or root directory.
+- Test suite is currently 100% TypeScript/Jest.
 
 ---
 
-*Testing analysis: 2026-04-09*
+*Testing analysis: 2026-05-09*

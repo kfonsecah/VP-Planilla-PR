@@ -5,6 +5,8 @@ export interface Position {
   name: string;
   description?: string | null;
   base_salary?: number | null;
+  occupation_code?: string | null;
+  risk_class?: string | null;
   version?: number;
 }
 

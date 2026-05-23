@@ -16,6 +16,7 @@ function fmtHours(n: number): string {
   return n.toFixed(1) + 'h';
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const EmployeePayrollBreakdown: React.FC<Props> = ({ employee }) => {
   const e = employee as EmployeePayroll & Record<string, unknown>;
 

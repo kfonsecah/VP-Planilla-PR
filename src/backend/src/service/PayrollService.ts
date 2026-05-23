@@ -293,10 +293,13 @@ export class PayrollService {
   }
 
   /**
-   * Approve a payroll — transition from BORRADOR to APROBADA
+   * Approve a payroll — transition from BORRADOR to APROBADA.
+   * Performs preventive audit for minimum wage compliance and captures a snapshot
+   * of all legal parameters active at the period start date (PAY-29).
+   * 
    * @param payrollId - The ID of the payroll to approve
    * @param userId - The ID of the user approving the payroll
-   * @returns Promise<Payroll> - The updated payroll
+   * @returns Promise with the updated payroll record
    * @throws Error if payroll not found or not in BORRADOR status
    */
   static async approvePayroll(payrollId: number, userId: number): Promise<Payroll> {
@@ -487,7 +490,9 @@ export class PayrollService {
   }
 
   /**
-   * Lock clock log adjustments for a paid payroll period
+   * Lock clock log adjustments for a paid payroll period.
+   * Prevents retrospective changes to logs after payment is final.
+   * 
    * @param payrollId - The payroll ID
    * @param periodStart - Period start date
    * @param periodEnd - Period end date
@@ -545,11 +550,13 @@ export class PayrollService {
   }
 
   /**
-   * Recalculate a payroll in BORRADOR state — saves snapshot before recalculation
+   * Recalculate a payroll in BORRADOR state — saves snapshot before recalculation.
+   * Increments the payroll version to track change history.
+   * 
    * @param payrollId - The ID of the payroll to recalculate
    * @param userId - The ID of the user requesting recalculation
    * @param reason - Reason for recalculation
-   * @returns Promise<Payroll> - The updated payroll
+   * @returns Promise with the updated payroll record
    * @throws Error if payroll not found or not in BORRADOR status
    */
   static async recalculatePayroll(payrollId: number, userId: number, reason: string): Promise<Payroll> {
@@ -586,7 +593,13 @@ export class PayrollService {
   /**
    * Save per-employee hour/deduction overrides for a payroll in BORRADOR state.
    * Persists override values into vpg_payroll_employee and sets is_manually_adjusted = true.
-   * Uses payrollEmployeeId as the unique identifier.
+   * Recalculates gross and net salaries based on overrides and employee base rate.
+   * 
+   * @param payrollId - The ID of the payroll
+   * @param payrollEmployeeId - The unique ID of the payroll_employee record
+   * @param override - Object with fields to override: regularHours, overtimeHours, weeklyRestHours, totalDeductions
+   * @returns Promise with the updated payroll_employee record
+   * @throws Error if payroll not in BORRADOR or record not found
    */
   static async saveEmployeeOverride(
     payrollId: number,

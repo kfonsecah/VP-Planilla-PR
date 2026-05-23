@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { LaborEvent, EmployeeLaborEvent, LaborEventFormData } from '@/types/laborEvent';
 import { LaborEventsService } from '@/services/laborEventsService';
-import { readCache, writeCache, invalidateCache } from '@/utils/sessionCache';
+import { writeCache, invalidateCache } from '@/utils/sessionCache';
 
 const CACHE_KEY = 'vp_labor_events_cache';
 

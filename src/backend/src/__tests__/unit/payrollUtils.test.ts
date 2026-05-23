@@ -768,6 +768,11 @@ describe('payrollUtils - Dynamic Legal Parameters Variance', () => {
     regularHoursPerDay: 7, // Custom shift
     otFactor: 2.0, // Double time for all overtime
     holidayMandatoryFactor: 2.5,
+    workingDaysPerWeek: 5,
+    weeklyRestNumerator: 1,
+    weeklyRestDenominator: 1,
+    weeklyRestMultiplier: 1,
+    aguinaldoDivisor: 1,
   };
 
   it('calculateRegularHours uses custom regularHoursPerDay', () => {
@@ -795,5 +800,32 @@ describe('payrollUtils - Dynamic Legal Parameters Variance', () => {
     // Custom: 3 OT * 1000 * 2.0 = 6000
     expect(calculateOvertimePay(days, 1000, [], customParams)).toBe(6000);
     expect(calculateOvertimePay(days, 1000)).toBe(3000);
+  });
+
+  it('getWeeklyRestDays uses custom workingDaysPerWeek', () => {
+    const days: DayWork[] = [
+      { date: '2026-03-16T12:00:00Z', hoursWorked: 8, isVacation: false, messages: [] },
+      { date: '2026-03-17T12:00:00Z', hoursWorked: 8, isVacation: false, messages: [] },
+      { date: '2026-03-18T12:00:00Z', hoursWorked: 8, isVacation: false, messages: [] },
+      { date: '2026-03-19T12:00:00Z', hoursWorked: 8, isVacation: false, messages: [] },
+      { date: '2026-03-20T12:00:00Z', hoursWorked: 8, isVacation: false, messages: [] },
+    ];
+    // 5 working days / 5 customWorkingDaysPerWeek = 1
+    expect(getWeeklyRestDays(days, customParams)).toBe(1);
+    expect(getWeeklyRestDays(days)).toBe(0); // 5 / 6 = 0
+  });
+
+  it('calculateWeeklyRestHours uses custom rest parameters', () => {
+    // 100 regular hours * (1/1) * 1 = 100
+    expect(calculateWeeklyRestHours(100, new Date(), new Date(), customParams)).toBe(100);
+    // 100 * 8 / 104 * 2 = 15.38
+    expect(calculateWeeklyRestHours(100, new Date(), new Date())).toBe(15.38);
+  });
+
+  it('averageOfSalaries uses custom aguinaldoDivisor', () => {
+    // 1000 / 1 = 1000
+    expect(averageOfSalaries([1000], customParams)).toBe(1000);
+    // 1000 / 12 = 83.33
+    expect(averageOfSalaries([1000])).toBe(83.33);
   });
 });

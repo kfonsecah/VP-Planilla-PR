@@ -99,10 +99,19 @@ export class AuthController {
         await AuthService.updateLastLogin(result.user.id);
       }
 
+      const refreshToken = result.user
+        ? AuthService.issueRefreshToken({
+            id: result.user.id,
+            username: result.user.username,
+            role: result.user.role,
+          })
+        : undefined;
+
       return res.status(200).json({
         success: true,
         user: result.user,
         token: result.token,
+        refresh_token: refreshToken,
         message: 'Autenticación exitosa'
       });
 
@@ -255,10 +264,10 @@ export class AuthController {
           .json(AuthController.buildAuthError(400, 'AUTH_TOKEN_MISSING', 'refresh_token es requerido'));
       }
 
-      let decoded: { id: number; username?: string; role?: string; exp: number; iat?: number };
+      let decoded: { id: number; username?: string; role?: string; exp: number };
 
       try {
-        decoded = AuthService.verifyToken(refresh_token);
+        decoded = AuthService.verifyRefreshToken(refresh_token);
       } catch (tokenError) {
         if (tokenError instanceof Error && tokenError.name === 'TokenExpiredError') {
           return res
@@ -271,6 +280,14 @@ export class AuthController {
           .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Refresh token inválido'));
       }
 
+      // Rechazar refresh tokens ya usados (detectar reutilización de tokens rotados)
+      const isBlocklisted = await AuthService.isTokenBlocklisted(refresh_token);
+      if (isBlocklisted) {
+        return res
+          .status(401)
+          .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_REVOKED', 'Refresh token ya fue utilizado'));
+      }
+
       const user = await AuthService.getUserById(decoded.id);
 
       if (!user) {
@@ -279,7 +296,16 @@ export class AuthController {
           .json(AuthController.buildAuthError(401, 'AUTH_TOKEN_INVALID', 'Usuario no encontrado'));
       }
 
+      // Invalidar el refresh token usado (rotación)
+      await AuthService.addTokenToBlocklist(refresh_token, new Date(decoded.exp * 1000));
+
       const token = AuthService.issueAccessToken({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      });
+
+      const newRefreshToken = AuthService.issueRefreshToken({
         id: user.id,
         username: user.username,
         role: user.role,
@@ -288,6 +314,7 @@ export class AuthController {
       return res.status(200).json({
         success: true,
         token,
+        refresh_token: newRefreshToken,
       });
     } catch (error) {
       console.error('Error en refresh token:', error);

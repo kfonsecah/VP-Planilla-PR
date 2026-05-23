@@ -81,9 +81,11 @@ const ClockLogDetailModal: React.FC<ClockLogDetailModalProps> = ({
         })
         .finally(() => setIsLoadingAudit(false));
 
+      let timerId: ReturnType<typeof setTimeout> | undefined;
       if (modalRef.current) {
-        setTimeout(() => modalRef.current?.focus(), 100);
+        timerId = setTimeout(() => modalRef.current?.focus(), 100);
       }
+      return () => clearTimeout(timerId);
     }
   }, [isOpen, log]);
 

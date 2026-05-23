@@ -16,9 +16,11 @@ export interface AuditLogFilters {
 
 export class AuditLogsService {
   /**
-   * Get audit logs with optional filters
-   * @param filters - Optional filters for audit logs
-   * @returns Promise<AuditLog[]> - Array of audit logs matching the filters
+   * Get audit logs with optional filters.
+   * Includes associated user information (id, username, email).
+   * 
+   * @param filters - Optional filters: userId, action, entity, date range, pagination (limit/offset)
+   * @returns Promise with data array and total count for pagination
    */
   static async getAuditLogs(filters: AuditLogFilters = {}): Promise<any> {
     const where: any = {};
@@ -116,6 +118,13 @@ export class AuditLogsService {
     });
   }
 
+  /**
+   * Get a single audit log by its ID.
+   * Includes associated user information.
+   * 
+   * @param id - The audit log ID
+   * @returns Promise with the audit log data or null if not found
+   */
   static async getAuditLogById(id: number): Promise<any> {
     const log = await prisma.vpg_audit_logs.findUnique({
       where: { audit_logs_id: id },

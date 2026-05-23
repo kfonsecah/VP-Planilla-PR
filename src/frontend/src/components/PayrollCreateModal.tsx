@@ -44,15 +44,17 @@ export default function PayrollCreateModal({ open, onClose, periodStart, periodE
 
   useEffect(() => {
     if (!open) return;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
     if (modalRef.current) {
       const firstInput = modalRef.current.querySelector('input, select') as HTMLElement;
-      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+      if (firstInput) timerId = setTimeout(() => firstInput.focus(), 100);
     }
     reset({
       payroll_type_id: 1,
       payment_date: today,
       status: 'CALCULADO'
     });
+    return () => clearTimeout(timerId);
   }, [open, reset, today]);
 
   const handleSave = async (values: PayrollFormValues) => {

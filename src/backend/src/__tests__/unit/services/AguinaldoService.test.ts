@@ -13,6 +13,16 @@ jest.mock('@prisma/client', () => ({
     APROBADA: 'APROBADA',
     PAGADA: 'PAGADA',
   },
+  ShiftType: {
+    DIURNA: 'DIURNA',
+    MIXTA: 'MIXTA',
+    NOCTURNA: 'NOCTURNA',
+  },
+  MinuteRoundingPolicy: {
+    EXACT: 'EXACT',
+    ALWAYS_UP: 'ALWAYS_UP',
+    NEAREST_QUARTER: 'NEAREST_QUARTER',
+  },
 }));
 
 // Mock the lib/prisma module
@@ -34,6 +44,19 @@ describe('AguinaldoService', () => {
     jest.clearAllMocks();
     // Default: Costa Rica standard config
     prismaMock.vpg_enterprise.findFirst.mockResolvedValue(CR_DEFAULT_ENTERPRISE as any);
+    
+    // Mock legal params for LegalParamService calls
+    prismaMock.vpgLegalParam.findMany.mockResolvedValue([
+      { key: 'WORKDAY_DIURNA_DAILY', value: new Decimal(8), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'WORKDAY_DIURNA_WEEKLY', value: new Decimal(48), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'OT_FACTOR', value: new Decimal(1.5), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'HOLIDAY_MANDATORY_FACTOR', value: new Decimal(2), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'HOLIDAY_TRIPLE_FACTOR', value: new Decimal(3), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'CCSS_OBRERO_SALUD', value: new Decimal(5.5), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'CCSS_OBRERO_PENSION', value: new Decimal(4.33), validFrom: new Date('2000-01-01'), isActive: true },
+      { key: 'CCSS_OBRERO_BP', value: new Decimal(1), validFrom: new Date('2000-01-01'), isActive: true },
+    ] as any);
+    prismaMock.vpgLegalParam.findFirst.mockResolvedValue(null); // No min wage override
   });
 
   describe('calculateAccruedAguinaldo', () => {

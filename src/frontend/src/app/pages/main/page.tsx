@@ -10,6 +10,7 @@ import { LegalParamAlertBanner } from "@/components/LegalParamAlertBanner";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import { formatSalary, getStatusBadgeConfig } from "@/utils/employeeUtils";
 import { EmployeeLaborEvent } from "@/types/laborEvent";
+import { CompanyHoliday } from "@/services/holidaysService";
 import { Employee } from "@/types/employee";
 import {
   CalendarIcon,
@@ -36,6 +37,8 @@ const ACTIVE_BADGE_CLASSES = "bg-green-100 dark:bg-green-900/30 text-green-700 d
 const COMPLETED_BADGE_CLASSES = "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
 const TEXT_ZINC_400_10PX = "text-[10px] text-zinc-400";
 const NOT_ASSIGNED = "Sin asignar";
+const MANDATORY_LABEL = "Pago Obligatorio";
+const NON_MANDATORY_LABEL = "Pago No Obligatorio";
 
 interface CalendarEvent {
   date: number;
@@ -53,7 +56,7 @@ const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month
 const Home: React.FC = () => {
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-  const [dayModal, setDayModal] = useState<{ date: Date; events: EmployeeLaborEvent[]; holidays: any[] } | null>(null);
+  const [dayModal, setDayModal] = useState<{ date: Date; events: EmployeeLaborEvent[]; holidays: CompanyHoliday[] } | null>(null);
   const [visibleRangeStart, setVisibleRangeStart] = useState<Date | null>(null);
   const [visibleRangeEnd, setVisibleRangeEnd] = useState<Date | null>(null);
 
@@ -130,7 +133,7 @@ const Home: React.FC = () => {
           date: d.getDate(),
           type: "holiday",
           title: h.company_holidays_name,
-          description: h.company_holidays_is_mandatory ? "Pago Obligatorio" : "Pago No Obligatorio"
+          description: h.company_holidays_is_mandatory ? MANDATORY_LABEL : NON_MANDATORY_LABEL
         });
       }
     });
@@ -148,10 +151,10 @@ const Home: React.FC = () => {
   ];
 
   const quickActions = [
-    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll/wizard", color: "bg-green-600 hover:bg-green-500" },
-    { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500" },
-    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500" },
-    { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500" },
+    { label: "Calcular planilla", description: "Inicia el cálculo de la quincena", icon: CalculatorIcon, href: "/pages/payroll/wizard", color: "bg-green-600 hover:bg-green-500", testId: "quick-action-payroll" },
+    { label: "Generar reportes", description: "Descarga métricas y resúmenes", icon: ChartBarIcon, href: "/pages/reports", color: "bg-zinc-700 hover:bg-zinc-600 dark:bg-zinc-600 dark:hover:bg-zinc-500", testId: "quick-action-reports" },
+    { label: "Registro de asistencia", description: "Valida marcaciones del día", icon: ClipboardDocumentCheckIcon, href: ATTENDANCE_PATH, color: "bg-blue-600 hover:bg-blue-500", testId: "quick-action-attendance" },
+    { label: "Dashboard de Marcas", description: "Revisar y corregir marcas de reloj", icon: ClockIcon, href: "/pages/clock-logs", color: "bg-indigo-600 hover:bg-indigo-500", testId: "quick-action-clock-logs" },
   ];
 
   const renderCalendarDays = () => {
@@ -161,6 +164,7 @@ const Home: React.FC = () => {
     for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i);
     while (calendarDays.length < 42) calendarDays.push(null);
 
+    // eslint-disable-next-line sonarjs/cognitive-complexity
     return calendarDays.map((day, index) => {
       const isCurrentMonthDay = index >= firstDayIndex && index < daysInMonth + firstDayIndex;
       const dayEvents = isCurrentMonthDay ? calendarHighlights.filter((e) => e.date === day) : [];
@@ -298,6 +302,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
+                  data-testid={action.testId}
                   className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
@@ -318,6 +323,7 @@ const Home: React.FC = () => {
                 <button
                   key={action.label}
                   onClick={() => router.push(action.href)}
+                  data-testid={action.testId}
                   className={`flex items-center gap-4 px-5 py-4 ${CARD_CONTAINER_CLASSES} hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all text-left cursor-pointer group`}
                 >
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center flex-shrink-0 text-white`}>
@@ -360,7 +366,7 @@ const Home: React.FC = () => {
                             </p>
                           </div>
                           <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
-                            {nextHoliday.company_holidays_is_mandatory ? "Pago Obligatorio" : "Pago No Obligatorio"}
+                            {nextHoliday.company_holidays_is_mandatory ? MANDATORY_LABEL : NON_MANDATORY_LABEL}
                           </p>
                           <p className={`${TEXT_ZINC_400_10PX} mt-0.5`}>
                             {new Date(nextHoliday.company_holidays_date).toLocaleDateString("es-CR", { day: "numeric", month: "long" })}
@@ -490,7 +496,7 @@ const Home: React.FC = () => {
                         <p className="text-sm font-bold text-amber-800 dark:text-amber-200">{h.company_holidays_name}</p>
                       </div>
                       <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                        {h.company_holidays_is_mandatory ? "Pago Obligatorio" : "Pago No Obligatorio"}
+                        {h.company_holidays_is_mandatory ? MANDATORY_LABEL : NON_MANDATORY_LABEL}
                       </p>
                     </div>
                   ))}

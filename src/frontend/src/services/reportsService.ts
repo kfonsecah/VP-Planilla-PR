@@ -7,6 +7,8 @@ import {
   SendReportsPayload,
 } from '@/types/reports';
 
+const CONTENT_DISPOSITION_HEADER = 'content-disposition';
+
 export const ReportsService = {
   async getDashboard(): Promise<ReportsDashboardData> {
     return (await http.get('/reports/dashboard')) as ReportsDashboardData;
@@ -55,11 +57,91 @@ export const ReportsService = {
     }
 
     const blob = await response.blob();
-    const disposition = response.headers.get('content-disposition') || '';
+    const disposition = response.headers.get(CONTENT_DISPOSITION_HEADER) || '';
     const fileNameMatch = disposition.match(/filename=([^;]+)/i);
     const fallbackName = employeeIds && employeeIds.length === 1
       ? `comprobante_pago_${payrollId}_${employeeIds[0]}.pdf`
       : `comprobantes_planilla_${payrollId}.pdf`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
+
+  async downloadCCSSReport(payrollId: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/institutional/ccss/${payrollId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar reporte CCSS (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get(CONTENT_DISPOSITION_HEADER) || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `reporte_ccss_planilla_${payrollId}.csv`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
+
+  async downloadINSReport(payrollId: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/institutional/ins/${payrollId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar reporte INS (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get(CONTENT_DISPOSITION_HEADER) || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `reporte_ins_planilla_${payrollId}.csv`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
+
+  async downloadD151Report(year: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/hacienda/d151/${year}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar reporte D-151 (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get(CONTENT_DISPOSITION_HEADER) || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `hacienda_d151_${year}.csv`;
+
+    return {
+      blob,
+      fileName: fileNameMatch ? fileNameMatch[1].trim().replace(/^"|"$/g, '') : fallbackName,
+    };
+  },
+
+  async downloadAnnualSalarySummary(year: number): Promise<{ blob: Blob; fileName: string }> {
+    const response = await http.raw(`/reports/hacienda/annual-salary/${year}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al descargar resumen anual (${response.status})`);
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get(CONTENT_DISPOSITION_HEADER) || '';
+    const fileNameMatch = disposition.match(/filename=([^;]+)/i);
+    const fallbackName = `resumen_anual_salarios_${year}.xlsx`;
 
     return {
       blob,

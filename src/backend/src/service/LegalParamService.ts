@@ -26,9 +26,10 @@ export class LegalParamService {
     });
     const roundingPolicy = enterprise?.enterprise_minute_rounding_policy ?? MinuteRoundingPolicy.EXACT;
 
-    const getParamValue = (key: string): number => {
+    const getParamValue = (key: string, defaultValue?: number): number => {
       const val = rawParams[key];
       if (val === undefined || val === null) {
+        if (defaultValue !== undefined) return defaultValue;
         throw new Error(`Critical parameter missing from database: ${key}`);
       }
       return Number(val);
@@ -49,6 +50,11 @@ export class LegalParamService {
       ccssObreroBP: getParamValue('CCSS_OBRERO_BP'),
       minuteRoundingPolicy: roundingPolicy,
       globalMinWageRate: await this.getGlobalMinWageRate(date),
+      workingDaysPerWeek: getParamValue('WORKING_DAYS_PER_WEEK', 6),
+      weeklyRestNumerator: getParamValue('WEEKLY_REST_NUMERATOR', 8),
+      weeklyRestDenominator: getParamValue('WEEKLY_REST_DENOMINATOR', 104),
+      weeklyRestMultiplier: getParamValue('WEEKLY_REST_MULTIPLIER', 2),
+      aguinaldoDivisor: getParamValue('AGUINALDO_DIVISOR', 12),
     };
   }
   /**

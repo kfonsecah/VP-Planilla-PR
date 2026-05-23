@@ -16,10 +16,14 @@ export const DEFAULT_LEGAL_PARAMS: LegalParamSet = {
   ccssObreroBP: 1.0,
   minuteRoundingPolicy: MinuteRoundingPolicy.EXACT,
   payUnworkedHolidays: true,
+  workingDaysPerWeek: 6,
+  weeklyRestNumerator: 8,
+  weeklyRestDenominator: 104,
+  weeklyRestMultiplier: 2,
+  aguinaldoDivisor: 12,
 };
 
 // ── Costa Rica labor law constants ────────────────────────────────────────────
-const WORKING_DAYS_PER_WEEK = 6; // Monday – Saturday
 
 export interface PayrollHoliday {
   company_holidays_date: Date;
@@ -346,12 +350,12 @@ export function calculateOvertimeHoursBiweekly(
  * Count weekly rest days owed (discrete, Mon–Sat only).
  * Kept for reference. Prefer calculateWeeklyRestHours for pay calculations.
  */
-export function getWeeklyRestDays(days: DayWork[]): number {
+export function getWeeklyRestDays(days: DayWork[], params: LegalParamSet = DEFAULT_LEGAL_PARAMS): number {
   const workingDays = days.filter(
     (d) =>
       !d.isVacation && d.hoursWorked > 0 && new Date(d.date).getDay() !== 0,
   ).length;
-  return Math.floor(workingDays / WORKING_DAYS_PER_WEEK);
+  return Math.floor(workingDays / params.workingDaysPerWeek);
 }
 
 /**
@@ -396,18 +400,23 @@ export function calculateScheduledHours(
 }
 
 /**
- * Proportional weekly rest hours earned.
- * Formula utilizada por la empresa: horas_trabajadas × 8 / 104 × 2
- * Esta fórmula es estándar para todos los empleados
- * Ejemplo: 104 horas trabajadas → 104 × 8 / 104 × 2 = 16 horas de descanso
+ * Calculate weekly rest hours earned based on enterprise formula.
+ * Standard proportional rest formula: regularHours × (numerator / denominator) × multiplier
+ * Default CR: regularHours × 8 / 104 × 2
+ * 
+ * @param regularHours - Total regular hours worked in period
+ * @param startDate - Period start
+ * @param endDate - Period end
+ * @param params - Legal parameter set
+ * @returns Proportional rest hours
  */
 export function calculateWeeklyRestHours(
   regularHours: number,
   startDate: Date,
   endDate: Date,
+  params: LegalParamSet = DEFAULT_LEGAL_PARAMS
 ): number {
-  // Fórmula exacta de la empresa: horas_trabajadas × 8 / 104 × 2
-  return roundToMoney(((regularHours * 8) / 104) * 2);
+  return roundToMoney(((regularHours * params.weeklyRestNumerator) / params.weeklyRestDenominator) * params.weeklyRestMultiplier);
 }
 
 // ── Salary component helpers ──────────────────────────────────────────────────
@@ -655,7 +664,13 @@ export function hasAYear(hired_date: Date, end_date: Date) {
   return end_date >= anniversary;
 }
 
-export function averageOfSalaries(salaries: number[]) {
+/**
+ * Calculate the average of salaries for a period (e.g. for Aguinaldo).
+ * @param salaries - Array of monthly/biweekly salaries
+ * @param params - Legal parameter set (divisor defaults to 12)
+ * @returns Average amount
+ */
+export function averageOfSalaries(salaries: number[], params: LegalParamSet = DEFAULT_LEGAL_PARAMS) {
   if (salaries.length === 0) {
     return 0;
   }
@@ -665,7 +680,7 @@ export function averageOfSalaries(salaries: number[]) {
     sum += salary;
   });
 
-  return roundToMoney(sum / 12);
+  return roundToMoney(sum / params.aguinaldoDivisor);
 }
 
 /**

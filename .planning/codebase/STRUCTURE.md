@@ -1,210 +1,125 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-04-11
+**Analysis Date:** 2025-05-15
 
 ## Directory Layout
 
-```text
+```
 VP-Planilla/
-├── .planning/                    # GSD planning state and generated codebase maps
-├── docs/                         # Project documentation
-├── scripts/                      # Root-level automation scripts
 ├── src/
-│   ├── backend/                  # Express + Prisma backend application
-│   │   ├── prisma/               # Prisma schema and SQL migrations
-│   │   ├── src/                  # Backend TypeScript source
-│   │   ├── templates/            # HTML templates for payment receipts
-│   │   ├── dist/                 # Compiled backend output (generated)
-│   │   └── node_modules/         # Backend dependencies
-│   ├── frontend/                 # Next.js frontend application
-│   │   ├── public/               # Static assets (icons, fonts, sample files)
-│   │   ├── scripts/              # Frontend-specific scripts
-│   │   ├── src/                  # Frontend TypeScript source
-│   │   ├── .next/                # Next build/cache output (generated)
-│   │   └── node_modules/         # Frontend dependencies
-│   ├── Java/                     # Standalone Java utility workspace
-│   ├── DB/                       # SQL/manual database artifacts
-│   ├── API/                      # Reserved API-related workspace
-│   └── env/                      # Environment folder placeholder
-├── CLAUDE.md                     # Project operating manual and architecture rules
-├── README.md                     # Setup, conventions, and high-level architecture
-└── WORKFLOW.md                   # Process/workflow guidance
+│   ├── backend/        # Node.js/Express Backend
+│   │   ├── prisma/     # Prisma schema and migrations
+│   │   ├── src/        # Backend source code
+│   │   │   ├── config/     # Environment and app config
+│   │   │   ├── controller/ # Request handlers
+│   │   │   ├── lib/        # Library singletons (Prisma)
+│   │   │   ├── middleware/ # Express middlewares
+│   │   │   ├── model/      # TS interfaces (Model-like)
+│   │   │   ├── routes/     # API route definitions
+│   │   │   ├── service/    # Business logic layer
+│   │   │   ├── utils/      # Shared utilities (payroll math)
+│   │   │   └── index.ts    # API Entry point
+│   │   └── package.json
+│   ├── frontend/       # Next.js Frontend
+│   │   ├── src/        # Frontend source code
+│   │   │   ├── app/        # Next.js App Router pages
+│   │   │   ├── components/ # Reusable UI components
+│   │   │   ├── hooks/      # Custom React hooks
+│   │   │   ├── services/   # API client services
+│   │   │   ├── schemas/    # Zod validation schemas
+│   │   │   ├── utils/      # Frontend utilities
+│   │   │   └── types/      # Shared TS types
+│   │   └── package.json
+│   └── DB/             # SQL scripts and DB initialization
+├── docs/               # Project documentation and legal specs
+├── .planning/          # GSD planning and mapping documents
+└── scripts/            # Automation and validation scripts
 ```
 
 ## Directory Purposes
 
-**`src/backend/src/routes/`:**
-- Purpose: Declare API routes and middleware composition.
-- Contains: Route modules named `*Route.ts` (for example `src/backend/src/routes/EmployeeRoute.ts`, `src/backend/src/routes/ReportsRoute.ts`).
-- Key files: `src/backend/src/routes/AuthRoute.ts`, `src/backend/src/routes/NomineeRoute.ts`, `src/backend/src/routes/PayrollRoutes.ts`.
+**src/backend:**
+- Purpose: Provides a RESTful API for payroll management.
+- Contains: Express.js application, business logic, and database access layer.
+- Key files: `src/backend/src/index.ts`, `src/backend/prisma/schema.prisma`.
 
-**`src/backend/src/controller/`:**
-- Purpose: Translate HTTP request/response to service calls.
-- Contains: Controller classes named `*Controller.ts`.
-- Key files: `src/backend/src/controller/NomineeController.ts`, `src/backend/src/controller/PayrollController.ts`, `src/backend/src/controller/ReportsController.ts`.
+**src/frontend:**
+- Purpose: User interface for the payroll system.
+- Contains: Next.js pages, Tailwind CSS styles, and client-side logic.
+- Key files: `src/frontend/src/app/layout.tsx`, `src/frontend/src/services/http.ts`.
 
-**`src/backend/src/service/`:**
-- Purpose: Centralize business logic and database operations.
-- Contains: Service classes named `*Service.ts` plus one legacy file `src/backend/src/service/EmployeeDeductions.ts`.
-- Key files: `src/backend/src/service/NomineeService.ts`, `src/backend/src/service/PayrollService.ts`, `src/backend/src/service/ReportsService.ts`.
+**src/DB:**
+- Purpose: Legacy or reference SQL scripts.
+- Contains: `script.sql` for manual database initialization or reference.
 
-**`src/backend/src/model/`:**
-- Purpose: TypeScript entity/interface contracts used by backend services/controllers.
-- Contains: Domain model files in lower camel/snake mix (e.g., `employee.ts`, `payrollType.ts`, `ImportSession.ts`).
-- Key files: `src/backend/src/model/employee.ts`, `src/backend/src/model/payroll.ts`, `src/backend/src/model/user.ts`.
-
-**`src/backend/src/middleware/`:**
-- Purpose: Reusable HTTP middleware.
-- Contains: Auth and body-validation middleware.
-- Key files: `src/backend/src/middleware/AuthMiddleware.ts`, `src/backend/src/middleware/validateBody.ts`.
-
-**`src/backend/src/utils/`:**
-- Purpose: Shared utility functions for request handling and payroll math.
-- Contains: Async wrapper, Swagger docs builder, payroll calculators.
-- Key files: `src/backend/src/utils/asyncHandler.ts`, `src/backend/src/utils/payrollUtils.ts`, `src/backend/src/utils/docs.ts`.
-
-**`src/backend/prisma/`:**
-- Purpose: Database schema and migration history.
-- Contains: `schema.prisma` and timestamped migration directories.
-- Key files: `src/backend/prisma/schema.prisma`, `src/backend/prisma/migrations/20260405_add_clock_log_enums_and_tracing/migration.sql`.
-
-**`src/frontend/src/app/`:**
-- Purpose: Next.js App Router entry and global layout shell wiring.
-- Contains: `layout.tsx`, root redirect page, `not-found.tsx`, and `pages/` feature routes.
-- Key files: `src/frontend/src/app/layout.tsx`, `src/frontend/src/app/page.tsx`, `src/frontend/src/app/pages/reports/page.tsx`.
-
-**`src/frontend/src/app/pages/`:**
-- Purpose: Feature route groups.
-- Contains: Domain folders (`payroll/`, `employee/`, `reports/`, `clock-logs/`, `vacations/`, etc.) with nested `page.tsx` files.
-- Key files: `src/frontend/src/app/pages/payroll/calculate/page.tsx`, `src/frontend/src/app/pages/employee/list/page.tsx`, `src/frontend/src/app/pages/auth/page.tsx`.
-
-**`src/frontend/src/hooks/`:**
-- Purpose: Page/use-case state management and orchestration.
-- Contains: Hooks prefixed with `use` and a few provider hooks (`useAuth.tsx`, `useTheme.tsx`).
-- Key files: `src/frontend/src/hooks/useNominee.ts`, `src/frontend/src/hooks/useEmployeeList.ts`, `src/frontend/src/hooks/usePayroll.ts`.
-
-**`src/frontend/src/services/`:**
-- Purpose: HTTP-facing API adapters and transport abstraction.
-- Contains: Domain services (`*Service.ts`), centralized internal client `http.ts`, and external client `externalHttp.ts`.
-- Key files: `src/frontend/src/services/http.ts`, `src/frontend/src/services/externalHttp.ts`, `src/frontend/src/services/auditLogsService.ts`, `src/frontend/src/services/branchService.ts`, `src/frontend/src/services/payrollEmployeesService.ts`.
-
-**`src/frontend/src/components/`:**
-- Purpose: Reusable feature components and modal/table views.
-- Contains: PascalCase React components and nested UI primitives in `src/frontend/src/components/ui/`.
-- Key files: `src/frontend/src/components/PayrollResults.tsx`, `src/frontend/src/components/EmployeeTable.tsx`, `src/frontend/src/components/ui/Sidebar.tsx`.
-
-**`src/frontend/src/types/`:**
-- Purpose: Frontend TypeScript contracts for APIs and UI entities.
-- Contains: Domain type modules and index barrel.
-- Key files: `src/frontend/src/types/reports.ts`, `src/frontend/src/types/employee.ts`, `src/frontend/src/types/index.ts`.
-
-**`src/frontend/src/schemas/`:**
-- Purpose: Frontend Zod/form schemas.
-- Contains: Validation schemas by domain.
-- Key files: `src/frontend/src/schemas/vacationSchema.ts`, `src/frontend/src/schemas/employee.ts`.
-
-**`src/frontend/src/utils/`:**
-- Purpose: Frontend utility functions.
-- Contains: Date helpers, weather utility, session cache.
-- Key files: `src/frontend/src/utils/weather.ts`, `src/frontend/src/utils/sessionCache.ts`.
+**docs:**
+- Purpose: Technical and domain-specific documentation.
+- Contains: Costa Rica labor law math details, security recommendations, and user guides.
+- Key files: `docs/CALCULO_PLANILLA.md`, `docs/GUIA_PLANILLA.md`.
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/backend/src/index.ts`: Express server bootstrap, middleware wiring, and route mounting.
-- `src/frontend/src/app/layout.tsx`: Root Next layout and client shell hook-in.
-- `src/frontend/src/app/page.tsx`: Root route redirect to authentication page.
+- `src/backend/src/index.ts`: Backend API main entry point.
+- `src/frontend/src/app/layout.tsx`: Frontend root layout.
 
 **Configuration:**
-- `src/backend/package.json`: Backend scripts/dependencies.
-- `src/backend/tsconfig.json`: Backend TypeScript compile settings (`src` → `dist`).
-- `src/frontend/package.json`: Frontend scripts/dependencies.
-- `src/frontend/tsconfig.json`: Frontend TS config including alias `@/*`.
-- `src/frontend/next.config.ts`: Next runtime optimization config.
-- `src/frontend/eslint.config.mjs`: Frontend lint baseline.
-- `src/backend/.env`: Environment file present for backend configuration (do not read/commit secrets).
-- `src/frontend/.env`: Environment file present for frontend configuration (do not read/commit secrets).
+- `src/backend/src/config/env.ts`: Backend environment variable management.
+- `src/frontend/next.config.mjs`: Next.js configuration.
+- `src/backend/prisma/schema.prisma`: Database schema definition.
 
 **Core Logic:**
-- `src/backend/src/service/NomineeService.ts`: Payroll calculation orchestration and persistence.
-- `src/backend/src/service/PayrollService.ts`: Payroll CRUD and payroll-employee aggregation.
-- `src/backend/src/service/ReportsService.ts`: Official report generation/logging/email dispatch.
-- `src/backend/src/utils/payrollUtils.ts`: Payroll math primitives.
-- `src/frontend/src/hooks/useEmployeeList.ts`: Employee list state/workflow.
-- `src/frontend/src/services/http.ts`: Auth-aware HTTP transport for internal APIs.
-- `src/frontend/src/services/externalHttp.ts`: Token-safe HTTP transport for external APIs.
-- `src/frontend/src/utils/weather.ts`: Weather integration using `externalHttp.ts`.
+- `src/backend/src/service/`: Contains all business-critical logic.
+- `src/backend/src/utils/payrollUtils.ts`: Costa Rica labor law math implementation.
+- `src/frontend/src/hooks/`: Contains UI-side business logic.
 
 **Testing:**
-- `src/backend/src/__tests__/unit/`: Backend unit tests.
-- `src/backend/src/__tests__/integration/`: Backend integration tests.
-- `src/backend/src/__tests__/setup/prisma-mock.ts`: Prisma test mock setup.
-- `src/frontend/src/__tests__/components/`: Frontend component tests.
-- `src/frontend/src/__tests__/hooks/`: Frontend hook tests.
-- `src/frontend/src/__tests__/services/`: Frontend service tests.
+- `src/backend/src/__tests__/`: Backend unit and integration tests.
+- `src/frontend/src/__tests__/`: Frontend component and unit tests.
+- `src/frontend/e2e/`: Playwright end-to-end tests.
 
 ## Naming Conventions
 
 **Files:**
-- Backend routes/controllers/services use PascalCase with role suffix: `PayrollRoutes.ts`, `PayrollController.ts`, `PayrollService.ts`.
-- Frontend components use PascalCase: `EmployeeTable.tsx`, `PayrollCreateModal.tsx`.
-- Frontend hooks use `use*` naming: `useNominee.ts`, `useEmployeeList.ts`.
-- Frontend services use lower camel names ending in `Service.ts` plus `http.ts`: `payrollService.ts`, `reportsService.ts`, `http.ts`, `externalHttp.ts`.
-- Page route files are always `page.tsx` under domain folders in `src/frontend/src/app/pages/`.
+- Backend Files/Classes: `PascalCase.ts` (e.g., `EmployeeController.ts`).
+- Frontend Components: `PascalCase.tsx` (e.g., `EmployeeTable.tsx`).
+- Hooks/Services: `camelCase.ts` (e.g., `useEmployeeList.ts`, `http.ts`).
 
 **Directories:**
-- Backend organizes by technical layer under `src/backend/src/` (`routes`, `controller`, `service`, `middleware`, `utils`, `model`, `schemas`, `types`).
-- Frontend organizes by UI/runtime role under `src/frontend/src/` (`app`, `components`, `hooks`, `services`, `schemas`, `types`, `utils`).
+- Feature directories (Frontend): `kebab-case` (e.g., `audit-logs`).
+- Source subdirectories: `lowercase` (e.g., `service`, `routes`).
 
 ## Where to Add New Code
 
-**New Feature:**
-- Primary code:
-  - Backend endpoint surface: add route in `src/backend/src/routes/`, controller in `src/backend/src/controller/`, service logic in `src/backend/src/service/`.
-  - Frontend UI route: add `page.tsx` under matching domain in `src/frontend/src/app/pages/<domain>/`.
-  - Frontend data flow: add hook in `src/frontend/src/hooks/` and service adapter in `src/frontend/src/services/`.
-- Tests:
-  - Backend unit/integration tests in `src/backend/src/__tests__/unit/` or `src/backend/src/__tests__/integration/`.
-  - Frontend tests in `src/frontend/src/__tests__/components/`, `src/frontend/src/__tests__/hooks/`, or `src/frontend/src/__tests__/services/`.
+**New API Endpoint:**
+1. Define model/type in `src/backend/src/model/` (if new entity).
+2. Create service in `src/backend/src/service/`.
+3. Create controller in `src/backend/src/controller/`.
+4. Register route in `src/backend/src/routes/`.
+5. Add route to `src/backend/src/index.ts`.
 
-**New Component/Module:**
-- Implementation:
-  - Reusable UI component in `src/frontend/src/components/` (or primitive in `src/frontend/src/components/ui/`).
-  - Backend helper module in `src/backend/src/utils/` when logic is cross-service and side-effect free.
+**New Frontend Feature/Page:**
+1. Create directory in `src/frontend/src/app/pages/`.
+2. Implement logic in a new hook in `src/frontend/src/hooks/`.
+3. Create API wrapper in `src/frontend/src/services/`.
+4. Build UI using components in `src/frontend/src/components/`.
 
 **Utilities:**
-- Shared helpers:
-  - Backend helpers in `src/backend/src/utils/`.
-  - Frontend helpers in `src/frontend/src/utils/`.
-  - Shared frontend constants/config in `src/frontend/src/constants/` and `src/frontend/src/config/`.
+- Backend: `src/backend/src/utils/`.
+- Frontend: `src/frontend/src/utils/`.
 
 ## Special Directories
 
-**`src/backend/dist/`:**
-- Purpose: Compiled JavaScript output from backend TypeScript build.
-- Generated: Yes.
-- Committed: Yes (present in repository snapshot).
+**.planning:**
+- Purpose: GSD-specific orchestration and codebase mapping documents.
+- Generated: Yes
+- Committed: Yes
 
-**`src/frontend/.next/`:**
-- Purpose: Next.js build artifacts and cache.
-- Generated: Yes.
-- Committed: No (workspace artifact; should stay uncommitted).
-
-**`src/backend/node_modules/` and `src/frontend/node_modules/`:**
-- Purpose: Installed package dependencies.
-- Generated: Yes.
-- Committed: No.
-
-**`src/backend/prisma/migrations/`:**
-- Purpose: Versioned database migration history.
-- Generated: Yes (via Prisma migration tooling).
-- Committed: Yes.
-
-**`.planning/`:**
-- Purpose: GSD planning state, milestone records, and generated codebase mapping docs.
-- Generated: Mixed (manual + generated by workflow commands).
-- Committed: Yes (project workflow metadata).
+**prisma/migrations:**
+- Purpose: Database schema version history.
+- Generated: Yes (via `npx prisma migrate dev`)
+- Committed: Yes
 
 ---
 
-*Structure analysis: 2026-04-11*
+*Structure analysis: 2025-05-15*

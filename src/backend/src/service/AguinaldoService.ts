@@ -7,6 +7,8 @@ import {
   AguinaldoProjectionResponse,
 } from '../model/AguinaldoAccrual';
 import { Decimal } from '@prisma/client/runtime/library';
+import { LegalParamService } from './LegalParamService';
+import { LegalParamSet } from '../types/payroll.types';
 
 /** Returns the number of payroll periods per year given a period_type string */
 function periodsPerYearFrom(periodType: string): number {
@@ -96,19 +98,20 @@ export class AguinaldoService {
   /**
    * Calculates the accrued aguinaldo for an employee as of a specific date.
    * Base: ordinary salary only (gross − overtime − bonuses), PAGADA payrolls only.
-   * Formula: sum(ordinary) / 12 — always divides by 12 (proportionality is automatic).
+   * Formula: sum(ordinary) / aguinaldoDivisor — proportionality is automatic.
    *
    * @param employeeId The employee ID
    * @param asOfDate The reference date (defaults to now)
    * @returns AguinaldoAccrual details
    */
   static async calculateAccruedAguinaldo(employeeId: number, asOfDate: Date = new Date()): Promise<AguinaldoAccrual> {
-    const [config, employee] = await Promise.all([
+    const [config, employee, params] = await Promise.all([
       AguinaldoService.getAguinaldoConfig(),
       prisma.vpg_employees.findUnique({
         where: { employee_id: employeeId },
         select: { employee_hire_date: true }
-      })
+      }),
+      LegalParamService.getParamSetAtDate(asOfDate)
     ]);
 
     const { periodStart, periodEnd: periodEndMax } = AguinaldoService.getFiscalPeriod(asOfDate, config);
@@ -134,8 +137,8 @@ export class AguinaldoService {
       })
     );
 
-    // Aguinaldo = sum(salarios ordinarios) / 12  — always divide by 12
-    const accrued = Math.round((totalOrdinarySalary / 12) * 100) / 100;
+    // Aguinaldo = sum(salarios ordinarios) / aguinaldoDivisor
+    const accrued = Math.round((totalOrdinarySalary / params.aguinaldoDivisor) * 100) / 100;
 
     // Determine periods-per-year from the actual payroll period types
     const periodTypes = payrolls.map(p => p.payrolls_period_type);
@@ -144,14 +147,14 @@ export class AguinaldoService {
     // Projection: extrapolate to a full year at the current average rate
     const projectedAnnual =
       payrolls.length > 0
-        ? Math.round(((totalOrdinarySalary / payrolls.length) * ppy / 12) * 100) / 100
+        ? Math.round(((totalOrdinarySalary / payrolls.length) * ppy / params.aguinaldoDivisor) * 100) / 100
         : 0;
 
     // Months completed (informational, based on hire date or period start)
     const hireDate = (employee?.employee_hire_date as Date | null) || periodStart;
     const effectiveStart = hireDate > periodStart ? hireDate : periodStart;
     const msElapsed = Math.max(0, asOfDate.getTime() - effectiveStart.getTime());
-    const actualMonthsWorked = msElapsed / (1000 * 60 * 60 * 24 * 365 / 12);
+    const actualMonthsWorked = msElapsed / (1000 * 60 * 60 * 24 * 365 / params.aguinaldoDivisor);
     const monthsCompleted = Math.round(actualMonthsWorked);
 
     return {
@@ -181,7 +184,12 @@ export class AguinaldoService {
     const asOfDate = fiscalYear
       ? new Date(fiscalYear, config.periodStartMonth - 2, 30)  // month before period start, day 30
       : new Date();
-    const { periodStart, periodEnd: periodEndMax } = AguinaldoService.getFiscalPeriod(asOfDate, config);
+
+    const [params, { periodStart, periodEnd: periodEndMax }] = await Promise.all([
+      LegalParamService.getParamSetAtDate(asOfDate),
+      Promise.resolve(AguinaldoService.getFiscalPeriod(asOfDate, config))
+    ]);
+
     const periodEnd = asOfDate < periodEndMax ? asOfDate : periodEndMax;
 
     const paymentDeadline = AguinaldoService.getPaymentDeadline(periodEndMax, config);
@@ -269,10 +277,10 @@ export class AguinaldoService {
         ? Math.round((pay.gross - pay.overtime - pay.bonuses) * 100) / 100
         : 0;
       const periodsIncluded = pay?.count ?? 0;
-      const aguinaldoAccumulated = Math.round((totalOrdinarySalary / 12) * 100) / 100;
+      const aguinaldoAccumulated = Math.round((totalOrdinarySalary / params.aguinaldoDivisor) * 100) / 100;
       const projectedFullYear =
         periodsIncluded > 0
-          ? Math.round(((totalOrdinarySalary / periodsIncluded) * ppy / 12) * 100) / 100
+          ? Math.round(((totalOrdinarySalary / periodsIncluded) * ppy / params.aguinaldoDivisor) * 100) / 100
           : 0;
 
       return {
@@ -328,6 +336,8 @@ export class AguinaldoService {
 
     if (!payroll) throw new Error('Planilla no encontrada');
 
+    const params = await LegalParamService.getParamSetAtDate(payroll.payrolls_period_start);
+
     const { periodStart: fiscalStart, periodEnd: fiscalEnd } = AguinaldoService.getFiscalPeriod(
       payroll.payrolls_period_start,
       config
@@ -372,9 +382,9 @@ export class AguinaldoService {
       return {
         employeeId: empRow.payroll_employee_employee_id,
         employeeName: `${empRow.vpg_employees?.employee_first_name} ${empRow.vpg_employees?.employee_last_name}`,
-        accruedBeforeThisPayroll: Math.round((priorOrdinary / 12) * 100) / 100,
-        thisPayrollContribution:  Math.round((thisOrdinary   / 12) * 100) / 100,
-        totalAccruedWithThis:     Math.round(((priorOrdinary + thisOrdinary) / 12) * 100) / 100,
+        accruedBeforeThisPayroll: Math.round((priorOrdinary / params.aguinaldoDivisor) * 100) / 100,
+        thisPayrollContribution:  Math.round((thisOrdinary   / params.aguinaldoDivisor) * 100) / 100,
+        totalAccruedWithThis:     Math.round(((priorOrdinary + thisOrdinary) / params.aguinaldoDivisor) * 100) / 100,
         periodStart: fiscalStart,
         periodEnd:   fiscalEnd,
       };

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { querySecurityMiddleware } from "./middleware/queryNormalizer";
 import authRoutes from "./routes/AuthRoute";
 import employeeRoutes from "./routes/EmployeeRoute";
 import laborEventsRoutes from "./routes/LaborEventsRoute";
@@ -26,6 +27,7 @@ import dayConfirmationRoutes from "./routes/DayConfirmationRoute";
 import markSuggestionRoutes from "./routes/MarkSuggestionRoute";
 import legalParamRoutes from "./routes/LegalParamRoute";
 import enterpriseRoutes from "./routes/EnterpriseRoute";
+import integrityRoutes from "./routes/IntegrityRoute";
 import aguinaldoRoutes from "./routes/AguinaldoRoute";
 import { swaggerSpec } from "./utils/docs";
 import { env } from "./config/env";
@@ -47,6 +49,7 @@ app.use(cors({
 }));
 app.use(helmet());
 app.use(express.json());
+app.use(querySecurityMiddleware);
 
 console.log("Servidor en ejecución...");
 
@@ -92,6 +95,7 @@ app.use("/api/day-confirmations", dayConfirmationRoutes);
 app.use("/api/suggestions", markSuggestionRoutes);
 app.use("/api", legalParamRoutes);
 app.use("/api", enterpriseRoutes);
+app.use("/api/integrity", integrityRoutes);
 app.use("/api", aguinaldoRoutes);
 
 // Servir la especificación de Swagger en formato JSON
@@ -99,6 +103,8 @@ app.get("/api/docs/swagger.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpec);
 });
+
+import * as Sentry from "@sentry/node";
 
 // ESM-only package: load dynamically to work under CommonJS runtime
 app.use("/api/docs", async (req, res, next) => {
@@ -111,6 +117,8 @@ app.use("/api/docs", async (req, res, next) => {
     res.status(500).json({ success: false, message: "Docs UI unavailable" });
   }
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🌐 Servidor escuchando en http://0.0.0.0:${PORT}`);

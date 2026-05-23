@@ -59,14 +59,16 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
     if (modalRef.current) {
       const firstInput = modalRef.current.querySelector('input, select, textarea') as HTMLElement;
-      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+      if (firstInput) timerId = setTimeout(() => firstInput.focus(), 100);
     }
     reset();
     setPendingAliases([]);
     setNewPendingAlias('');
     setAliasError('');
+    return () => clearTimeout(timerId);
   }, [isOpen, reset]);
 
   const handleAddPending = useCallback(() => {

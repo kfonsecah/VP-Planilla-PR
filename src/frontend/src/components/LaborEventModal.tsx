@@ -123,7 +123,10 @@ const LaborEventModal: React.FC<Props> = ({
   useEffect(() => {
     if (isOpen && modalRef.current) {
       const first = modalRef.current.querySelector('input, select, textarea, button[data-autofocus]') as HTMLElement;
-      if (first) setTimeout(() => first.focus(), 100);
+      if (first) {
+        const timerId = setTimeout(() => first.focus(), 100);
+        return () => clearTimeout(timerId);
+      }
     }
   }, [isOpen]);
 

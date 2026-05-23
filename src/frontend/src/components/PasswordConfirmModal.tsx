@@ -45,7 +45,8 @@ const PasswordConfirmModal: React.FC<PasswordConfirmModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       reset();
-      setTimeout(() => setFocus('password'), 50);
+      const timerId = setTimeout(() => setFocus('password'), 50);
+      return () => clearTimeout(timerId);
     }
   }, [isOpen, reset, setFocus]);
 
