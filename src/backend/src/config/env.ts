@@ -21,6 +21,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_REFRESH_SECRET: z.string().optional(),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('15d'),
   ALLOWED_ORIGINS: z.string().default('').transform((s) => (s ? s.split(',') : [])),
   RESEND_API_KEY: z.string().optional(),
   REPORTS_OUTPUT_DIR: z.string().default(() => path.join(process.cwd(), "storage", "reports")),
